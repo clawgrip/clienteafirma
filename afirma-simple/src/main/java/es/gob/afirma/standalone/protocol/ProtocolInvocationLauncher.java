@@ -699,14 +699,32 @@ public final class ProtocolInvocationLauncher {
 				// traves del servidor intermedio
                 catch(final SocketOperationException e) {
                     LOGGER.severe("Error durante la operacion de firma: " + e); //$NON-NLS-1$
-                    msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                    String msg;
+                    final String errorCode = e.getErrorCode();
+                    if (ProtocolInvocationLauncherSign.RESULT_CANCEL.equals(errorCode)) {
+                    	msg = errorCode;
+                    // Si el mensaje es igual al codigo, es que no se establecio mensaje
+                    //TODO: Comprobar si realmente no tiene mensaje, en lugar de si el mensaje y el codigo son distintos
+                    } else if (!errorCode.equals(e.getMessage())) {
+                    	msg = errorCode + ": " + e.getMessage(); //$NON-NLS-1$
+                    } else {
+                    	msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(errorCode);
+                    }
+                    if (!bySocket) {
+                    	msg = URLEncoder.encode(msg, StandardCharsets.UTF_8.toString());
+                    	if (params != null && params.getStorageServletUrl() != null) {
+                    		sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
+                    	}
+                    }
+                    return msg;
                 }
 
                 // Si no es por sockets, se devuelve el resultado al servidor y detenemos la
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
-                	LOGGER.info("Enviamos el resultado de la operacion de firma al servidor intermedio"); //$NON-NLS-1$
-                	sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
+                	if (params != null && params.getStorageServletUrl() != null) {
+                		sendDataToServer(dataToSend.toString(), params.getStorageServletUrl().toString(), params.getId());
+                	}
                 }
 
                 return msg;
