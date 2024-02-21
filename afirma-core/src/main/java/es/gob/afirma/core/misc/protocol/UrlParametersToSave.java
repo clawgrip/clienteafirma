@@ -176,27 +176,25 @@ public final class UrlParametersToSave extends UrlParameters {
 			setMinimumProtocolVersion(Integer.toString(ProtocolVersion.VERSION_0.getVersion()));
 		}
 
-		// Cargamos la URL del servlet si es necesaria
+		// Validamos la URL del servlet de guardado en caso de ser necesaria
 		if (this.servicesRequired) {
 			if (params.containsKey(STORAGE_SERVLET_PARAM)) {
-
 
 				// Comprobamos que la URL sea valida
 				URL storageServletUrl;
 				try {
 					storageServletUrl = validateURL(params.get(STORAGE_SERVLET_PARAM));
 				}
-				catch (final LocalAccessRequestException e) {
-					throw new ParameterLocalAccessRequestedException("La URL del servicio de guardado no puede ser local", e, ErrorCode.Request.LOCAL_STORAGE_URL_TO_SAVE); //$NON-NLS-1$
+				catch (final ParameterLocalAccessRequestedException e) {
+					throw new ParameterLocalAccessRequestedException("La URL del servicio de guardado no puede ser local", e); //$NON-NLS-1$
 				}
-				catch (final IllegalArgumentException e) {
-					throw new ParameterException("Error al validar la URL del servicio de guardado: " + e, e, ErrorCode.Request.INVALID_STORAGE_URL_TO_SAVE); //$NON-NLS-1$
+				catch (final ParameterException e) {
+					throw new ParameterException("Error al validar la URL del servicio de guardado: " + e, e); //$NON-NLS-1$
 				}
 				setStorageServletUrl(storageServletUrl);
 			}
-			// Si no se encuentra a pesar de tener todos los parametros, falla la operacion
-			else if (params.containsKey(ID_PARAM)) {
-				throw new ParameterException("No se ha recibido la direccion del servlet para el guardado del resultado de la operacion", ErrorCode.Request.STORAGE_URL_TO_SAVE_NOT_FOUND); //$NON-NLS-1$
+			else {
+				throw new ParameterException("No se ha recibido la direccion del servlet para el guardado del resultado de la operacion"); //$NON-NLS-1$
 			}
 		}
 

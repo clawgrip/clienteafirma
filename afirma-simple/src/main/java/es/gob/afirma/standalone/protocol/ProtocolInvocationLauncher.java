@@ -712,12 +712,7 @@ public final class ProtocolInvocationLauncher {
                     }
                     if (!bySocket) {
                     	msg = URLEncoder.encode(msg, StandardCharsets.UTF_8.toString());
-                    	if (params == null) {
-                    		throw new ParameterException("Los parametros para enviar al servidor no se han recibido correctamente"); //$NON-NLS-1$
-                    	} else if (params.getStorageServletUrl() == null) {
-                    		throw new ParameterException("No se ha proporcionado la URL para la comunicacion con el servido intermedio"); //$NON-NLS-1$
-                    	}
-						sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());           	
+						sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
                     }
                     return msg;
                 }
@@ -725,11 +720,6 @@ public final class ProtocolInvocationLauncher {
                 // Si no es por sockets, se devuelve el resultado al servidor y detenemos la
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
-                	if (params == null) {
-                		throw new ParameterException("Los parametros para enviar al servidor no se han recibido correctamente"); //$NON-NLS-1$
-                	} else if (params.getStorageServletUrl() == null) {
-                		throw new ParameterException("No se ha proporcionado la URL para la comunicacion con el servido intermedio"); //$NON-NLS-1$
-                	}
                 	sendDataToServer(dataToSend.toString(), params.getStorageServletUrl().toString(), params.getId());
                 }
 
