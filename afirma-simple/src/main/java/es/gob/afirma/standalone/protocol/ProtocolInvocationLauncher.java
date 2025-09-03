@@ -699,28 +699,14 @@ public final class ProtocolInvocationLauncher {
 				// traves del servidor intermedio
                 catch(final SocketOperationException e) {
                     LOGGER.severe("Error durante la operacion de firma: " + e); //$NON-NLS-1$
-                    String msg;
-                    final String errorCode = e.getErrorCode();
-                    if (ProtocolInvocationLauncherSign.RESULT_CANCEL.equals(errorCode)) {
-                    	msg = errorCode;
-                    // Si el mensaje es igual al codigo, es que no se establecio mensaje
-                    //TODO: Comprobar si realmente no tiene mensaje, en lugar de si el mensaje y el codigo son distintos
-                    } else if (!errorCode.equals(e.getMessage())) {
-                    	msg = errorCode + ": " + e.getMessage(); //$NON-NLS-1$
-                    } else {
-                    	msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(errorCode);
-                    }
-                    if (!bySocket) {
-                    	msg = URLEncoder.encode(msg, StandardCharsets.UTF_8.toString());
-						sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
-                    }
-                    return msg;
+                    LOGGER.severe("Error durante la operacion de carga de fichero: " + e); //$NON-NLS-1$
+                    msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                 }
 
                 // Si no es por sockets, se devuelve el resultado al servidor y detenemos la
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
-                	sendDataToServer(dataToSend.toString(), params.getStorageServletUrl().toString(), params.getId());
+                	sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
                 }
 
                 return msg;

@@ -36,19 +36,6 @@ public final class ProtocolInvocationUriParser {
 		return getParametersToSign(uri, false);
 	}
 
-	/** Comprueba que est&eacute;n disponibles en una URI todos los parametros disponibles en la
-	 * entrada de datos para la operaci&oacute;n de firma.
-	 * @param uri URL de llamada.
-	 * @param servicesRequired Indica si entre los par&aacute;metros es obligatorio que
-	 * est&eacute;n los servicios de comunicaci%oacute;n.
-	 * @return Par&aacute;metros.
-	 * @throws ParameterException Si alg&uacute;n par&aacute;metro proporcionado es incorrecto. */
-	public static UrlParametersToSign getParametersToSign(final String uri,
-			final boolean servicesRequired) throws ParameterException {
-		return ProtocolInvocationUriParserUtil.getParametersToSign(
-				parserUri(uri), servicesRequired);
-	}
-
 	/** Comprueba que est&eacute;n disponibles en un XML todos los parametros disponibles en la
 	 * entrada de datos para la operaci&oacute;n de firma.
 	 * @param uri URL de llamada.

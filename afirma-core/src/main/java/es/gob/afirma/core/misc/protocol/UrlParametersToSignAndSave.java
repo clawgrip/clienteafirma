@@ -253,18 +253,17 @@ public final class UrlParametersToSignAndSave extends UrlParameters {
 				try {
 					storageServletUrl = validateURL(params.get(STORAGE_SERVLET_PARAM));
 				}
-				catch (final ParameterLocalAccessRequestedException e) {
-					throw new ParameterLocalAccessRequestedException(
-							"La URL del servicio de guardado no puede ser local: " + e, e //$NON-NLS-1$
-							);
+				catch (final LocalAccessRequestException e) {
+					throw new ParameterLocalAccessRequestedException("La URL del servicio de guardado no puede ser local", e, ErrorCode.Request.LOCAL_STORAGE_URL_TO_SIGN_BATCH); //$NON-NLS-1$
 				}
-				catch (final ParameterException e) {
-					throw new ParameterException("Error al validar la URL del servicio de guardado: " + e, e); //$NON-NLS-1$
+				catch (final IllegalArgumentException e) {
+					throw new ParameterException("Error al validar la URL del servicio de guardado: " + e, e, ErrorCode.Request.INVALID_STORAGE_URL_TO_SIGN_BATCH); //$NON-NLS-1$
 				}
 				setStorageServletUrl(storageServletUrl);
 			}
-			else {
-				throw new ParameterException("No se ha recibido la direccion del servlet para el guardado del resultado de la operacion"); //$NON-NLS-1$
+			// Si no se encuentra a pesar de tener todos los parametros, falla la operacion
+			else if (params.containsKey(ID_PARAM)) {
+				throw new ParameterException("No se ha recibido la direccion del servlet para el guardado del resultado de la operacion", ErrorCode.Request.STORAGE_URL_TO_SIGN_BATCH_NOT_FOUND); //$NON-NLS-1$
 			}
 		}
 
