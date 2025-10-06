@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.SimpleErrorCode;
+import es.gob.afirma.standalone.crypto.AESDataCipher;
 import es.gob.afirma.standalone.crypto.NativeDataCipher;
 import es.gob.afirma.standalone.plugins.DataCipher;
 import es.gob.afirma.standalone.plugins.EncryptingException;
@@ -34,6 +35,13 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 	public void setCipherKey(final byte[] key) {
 		if (key != null) {
 			this.cipher = new NativeDataCipher(key);
+		}
+	}
+	
+	@Override
+	public void setAESCipherKey(final String key) {
+		if (key != null) {
+			this.cipher = new AESDataCipher(key);
 		}
 	}
 

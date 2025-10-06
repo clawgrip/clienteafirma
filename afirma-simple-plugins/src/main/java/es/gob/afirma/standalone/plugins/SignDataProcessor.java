@@ -19,6 +19,8 @@ public abstract class SignDataProcessor {
 	}
 
 	public abstract void setCipherKey(byte[] key);
+	
+	public abstract void setAESCipherKey(String key);
 
 	/**
 	 * Compone las operaciones de firma que deben realizarse a partir de los datos de

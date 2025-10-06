@@ -39,6 +39,7 @@ import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
+import es.gob.afirma.standalone.crypto.CypherAESDataManager;
 import es.gob.afirma.standalone.crypto.CypherDataManager;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
@@ -209,12 +210,22 @@ final class ProtocolInvocationLauncherSelectCert {
 		}
 
 		String dataToSend;
-		if (options.getDesKey() != null) {
+		// Ciframos en AES en caso de que llegue este parametro
+		if (options.getCipherKey() != null) {
+			try {
+				// El CipherData devuelve los datos directamente en Base64
+				dataToSend = CypherAESDataManager.cipherData(certEncoded, options.getCipherKey());
+			} catch (final Exception e) {
+				LOGGER.severe("Error en el cifrado AES de los datos a enviar: " + e); //$NON-NLS-1$
+				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_SELECTED_CERT);
+			}
+		// Ciframos en DES en caso de que llegue este parametro
+		} else if (options.getDesKey() != null) {
 			try {
 				// El CipherData devuelve los datos directamente en Base64
 				dataToSend = CypherDataManager.cipherData(certEncoded, options.getDesKey());
 			} catch (final Exception e) {
-				LOGGER.severe("Error en el cifrado de los datos a enviar: " + e); //$NON-NLS-1$
+				LOGGER.severe("Error en el cifrado DES de los datos a enviar: " + e); //$NON-NLS-1$
 				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_SELECTED_CERT);
 			}
 		} else {

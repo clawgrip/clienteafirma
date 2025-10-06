@@ -22,6 +22,7 @@ import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
 import es.gob.afirma.standalone.SimpleErrorCode;
+import es.gob.afirma.standalone.crypto.CypherAESDataManager;
 import es.gob.afirma.standalone.crypto.CypherDataManager;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
 
@@ -74,8 +75,12 @@ final class ProtocolInvocationLauncherUtil {
 
 		// Si no ha ocurrido un error, debemos haber recibido los datos cifrados
 		final byte[] data;
-		try {
-			data = CypherDataManager.decipherData(recoveredData, params.getDesKey());
+		try {	
+			if (params.getCipherKey() != null && !params.getCipherKey().isEmpty()) {
+				data = CypherAESDataManager.decipherData(recoveredData, params.getCipherKey());
+			} else {
+				data = CypherDataManager.decipherData(recoveredData, params.getDesKey());
+			}
 		}
 		catch (final Exception e) {
 			LOGGER.severe("Error en el descifrado de los datos: " + e); //$NON-NLS-1$

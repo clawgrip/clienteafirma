@@ -165,9 +165,14 @@ final class ProtocolInvocationLauncherSign {
 		// derivado de un plugin que se active ante estos datos o el procesador nativo
 		final SignDataProcessor processor = selectProcessor(
 				protocolVersion,
-				operation);
-		processor.setCipherKey(options.getDesKey());
-
+				operation);	
+		
+		if (options.getCipherKey() != null && !options.getCipherKey().isEmpty()) {
+			processor.setAESCipherKey(options.getCipherKey());
+		} else {
+			processor.setCipherKey(options.getDesKey());
+		}
+	
 		final List<SignOperation> operations = processor.preProcess(operation);
 		final boolean isMassiveSign = operations.size() > 1;
 		final List<SignResult> results = new ArrayList<>(operations.size());

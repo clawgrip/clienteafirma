@@ -165,7 +165,12 @@ final class ProtocolInvocationLauncherSignAndSave {
 		final SignDataProcessor processor = selectProcessor(
 				protocolVersion,
 				operation);
-		processor.setCipherKey(options.getDesKey());
+		
+		if (options.getCipherKey() != null && !options.getCipherKey().isEmpty()) {
+			processor.setAESCipherKey(options.getCipherKey());
+		} else {
+			processor.setCipherKey(options.getDesKey());
+		}
 
 		final boolean needRefresh = false;
 		final List<SignOperation> operations = processor.preProcess(operation);

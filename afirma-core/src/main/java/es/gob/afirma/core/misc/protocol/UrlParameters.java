@@ -55,6 +55,9 @@ public abstract class UrlParameters {
 
 	/** Par&aacute;metro de entrada con la clave para el cifrado del documento. */
 	protected static final String KEY_PARAM = "key"; //$NON-NLS-1$
+	
+	/** Par&aacute;metro de entrada con la clave AES para el cifrado del documento. */
+	protected static final String CIPHER_PARAM = "cipher"; //$NON-NLS-1$
 
 	/** Par&aacute;metro de entrada con el identificador del fichero remoto de datos. */
 	protected static final String FILE_ID_PARAM = "fileid"; //$NON-NLS-1$
@@ -82,6 +85,7 @@ public abstract class UrlParameters {
 	protected byte[] data = null;
 	private String fileId = null;
 	private byte[] desKey = null;
+	private String cipherJSONB64 = null;
 	private URL retrieveServletUrl = null;
 	private URL storageServerUrl = null;
 	private String id = null;
@@ -250,10 +254,24 @@ public abstract class UrlParameters {
 	void setSessionId(final String sessionId) {
 		this.id = sessionId;
 	}
+	
+	/** Obtiene el JSON con la clave AES-256 de cifrado de los datos a subir al servidor intermedio.
+	 * @return JSON de cifrado de los datos a subir al servidor intermedio */
+	public String getCipherKey() {
+		return this.cipherJSONB64;
+	}
+
+	protected void setCipherKey(final String cipher) {
+		this.cipherJSONB64 = cipher;
+	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException {
 
 		setDesKey(verifyCipherKey(params));
+		
+		if (params.containsKey(CIPHER_PARAM)) {
+			setCipherKey(params.get(CIPHER_PARAM));
+		}
 
 		setActiveWaiting(params.containsKey(ACTIVE_WAITING_PARAM) &&
 				Boolean.parseBoolean(params.get(ACTIVE_WAITING_PARAM)));
