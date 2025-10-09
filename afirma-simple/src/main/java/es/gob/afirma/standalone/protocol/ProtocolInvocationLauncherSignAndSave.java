@@ -166,11 +166,14 @@ final class ProtocolInvocationLauncherSignAndSave {
 				protocolVersion,
 				operation);
 		
-		if (options.getCipherKey() != null && !options.getCipherKey().isEmpty()) {
-			processor.setAESCipherKey(options.getCipherKey());
-		} else {
-			processor.setCipherKey(options.getDesKey());
-		}
+		if (options.getCipherConfig() != null) {
+			try {
+				processor.setServerCipher(options.getCipherConfig());
+			} catch (final Exception e) {
+				LOGGER.log(Level.SEVERE, "Error al instanciar el cifrador de datos", e); //$NON-NLS-1$
+				throw new SocketOperationException(SimpleErrorCode.Internal.POSTPROCESING_SIGNATURE);
+			}
+		} 
 
 		final boolean needRefresh = false;
 		final List<SignOperation> operations = processor.preProcess(operation);

@@ -1,16 +1,18 @@
 package es.gob.afirma.standalone.protocol;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.json.JSONException;
+
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.SimpleErrorCode;
-import es.gob.afirma.standalone.crypto.AESDataCipher;
-import es.gob.afirma.standalone.crypto.NativeDataCipher;
-import es.gob.afirma.standalone.plugins.DataCipher;
+import es.gob.afirma.standalone.crypto.ServerCipher;
+import es.gob.afirma.standalone.crypto.ServerCipherFactory;
 import es.gob.afirma.standalone.plugins.EncryptingException;
 import es.gob.afirma.standalone.plugins.PluginControlledException;
 import es.gob.afirma.standalone.plugins.SignDataProcessor;
@@ -24,7 +26,7 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 
 	private static final char RESULT_SEPARATOR = '|';
 
-	private DataCipher cipher;
+	private ServerCipher cipher;
 
 	public NativeSignDataProcessor(final int protocolVersion) {
 		super(protocolVersion);
@@ -32,16 +34,10 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 	}
 
 	@Override
-	public void setCipherKey(final byte[] key) {
-		if (key != null) {
-			this.cipher = new NativeDataCipher(key);
-		}
-	}
-	
-	@Override
-	public void setAESCipherKey(final String key) {
-		if (key != null) {
-			this.cipher = new AESDataCipher(key);
+	public void setServerCipher(final byte[] cipherConfig) throws JSONException, IOException {
+		if (cipherConfig != null) {
+			final ServerCipher servCipher = ServerCipherFactory.newInstance(cipherConfig);
+			this.cipher = servCipher;
 		}
 	}
 
@@ -80,7 +76,7 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 
 			String cipheredCert;
 			try {
-				cipheredCert = this.cipher.cipher(certEncoded);
+				cipheredCert = this.cipher.cipherData(certEncoded);
 			}
 			catch (final Exception e) {
 				throw new EncryptingException("Error al cifrar el certificado de firma a enviar", e, SimpleErrorCode.Internal.ENCRIPTING_SIGNING_CERT); //$NON-NLS-1$
@@ -89,7 +85,7 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 
 			final String cipheredSignature;
 			try {
-				cipheredSignature = this.cipher.cipher(sign);
+				cipheredSignature = this.cipher.cipherData(sign);
 			}
 			catch (final Exception e) {
 				throw new EncryptingException("Error al cifrar la firma a enviar", e, SimpleErrorCode.Internal.ENCRIPTING_SIGNATURE); //$NON-NLS-1$
@@ -99,7 +95,7 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 			// A partir del protocolo version 3, si se cargo un fichero, se devuelve el nombre
 			if (extraData != null && !extraData.isEmpty() && getProtocolVersion() >= 3) {
 				try {
-					cipheredExtraData = this.cipher.cipher(buildExtraDataResult(extraData));
+					cipheredExtraData = this.cipher.cipherData(buildExtraDataResult(extraData));
 				}
 				catch (final Exception e) {
 					throw new EncryptingException("Error al cifrar los datos extra de firma a enviar", e, SimpleErrorCode.Internal.ENCRIPTING_SIGNATURE_EXTRA_DATA); //$NON-NLS-1$

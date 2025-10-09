@@ -10,6 +10,7 @@
 package es.gob.afirma.core.misc.protocol;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -84,8 +85,7 @@ public abstract class UrlParameters {
 
 	protected byte[] data = null;
 	private String fileId = null;
-	private byte[] desKey = null;
-	private String cipherJSONB64 = null;
+	private byte[] cipherConfig = null;
 	private URL retrieveServletUrl = null;
 	private URL storageServerUrl = null;
 	private String id = null;
@@ -165,12 +165,6 @@ public abstract class UrlParameters {
 		this.fileId = fileId;
 	}
 
-	/** Establece la clave DES de cifrado de los datos a subir al servidor intermedio.
-	 * @param key Clave DES de cifrado de los datos a subir al servidor intermedio */
-	private void setDesKey(final byte[] key) {
-		this.desKey = key != null ? Arrays.copyOf(key, key.length) : null;
-	}
-
 	/** Establece la URL de subida al servidor intermedio.
 	 * @param retrieveServletUrl URL de subida al servidor intermedio */
 	void setRetrieveServletUrl(final URL retrieveServletUrl) {
@@ -187,12 +181,6 @@ public abstract class UrlParameters {
 	 * @return Identificador de los datos en el servidor intermedio */
 	public String getFileId() {
 		return this.fileId;
-	}
-
-	/** Obtiene la clave DES de cifrado de los datos a subir al servidor intermedio.
-	 * @return Clave DES de cifrado de los datos a subir al servidor intermedio */
-	public byte[] getDesKey() {
-		return this.desKey != null ? Arrays.copyOf(this.desKey, this.desKey.length) : null;
 	}
 
 	/** Obtiene la URL de subida al servidor intermedio.
@@ -255,22 +243,28 @@ public abstract class UrlParameters {
 		this.id = sessionId;
 	}
 	
-	/** Obtiene el JSON con la clave AES-256 de cifrado de los datos a subir al servidor intermedio.
-	 * @return JSON de cifrado de los datos a subir al servidor intermedio */
-	public String getCipherKey() {
-		return this.cipherJSONB64;
+	void setCipherConfig(final byte[] cipherConfig) {
+		this.cipherConfig = cipherConfig;
+	}
+	
+	public byte [] getCipherConfig() {
+		return this.cipherConfig;
 	}
 
-	protected void setCipherKey(final String cipher) {
-		this.cipherJSONB64 = cipher;
-	}
-
-	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException {
-
-		setDesKey(verifyCipherKey(params));
+	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{
 		
-		if (params.containsKey(CIPHER_PARAM)) {
-			setCipherKey(params.get(CIPHER_PARAM));
+		if (params.containsKey(KEY_PARAM)) {
+			final String cipherKeyDES = verifyDESCipherKey(params);
+			if (cipherKeyDES != null) {
+				setCipherConfig(createDesJSON(cipherKeyDES).getBytes());
+			}
+		} else if (params.containsKey(CIPHER_PARAM)) {
+			try {
+				setCipherConfig(Base64.decode(params.get(CIPHER_PARAM).replace("_", "/").replace("-", "+")));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			} catch (final IOException e) {
+				throw new ParameterException("El JSON para la clave de cifrado no esta formado correctamente",  //$NON-NLS-1$
+												ErrorCode.Request.UNSUPPORTED_CIPHER_KEY);
+			}
 		}
 
 		setActiveWaiting(params.containsKey(ACTIVE_WAITING_PARAM) &&
@@ -347,7 +341,7 @@ public abstract class UrlParameters {
 	 *  @param params Par&aacute;metros extra&iacute;dos de la URI.
 	 *  @return Clave de cifrado o <code>null</code> si no se declar&oacute; un valor en los par&aacute;metros.
 	 *  @throws ParameterException Cuando la clave de cifrado es err&oacute;nea. */
-	private static byte[] verifyCipherKey(final Map<String, String> params) throws ParameterException {
+	private static String verifyDESCipherKey(final Map<String, String> params) throws ParameterException {
 
 		// Comprobamos que se ha especificado la clave de cifrado
 		if (!params.containsKey(KEY_PARAM)) {
@@ -364,7 +358,16 @@ public abstract class UrlParameters {
 		if (key.length() != CIPHER_KEY_LENGTH) {
 			throw new ParameterException("La longitud de la clave de cifrado no es correcta", ErrorCode.Request.UNSUPPORTED_CIPHER_KEY); //$NON-NLS-1$
 		}
-		return key.getBytes();
+		
+		return key;
+	}
+	
+	/** Forma un JSON con el algoritmo DES y su clave
+	 *  @param desKey ClaveDES.
+	 *  @return JSON con algoritmo y clave. */
+	private static String createDesJSON(final String desKey) throws ParameterException {
+		
+		return "{algo:DES, key:" + desKey + "}";  //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**

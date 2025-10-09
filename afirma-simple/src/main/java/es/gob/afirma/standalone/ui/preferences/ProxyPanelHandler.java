@@ -9,7 +9,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -203,7 +202,7 @@ public class ProxyPanelHandler {
 							PreferencesManager.put(PreferencesManager.PREFERENCE_GENERAL_PROXY_PASSWORD, cipheredPwd);
 						}
 					}
-					catch (final GeneralSecurityException e) {
+					catch (final Exception e) {
 						LOGGER.severe("Error cifrando la contrasena del Proxy: " + e); //$NON-NLS-1$
 						JOptionPane.showMessageDialog(this.view.getParent(), SimpleAfirmaMessages.getString("ProxyDialog.19")); //$NON-NLS-1$);
 						PreferencesManager.put(PreferencesManager.PREFERENCE_GENERAL_PROXY_PASSWORD, ""); //$NON-NLS-1$

@@ -18,9 +18,7 @@ public abstract class SignDataProcessor {
 		this.protocolVersion = protocolVersion;
 	}
 
-	public abstract void setCipherKey(byte[] key);
-	
-	public abstract void setAESCipherKey(String key);
+	public abstract void setServerCipher(byte[] key) throws Exception;
 
 	/**
 	 * Compone las operaciones de firma que deben realizarse a partir de los datos de

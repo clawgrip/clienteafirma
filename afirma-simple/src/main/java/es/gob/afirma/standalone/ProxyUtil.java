@@ -24,11 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.json.JSONException;
+
 import com.github.markusbernhardt.proxy.ProxySearch;
 import com.github.markusbernhardt.proxy.ProxySearch.Strategy;
 
-import es.gob.afirma.standalone.crypto.CypherDataManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
+import es.gob.afirma.standalone.crypto.ServerCipher;
+import es.gob.afirma.standalone.crypto.ServerCipherFactory;
 
 /** Utilidades para el manejo y establecimiento del <i>Proxy</i> de red para las
  * conexiones de la aplicaci&oacute;n.
@@ -241,17 +244,19 @@ public final class ProxyUtil {
      * @param password Contrase&ntilde;a cifrada o <code>null</code> si la contrase&ntilde;a proporcionada es
      *                 nula o vac&iacute;a.
      * @return Contrase&tilde;a cifrada en Base64.
-     * @throws GeneralSecurityException Cuando se produce un error durante el cifrado. */
-    public static String cipherPassword(final char[] password) throws GeneralSecurityException {
+     * @throws GeneralSecurityException Cuando se produce un error durante el cifrado. 
+     * @throws IOException Error al leer JSON
+     * @throws JSONException Error al tratar JSON */
+    public static String cipherPassword(final char[] password) throws GeneralSecurityException, JSONException, IOException {
     	if (password == null || password.length < 1) {
     		return null;
     	}
-    	return CypherDataManager.cipherData(
-			String.valueOf(password).getBytes(StandardCharsets.UTF_8),
-			String.valueOf(
-				PWD_CIPHER_KEY
-			).getBytes(StandardCharsets.UTF_8)
-		);
+    	
+    	final String desJson = "{algo:\"DES\", key:\"" + String.valueOf(PWD_CIPHER_KEY) + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
+    	
+    	final ServerCipher cipher = ServerCipherFactory.newInstance(desJson.getBytes(StandardCharsets.UTF_8));
+    	
+    	return cipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
     }
 
     /** Descifra una contrase&ntilde;a
@@ -263,12 +268,12 @@ public final class ProxyUtil {
     	if (cipheredPassword == null  || cipheredPassword.isEmpty()) {
     		return null;
     	}
-    	final byte[] p = CypherDataManager.decipherData(
-			cipheredPassword.getBytes(StandardCharsets.UTF_8),
-			String.valueOf(
-				PWD_CIPHER_KEY
-			).getBytes(StandardCharsets.UTF_8)
-		);
+    	
+    	final String desJson = "{algo:\"DES\", key:\"" + String.valueOf(PWD_CIPHER_KEY) + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
+    	
+    	final ServerCipher cipher = ServerCipherFactory.newInstance(desJson.getBytes(StandardCharsets.UTF_8));
+    	
+    	final byte[] p = cipher.decipherData(cipheredPassword);
     	return new String(p, StandardCharsets.UTF_8).toCharArray();
     }
 

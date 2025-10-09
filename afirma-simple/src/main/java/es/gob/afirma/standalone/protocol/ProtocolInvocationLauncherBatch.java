@@ -49,8 +49,8 @@ import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
-import es.gob.afirma.standalone.crypto.CypherAESDataManager;
-import es.gob.afirma.standalone.crypto.CypherDataManager;
+import es.gob.afirma.standalone.crypto.ServerCipher;
+import es.gob.afirma.standalone.crypto.ServerCipherFactory;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 final class ProtocolInvocationLauncherBatch {
@@ -144,10 +144,12 @@ final class ProtocolInvocationLauncherBatch {
 		String cipheredBatchResult;
 		String cipheredSigninCert = null;
 		
-		// Si hay clave de cifrado, ciframos con AES-256
-		if (options.getCipherKey() != null) {
+		// Si hay clave de cifrado, ciframos con el algoritmo correspondiente
+		if (options.getCipherConfig()!= null) {
+			ServerCipher cipher = null;
 			try {
-				cipheredBatchResult = CypherAESDataManager.cipherData(operationResult.getResult(), options.getCipherKey());
+				cipher = ServerCipherFactory.newInstance(options.getCipherConfig());
+				cipheredBatchResult = cipher.cipherData(operationResult.getResult());
 			}
 			catch (final Exception e) {
 				LOGGER.severe("Error en el cifrado AES-256 del resultado del lote: " + e); //$NON-NLS-1$
@@ -156,37 +158,10 @@ final class ProtocolInvocationLauncherBatch {
 			
 			if (signingCertEncoded != null) {
 				try {
-					cipheredSigninCert = CypherAESDataManager.cipherData(signingCertEncoded, options.getCipherKey());
+					cipheredSigninCert = cipher.cipherData(signingCertEncoded);
 				}
 				catch (final Exception e) {
 					LOGGER.severe("Error en el cifrado AES-256 de los datos a enviar: " + e); //$NON-NLS-1$
-					throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_SIGNING_CERT);
-				}
-			}
-
-			// El resultado es la concatenacion de ambas cadenas cifradas
-			result.append(cipheredBatchResult);
-			if (cipheredSigninCert != null) {
-				result.append(RESULT_SEPARATOR).append(cipheredSigninCert);
-			}
-			
-		// Si no se encuentra clave AES, se cifra con 3DES en caso que se encuentre.
-		} else if (options.getDesKey() != null) {
-			try {
-				cipheredBatchResult = CypherDataManager.cipherData(operationResult.getResult(), options.getDesKey());
-			}
-			catch (final Exception e) {
-				LOGGER.severe("Error en el cifrado DES del resultado del lote: " + e); //$NON-NLS-1$
-				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_RESULT);
-			}
-
-			// Ciframos el certificado de firma (si lo hay)
-			if (signingCertEncoded != null) {
-				try {
-					cipheredSigninCert = CypherDataManager.cipherData(signingCertEncoded, options.getDesKey());
-				}
-				catch (final Exception e) {
-					LOGGER.severe("Error en el cifrado DES de los datos a enviar: " + e); //$NON-NLS-1$
 					throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_SIGNING_CERT);
 				}
 			}
