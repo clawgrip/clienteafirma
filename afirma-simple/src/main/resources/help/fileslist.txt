@@ -58,6 +58,7 @@ es_ES/pgs/PantallaDetalle.html
 es_ES/pgs/PantallaEspera.html
 es_ES/pgs/PantallaFirma.html
 es_ES/pgs/Plugins.html
+es_ES/pgs/VentanaCertificadosConfianza.html
 es_ES/pgs/VentanaConfigurarProxy.html
 es_ES/pgs/VentanaListaBlancaDominios.html
 es_ES/pgs/VentanaPdfVisible.html
@@ -106,6 +107,7 @@ ca_ES/pgs/PantallaDetalle.html
 ca_ES/pgs/PantallaEspera.html
 ca_ES/pgs/PantallaFirma.html
 ca_ES/pgs/Plugins.html
+ca_ES/pgs/VentanaCertificadosConfianza.html
 ca_ES/pgs/VentanaConfigurarProxy.html
 ca_ES/pgs/VentanaListaBlancaDominios.html
 ca_ES/pgs/VentanaPdfVisible.html
@@ -154,6 +156,7 @@ va_ES/pgs/PantallaDetalle.html
 va_ES/pgs/PantallaEspera.html
 va_ES/pgs/PantallaFirma.html
 va_ES/pgs/Plugins.html
+va_ES/pgs/VentanaCertificadosConfianza.html
 va_ES/pgs/VentanaConfigurarProxy.html
 va_ES/pgs/VentanaListaBlancaDominios.html
 va_ES/pgs/VentanaPdfVisible.htmleu_ES/Autofirma.html
@@ -201,6 +204,7 @@ eu_ES/pgs/PantallaDetalle.html
 eu_ES/pgs/PantallaEspera.html
 eu_ES/pgs/PantallaFirma.html
 eu_ES/pgs/Plugins.html
+eu_ES/pgs/VentanaCertificadosConfianza.html
 eu_ES/pgs/VentanaConfigurarProxy.html
 eu_ES/pgs/VentanaListaBlancaDominios.html
 eu_ES/pgs/VentanaPdfVisible.html
@@ -249,6 +253,7 @@ gl_ES/pgs/PantallaDetalle.html
 gl_ES/pgs/PantallaEspera.html
 gl_ES/pgs/PantallaFirma.html
 gl_ES/pgs/Plugins.html
+gl_ES/pgs/VentanaCertificadosConfianza.html
 gl_ES/pgs/VentanaConfigurarProxy.html
 gl_ES/pgs/VentanaListaBlancaDominios.html
 gl_ES/pgs/VentanaPdfVisible.html
@@ -297,6 +302,7 @@ en_US/pgs/PantallaDetalle.html
 en_US/pgs/PantallaEspera.html
 en_US/pgs/PantallaFirma.html
 en_US/pgs/Plugins.html
+en_US/pgs/VentanaCertificadosConfianza.html
 en_US/pgs/VentanaConfigurarProxy.html
 en_US/pgs/VentanaListaBlancaDominios.html
 en_US/pgs/VentanaPdfVisible.html
