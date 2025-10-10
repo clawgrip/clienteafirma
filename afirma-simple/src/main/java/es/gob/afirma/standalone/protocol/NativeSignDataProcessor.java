@@ -1,20 +1,16 @@
 package es.gob.afirma.standalone.protocol;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.json.JSONException;
-
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.SimpleErrorCode;
-import es.gob.afirma.standalone.crypto.ServerCipher;
-import es.gob.afirma.standalone.crypto.ServerCipherFactory;
 import es.gob.afirma.standalone.plugins.EncryptingException;
 import es.gob.afirma.standalone.plugins.PluginControlledException;
+import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.plugins.SignDataProcessor;
 import es.gob.afirma.standalone.plugins.SignOperation;
 import es.gob.afirma.standalone.plugins.SignResult;
@@ -34,11 +30,8 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 	}
 
 	@Override
-	public void setServerCipher(final byte[] cipherConfig) throws JSONException, IOException {
-		if (cipherConfig != null) {
-			final ServerCipher servCipher = ServerCipherFactory.newInstance(cipherConfig);
-			this.cipher = servCipher;
-		}
+	public void setServerCipher(final ServerCipher serverCipher) {
+		this.cipher = serverCipher;
 	}
 
 	@Override
@@ -81,7 +74,6 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 			catch (final Exception e) {
 				throw new EncryptingException("Error al cifrar el certificado de firma a enviar", e, SimpleErrorCode.Internal.ENCRIPTING_SIGNING_CERT); //$NON-NLS-1$
 			}
-
 
 			final String cipheredSignature;
 			try {

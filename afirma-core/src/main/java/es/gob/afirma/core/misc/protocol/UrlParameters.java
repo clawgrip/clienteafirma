@@ -56,7 +56,7 @@ public abstract class UrlParameters {
 
 	/** Par&aacute;metro de entrada con la clave para el cifrado del documento. */
 	protected static final String KEY_PARAM = "key"; //$NON-NLS-1$
-	
+
 	/** Par&aacute;metro de entrada con la clave AES para el cifrado del documento. */
 	protected static final String CIPHER_PARAM = "cipher"; //$NON-NLS-1$
 
@@ -242,17 +242,17 @@ public abstract class UrlParameters {
 	void setSessionId(final String sessionId) {
 		this.id = sessionId;
 	}
-	
+
 	void setCipherConfig(final byte[] cipherConfig) {
 		this.cipherConfig = cipherConfig;
 	}
-	
+
 	public byte [] getCipherConfig() {
 		return this.cipherConfig;
 	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{
-		
+
 		if (params.containsKey(KEY_PARAM)) {
 			final String cipherKeyDES = verifyDESCipherKey(params);
 			if (cipherKeyDES != null) {
@@ -358,16 +358,16 @@ public abstract class UrlParameters {
 		if (key.length() != CIPHER_KEY_LENGTH) {
 			throw new ParameterException("La longitud de la clave de cifrado no es correcta", ErrorCode.Request.UNSUPPORTED_CIPHER_KEY); //$NON-NLS-1$
 		}
-		
+
 		return key;
 	}
-	
+
 	/** Forma un JSON con el algoritmo DES y su clave
 	 *  @param desKey ClaveDES.
 	 *  @return JSON con algoritmo y clave. */
-	private static String createDesJSON(final String desKey) throws ParameterException {
-		
-		return "{algo:DES, key:" + desKey + "}";  //$NON-NLS-1$//$NON-NLS-2$
+	private static String createDesJSON(final String desKey) {
+
+		return "{algo:\"DES\", key:\"" + desKey + "\"}";  //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**

@@ -88,11 +88,13 @@ import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
+import es.gob.afirma.standalone.crypto.ServerCipherFactory;
 import es.gob.afirma.standalone.plugins.AfirmaPlugin;
 import es.gob.afirma.standalone.plugins.EncryptingException;
 import es.gob.afirma.standalone.plugins.Permission;
 import es.gob.afirma.standalone.plugins.PluginControlledException;
 import es.gob.afirma.standalone.plugins.PluginInfo;
+import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.plugins.SignDataProcessor;
 import es.gob.afirma.standalone.plugins.SignOperation;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
@@ -165,17 +167,21 @@ final class ProtocolInvocationLauncherSign {
 		// derivado de un plugin que se active ante estos datos o el procesador nativo
 		final SignDataProcessor processor = selectProcessor(
 				protocolVersion,
-				operation);	
-		
+				operation);
+
 		if (options.getCipherConfig() != null) {
+
+			Logger.getLogger("es.gob.afirma").info(" ====================== Configuracion de cifrado que se recibe: " + options.getCipherConfig());
+
 			try {
-				processor.setServerCipher(options.getCipherConfig());
+				final ServerCipher serverCipher = ServerCipherFactory.newServerCipher(options.getCipherConfig());
+				processor.setServerCipher(serverCipher);
 			} catch (final Exception e) {
 				LOGGER.log(Level.SEVERE, "Error al instanciar el cifrador de datos", e); //$NON-NLS-1$
 				throw new SocketOperationException(SimpleErrorCode.Internal.POSTPROCESING_SIGNATURE);
 			}
-		} 
-	
+		}
+
 		final List<SignOperation> operations = processor.preProcess(operation);
 		final boolean isMassiveSign = operations.size() > 1;
 		final List<SignResult> results = new ArrayList<>(operations.size());

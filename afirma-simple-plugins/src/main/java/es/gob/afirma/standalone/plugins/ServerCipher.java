@@ -1,4 +1,4 @@
-package es.gob.afirma.standalone.crypto;
+package es.gob.afirma.standalone.plugins;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -10,13 +10,11 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import org.json.JSONException;
-
 /**
  * Define los metodos que deben utilizar las clases encargadas de cifrar y descifrar datos.
  */
 public interface ServerCipher {
-	
+
 	/**
 	 * Descifra los datos pasados por par&aacute;metro.
 	 * @param data Datos a descifrar.
@@ -30,11 +28,11 @@ public interface ServerCipher {
 	 * @throws GeneralSecurityException Si ocurre un error general de seguridad durante la operaci&oacute;n.
 	 * @throws IOException Si ocurre un error de entrada/salida al procesar los datos.
 	 */
-	public byte[] decipherData(final String data) throws InvalidKeyException, NoSuchAlgorithmException, 
-														NoSuchPaddingException, InvalidAlgorithmParameterException, 
-														IllegalBlockSizeException, BadPaddingException, 
+	byte[] decipherData(final String data) throws InvalidKeyException, NoSuchAlgorithmException,
+														NoSuchPaddingException, InvalidAlgorithmParameterException,
+														IllegalBlockSizeException, BadPaddingException,
 														GeneralSecurityException, IOException;
-	
+
 	/**
 	 * Descifra los datos pasados por par&aacute;metro.
 	 * @param data Datos a descifrar.
@@ -48,16 +46,15 @@ public interface ServerCipher {
 	 * @throws BadPaddingException Si los datos tienen un padding incorrecto o han sido alterados.
 	 * @throws IOException Si ocurre un error de entrada/salida al procesar los datos.
 	 */
-	public byte[] decipherData(final byte[] data) throws GeneralSecurityException, 
-														NoSuchAlgorithmException, NoSuchPaddingException, 
-														InvalidKeyException, InvalidAlgorithmParameterException, 
+	byte[] decipherData(final byte[] data) throws GeneralSecurityException,
+														NoSuchAlgorithmException, NoSuchPaddingException,
+														InvalidKeyException, InvalidAlgorithmParameterException,
 														IllegalBlockSizeException, BadPaddingException, IOException;
-	
+
 	/**
 	 * Cifra los datos pasados por par&aacute;etro.
 	 * @param data Datos a cifrar
 	 * @return Datos cifrados.
-	 * @throws JSONException Si ocurre un error al procesar o construir datos en formato JSON.
 	 * @throws IOException Si se produce un error de entrada/salida durante la operaci&oacute;n.
 	 * @throws NoSuchAlgorithmException Si el algoritmo de cifrado solicitado no est&aacute; disponible.
 	 * @throws NoSuchPaddingException Si el esquema de relleno especificado no est&aacute; soportado.
@@ -67,8 +64,8 @@ public interface ServerCipher {
 	 * @throws BadPaddingException Si el relleno (padding) de los datos es incorrecto o los datos han sido alterados.
 	 * @throws GeneralSecurityException Si ocurre un error general de seguridad durante la ejecuci&oacute;n.
 	 */
-	public String cipherData(final byte[] data) throws JSONException, IOException, 
-													NoSuchAlgorithmException, NoSuchPaddingException, 
+	String cipherData(final byte[] data) throws IOException,
+													NoSuchAlgorithmException, NoSuchPaddingException,
 													InvalidKeyException, InvalidAlgorithmParameterException,
 													IllegalBlockSizeException, BadPaddingException, GeneralSecurityException;
 

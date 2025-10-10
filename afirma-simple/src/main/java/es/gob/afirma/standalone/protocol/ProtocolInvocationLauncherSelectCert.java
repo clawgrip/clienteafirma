@@ -39,8 +39,8 @@ import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
-import es.gob.afirma.standalone.crypto.ServerCipher;
 import es.gob.afirma.standalone.crypto.ServerCipherFactory;
+import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 final class ProtocolInvocationLauncherSelectCert {
@@ -210,20 +210,28 @@ final class ProtocolInvocationLauncherSelectCert {
 		}
 
 		String dataToSend;
-		// Ciframos en caso de que llegue este parametro
-		if (options.getCipherConfig() != null) {
+
+		// Si hay configuracion de cifrado y somos compatibles, ciframos el resultado para la subida al servidor intermedio
+		ServerCipher cipher = null;
+		if (options.getCipherConfig()!= null) {
 			try {
-				// Devuelve los datos directamente en Base64
-				final ServerCipher cipher = ServerCipherFactory.newInstance(options.getCipherConfig());
+				cipher = ServerCipherFactory.newServerCipher(options.getCipherConfig());
+			}
+			catch (final Exception e) {
+				LOGGER.severe("No se soporta la configuracion de cifrado proporcionada. Es posible que deba actualzar la aplicacion: " + e); //$NON-NLS-1$
+				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_SELECTED_CERT);
+			}
+		}
+
+		if (cipher != null) {
+			try {
 				dataToSend = cipher.cipherData(certEncoded);
 			} catch (final Exception e) {
-				LOGGER.severe("Error en el cifrado AES de los datos a enviar: " + e); //$NON-NLS-1$
+				LOGGER.severe("Error en el cifrado del certificado seleccionado para el envio: " + e); //$NON-NLS-1$
 				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_SELECTED_CERT);
 			}
 		} else {
-			LOGGER.warning(
-					"Se omite el cifrado de los datos resultantes por no haberse proporcionado una clave de cifrado" //$NON-NLS-1$
-			);
+			LOGGER.warning("Se omite el cifrado de los datos resultantes por no haberse proporcionado una clave de cifrado"); //$NON-NLS-1$
 			dataToSend = Base64.encode(certEncoded, true);
 		}
 

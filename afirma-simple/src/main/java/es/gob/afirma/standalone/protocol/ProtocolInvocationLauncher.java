@@ -303,15 +303,15 @@ public final class ProtocolInvocationLauncher {
                     try {
                     	batchDefinition = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
 					} catch (final InvalidEncryptedDataLengthException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio", e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar los datos obtenidos: " + e); //$NON-NLS-1$
+                        LOGGER.log(Level.SEVERE, "Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e); //$NON-NLS-1$
 						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_OPERATION;
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);

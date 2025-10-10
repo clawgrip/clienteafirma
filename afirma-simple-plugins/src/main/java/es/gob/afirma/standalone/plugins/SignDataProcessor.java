@@ -3,7 +3,7 @@ package es.gob.afirma.standalone.plugins;
 import java.util.List;
 
 /**
- * Procesados de los datos de entrada para la identificaci&oacute;n de las operaciones de firma a realizar.
+ * Procesador de los datos de entrada para la identificaci&oacute;n de las operaciones de firma a realizar.
  */
 public abstract class SignDataProcessor {
 
@@ -18,7 +18,11 @@ public abstract class SignDataProcessor {
 		this.protocolVersion = protocolVersion;
 	}
 
-	public abstract void setServerCipher(byte[] key) throws Exception;
+	/**
+	 * Establece un objeto encargado del cifrado/descifrado de los datos de la petici&oacute;n.
+	 * @param serverCipher Objeto para le cifrado/descifrado.
+	 */
+	public abstract void setServerCipher(ServerCipher serverCipher);
 
 	/**
 	 * Compone las operaciones de firma que deben realizarse a partir de los datos de

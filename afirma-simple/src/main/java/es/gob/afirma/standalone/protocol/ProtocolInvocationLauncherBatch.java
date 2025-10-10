@@ -49,8 +49,8 @@ import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
-import es.gob.afirma.standalone.crypto.ServerCipher;
 import es.gob.afirma.standalone.crypto.ServerCipherFactory;
+import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 final class ProtocolInvocationLauncherBatch {
@@ -143,25 +143,34 @@ final class ProtocolInvocationLauncherBatch {
 
 		String cipheredBatchResult;
 		String cipheredSigninCert = null;
-		
-		// Si hay clave de cifrado, ciframos con el algoritmo correspondiente
+
+		// Si hay configuracion de cifrado y somos compatibles, ciframos el resultado para la subida al servidor intermedio
+		ServerCipher cipher = null;
 		if (options.getCipherConfig()!= null) {
-			ServerCipher cipher = null;
 			try {
-				cipher = ServerCipherFactory.newInstance(options.getCipherConfig());
+				cipher = ServerCipherFactory.newServerCipher(options.getCipherConfig());
+			}
+			catch (final Exception e) {
+				LOGGER.severe("No se soporta la configuracion de cifrado proporcionada. Es posible que deba actualzar la aplicacion: " + e); //$NON-NLS-1$
+				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_RESULT);
+			}
+		}
+
+		if (cipher != null) {
+			try {
 				cipheredBatchResult = cipher.cipherData(operationResult.getResult());
 			}
 			catch (final Exception e) {
-				LOGGER.severe("Error en el cifrado AES-256 del resultado del lote: " + e); //$NON-NLS-1$
+				LOGGER.severe("Error en el cifrado del resultado del lote: " + e); //$NON-NLS-1$
 				throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_RESULT);
-			}			
-			
+			}
+
 			if (signingCertEncoded != null) {
 				try {
 					cipheredSigninCert = cipher.cipherData(signingCertEncoded);
 				}
 				catch (final Exception e) {
-					LOGGER.severe("Error en el cifrado AES-256 de los datos a enviar: " + e); //$NON-NLS-1$
+					LOGGER.severe("Error en el cifrado de los datos a enviar: " + e); //$NON-NLS-1$
 					throw new SocketOperationException(e, SimpleErrorCode.Internal.ENCRIPTING_BATCH_SIGNING_CERT);
 				}
 			}

@@ -22,8 +22,8 @@ import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
 import es.gob.afirma.standalone.SimpleErrorCode;
-import es.gob.afirma.standalone.crypto.ServerCipher;
 import es.gob.afirma.standalone.crypto.ServerCipherFactory;
+import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
 
 final class ProtocolInvocationLauncherUtil {
@@ -66,7 +66,7 @@ final class ProtocolInvocationLauncherUtil {
 
 		// Leemos los datos
 		final byte[] recoveredData = IntermediateServerUtil.retrieveData(params.getRetrieveServletUrl().toString(), params.getFileId());
-		
+
 		// Si los datos recibidos representan un error, detenemos la ejecucion
 		if (recoveredData.length > 8 && new String(Arrays.copyOf(recoveredData, 8)).toLowerCase().startsWith("err-")) { //$NON-NLS-1$
 			LOGGER.severe("Se recupera un error desde el servidor intermedio: " + new String(recoveredData)); //$NON-NLS-1$
@@ -75,10 +75,12 @@ final class ProtocolInvocationLauncherUtil {
 
 		// Si no ha ocurrido un error, debemos haber recibido los datos cifrados
 		byte[] data = null;
-		try {	
+		try {
 			if (params.getCipherConfig() != null) {
-				final ServerCipher cipher = ServerCipherFactory.newInstance(params.getCipherConfig());
-				data = cipher.decipherData(recoveredData);
+				final ServerCipher cipher = ServerCipherFactory.newServerCipher(params.getCipherConfig());
+				if (cipher != null) {
+					data = cipher.decipherData(recoveredData);
+				}
 			}
 		}
 		catch (final Exception e) {

@@ -243,8 +243,8 @@ public class XAdESTriPhasePreProcessor implements TriPhasePreProcessor {
 				Base64.encode(preSignature.getSignedInfos().get(i))
 			);
 
-			// Las firmas XAdEScon Apache Santuario genera las firmas DSA/ECDSA de tal forma que el
-			// PKCS#1 debe estar decodificado, por lo que el PKCS#1 enciado desde el cliente debe
+			// Las firmas XAdES con Apache Santuario genera las firmas DSA/ECDSA de tal forma que el
+			// PKCS#1 debe estar decodificado, por lo que el PKCS#1 enviado desde el cliente debe
 			// de estarlo. Insertamos una propiedad para indicarselo al cliente
 			if (AOSignConstants.isDSAorECDSASignatureAlgorithm(algorithm)) {
 				signConfig.put(PROPERTY_NAME_PKCS1_DECODED, Boolean.TRUE.toString());
