@@ -1,6 +1,7 @@
 package es.gob.afirma.standalone.crypto;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -51,23 +52,22 @@ public class DesServerCipher implements ServerCipher {
 			padding = Integer.parseInt(data.substring(0, dotPos));
 		}
 
-		final byte[] decipheredData = decipherData(
-				Base64.decode(data.substring(dotPos + 1).replace('-', '+').replace('_', '/')));
-
-		return padding == 0 ? decipheredData : Arrays.copyOf(decipheredData, decipheredData.length - padding);
-	}
-
-	@Override
-	public byte[] decipherData(final byte [] data) throws NoSuchAlgorithmException, NoSuchPaddingException,
-															InvalidKeyException, IllegalBlockSizeException,
-															BadPaddingException {
-
+		final byte[] decodedData = Base64.decode(data.substring(dotPos + 1).replace('-', '+').replace('_', '/'));
+		
 		final Cipher desCipher = Cipher.getInstance("DES/ECB/NoPadding"); //$NON-NLS-1$
 
 		desCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(this.cipherKey, "DES")); //$NON-NLS-1$
-		final byte [] deciphered = desCipher.doFinal(data);
+		final byte [] deciphered = desCipher.doFinal(decodedData);
 
-		return deciphered;
+		return padding == 0 ? deciphered : Arrays.copyOf(deciphered, deciphered.length - padding);
+	}
+
+	@Override
+	public byte[] decipherData(final byte [] data) throws InvalidAlgorithmParameterException, GeneralSecurityException, IOException {
+		
+		final String originalB64Data = new String(data, StandardCharsets.UTF_8).replace("_", "/").replace("-", "+");   //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		return decipherData(originalB64Data);
 	}
 
 	@Override

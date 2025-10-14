@@ -29,7 +29,9 @@ import org.json.JSONException;
 import com.github.markusbernhardt.proxy.ProxySearch;
 import com.github.markusbernhardt.proxy.ProxySearch.Strategy;
 
+import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
+import es.gob.afirma.standalone.crypto.AesServerCipher;
 import es.gob.afirma.standalone.crypto.DesServerCipher;
 import es.gob.afirma.standalone.plugins.ServerCipher;
 
@@ -238,7 +240,11 @@ public final class ProxyUtil {
 		return new NoProxySelector();
 	}
 
-    private static final char[] PWD_CIPHER_KEY = new char[] {'8', 'W', '{', 't', '2', 'r', ',', 'B'};
+    private static final char[] PWD_CIPHER_KEY_DES = new char[] {'8', 'W', '{', 't', '2', 'r', ',', 'B'};
+    
+    private static final String PWD_CIPHER_KEY_AES = "3zevqLjBQTqWKCDEev3kNyjRWQpeuKe3xYlcdGmBYZE="; //$NON-NLS-1$
+    
+    private static final String PWD_CIPHER_IV_AES = "NKAe+g8shVCYWEEhLNPU0A=="; //$NON-NLS-1$
 
     /** Cifra una contrase&ntilde;a.
      * @param password Contrase&ntilde;a cifrada o <code>null</code> si la contrase&ntilde;a proporcionada es
@@ -251,9 +257,16 @@ public final class ProxyUtil {
     	if (password == null || password.length < 1) {
     		return null;
     	}
-
-    	final ServerCipher serverCipher = new DesServerCipher(String.valueOf(PWD_CIPHER_KEY).getBytes());
-    	return serverCipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
+    	
+    	try {
+    		final ServerCipher serverCipher = new AesServerCipher(Base64.decode(PWD_CIPHER_KEY_AES), Base64.decode(PWD_CIPHER_IV_AES));
+        	return serverCipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
+    	} catch (final Exception e) {
+    		LOGGER.warning("No se pudo cifrar la contrasena con AES, se procedera a cifrarla con DES: " + e); //$NON-NLS-1$
+    		final ServerCipher serverCipher = new DesServerCipher(String.valueOf(PWD_CIPHER_KEY_DES).getBytes());
+        	return serverCipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
+    	}
+    	
     }
 
     /** Descifra una contrase&ntilde;a
@@ -265,9 +278,18 @@ public final class ProxyUtil {
     	if (cipheredPassword == null  || cipheredPassword.isEmpty()) {
     		return null;
     	}
+    	
+    	byte[] p;
+    	
+    	try {
+    		final ServerCipher serverCipher = new AesServerCipher(Base64.decode(PWD_CIPHER_KEY_AES), Base64.decode(PWD_CIPHER_IV_AES));
+    		p = serverCipher.decipherData(String.valueOf(cipheredPassword).getBytes(StandardCharsets.UTF_8));
+    	} catch (final Exception e) {
+    		LOGGER.warning("No se pudo cifrar la contrasena con AES, se procedera a cifrarla con DES: " + e); //$NON-NLS-1$
+    		final ServerCipher serverCipher = new DesServerCipher(String.valueOf(PWD_CIPHER_KEY_DES).getBytes());
+    		p = serverCipher.decipherData(String.valueOf(cipheredPassword).getBytes(StandardCharsets.UTF_8));
+    	}
 
-    	final ServerCipher serverCipher = new DesServerCipher(String.valueOf(PWD_CIPHER_KEY).getBytes());
-    	final byte[] p = serverCipher.decipherData(cipheredPassword);
     	return new String(p, StandardCharsets.UTF_8).toCharArray();
     }
 

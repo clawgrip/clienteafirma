@@ -38,6 +38,11 @@ public class AesServerCipher implements ServerCipher {
 		this.key = cipherKey != null ? cipherKey.clone() : null;
 		this.iv = cipherIv != null ? cipherIv.clone() : null;
 	}
+	
+	public AesServerCipher(final byte[] key, final byte[] iv) throws JSONException {
+		this.key = key;
+		this.iv = iv;
+	}
 
 	@Override
 	public byte[] decipherData(final byte[] data) throws InvalidKeyException, NoSuchAlgorithmException,

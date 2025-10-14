@@ -23,7 +23,7 @@ var SupportDialog;
 
 var AutoScript = ( function ( window, undefined ) {
 
-		var VERSION = "1.9.0";
+		var VERSION = "1.10.0";
 		var VERSION_CODE = 3;
 
 		var PROTOCOL_VERSION = 5;
