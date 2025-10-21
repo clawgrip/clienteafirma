@@ -28,20 +28,28 @@ public class AesServerCipher implements ServerCipher {
 	private final byte[] key;
 	private final byte[] iv;
 
+	private final ServerCipher legacyDecipher;
+
 	public AesServerCipher(final String cipherConfig) throws JSONException, IOException {
 
 		final JSONObject json = new JSONObject(cipherConfig);
 
-		final byte[] cipherKey = Base64.decode(json.getString("key")); //$NON-NLS-1$
-		final byte[] cipherIv = Base64.decode(json.getString("iv")); //$NON-NLS-1$
+		final String cipherKey = json.getString("key"); //$NON-NLS-1$
+		final String cipherIv = json.getString("iv"); //$NON-NLS-1$
 
-		this.key = cipherKey != null ? cipherKey.clone() : null;
-		this.iv = cipherIv != null ? cipherIv.clone() : null;
+		this.key = cipherKey != null ? Base64.decode(cipherKey) : null;
+		this.iv = cipherIv != null ? Base64.decode(cipherIv) : null;
+
+		final String legacyDesKey = json.getString("legacydes"); //$NON-NLS-1$
+		this.legacyDecipher = legacyDesKey != null
+			? new DesServerCipher(legacyDesKey.getBytes())
+			: null;
 	}
-	
+
 	public AesServerCipher(final byte[] key, final byte[] iv) throws JSONException {
 		this.key = key;
 		this.iv = iv;
+		this.legacyDecipher = null;
 	}
 
 	@Override
@@ -55,6 +63,36 @@ public class AesServerCipher implements ServerCipher {
 		return decipherData(originalB64Data);
 	}
 
+
+	@Override
+	public byte[] decipherData(final String dataB64) throws InvalidKeyException, NoSuchAlgorithmException,
+														NoSuchPaddingException, InvalidAlgorithmParameterException,
+														IllegalBlockSizeException, BadPaddingException,
+														GeneralSecurityException, IOException {
+
+		byte[] decipheredData;
+		try {
+			final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); //$NON-NLS-1$
+			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(this.key, "AES"), new IvParameterSpec(this.iv)); //$NON-NLS-1$
+			decipheredData = cipher.doFinal(Base64.decode(dataB64));
+		}
+		catch (final Exception e) {
+			// Si se definio un metodo alternativo de descifrado, se utilizara, aunque en caso de error, se devolvera
+			// el error del metodo principal
+			if (this.legacyDecipher != null) {
+				try {
+					return this.legacyDecipher.decipherData(dataB64);
+				}
+				catch (final Exception e2) {
+					// Ignoramos este error en favor del error principal
+				}
+			}
+			throw e;
+		}
+
+		return decipheredData;
+	}
+
 	@Override
 	public String cipherData(final byte[] data) throws NoSuchAlgorithmException, NoSuchPaddingException,
 														InvalidKeyException, InvalidAlgorithmParameterException,
@@ -66,18 +104,4 @@ public class AesServerCipher implements ServerCipher {
 
 		return Base64.encode(cipheredData, true);
 	}
-
-	@Override
-	public byte[] decipherData(final String dataB64) throws InvalidKeyException, NoSuchAlgorithmException,
-														NoSuchPaddingException, InvalidAlgorithmParameterException,
-														IllegalBlockSizeException, BadPaddingException,
-														GeneralSecurityException, IOException {
-
-		final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding"); //$NON-NLS-1$
-		cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(this.key, "AES"), new IvParameterSpec(this.iv)); //$NON-NLS-1$
-		final byte[] decipheredData = cipher.doFinal(Base64.decode(dataB64));
-
-		return decipheredData;
-	}
-
 }

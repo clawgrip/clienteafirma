@@ -11,6 +11,7 @@ package es.gob.afirma.standalone.protocol;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import es.gob.afirma.core.AOException;
@@ -58,8 +59,7 @@ final class ProtocolInvocationLauncherUtil {
 		// Preparamos la URL
 		final StringBuilder dataUrl = new StringBuilder(
 				params.getRetrieveServletUrl().toString()).
-					append("?") //$NON-NLS-1$
-						.append("op=get&v=1_0&id=") //$NON-NLS-1$
+					append("?op=get&v=1_0&id=") //$NON-NLS-1$
 							.append(params.getFileId());
 
 		LOGGER.info("Intentamos recuperar los datos del servidor con la URL:\n" + dataUrl.toString()); //$NON-NLS-1$
@@ -84,10 +84,9 @@ final class ProtocolInvocationLauncherUtil {
 			}
 		}
 		catch (final Exception e) {
-			LOGGER.severe("Error en el descifrado de los datos: " + e); //$NON-NLS-1$
+			LOGGER.log(Level.SEVERE, "Error en el descifrado de los datos: " + e, e); //$NON-NLS-1$
 			throw new DecryptionException("Error en el descifrado de los datos: " + e, e); //$NON-NLS-1$
 		}
-
 		return data;
 	}
 

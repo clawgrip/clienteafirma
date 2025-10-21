@@ -253,17 +253,24 @@ public abstract class UrlParameters {
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{
 
-		if (params.containsKey(KEY_PARAM)) {
-			final String cipherKeyDES = verifyDESCipherKey(params);
-			if (cipherKeyDES != null) {
-				setCipherConfig(createDesJSON(cipherKeyDES).getBytes());
-			}
-		} else if (params.containsKey(CIPHER_PARAM)) {
+		if (params.containsKey(CIPHER_PARAM)) {
 			try {
-				setCipherConfig(Base64.decode(params.get(CIPHER_PARAM).replace("_", "/").replace("-", "+")));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				byte[] decodedCipherConfig = Base64.decode(params.get(CIPHER_PARAM).replace("_", "/").replace("-", "+"));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				if (params.containsKey(KEY_PARAM)) {
+					final String cipherKeyDES = verifyDESCipherKey(params);
+					if (cipherKeyDES != null) {
+						decodedCipherConfig = addLegacyDesConfig(decodedCipherConfig, cipherKeyDES);
+					}
+				}
+				setCipherConfig(decodedCipherConfig);
 			} catch (final IOException e) {
 				throw new ParameterException("El JSON para la clave de cifrado no esta formado correctamente",  //$NON-NLS-1$
 												ErrorCode.Request.UNSUPPORTED_CIPHER_KEY);
+			}
+		} else if (params.containsKey(KEY_PARAM)) {
+			final String cipherKeyDES = verifyDESCipherKey(params);
+			if (cipherKeyDES != null) {
+				setCipherConfig(createDesJSON(cipherKeyDES).getBytes());
 			}
 		}
 
@@ -335,6 +342,22 @@ public abstract class UrlParameters {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Agrega una propiedad adicional al JSON de configuraci&oacute;n en la que se
+	 * indica la clave DES necesaria para la compatibilidad con el JavaScript antiguo.
+	 * @param config JSON de configuraci&oacute;n de cifrado decodificado.
+	 * @param cipherKeyDES Clave DES.
+	 * @return Configuraci&oacute;n de cifrado de entrada junto con la clave DES.
+	 */
+	private static byte[] addLegacyDesConfig(final byte[] config, final String cipherKeyDES) {
+
+		String configJson = new String(config);
+		configJson = configJson.substring(0, configJson.length() - 1)
+				+ ",legacydes:\"" + cipherKeyDES + "\"}"; //$NON-NLS-1$ //$NON-NLS-2$
+
+		return configJson.getBytes();
 	}
 
 	/** Extrae y verifica la clave de cifrado de los par&aacute;metros de entrada.

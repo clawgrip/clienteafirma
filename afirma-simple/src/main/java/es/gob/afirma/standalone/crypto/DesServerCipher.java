@@ -42,18 +42,21 @@ public class DesServerCipher implements ServerCipher {
 	}
 
 	@Override
-	public byte[] decipherData(final String data) throws InvalidKeyException, NoSuchAlgorithmException,
+	public byte[] decipherData(final String cipheredData) throws InvalidKeyException, NoSuchAlgorithmException,
 															NoSuchPaddingException, InvalidAlgorithmParameterException,
 															IllegalBlockSizeException, BadPaddingException,
 															GeneralSecurityException, IOException {
+
 		int padding = 0;
-		final int dotPos = data.indexOf(PADDING_CHAR_SEPARATOR);
-		if (dotPos != -1) {
-			padding = Integer.parseInt(data.substring(0, dotPos));
+		byte[] decodedData;
+		final boolean customPadding = cipheredData.length() > 2 && cipheredData.charAt(1) == PADDING_CHAR_SEPARATOR;
+		if (customPadding) {
+			padding = Integer.parseInt(cipheredData.substring(0, 1));
+			decodedData = Base64.decode(cipheredData.substring(2).replace('-', '+').replace('_', '/'));
+		} else {
+			decodedData = Base64.decode(cipheredData.replace('-', '+').replace('_', '/'));
 		}
 
-		final byte[] decodedData = Base64.decode(data.substring(dotPos + 1).replace('-', '+').replace('_', '/'));
-		
 		final Cipher desCipher = Cipher.getInstance("DES/ECB/NoPadding"); //$NON-NLS-1$
 
 		desCipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(this.cipherKey, "DES")); //$NON-NLS-1$
@@ -63,11 +66,10 @@ public class DesServerCipher implements ServerCipher {
 	}
 
 	@Override
-	public byte[] decipherData(final byte [] data) throws InvalidAlgorithmParameterException, GeneralSecurityException, IOException {
-		
-		final String originalB64Data = new String(data, StandardCharsets.UTF_8).replace("_", "/").replace("-", "+");   //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public byte[] decipherData(final byte [] cipheredData) throws InvalidAlgorithmParameterException, GeneralSecurityException, IOException {
 
-		return decipherData(originalB64Data);
+		final String b64Data = new String(cipheredData, StandardCharsets.UTF_8);
+		return decipherData(b64Data);
 	}
 
 	@Override

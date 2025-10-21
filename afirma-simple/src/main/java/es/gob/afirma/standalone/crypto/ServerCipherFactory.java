@@ -23,10 +23,10 @@ public class ServerCipherFactory {
 
 		final String alg = json.getString("algo"); //$NON-NLS-1$
 
-		if (ALGORITHM_DES.equals(alg)) {
-			return new DesServerCipher(jsonString);
-		} else if (ALGORITHM_AES.equals(alg)) {
+		if (ALGORITHM_AES.equals(alg)) {
 			return new AesServerCipher(jsonString);
+		} else if (ALGORITHM_DES.equals(alg)) {
+			return new DesServerCipher(jsonString);
 		}
 
 		return null;

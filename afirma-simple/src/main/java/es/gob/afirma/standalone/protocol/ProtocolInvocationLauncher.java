@@ -394,7 +394,7 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar: " + e); //$NON-NLS-1$
+                        LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {
@@ -477,7 +477,7 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar: " + e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {
@@ -571,7 +571,7 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar: " + e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {
@@ -665,7 +665,7 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar: " + e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {
@@ -755,7 +755,7 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
 					} catch (final DecryptionException e) {
-                        LOGGER.severe("Error al descifrar: " + e); //$NON-NLS-1$
+						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
                     } catch (final IOException e) {

@@ -26,7 +26,7 @@ var AutoScript = ( function ( window, undefined ) {
 		var VERSION = "1.10.0";
 		var VERSION_CODE = 3;
 
-		var PROTOCOL_VERSION = 5;
+		var PROTOCOL_VERSION = 4;
 
 		/* ========== DEPRECADO: No se utiliza, pero se mantiene por compatibilidad con los despliegues del MiniApplet. */
 		var JAVA_ARGUMENTS = null;
@@ -4124,6 +4124,9 @@ var AutoScript = ( function ( window, undefined ) {
 			var retrieverServletAddress = null;
 			var storageServletAddress = null;
 
+			/** Indica si se soportan los nuevos mecanismos de cifrado */
+			var newCiphersSupported = false;
+			
 			if (clientAddress != undefined && clientAddress != null) {
 				if (clientAddress.indexOf("://") != -1 && clientAddress.indexOf("/", clientAddress.indexOf("://") + 3) != -1) {
 					var servletsBase = clientAddress.substring(0, clientAddress.indexOf("/", clientAddress.indexOf("://") + 3));
@@ -4154,16 +4157,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherKey;
-				var cipherParam;
+				var desKey = generateDESCipherKey();
 				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					cipherKey = generateCipherKey();
-				} else {
-					cipherParam = "cipher";
-					cipherKey = Base64.encode(await generateAESCipherKey());				
-				}
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				var opId = "selectcert";
 				
@@ -4172,7 +4168,8 @@ var AutoScript = ( function ( window, undefined ) {
 				params[params.length] = {key:"op", value:opId};
 				
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherKey != null && cipherKey != undefined) {		params[params.length] = {key:cipherParam, value:cipherKey}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4184,6 +4181,11 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var url = buildUrl(opId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+				
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4195,10 +4197,11 @@ var AutoScript = ( function ( window, undefined ) {
 						throwException("java.lang.IllegalArgumentException", ErrorCode.Request.RETRIEVE_URL_NOT_FOUND);
 						return;
 					}
-					sendDataAndExecAppIntent(idSession, cipherKey, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherKey, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 			
@@ -4248,17 +4251,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherParam;
-				var cipherConfig;
-				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					var cipherKey = generateCipherKey();
-					cipherConfig = cipherKey;
-				} else {
-					cipherParam = "cipher";
-					cipherConfig = Base64.encode(await generateAESCipherKey());				
-				}			
+				var desKey = generateDESCipherKey();
+								
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4268,7 +4263,8 @@ var AutoScript = ( function ( window, undefined ) {
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				if (signId != null && signId != undefined) {			params[params.length] = {key:"op", value:signId}; }
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:cipherParam, value:cipherConfig}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4286,6 +4282,11 @@ var AutoScript = ( function ( window, undefined ) {
 			
 				var url = buildUrl(signId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+				
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4294,10 +4295,10 @@ var AutoScript = ( function ( window, undefined ) {
 						return;
 					}
 
-					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, signId, params, successCallback, errorCallback)
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, signId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 
@@ -4327,17 +4328,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherParam;
-				var cipherConfig;
-				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					var cipherKey = generateCipherKey();
-					cipherConfig = cipherKey;
-				} else {
-					cipherParam = "cipher";
-					cipherConfig = Base64.encode(await generateAESCipherKey());				
-				}
+				var desKey = generateDESCipherKey();
+								
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4350,7 +4343,8 @@ var AutoScript = ( function ( window, undefined ) {
 				params[params.length] = {key:"op", value:opId};
 				if (signId != null && signId != undefined) {			params[params.length] = {key:"cop", value:signId}; }
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherConfig != null && cipherConfig != undefined) {		params[params.length] = {key:cipherParam, value:cipherConfig}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4369,6 +4363,11 @@ var AutoScript = ( function ( window, undefined ) {
 			
 				var url = buildUrl(opId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+				
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4377,10 +4376,10 @@ var AutoScript = ( function ( window, undefined ) {
 						return;
 					}
 
-					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 			
@@ -4402,17 +4401,9 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherParam;
-				var cipherConfig;
-				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					var cipherKey = generateCipherKey();
-					cipherConfig = cipherKey;
-				} else {
-					cipherParam = "cipher";
-					cipherConfig = Base64.encode(await generateAESCipherKey());				
-				}	
+				var desKey = generateDESCipherKey();
+								
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4424,7 +4415,8 @@ var AutoScript = ( function ( window, undefined ) {
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:cipherParam, value:cipherConfig}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4444,6 +4436,11 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var url = buildUrl(opId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+				
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4452,10 +4449,10 @@ var AutoScript = ( function ( window, undefined ) {
 						return;
 					}
 
-					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 			
@@ -4468,17 +4465,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherParam;
-				var cipherConfig;
-				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					var cipherKey = generateCipherKey();
-					cipherConfig = cipherKey;
-				} else {
-					cipherParam = "cipher";
-					cipherConfig = Base64.encode(await generateAESCipherKey());				
-				}
+				var desKey = generateDESCipherKey();
+								
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4490,7 +4479,8 @@ var AutoScript = ( function ( window, undefined ) {
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:cipherParam, value:cipherConfig}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4512,6 +4502,11 @@ var AutoScript = ( function ( window, undefined ) {
 				 
 				var url = buildUrl(opId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+				
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4520,10 +4515,10 @@ var AutoScript = ( function ( window, undefined ) {
 						return;
 					}
 
-					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 			
@@ -4538,24 +4533,17 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
-				var cipherParam;
-				var cipherConfig;
-				
-				if (Platform.isAndroid() || Platform.isIOS()) {
-					cipherParam = "key";
-					var cipherKey = generateCipherKey();
-					cipherConfig = cipherKey;
-				} else {
-					cipherParam = "cipher";
-					cipherConfig = Base64.encode(await generateAESCipherKey());				
-				}	
+				var desKey = generateDESCipherKey();
+								
+				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				var opId = "save";
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:cipherParam, value:cipherConfig}; }
+				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
+				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
 				if (storageServletAddress != null &&
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (title != null && title != undefined) {				params[params.length] = {key:"title", value:title}; }
@@ -4568,6 +4556,11 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var url = buildUrl(opId, params);
 
+				var decipherConfig = {
+					 cipherConfig: cipherConfig,
+					 desKey: desKey
+				};
+
 				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
 				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
 				if (isURLTooLong(url)) {
@@ -4575,11 +4568,11 @@ var AutoScript = ( function ( window, undefined ) {
 						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos");
 						return;
 					}
-
-					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+					
+					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
 				}
 				else {
-					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
 
@@ -4675,7 +4668,7 @@ var AutoScript = ( function ( window, undefined ) {
 			}
 			
 			/* Genera un numero aleatorio para utilizar como clave de cifrado. */
-			function generateCipherKey() {
+			function generateDESCipherKey() {
 				var random;
 				if (typeof window.crypto != "undefined" && typeof window.crypto.getRandomValues != "undefined") {
 					var randomInts = new Uint32Array(1);
@@ -4736,7 +4729,7 @@ var AutoScript = ( function ( window, undefined ) {
 			 * Envia los datos al servidor intermedio y luego invoca a la
 			 * aplicacion nativa para que los descargue y opere con ellos.
 			 * @param idSession Identificador de la operacion con el que se espera recuperar el resultado.
-			 * @param cipherKey Clave de cifrado. Si no se indica, no se cifra.
+			 * @param decipherConfig Configuracion para el descifrado del resultado. Si no se indica, no se descifra.
 			 * @param storageServletAddress URL del servlet que almacena.
 			 * @param retrieverServletAddress URL del servlet que recupera.
 			 * @param op Identificador del tipo de operacion (firma, cofirma, guardado,...).
@@ -4744,7 +4737,7 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param successCallback Funcion callback que debe ejecutarse en caso de exito.
 			 * @param errorCallback Funcion callback que debe ejecutarse en caso de error.
 			 */
-			async function sendDataAndExecAppIntent(idSession, cipherKey, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) {
+			async function sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) {
 
 				// Mostramos el dialogo de carga
 				Dialog.showLoadingDialog();
@@ -4765,20 +4758,20 @@ var AutoScript = ( function ( window, undefined ) {
 				httpRequest.onreadystatechange = async function () {
 					if (httpRequest.readyState == 4) {
 						 if (httpRequest.status == 200) {
-							url = buildUrlWithoutData(op, fileId, retrieverServletAddress, cipherKey);
+							url = buildUrlWithoutData(op, fileId, retrieverServletAddress, decipherConfig);
 							if (isURLTooLong(url)) {
 								errorCode = ErrorCode.Request.TOO_LONG_URL.code;
 								errorCallback("java.lang.IllegalArgumentException",ErrorCode.Request.TOO_LONG_URL.message, errorCode);
 								return;
 							}
-							execAppIntent(url, idSession, cipherKey, successCallback, errorCallback);
+							execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 						}
 					else {
 						errorOcurred = true;
 						console.log("Error al enviar los datos al servidor intermedio. HTTP Status: " + httpRequest.status);
 						errorCode = ErrorCode.Request.UPLOADING_TO_APP.code;
 						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-								 function() { sendDataAndExecAppIntent(idSession, cipherKey, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
+								 function() { sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
 								 function() { errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);});
 						if (!enabled) {
 							errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);
@@ -4809,7 +4802,7 @@ var AutoScript = ( function ( window, undefined ) {
 					
 				var xmlDat = buildXML(op, params);
 				
-				var xmlDatCipheredB64 = await cipher(xmlDat, cipherKey);
+				var xmlDatCipheredB64 = await cipher(xmlDat, decipherConfig);
 				
 				requestData += xmlDatCipheredB64.replace(/\+/g, "-").replace(/\//g, "_");;				
 
@@ -4830,11 +4823,11 @@ var AutoScript = ( function ( window, undefined ) {
 			 *
 			 * @param intentURL URL para la invocacion del Cliente JavaScript
 			 * @param idSession Identificador de la sesi\u00F3n para la recuperaci\u00F3n del resultado.
-			 * @param cipherKey Clave de cifrado para la respuesta del servidor.
+			 * @param decipherConfig Configuracion para el descifrado.
 			 * @param successCallback Actuaci\u00F3n a realizar cuando se recupera el resultado de la operaci&oacute;n.
 			 * @param errorCallback Actuaci\u00F3n a realizar cuando ocurre un error al recuperar el resultado.
 			 */
-			execAppIntent = function (intentURL, idSession, cipherKey, successCallback, errorCallback) {
+			execAppIntent = function (intentURL, idSession, decipherConfig, successCallback, errorCallback) {
 
 				// Mostramos el dialogo de carga
 				Dialog.showLoadingDialog();
@@ -4846,7 +4839,7 @@ var AutoScript = ( function ( window, undefined ) {
 
 				// Preguntamos repetidamente por el resultado
 				if (!!idSession) {
-					getStoredFileFromServlet(idSession, retrieverServletAddress, cipherKey, intentURL, successCallback, errorCallback);
+					getStoredFileFromServlet(idSession, retrieverServletAddress, decipherConfig, intentURL, successCallback, errorCallback);
 				}
 			}
 
@@ -4904,27 +4897,24 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param op Codigo de la operacion a la que tiene que invocar la URL.
 			 * @param id Identificador para la descarga.
 			 * @param rtServlet Servlet para la descarga de la configuraci&oacute;n.
-			 * @param cipherKey Clave para el descifrado.
+			 * @param decipherConfig Configuracion para el descifrado. Si no se indica, no se descifra.
 			 * @returns URL para la llamada a la app con los datos necesarios para que descargue
 			 * la configuraci&oacute;n de la operaci&oacute;n a realizar.
 			 */
-			function buildUrlWithoutData (op, id, rtServlet, cipherKey) {
+			function buildUrlWithoutData (op, id, rtServlet, decipherConfig) {
 				var j = 0;
 				var newParams = new Array();
 				newParams[j++] = {key:"fileid", value:id};
 				if (rtServlet != null || rtServlet != undefined) {
 					newParams[j++] = {key:"rtservlet", value:rtServlet};
 				}
-				if (cipherKey != null || cipherKey != undefined) {
-					var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(cipherKey));
-					var cipherWithAES = !Platform.isAndroid() && !Platform.isIOS() && checkJSONAndAlgoritmAES(keyStringDecoded);
-					var cipherParam;
-					if (cipherWithAES) {
-						cipherParam = "cipher";
-					} else {
-						cipherParam = "key";			
+				if (decipherConfig != null || decipherConfig != undefined) {
+					if (decipherConfig.desKey) {
+						newParams[j++] = {key:"key", value:decipherConfig.desKey};
 					}
-					newParams[j++] = {key:cipherParam, value:cipherKey};
+					if (decipherConfig.cipherConfig) {
+						newParams[j++] = {key:"cipher", value:decipherConfig.cipherConfig};
+					}
 				}
 				return buildUrl(op, newParams);
 			};
@@ -4936,13 +4926,13 @@ var AutoScript = ( function ( window, undefined ) {
 			 * de indicar false, no se esperara mas; en caso de true, se seguira con la espera; y si se
 			 * de vuelve "reset" se debera reiniciar la espera.
 			 * @param html Resultado obtenido.
-			 * @param cipherKey Clave para el descifrado del resultado si no es un error.
+			 * @param decipherConfig Configuracion para el descifrado del resultado si no es un error.
 			 * @param successCallback Metodo a ejecutar en caso de exito.
 			 * @param errorCallback Metodo a ejecutar en caso de error.
 			 * @returns Devuelve true si se ha fallado pero se puede volver a reintentar, false en caso de
 			 * error determinante o exito.
 			 */
-			async function successResponseFunction (html, cipherKey, successCallback, errorCallback) {
+			async function successResponseFunction (html, decipherConfig, successCallback, errorCallback) {
 				
 				// Si se obtiene el mensaje de  error de que el identificador no existe, seguimos intentandolo
 				if (html.substr(0, 6).toLowerCase() == "err-06") {
@@ -5029,7 +5019,7 @@ var AutoScript = ( function ( window, undefined ) {
 					// En caso de recibir un unico parametro, este sera la firma en el caso de las operaciones de firma y el
 					// certificado cuando se pidio seleccionar uno 
 					if (sepPos == -1) {
-						if (cipherKey != undefined && cipherKey != null) {
+						if (decipherConfig != undefined && decipherConfig != null) {
 							result = await decipher(html, cipherKey);						
 						}
 						else {
@@ -5037,9 +5027,9 @@ var AutoScript = ( function ( window, undefined ) {
 						}
 					}
 					else {
-						if (cipherKey != undefined && cipherKey != null) {
-							result = await decipher(html.substring(0, sepPos), cipherKey, true);
-							certificate = await decipher(html.substring(sepPos + 1), cipherKey);		
+						if (decipherConfig != undefined && decipherConfig != null) {
+							result = await decipher(html.substring(0, sepPos), decipherConfig, true);
+							certificate = await decipher(html.substring(sepPos + 1), decipherConfig);		
 						}
 						else {
 							result = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
@@ -5069,8 +5059,8 @@ var AutoScript = ( function ( window, undefined ) {
 				// Procesamos el resultado de la seleccion de certificado
 				else if (currentOperation == OPERATION_SELECT_CERTIFICATE) {
 					var certificate;
-					if (cipherKey != undefined && cipherKey != null) {
-						certificate = await decipher(html, cipherKey);
+					if (decipherConfig != undefined && decipherConfig != null) {
+						certificate = await decipher(html, decipherConfig);
 					}
 					else {
 						certificate = fromBase64UrlSaveToBase64(html);
@@ -5094,8 +5084,8 @@ var AutoScript = ( function ( window, undefined ) {
 				// En caso de recibir un unico parametro, este sera la firma en el caso de las operaciones de firma y el
 				// certificado cuando se pidio seleccionar uno 
 				if (sepPos == -1) {
-					if (cipherKey != undefined && cipherKey != null) {
-						signature = await decipher(html, cipherKey);			
+					if (decipherConfig != undefined && decipherConfig != null) {
+						signature = await decipher(html, decipherConfig);			
 					}
 					else {
 						signature = fromBase64UrlSaveToBase64(html);
@@ -5104,9 +5094,9 @@ var AutoScript = ( function ( window, undefined ) {
 				else {
 					var sepPos2 = html.indexOf('|', sepPos + 1);
 					if (sepPos2 == -1) {
-						if (cipherKey != undefined && cipherKey != null) {
-							certificate = await decipher(html.substring(0, sepPos), cipherKey, true);
-							signature = await decipher(html.substring(sepPos + 1), cipherKey);
+						if (decipherConfig != undefined && decipherConfig != null) {
+							certificate = await decipher(html.substring(0, sepPos), decipherConfig, true);
+							signature = await decipher(html.substring(sepPos + 1), decipherConfig);
 						}
 						else {
 							certificate = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
@@ -5114,10 +5104,10 @@ var AutoScript = ( function ( window, undefined ) {
 						}
 					}
 					else {
-						if (cipherKey != undefined && cipherKey != null) {
-							certificate = await decipher(html.substring(0, sepPos), cipherKey, true);
-							signature = await decipher(html.substring(sepPos + 1, sepPos2), cipherKey, true);
-							extraInfo = Base64.decode(await decipher(html.substring(sepPos2 + 1), cipherKey));	
+						if (decipherConfig != undefined && decipherConfig != null) {
+							certificate = await decipher(html.substring(0, sepPos), decipherConfig, true);
+							signature = await decipher(html.substring(sepPos + 1, sepPos2), decipherConfig, true);
+							extraInfo = Base64.decode(await decipher(html.substring(sepPos2 + 1), decipherConfig));	
 						}
 						else {
 							certificate = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
@@ -5235,7 +5225,7 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			var iterations = 0;
 
-			function getStoredFileFromServlet (idDocument, servletAddress, cipherKey, intentURL, successCallback, errorCallback) {
+			function getStoredFileFromServlet (idDocument, servletAddress, decipherConfig, intentURL, successCallback, errorCallback) {
 
 				var httpRequest = getHttpRequest();
 				if (!httpRequest) {
@@ -5243,14 +5233,14 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 
 				iterations = 0;
-				setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, servletAddress, "op=get&v=1_0&id=" + idDocument + "&it=0", cipherKey, intentURL, idDocument, false, successCallback, errorCallback);
+				setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, servletAddress, "op=get&v=1_0&id=" + idDocument + "&it=0", decipherConfig, intentURL, idDocument, false, successCallback, errorCallback);
 			}
 
-			function retrieveRequest(httpRequest, url, params, cipherKey, intentURL, idDocument, afirmaConnected, successCallback, errorCallback) {
+			function retrieveRequest(httpRequest, url, params, decipherConfig, intentURL, idDocument, afirmaConnected, successCallback, errorCallback) {
 
 				if (wrongInstallation) {
 					var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_AFIRMA,
-																	function() {execAppIntent(intentURL, idDocument, cipherKey, successCallback, errorCallback) },
+																	function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback) },
 																	function (){errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);});
 					if (!enabled) {
 						errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);
@@ -5262,7 +5252,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (iterations > NUM_MAX_ITERATIONS) {
 					if(!!afirmaConnected) {
 						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																		function() {execAppIntent(intentURL, idDocument, cipherKey, successCallback, errorCallback)},
+																		function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback)},
 																		function() {errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if (!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5275,7 +5265,7 @@ var AutoScript = ( function ( window, undefined ) {
 							errorType = ERROR_CONNECTING_SERVICE;
 						}
 						var enabled = Dialog.showErrorDialog(errorType,
-																	function (){execAppIntent(intentURL, idDocument, cipherKey, successCallback, errorCallback) },
+																	function (){execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback) },
 																	function (){errorCallback("java.lang.IOException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if(!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5288,7 +5278,7 @@ var AutoScript = ( function ( window, undefined ) {
 				httpRequest.onreadystatechange = async function() {
 					if (httpRequest.readyState == 4) {
 						if (httpRequest.status == 200) {
-							var needContinue = await successResponseFunction(httpRequest.responseText, cipherKey, successCallback, errorCallback);
+							var needContinue = await successResponseFunction(httpRequest.responseText, decipherConfig, successCallback, errorCallback);
 							if (needContinue) {
 								// En caso de que la respuesta sea "reset", se reinicia la espera
 								var oldIterations = iterations-1;
@@ -5296,7 +5286,7 @@ var AutoScript = ( function ( window, undefined ) {
 									iterations = 0;
 									afirmaConnected = true;
 								}
-								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), cipherKey, intentURL, idDocument, afirmaConnected, successCallback, errorCallback);
+								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, intentURL, idDocument, afirmaConnected, successCallback, errorCallback);
 							}
 						}
 						// En iOS, a veces, despues de abrirse Autofirma, la primera llamada al metodo de recuperacion
@@ -5304,11 +5294,11 @@ var AutoScript = ( function ( window, undefined ) {
 						// proseguimos intentandolo hasta obtener un respuesta correcta o agotar los intentos 
 						else if (httpRequest.status == 0) {
 							var oldIterations = iterations-1;
-							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), cipherKey, intentURL, idDocument, successCallback, errorCallback);
+							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, intentURL, idDocument, successCallback, errorCallback);
 						}
 						else {
 							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																			function() {execAppIntent(intentURL, idDocument, cipherKey, successCallback, errorCallback)},
+																			function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback)},
 																			function() {errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);});
 							if (!enabled) {
 								errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);
@@ -5332,22 +5322,23 @@ var AutoScript = ( function ( window, undefined ) {
 			}
 			
 			/**
-			 * Realiza un descifrado AES o DES segun se indique en el JSON que se pasa por parametro compatible con Java.
-			 * Recibe un JSON con el algoritmo y los parametros necesarios para descifra.
+			 * Se descifran los datos segun la configuracion de firma suministrada.
+			 * @param cipheredData Datos cifrados.
+			 * @param decipherConfig JSON con la configuracion para descifrar.
+			 * @param intermediate  En el caso del antiguo cifrado DES, indica si es un cifrado intermedio o no.
 			 * Como resultado devuelve la cadena de texto descifrada en base 64.
 			 */
-			 async function decipher(cipheredData, key, intermediate) {
-						
-				var keyString = await key;
-				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(keyString));
+			 async function decipher(cipheredData, decipherConfig, intermediate) {
 				
+				// Si se definio la cabecera de padding, los datos se cifraron con DES
 				var deciphered;
-				if (checkJSONAndAlgoritmAES(keyStringDecoded)) {
-					deciphered = await decipherAES(cipheredData, key);
+				if (cipheredData.charAt(1) == "." ) {
+					deciphered = decipherDES(cipheredData, decipherConfig.desKey, intermediate);					
 				} else {
-					deciphered = decipherDES(cipheredData, key, intermediate);
-				}					
-				
+					// Indicamos que la aplicacion de firma ha usado el nuevo mecanismo de cifrado
+					newCiphersSupported = true;
+					deciphered = await decipherAES(cipheredData, decipherConfig.cipherConfig);					
+				}
 				return deciphered;
 			}
 
@@ -5420,20 +5411,18 @@ var AutoScript = ( function ( window, undefined ) {
 			/**
 			 * Realiza un cifrado DES o AES segun indice el JSON pasado por parametro.
 			 * @param dataB64 Cadena de texto base 64.
-			 * @param key Clave de cifrado.
+			 * @param cipherConfig Configuracion de cifrado.
 			 * @return Base 64 cifrado.
 			 */
-			async function cipher(dataB64, key) {
+			async function cipher(dataB64, cipherConfig) {
 
-				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(key));
-				
 				var ciphered;
 				
-				if (checkJSONAndAlgoritmAES(keyStringDecoded) && !Platform.isAndroid() && !Platform.isIOS()) {  
-					ciphered = await cipherAES(dataB64, key);
+				if (newCiphersSupported) {
+					ciphered = await cipherAES(dataB64, cipherConfig.cipherConfig);
 				} else {
-					ciphered = cipherDES(dataB64, key);
-				}	
+					ciphered = cipherDES(dataB64, cipherConfig.desKey);
+				}
 				
 				return ciphered;				
 			}
@@ -5517,18 +5506,14 @@ var AutoScript = ( function ( window, undefined ) {
 			}
 			
 			/**
-			 * Comprueba si se trata de un JSON y que lleva una clave con algoritmo AES
-			 * @param keyStringDecoded JSON con la clave de cifrado.
-			 * @return True en caso de que sea un JSON valido con algoritmo AES, false en caso contrario.
+			 * Comprueba si se trata de un JSON que declara un algoritmo de cifrado.
+			 * @param cipherConfig JSON con la clave de cifrado.
+			 * @return true en caso de que sea un JSON que declare un algoritmo de cifrado, false en caso contrario.
 			 */
-			function checkJSONAndAlgoritmAES(keyStringDecoded) {
+			function checkJSONWithCipherConfig(cipherConfig) {
 			  try {
-				var cipherObj = JSON.parse(keyStringDecoded);
-			  	if (cipherObj.hasOwnProperty("algo") && cipherObj.algo === "AES") {
-			      return true;
-			    } else {
-			      return false;
-			    }
+				var cipherObj = JSON.parse(cipherConfig);
+			  	return cipherObj.hasOwnProperty("algo");
 			  } catch (error) {
 			    // Si falla el parseo, no es un JSON valido
 			    return false;
