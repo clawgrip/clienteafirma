@@ -134,7 +134,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 			+ "Autofirma"; //$NON-NLS-1$
 
 	private static final String PLUGINS_DIRNAME = "plugins"; //$NON-NLS-1$
-	
+
 	private static final String LANGUAGES_DIRNAME = "languages"; //$NON-NLS-1$
 
 	/**
@@ -174,11 +174,10 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     /** Versiones de Java soportadas. */
 	private static final String[] SUPPORTED_JAVA_VERSIONS = {
 			"1.8", // Version LTS //$NON-NLS-1$
-			"9.0", //$NON-NLS-1$
-			"10.0", //$NON-NLS-1$
 			"11.0", // Version LTS //$NON-NLS-1$
 			"17.0", // Version LTS //$NON-NLS-1$
-			"21" // Version LTS //$NON-NLS-1$
+			"21", // Version LTS //$NON-NLS-1$
+			"25" // Version LTS //$NON-NLS-1$
 	};
 
     /** Modo de depuraci&oacute;n para toda la aplicaci&oacute;n. */
@@ -742,7 +741,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     public static void setDefaultLocale(final Locale l) {
         if (l != null) {
             Locale.setDefault(l);
-            PreferencesManager.put(PreferencesManager.PREFERENCES_LOCALE, l.toString());   
+            PreferencesManager.put(PreferencesManager.PREFERENCES_LOCALE, l.toString());
             LanguageManager.init(getLanguagesDir());
             SimpleAfirmaMessages.changeLocale();
         }
@@ -775,7 +774,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 				LOGGER.log(Level.WARNING, "No se han podido copiar los ficheros de ayuda a disco", e); //$NON-NLS-1$
 			}
 		}
-		
+
 		String defaultLocale = PreferencesManager.get(PreferencesManager.PREFERENCES_LOCALE);
 		if (defaultLocale == null || defaultLocale.isEmpty()) {
 			defaultLocale = "es_ES"; //$NON-NLS-1$
@@ -793,7 +792,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 				LOGGER.log(Level.WARNING, "No se ha podido importar el archivo de ayuda correctamente", e); //$NON-NLS-1$
 			}
 		}
-		
+
 		try (final InputStream is = new FileInputStream(indexHelpFile)) {
 			Desktop.getDesktop().browse(new URI(HelpResourceManager.createHelpFileLauncher(indexHelpFile + "?redirectPage=" + redirectPage))); //$NON-NLS-1$
 		}
@@ -801,7 +800,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 			LOGGER.log(Level.WARNING, "No se ha podido leer el archivo de ayuda correctamente", e); //$NON-NLS-1$
 			AOUIFactory.showErrorMessage(SimpleAfirmaMessages.getString("SimpleAfirma.58"), //$NON-NLS-1$
                     					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
-                    					JOptionPane.ERROR_MESSAGE, 
+                    					JOptionPane.ERROR_MESSAGE,
                     					new AOException(SimpleErrorCode.Internal.CANT_LOAD_HELP));
 		}
 	}
@@ -839,7 +838,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 * @param args Par&aacute;metros en l&iacute;nea de comandos
 	 */
     public static void main(final String[] args) {
-    	
+
         // Cargamos las preferencias establecidas
 		String defaultLocale = PreferencesManager.get(PreferencesManager.PREFERENCES_LOCALE);
 		if (defaultLocale == null || defaultLocale.isEmpty()) {
@@ -1388,7 +1387,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		}
 		return new File(appDir, PLUGINS_DIRNAME);
 	}
-    
+
     /**
      * Obtiene el directorio en el que se encuentran guardados o se deben
      * guardar los idiomas.
