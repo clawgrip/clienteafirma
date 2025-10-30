@@ -303,7 +303,7 @@ var AutoScript = ( function ( window, undefined ) {
 		/** Comprueba si una cadena de texto es una URL (http/https). La alternativa implicaria ser un Base64. */ 
 		function isValidUrl(data) { 
 			return data != null && data.length > "https://".length &&
-				("http:" == data.substr(0, 5) || "https:" == data.substr(0, 6));
+				("http:" == data.substring(0, 5) || "https:" == data.substring(0, 6));
 		}
 
 		var downloadSuccessFunction = null;
@@ -319,7 +319,13 @@ var AutoScript = ( function ( window, undefined ) {
 		/* Codigos de error */
 		var ErrorCode = {
 		  Internal: {
-		    BROWSER_CANT_PREPROCESS: {
+			CIPHERING_ERROR: {
+			  code: "AS200007", message: "Error al cifrar los datos para el envio al cliente de firma"
+			},
+			DECIPHERING_ERROR: {
+			  code: "AS200008", message: "Error al descifrar los datos recibidos del cliente de firma"
+			},
+			BROWSER_CANT_PREPROCESS: {
 		      code: "AS220005", message: "Su navegador no permite preprocesar los datos que desea tratar"
 		    },
 		    WEBSOCKET_INVALID_RESP: {
@@ -327,7 +333,7 @@ var AutoScript = ( function ( window, undefined ) {
 		    },
 		    BROWSER_CANT_RECOVER_RESULT: {
 		      code: "AS220007", message: "Su navegador no permite obtener el resultado de la operacion"
-		    }
+    		}
 		  },
 		  ThirdParty: {
 		    UPLOADING_TO_SERVER: {
@@ -2555,9 +2561,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Si se obtiene otro mensaje de error, se ejecuta la funcion callback de error
-				if (data.length > 7 && data.substr(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {
+				if (data.length > 7 && data.substring(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {
 					var errorType;		
-					if (data.substr(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
+					if (data.substring(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
 						errorType = "es.gob.afirma.core.AOCancelledOperationException";
 					} else {
 						errorType = "java.lang.Exception";
@@ -2583,7 +2589,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Se ha producido un error
-				if (data.length > 4 && data.substr(0, 4) == "SAF_") {
+				if (data.length > 4 && data.substring(0, 4) == "SAF_") {
 					processErrorResponse("java.lang.Exception", data);
 					return;
 				}
@@ -3657,8 +3663,8 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 
 				// Si se obtiene otro mensaje de error, se ejecuta la funcion callback de error
-				if (data.length > 7 && data.substr(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {		
-					if (data.substr(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
+				if (data.length > 7 && data.substring(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {		
+					if (data.substring(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
 						errorType = "es.gob.afirma.core.AOCancelledOperationException";
 					} else {
 						errorType = "java.lang.Exception";
@@ -3678,7 +3684,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Se ha producido un error
-				if (data.length > 4 && data.substr(0, 4) == "SAF_") {
+				if (data.length > 4 && data.substring(0, 4) == "SAF_") {
 					errorCallback("java.lang.Exception", data);
 					return;
 				}
@@ -3709,9 +3715,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Si se obtiene otro mensaje de error, se ejecuta la funcion callback de error
-				if (data.length > 7 && data.substr(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {		
+				if (data.length > 7 && data.substring(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {		
 					var errorType;
-					if (data.substr(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
+					if (data.substring(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
 						errorType = "es.gob.afirma.core.AOCancelledOperationException";
 					} else {
 						errorType = "java.lang.Exception";
@@ -3748,7 +3754,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Se ha producido un error
-				if (data.length > 4 && data.substr(0, 4) == "SAF_") {
+				if (data.length > 4 && data.substring(0, 4) == "SAF_") {
 					errorCallback("java.lang.Exception", data);
 					return;
 				}
@@ -3852,9 +3858,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Si se obtiene otro mensaje de error, se ejecuta la funcion callback de error
-				if (data.length > 7 && data.substr(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {
+				if (data.length > 7 && data.substring(0, 4).toLowerCase() == "err-" && data.indexOf(":=") != -1) {
 					var errorType;
-					if (data.substr(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
+					if (data.substring(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
 						errorType = "es.gob.afirma.core.AOCancelledOperationException";
 					} else {
 						errorType = "java.lang.Exception";
@@ -3874,7 +3880,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Se ha producido un error
-				if (data.length > 4 && data.substr(0, 4) == "SAF_") {
+				if (data.length > 4 && data.substring(0, 4) == "SAF_") {
 					errorCallback("java.lang.Exception", data);
 					return;
 				}
@@ -4151,16 +4157,30 @@ var AutoScript = ( function ( window, undefined ) {
 			/**
 			 * Inicia el proceso de seleccion de certificado.
 			 */
-			async function selectCertificate (extraParams, successCallback, errorCallback) {
+			function selectCertificate (extraParams, successCallback, errorCallback) {
+
+				var parameters = {
+					extraParams : extraParams
+				};
+
+				if (Platform.isInternetExplorer()) {
+					innerSelectCertificate(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSelectCertificate, parameters, successCallback, errorCallback);
+				}
+			}
 			
-				currentOperation = OPERATION_SELECT_CERTIFICATE;
+			function innerSelectCertificate(cipherConfig, parameters, successCallback, errorCallback) {
 				
+				currentOperation = OPERATION_SELECT_CERTIFICATE;
+								
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-				
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
+				var extraParams = parameters.extraParams;
+				
 				var opId = "selectcert";
 				
 				var params = new Array();
@@ -4236,9 +4256,33 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param successCallback M&eacute;todo a ejecutar en caso de &eacute;xito.
 			 * @param errorCallback M&eacute;todo a ejecutar en caso de error.
 			 */
-			async function signOperation (signId, dataB64, algorithm, format, extraParams, successCallback, errorCallback) {
+			function signOperation (signId, dataB64, algorithm, format, extraParams, successCallback, errorCallback) {
+			
+				var parameters = {
+					signId : signId,
+					dataB64 : dataB64,
+					algorithm : algorithm,
+					format : format,
+					extraParams : extraParams
+				};
 
+				if (Platform.isInternetExplorer()) {
+					innerSignOperation(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSignOperation, parameters, successCallback, errorCallback);
+				}
+			}
+			
+			function innerSignOperation(cipherConfig, parameters, successCallback, errorCallback) {
+			
 				currentOperation = OPERATION_SIGN;
+				
+				var signId = parameters.signId;
+				var dataB64 = parameters.dataB64;
+				var algorithm = parameters.algorithm;
+				var format = parameters.format;
+				var extraParams = parameters.extraParams;
 				
 				if (dataB64 == undefined || dataB64 == "") {
 					dataB64 = null;
@@ -4252,8 +4296,6 @@ var AutoScript = ( function ( window, undefined ) {
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-								
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4301,7 +4343,7 @@ var AutoScript = ( function ( window, undefined ) {
 					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
 				}
 			}
-
+			
 			/**
 			 * Realiza una operacion de firma/multifirma y permite guardar el fichero a disco.
 			 * @param signId Identificador de la operacion a realizar (sign, cosign y countersign).
@@ -4313,9 +4355,35 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param successCallback M&eacute;todo a ejecutar en caso de &eacute;xito.
 			 * @param errorCallback M&eacute;todo a ejecutar en caso de error.
 			 */
-			async function signAndSaveToFile (signId, dataB64, algorithm, format, extraParams, outputFileName, successCallback, errorCallback) {
+			function signAndSaveToFile (signId, dataB64, algorithm, format, extraParams, outputFileName, successCallback, errorCallback) {
+				
+				var parameters = {
+					signId : signId,
+					dataB64 : dataB64,
+					algorithm : algorithm,
+					format : format,
+					extraParams : extraParams,
+					outputFileName : outputFileName
+				};
+
+				if (Platform.isInternetExplorer()) {
+					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSignAndSaveFile, parameters, successCallback, errorCallback);
+				}
+			}
+			
+			function innerSignAndSaveFile(cipherConfig, parameters, successCallback, errorCallback) {
 
 				currentOperation = OPERATION_SIGN;
+				
+				var signId = parameters.signId;
+				var dataB64 = parameters.dataB64;
+				var algorithm = parameters.algorithm;
+				var format = parameters.format;
+				var extraParams = parameters.extraParams;
+				var outputFileName = parameters.outputFileName;
 				
 				if (dataB64 == undefined || dataB64 == "") {
 					dataB64 = null;
@@ -4329,8 +4397,6 @@ var AutoScript = ( function ( window, undefined ) {
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-								
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4386,9 +4452,29 @@ var AutoScript = ( function ( window, undefined ) {
 			/**
 			 * Ejecuta una operacion de firma de lote con XML.
 			 */
-			async function signBatchXML (batchB64, batchPreSignerUrl, batchPostSignerUrl, extraParams, successCallback, errorCallback) {
-				
+			function signBatchXML (batchB64, batchPreSignerUrl, batchPostSignerUrl, extraParams, successCallback, errorCallback) {
+				var parameters = {
+					batchB64 : batchB64,
+					batchPreSignerUrl : batchPreSignerUrl,
+					batchPostSignerUrl : batchPostSignerUrl,
+					extraParams : extraParams
+				};
+
+				if (Platform.isInternetExplorer()) {
+					innerSignBatchXML(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSignBatchXML, parameters, successCallback, errorCallback);
+				}
+			}
+
+			function innerSignBatchXML(cipherConfig, parameters, successCallback, errorCallback) {
 				currentOperation = OPERATION_BATCH;
+
+				var batchB64 = parameters.batchB64;
+				var batchPreSignerUrl = parameters.batchPreSignerUrl;
+				var batchPostSignerUrl = parameters.batchPostSignerUrl;
+				var extraParams = parameters.extraParams;
 				
 				if (batchB64 == undefined || batchB64 == "") {
 					batchB64 = null;
@@ -4402,8 +4488,6 @@ var AutoScript = ( function ( window, undefined ) {
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-								
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4459,15 +4543,33 @@ var AutoScript = ( function ( window, undefined ) {
 			/**
 			 * Ejecuta una operacion de firma de lote JSON.
 			 */
-			async function signBatchJSON (jsonRequestB64, batchPreSignerUrl, batchPostSignerUrl, certFilters, successCallback, errorCallback) {
-				
+			function signBatchJSON (jsonRequestB64, batchPreSignerUrl, batchPostSignerUrl, certFilters, successCallback, errorCallback) {
+				var parameters = {
+					jsonRequestB64 : jsonRequestB64,
+					batchPreSignerUrl : batchPreSignerUrl,
+					batchPostSignerUrl : batchPostSignerUrl,
+					certFilters : certFilters
+				};
+
+				if (Platform.isInternetExplorer()) {
+					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSignBatchJSON, parameters, successCallback, errorCallback);
+				}
+			}
+
+			function innerSignBatchJSON(cipherConfig, parameters, successCallback, errorCallback) {
 				currentOperation = OPERATION_BATCH;
+
+				var jsonRequestB64 = parameters.jsonRequestB64;
+				var batchPreSignerUrl = parameters.batchPreSignerUrl;
+				var batchPostSignerUrl = parameters.batchPostSignerUrl;
+				var certFilters = parameters.certFilters;
 				
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-								
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				if (!appName) {
 					appName = DOMAIN_NAME;
@@ -4525,8 +4627,31 @@ var AutoScript = ( function ( window, undefined ) {
 			/**
 			 * Guardado de datos en disco. Se realiza mediante la invocacion de una app nativa. 
 			 */
-			async function saveDataToFile (dataB64, title, filename, extension, description, successCallback, errorCallback) {
+			function saveDataToFile (dataB64, title, filename, extension, description, successCallback, errorCallback) {
+				var parameters = {
+					dataB64 : dataB64,
+					title : title,
+					filename : filename,
+					extension : extension,
+					description : description
+				};
 
+				if (Platform.isInternetExplorer()) {
+					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
+				}
+				else {
+					executeWithAdvancedCipher(innerSaveDataToFile, parameters, successCallback, errorCallback);
+				}
+			}
+
+			function innerSaveDataToFile(cipherConfig, parameters, successCallback, errorCallback) {
+
+				var dataB64 = parameters.dataB64;
+				var title = parameters.title;
+				var filename = parameters.filename;
+				var extension = parameters.extension;
+				var description = parameters.description;
+				
 				if (dataB64 != undefined && dataB64 != null && dataB64 != "") {
 					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_");
 				}
@@ -4534,8 +4659,6 @@ var AutoScript = ( function ( window, undefined ) {
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
 				var desKey = generateDESCipherKey();
-								
-				var cipherConfig = Base64.encode(await generateAESCipherKey());
 
 				var opId = "save";
 				var params = new Array();
@@ -4682,39 +4805,6 @@ var AutoScript = ( function ( window, undefined ) {
 				return random;
 			}
 			
-			/* Genera un numero aleatorio para utilizar como clave de cifrado. */
-			async function generateAESCipherKey() {
-				var iv = window.crypto.getRandomValues(new Uint8Array(16));
-				
-				var c = window.crypto.subtle;
-				
-				var cryptoKey = await c.generateKey(
-					{
-						name: "AES-CBC",
-						length: 256
-					},
-					true,
-					["encrypt", "decrypt"]
-				);
-				
-				var key = await c.exportKey("raw", cryptoKey);
-				var keyB64 = bytesToBase64(new Uint8Array(key));
-				
-				var ivGenerated = new Uint8Array(iv.length);
-				ivGenerated.set(iv, 0);
-				var ivB64 = bytesToBase64(ivGenerated);
-				
-				var cipherJSON = {
-				  algo: "AES",
-				  key: 	keyB64,
-				  iv: 	ivB64
-				};
-			
-				// Los datos cifrados los pasamos a base 64 y, antes de devolverlos le anteponemos el padding que
-				// le habra agregado el metodo de cifrado separados por un punto ('.').
-				return JSON.stringify(cipherJSON);
-			}
-
 			/* Completa un numero con ceros a la izquierda. */
 			function zeroFill(number, width) {
 				width -= number.toString().length;
@@ -4724,12 +4814,53 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				return number + "";
 			}
+			
+			/**
+			 * Ejecuta un metodo de operacion enviando los datos por servidor intermedio
+			 * @param operationMethod Metodo de la operacion que debe ejecutar.
+			 * @param operationParameters Parametro con toda la informacion para la ejecucion del metodo
+			 */
+			function executeWithAdvancedCipher(operationMethod, operationParameters, successCallback, errorCallback) {
+
+				var c = window.crypto.subtle;
+
+				c.generateKey(
+					{
+						name: "AES-CBC",
+						length: 256
+					},
+					true,
+					["encrypt", "decrypt"]
+				)
+				.then(function(cipherKey) {
+					return c.exportKey("raw", cipherKey)
+				})
+				.then(function(exportedKey) {
+					
+					var keyB64 = bytesToBase64(new Uint8Array(exportedKey));
+					var iv = window.crypto.getRandomValues(new Uint8Array(16));
+					var ivGenerated = new Uint8Array(iv.length);
+					ivGenerated.set(iv, 0);
+					var ivB64 = bytesToBase64(ivGenerated);
+					
+					var cipherJSON = {
+					  algo: "AES",
+					  key: 	keyB64,
+					  iv: 	ivB64
+					};
+
+					var cipherConfig = JSON.stringify(cipherJSON);
+					var cipherConfigB64 = Base64.encode(cipherConfig);
+					
+					operationMethod(cipherConfigB64, operationParameters, successCallback, errorCallback);
+				});
+			}
 
 			/**
 			 * Envia los datos al servidor intermedio y luego invoca a la
 			 * aplicacion nativa para que los descargue y opere con ellos.
 			 * @param idSession Identificador de la operacion con el que se espera recuperar el resultado.
-			 * @param decipherConfig Configuracion para el descifrado del resultado. Si no se indica, no se descifra.
+			 * @param cipherConfig Configuracion para el cifrado y descifrado de los datos que se transmitan via servidor intermedio. Si no se indica, no se cifra/descifra.
 			 * @param storageServletAddress URL del servlet que almacena.
 			 * @param retrieverServletAddress URL del servlet que recupera.
 			 * @param op Identificador del tipo de operacion (firma, cofirma, guardado,...).
@@ -4737,7 +4868,7 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param successCallback Funcion callback que debe ejecutarse en caso de exito.
 			 * @param errorCallback Funcion callback que debe ejecutarse en caso de error.
 			 */
-			async function sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) {
+			function sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) {
 
 				// Mostramos el dialogo de carga
 				Dialog.showLoadingDialog();
@@ -4755,23 +4886,23 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var errorOcurred = false;
 
-				httpRequest.onreadystatechange = async function () {
+				httpRequest.onreadystatechange = function () {
 					if (httpRequest.readyState == 4) {
 						 if (httpRequest.status == 200) {
-							url = buildUrlWithoutData(op, fileId, retrieverServletAddress, decipherConfig);
+							url = buildUrlWithoutData(op, fileId, retrieverServletAddress, cipherConfig);
 							if (isURLTooLong(url)) {
 								errorCode = ErrorCode.Request.TOO_LONG_URL.code;
 								errorCallback("java.lang.IllegalArgumentException",ErrorCode.Request.TOO_LONG_URL.message, errorCode);
 								return;
 							}
-							execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
+							execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
 						}
 					else {
 						errorOcurred = true;
 						console.log("Error al enviar los datos al servidor intermedio. HTTP Status: " + httpRequest.status);
 						errorCode = ErrorCode.Request.UPLOADING_TO_APP.code;
 						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-								 function() { sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
+								 function() { sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
 								 function() { errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);});
 						if (!enabled) {
 							errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);
@@ -4796,15 +4927,58 @@ var AutoScript = ( function ( window, undefined ) {
 				if (minimumClientVersion) {
 					params[params.length] = { key:"mcv", value:minimumClientVersion};
 				}
+	
+				var dataB64 = buildXML(op, params);
+				
+				// Si sabemos que se puede usar el cifrado avanzado, lo usamos. Si no, usamos el antiguo
+				if (newCiphersSupported) {
+					dataB64 = cipherAndSendData(dataB64, cipherConfig.cipherConfig, fileId, httpRequest, errorCallback);
+					
+				} else {
+					dataB64 = cipherDES(dataB64, cipherConfig.desKey);
+					sendData(dataB64, fileId, httpRequest, errorCallback);
+				}
+			}
+			
+			function cipherAndSendData(dataB64, cipherConfig, fileId, httpRequest, errorCallback) {
+				
+				var jsonStr = Cipher.base64ToString(fromBase64UrlSaveToBase64(cipherConfig));
+				var jsonObject = JSON.parse(jsonStr);
+				var rawKey = base64ToBytes(jsonObject.key);
+							
+			    window.crypto.subtle.importKey(
+			        "raw",                // formato de la clave
+			        rawKey,               // bytes de la clave
+			        { name: "AES-CBC" },  // algoritmo
+			        false,                // no exportable
+			        ["encrypt"]           // usos permitidos
+			    ).then(function (cryptoKey) {
+					var iv = base64ToBytes(jsonObject.iv);
+				    var encoded = base64ToBytes(dataB64);
+				
+				    return window.crypto.subtle.encrypt(
+				        {
+				            name: "AES-CBC",
+				            iv: iv
+				        },
+				        cryptoKey,
+				        encoded
+				    );
+				}).then(function (ciphered) {
+					let cipheredDataB64 = arrayBufferToBase64(ciphered);
+					sendData(cipheredDataB64, fileId, httpRequest, errorCallback);
+				}).catch(function(error) {
+					console.log("Error al hacer el cifrado avanzado de los datos para la subida al servidor: " + error);
+					errorCode = ErrorCode.Internal.CIPHERING_ERROR.code;
+					errorCallback("java.lang.Exception", ErrorCode.Internal.CIPHERING_ERROR.message, errorCode);
+				});
+			}
+			
+			function sendData(dataB64, fileId, httpRequest, errorCallback) {
 				
 				var requestData =
-					"op=put&v=1_0&id=" + fileId + "&dat=";
-					
-				var xmlDat = buildXML(op, params);
-				
-				var xmlDatCipheredB64 = await cipher(xmlDat, decipherConfig);
-				
-				requestData += xmlDatCipheredB64.replace(/\+/g, "-").replace(/\//g, "_");;				
+					"op=put&v=1_0&id=" + fileId + "&dat="				
+					+ dataB64.replace(/\+/g, "-").replace(/\//g, "_");;				
 
 				try {
 					httpRequest.send(requestData);
@@ -4932,10 +5106,10 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @returns Devuelve true si se ha fallado pero se puede volver a reintentar, false en caso de
 			 * error determinante o exito.
 			 */
-			async function successResponseFunction (html, decipherConfig, successCallback, errorCallback) {
+			function successResponseFunction (html, decipherConfig, successCallback, errorCallback) {
 				
 				// Si se obtiene el mensaje de  error de que el identificador no existe, seguimos intentandolo
-				if (html.substr(0, 6).toLowerCase() == "err-06") {
+				if (html.substring(0, 6).toLowerCase() == "err-06") {
 					return true;
 				}
 
@@ -4945,14 +5119,14 @@ var AutoScript = ( function ( window, undefined ) {
 				// Si se obtiene el mensaje de espera, es que el cliente se ha levantado y ha iniciado el proceso.
 				// Siempre que obtengamos este resultado, deberemos reiniciar el tiempo de espera, ya que la aplicacion
 				// sigue activa y nos pide mas tiempo
-				if (html.substr(0, 5).toLowerCase() == "#wait") {
+				if (html.substring(0, 5).toLowerCase() == "#wait") {
 					return "reset";
 				}
 				
 				// Si se obtiene otro mensaje de error, se deja de intentar y se ejecuta la funcion callback de error
-				if (html.substr(0, 4).toLowerCase() == "err-" && html.indexOf(":=") != -1) {
+				if (html.substring(0, 4).toLowerCase() == "err-" && html.indexOf(":=") != -1) {
 					var errorType;		
-					if (html.substr(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
+					if (html.substring(0, 7).toLowerCase() == "err-11:") { // Tipo de error asociado a la cancelacion de la operacion
 						errorType = "es.gob.afirma.core.AOCancelledOperationException";
 					} else {
 						errorType = "java.lang.Exception";
@@ -4994,63 +5168,87 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Se ha producido un error
-				if (html.length > 4 && html.substr(0, 4) == "SAF_") {
+				if (html.length > 4 && html.substring(0, 4) == "SAF_") {
 					if (!!errorCallback) {
 						errorCallback("java.lang.Exception", html);
 					}
 					return false;
 				}
 				
+
+				// Llegados a este punto sabemos que hemos obtenido un resultado correcto que hay
+				// que procesar. Los distintos valores del resultado se separan con una tuberia
+				// ('|'). Si se definio una clave de cifrado, consideramos que cada uno de los
+				// datos se han cifrado de forma independiente
+				
+				var datas = new Array();
+				var sepPos1 = 0;
+				var sepPos2 = html.indexOf('|');
+				if (sepPos2 == -1) {
+					datas.push(html);
+				} else {
+					do {
+						datas.push(html.substring(sepPos1, sepPos2));
+						sepPos1 = sepPos2 + 1;
+						sepPos2 = html.indexOf('|', sepPos1);
+					} while (sepPos2 != -1);
+					datas.push(html.substring(sepPos1));
+				}
+				
+				// Si estamos en Internet Explorer, usamos directamente el mecanismo de
+				// cifrado antiguo. Si no, usamos el nuevo
+				if (Platform.isInternetExplorer()) {
+					if (decipherConfig) {
+					 	datas = decipherDES(datas, decipherConfig.desKey);
+					}
+					processSuccessResult(datas, successCallback);
+				}
+				else {
+					if (decipherConfig) {
+						decipherDatasAndProcessResult(datas, decipherConfig, successCallback, errorCallback);
+					} else {
+						processSuccessResult(datas, successCallback);	
+					}
+				}
+			}
+			
+			function processSuccessResult (datas, successCallback) {
+				
 				// Si no se obtuvo un error ni hemos recibido ninguno de los resultados anteriores,
 				// procesamos el resultado segun el tipo de operacion:
 				//  - Si es una firma; se recibira la firma, el certificado + la firma, o el certificado + firma + datos extra.
 				//  - Si es una seleccion de certificado; solo se recibira el certificado.
-				//  - Si es una firma de lote; se recibira el resultado del lote, o el resultado del lote + certificado. 
-				// Los distintos valores del resultado se separan con una tuberia ('|'). Si se
-				// definio una clave de cifrado, consideramos que cada uno de los datos se han
-				// cifrado de forma independiente
+				//  - Si es una firma de lote; se recibira el resultado del lote, o el resultado del lote + certificado.
 				
 				// Procesamos el resultado de la firma de lote
 				if (currentOperation == OPERATION_BATCH) {
 					var result;
 					var certificate = null;
-					var sepPos = html.indexOf('|');
-
+					
 					// En caso de recibir un unico parametro, este sera la firma en el caso de las operaciones de firma y el
 					// certificado cuando se pidio seleccionar uno 
-					if (sepPos == -1) {
-						if (decipherConfig != undefined && decipherConfig != null) {
-							result = await decipher(html, cipherKey);						
-						}
-						else {
-							result = fromBase64UrlSaveToBase64(html);
+					result = fromBase64UrlSaveToBase64(datas[0]);
+					if (datas.length > 1) {
+						certificate = fromBase64UrlSaveToBase64(datas[1]);
+					}
+												
+					// Guardamos el certificado si corresponde
+					if (!!stickySignatory) {
+						if (!!certificate) {
+							stickyCertificate = certificate;
 						}
 					}
 					else {
-						if (decipherConfig != undefined && decipherConfig != null) {
-							result = await decipher(html.substring(0, sepPos), decipherConfig, true);
-							certificate = await decipher(html.substring(sepPos + 1), decipherConfig);		
-						}
-						else {
-							result = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
-							certificate = fromBase64UrlSaveToBase64(html.substring(sepPos + 1));
-						}
-						// Guardamos el certificado si corresponde
-						if (!!stickySignatory) {
-							if (!!certificate) {
-								stickyCertificate = certificate;
-							}
-						}
-						else {
-							stickyCertificate = null;
-						}
+						stickyCertificate = null;
 					}
 					
+					// Si era una operacion de firma de lote JSON, compone el resultado,
+					// si era un lote XML, fallara y devolvera el mismo valor
 					try {
 						result = AfirmaUtils.parseJSONData(result);
 					}
 					catch (e) {}
-
+					
 					if (!!successCallback) {
 						successCallback(result, certificate);
 					}
@@ -5058,15 +5256,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				// Procesamos el resultado de la seleccion de certificado
 				else if (currentOperation == OPERATION_SELECT_CERTIFICATE) {
-					var certificate;
-					if (decipherConfig != undefined && decipherConfig != null) {
-						certificate = await decipher(html, decipherConfig);
-					}
-					else {
-						certificate = fromBase64UrlSaveToBase64(html);
-					}
+					var certificate = fromBase64UrlSaveToBase64(datas[0]);
 
-					// Guardamos el certificado
+					// Guardamos el certificado si corresponde
 					stickyCertificate = !!stickySignatory ? certificate : null;
  					
 					if (!!successCallback) {
@@ -5079,42 +5271,20 @@ var AutoScript = ( function ( window, undefined ) {
 				var signature;
 				var certificate = null;
 				var extraInfo = null;
-				var sepPos = html.indexOf('|');
 
 				// En caso de recibir un unico parametro, este sera la firma en el caso de las operaciones de firma y el
 				// certificado cuando se pidio seleccionar uno 
-				if (sepPos == -1) {
-					if (decipherConfig != undefined && decipherConfig != null) {
-						signature = await decipher(html, decipherConfig);			
-					}
-					else {
-						signature = fromBase64UrlSaveToBase64(html);
-					}
+				if (datas.length == 1) {
+					signature = fromBase64UrlSaveToBase64(datas[0]);
+				}
+				else if (datas.length == 2) {
+					certificate = fromBase64UrlSaveToBase64(datas[0]);
+					signature = fromBase64UrlSaveToBase64(datas[1]);
 				}
 				else {
-					var sepPos2 = html.indexOf('|', sepPos + 1);
-					if (sepPos2 == -1) {
-						if (decipherConfig != undefined && decipherConfig != null) {
-							certificate = await decipher(html.substring(0, sepPos), decipherConfig, true);
-							signature = await decipher(html.substring(sepPos + 1), decipherConfig);
-						}
-						else {
-							certificate = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
-							signature = fromBase64UrlSaveToBase64(html.substring(sepPos + 1));
-						}
-					}
-					else {
-						if (decipherConfig != undefined && decipherConfig != null) {
-							certificate = await decipher(html.substring(0, sepPos), decipherConfig, true);
-							signature = await decipher(html.substring(sepPos + 1, sepPos2), decipherConfig, true);
-							extraInfo = Base64.decode(await decipher(html.substring(sepPos2 + 1), decipherConfig));	
-						}
-						else {
-							certificate = fromBase64UrlSaveToBase64(html.substring(0, sepPos));
-							signature = fromBase64UrlSaveToBase64(html.substring(sepPos + 1));
-							extraInfo = Base64.decode(fromBase64UrlSaveToBase64(html.substring(sepPos2 + 1)));
-						}
-					}
+					certificate = fromBase64UrlSaveToBase64(datas[0]);
+					signature = fromBase64UrlSaveToBase64(datas[1]);
+					extraInfo = Base64.decode(fromBase64UrlSaveToBase64(datas[2]));
 				}
 
 				if (!!stickySignatory) {
@@ -5129,8 +5299,60 @@ var AutoScript = ( function ( window, undefined ) {
 				if (!!successCallback) {
 					successCallback(signature, certificate, extraInfo);
 				}
+			}
+			
+			function decipherDatasAndProcessResult(cipheredDatas, decipherConfig, successCallback, errorCallback) {
+
+				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(decipherConfig.cipherConfig));
+				var keyObj = JSON.parse(keyStringDecoded);				
+				var key = base64ToBytes(keyObj.key);
+				var iv = base64ToBytes(keyObj.iv);
 				
-				return false;			
+				var decipheredDatas = new Array();
+				
+				decipherDataAndProcessResult(cipheredDatas, decipheredDatas, key, iv, successCallback, errorCallback);
+			}
+			
+			function decipherDataAndProcessResult(cipheredDatas, decipheredDatas, key, iv, successCallback, errorCallback) {
+	
+				// Procesamos el siguiente dato sin descifrar
+				var cipheredDataB64 = cipheredDatas[decipheredDatas.length];
+				
+				var ciphered = base64ToBytes(fromBase64UrlSaveToBase64(cipheredDataB64));
+				var c = window.crypto.subtle;
+
+				c.importKey(
+					"raw",
+					key,
+					{
+						name: "AES-CBC",
+						length: 256
+					},
+					false,
+					["encrypt", "decrypt"]
+				).then(function(cryptoKey) {
+					return c.decrypt(
+						{
+							name: "AES-CBC",
+							iv: iv
+						},
+						cryptoKey,
+						ciphered
+					);
+				}).then(function(deciphered) {
+					decipheredDatas.push(arrayBufferToBase64(deciphered));
+					// Si hemos descifrado ya todos los datos, procesamos la respuesta; si no, seguimos decifrando
+					if (cipheredDatas.length == decipheredDatas.length) {
+						processSuccessResult(decipheredDatas, successCallback);
+					}
+					else {
+						decipherDataAndProcessResult(cipheredDatas, decipheredDatas, key, iv, successCallback, errorCallback);
+					}
+				}).catch(function(error) {
+					console.log("Error en el descifrado de la respuesta: " + error);
+					errorCode = ErrorCode.Internal.DECIPHERING_ERROR.code;
+					errorCallback("java.lang.Exception", ErrorCode.Internal.DECIPHERING_ERROR.message, errorCode);
+				 });
 			}
 			
 			function errorResponseFunction (type, message, errorCallback, errCode) {
@@ -5275,10 +5497,10 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				iterations++;
 
-				httpRequest.onreadystatechange = async function() {
+				httpRequest.onreadystatechange = function() {
 					if (httpRequest.readyState == 4) {
 						if (httpRequest.status == 200) {
-							var needContinue = await successResponseFunction(httpRequest.responseText, decipherConfig, successCallback, errorCallback);
+							var needContinue = successResponseFunction(httpRequest.responseText, decipherConfig, successCallback, errorCallback);
 							if (needContinue) {
 								// En caso de que la respuesta sea "reset", se reinicia la espera
 								var oldIterations = iterations-1;
@@ -5320,42 +5542,7 @@ var AutoScript = ( function ( window, undefined ) {
 					return;
 				}
 			}
-			
-			/**
-			 * Se descifran los datos segun la configuracion de firma suministrada.
-			 * @param cipheredData Datos cifrados.
-			 * @param decipherConfig JSON con la configuracion para descifrar.
-			 * @param intermediate  En el caso del antiguo cifrado DES, indica si es un cifrado intermedio o no.
-			 * Como resultado devuelve la cadena de texto descifrada en base 64.
-			 */
-			 async function decipher(cipheredData, decipherConfig, intermediate) {
-				
-				// Si se definio la cabecera de padding, los datos se cifraron con DES
-				var deciphered;
-				if (cipheredData.charAt(1) == "." ) {
-					deciphered = decipherDES(cipheredData, decipherConfig.desKey, intermediate);					
-				} else {
-					// Indicamos que la aplicacion de firma ha usado el nuevo mecanismo de cifrado
-					newCiphersSupported = true;
-					deciphered = await decipherAES(cipheredData, decipherConfig.cipherConfig);					
-				}
-				return deciphered;
-			}
-
-			/**
-			 * Realiza un descifrado AES compatible con Java.
-			 * Recibe un JSON con el algoritmo, la clave y el salto necesarios para descifrar los datos.
-			 * Como resultado devuelve la cadena de texto descifrada en base 64.
-			 */
-			 async function decipherAES(cipheredData, key) {
-				 
-				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(key));
-				var keyObj = JSON.parse(keyStringDecoded);
 						
-				var deciphered = await decipherWithIv(fromBase64UrlSaveToBase64(cipheredData), keyObj.key, keyObj.iv);
-				return deciphered;
-			}
-			
 			/**
 			 * Realiza un descifrado DES compatible con Java (Algoritmo DES, modo CBC, sin Padding).
 			 * Recibe en base 64 la cadena de texto cifrado antecedido por el padding anadido manualmente
@@ -5364,67 +5551,22 @@ var AutoScript = ( function ( window, undefined ) {
 			 * devuelto por la aplicacion, lo que permite reajustar el padding.
 			 * Como resultado devuelve la cadena de texto descifrada en base 64.
 			 */
-			function decipherDES(cipheredData, key, intermediate) {
-								
-				var dotPos = cipheredData.indexOf('.');
-				var padding = cipheredData.substr(0, dotPos);
+			function decipherDES(cipheredDatas, key) {
 				
-				var deciphered = Cipher.des(key, Cipher.base64ToString(fromBase64UrlSaveToBase64(cipheredData.substr(dotPos + 1))), 0, 0, null);
-				return Cipher.stringToBase64(deciphered.substr(0, deciphered.length - parseInt(padding) - (intermediate ? 0 : 8)));
-			}
-			
-			 async function decipherWithIv(cipheredData, keyB64, ivB64) {
+				var datas = new Array();
+				do {
+					var cipheredData = cipheredDatas[datas.length];
+					var dotPos = cipheredData.indexOf('.');
+					var padding = cipheredData.substring(0, dotPos);
+					
+					var intermediate = datas.length < cipheredDatas.length - 1
+					
+					var deciphered = Cipher.des(key, Cipher.base64ToString(fromBase64UrlSaveToBase64(cipheredData.substring(dotPos + 1))), 0, 0, null);
+					var decipheredB64 = Cipher.stringToBase64(deciphered.substring(0, deciphered.length - parseInt(padding) - (intermediate ? 0 : 8)));
+					datas.push(decipheredB64);
+				} while (datas.length < cipheredDatas.length);
 
-				var c = window.crypto.subtle;
-			
-				var key = base64ToBytes(keyB64);
-				var cryptoKey = await c.importKey(
-					"raw",
-					key,
-					{
-						name: "AES-CBC",
-						length: 256
-					},
-					false,
-					["encrypt", "decrypt"]
-				);
-				
-				var iv = base64ToBytes(ivB64);
-				var ciphered = base64ToBytes(cipheredData);
-				
-				try {
-					var deciphered = await c.decrypt(
-						{
-							name: "AES-CBC",
-							iv
-						},
-						cryptoKey,
-						ciphered
-					);
-				} catch(err) {
-					    console.dir(err); // muestra el objeto con sus propiedades
-				}
-				
-				return arrayBufferToBase64(deciphered);
-			}
-			
-			/**
-			 * Realiza un cifrado DES o AES segun indice el JSON pasado por parametro.
-			 * @param dataB64 Cadena de texto base 64.
-			 * @param cipherConfig Configuracion de cifrado.
-			 * @return Base 64 cifrado.
-			 */
-			async function cipher(dataB64, cipherConfig) {
-
-				var ciphered;
-				
-				if (newCiphersSupported) {
-					ciphered = await cipherAES(dataB64, cipherConfig.cipherConfig);
-				} else {
-					ciphered = cipherDES(dataB64, cipherConfig.desKey);
-				}
-				
-				return ciphered;				
+				return datas;	
 			}
 			
 			/**
@@ -5442,57 +5584,17 @@ var AutoScript = ( function ( window, undefined ) {
 				// le habra agregado el metodo de cifrado separados por un punto ('.').
 				return padding  + "." + Cipher.stringToBase64(Cipher.des(key, data, 1, 0, null)).replace(/\+/g, "-").replace(/\//g, "_");
 			}
-			
-			/**
-			 * Realiza un cifrado AES compatible con Java.
-			 * @param jsonKeyB64 JSON con datos de la clave.
-			 * @param key Clave de cifrado.
-			 * @return Base 64 cifrado.
-			 */
-			async function cipherAES(dataB64, jsonKeyB64) {
-				
-				var jsonStr = Cipher.base64ToString(fromBase64UrlSaveToBase64(jsonKeyB64));
-			    var jsonObject = JSON.parse(jsonStr);
-			
-			    var rawKey = base64ToBytes(jsonObject.key);
-			
-			    var cryptoKey = await window.crypto.subtle.importKey(
-			        "raw",                // formato de la clave
-			        rawKey,               // bytes de la clave
-			        { name: "AES-CBC" },  // algoritmo
-			        false,                // no exportable
-			        ["encrypt"]           // usos permitidos
-			    );
-			
-			    var iv = base64ToBytes(jsonObject.iv);
-			    
-			    var encoded = base64ToBytes(dataB64);
-			
-			    var ciphered = await window.crypto.subtle.encrypt(
-			        {
-			            name: "AES-CBC",
-			            iv: iv
-			        },
-			        cryptoKey,
-			        encoded
-			    );
-			
-			    var cipheredB64 = arrayBufferToBase64(ciphered);
-			    
-			    return cipheredB64;
-			}
-			
-			
+						
 			function bytesToBase64(bytes) {
-			  var binString = Array.from(bytes, (byte) =>
-				String.fromCodePoint(byte),
-			  ).join("");
+			  var binString = Array.from(bytes, function (byte) {
+				return String.fromCodePoint(byte);
+			  }).join("");
 			  return btoa(binString);
 			}
 			
 			function base64ToBytes(base64) {
 			  var binString = atob(base64);
-			  return Uint8Array.from(binString, (m) => m.codePointAt(0));
+			  return Uint8Array.from(binString, function (m) { return m.codePointAt(0)});
 			}
 			
 			function arrayBufferToBase64(buffer) {
@@ -5506,28 +5608,13 @@ var AutoScript = ( function ( window, undefined ) {
 			}
 			
 			/**
-			 * Comprueba si se trata de un JSON que declara un algoritmo de cifrado.
-			 * @param cipherConfig JSON con la clave de cifrado.
-			 * @return true en caso de que sea un JSON que declare un algoritmo de cifrado, false en caso contrario.
-			 */
-			function checkJSONWithCipherConfig(cipherConfig) {
-			  try {
-				var cipherObj = JSON.parse(cipherConfig);
-			  	return cipherObj.hasOwnProperty("algo");
-			  } catch (error) {
-			    // Si falla el parseo, no es un JSON valido
-			    return false;
-			  }
-			}
-
-			/**
 			 * Convierte de Base64 URL Save a Base64 normal.
 			 */
 			function fromBase64UrlSaveToBase64(base64UrlSave) {
 				if (!base64UrlSave) {
 					return base64UrlSave;
 				}
-				return base64UrlSave.replace(/\-/g, "+").replace(/\_/g, "/")
+				return base64UrlSave.replace(/\-/g, "+").replace(/\_/g, "/");
 			}
 			
 			/* Metodos que publicamos del objeto AppAfirmaJSWebService */
