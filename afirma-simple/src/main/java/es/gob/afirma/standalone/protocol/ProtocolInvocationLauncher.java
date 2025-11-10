@@ -169,7 +169,7 @@ public final class ProtocolInvocationLauncher {
             ProtocolInvocationLauncherErrorManager.showError(protocolVersion, error);
 			return ProtocolInvocationLauncherErrorManager.getErrorMessage(protocolVersion, error);
         }
-        if (!urlString.startsWith("afirma://")) { //$NON-NLS-1$
+        if (!urlString.startsWith("afirma://") && !urlString.startsWith("getresult?")) { //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.severe("La URL de invocacion no comienza por 'afirma://'"); //$NON-NLS-1$
             final ErrorCode error = SimpleErrorCode.Request.UNSUPPORTED_REQUEST_SCHEME;
             ProtocolInvocationLauncherErrorManager.showError(protocolVersion, error);
@@ -234,8 +234,12 @@ public final class ProtocolInvocationLauncher {
         		 channelInfo.setPorts(new int[] { DEFAULT_WEBSOCKET_PORT });
         	 }
 
-        	 try {
-        		 AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion);
+        	 try { 
+        		 boolean isAsyncOp = false;
+        		 if (jvc > 3) {
+        			 isAsyncOp = true;
+        		 } 
+        		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, isAsyncOp);  				      		 
 			} catch (final UnsupportedProtocolException e) {
              	LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
              	ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
@@ -707,7 +711,7 @@ public final class ProtocolInvocationLauncher {
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
                 	sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
-                }
+                } 
 
                 return msg;
             } catch (final NeedsUpdatedVersionException e) {
@@ -898,7 +902,6 @@ public final class ProtocolInvocationLauncher {
     	return protocolVersion;
 	}
 
-
 	/**
 	 * Obtiene el valor asignado al par&aacute;metro de versi&oacute;n de una URL.
 	 * @param params Par&acute;metros declarados en una URL.
@@ -921,7 +924,7 @@ public final class ProtocolInvocationLauncher {
 
 		return protocolVersion;
 	}
-
+	
 	/**
 	 * Extrae los parametros declarados en una URL con sus valores asignados.
 	 * @param url URL de la que extraer los par&aacute;metros.

@@ -9,6 +9,8 @@
 
 package es.gob.afirma.standalone.protocol;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,15 +47,18 @@ public class AfirmaWebSocketServerManager {
 	private static int protocolVersion = -1;
 
 	static AfirmaWebSocketServer instance = null;
+	
+	static Map<String, ActiveWebSocketOperationThread> waitingThreadMap = new HashMap<String, ActiveWebSocketOperationThread>();
 
 	/**
 	 * Inicia un WebSocket para la comunicaci&oacute;n con el navegador.
 	 * @param channelInfo Informaci&oacute;n para la construcci&oacute;n de la comunicaci&oacute;n.
 	 * @param requestedProtocolVersion Versi&oacute;n del protocolo de comunicaci&oacute;n.
+	 * @param isAsyncOp Si viene con valor <code>true</code> tratar&aacute; las operaciones de forma as&iacute;ncrona si viene a false las tratara como s&iacute;ncronas<code>false</code>.
 	 * @throws UnsupportedProtocolException Cuando se ha solicitado el uso de una versi&oacute;n de protocolo no soportada.
 	 * @throws SocketOperationException Cuando
 	 */
-	public static void startService(final ChannelInfo channelInfo, final int requestedProtocolVersion) throws UnsupportedProtocolException, SocketOperationException {
+	public static void startService(final ChannelInfo channelInfo, final int requestedProtocolVersion, final boolean isAsyncOp) throws UnsupportedProtocolException, SocketOperationException {
 
 		checkSupportProtocol(requestedProtocolVersion);
 
@@ -73,7 +78,11 @@ public class AfirmaWebSocketServerManager {
 				switch (protocolVersion) {
 				case PROTOCOL_VERSION_4:
 				case PROTOCOL_VERSION_5:
-					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
+					if (isAsyncOp) {
+						instance = new AfirmaWebSocketServerV4SupAsync(ports[i], channelInfo.getIdSession(), protocolVersion);
+					} else {
+						instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
+					}					
 					break;
 
 				default:

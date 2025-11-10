@@ -24,7 +24,7 @@ var SupportDialog;
 var AutoScript = ( function ( window, undefined ) {
 
 		var VERSION = "1.10.0";
-		var VERSION_CODE = 3;
+		var VERSION_CODE = 4;
 
 		var PROTOCOL_VERSION = 4;
 
@@ -2007,6 +2007,9 @@ var AutoScript = ( function ( window, undefined ) {
 			var OPERATION_SELECT_CERTIFICATE = "certificate";
 
 			var OPERATION_SIGN = "sign";
+			
+			// Tiempo de espera entre los intentos de conexion para obtener el resultado de la operacion por websocket
+			var AUTOFIRMA_GETRESULT_TIME = 2000;
 
 			/** Informacion de error. */
 			var errorMessage = '';
@@ -2478,7 +2481,7 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				webSocket.onerror = function() {
 					console.log("Procesado por defecto del error");
-				}
+				};
 				
 				return webSocket;
 			}
@@ -2552,11 +2555,18 @@ var AutoScript = ( function ( window, undefined ) {
 			 * el tipo de operacion que la envie.
 			 */
 			function processResponse (data) {
-				
-				
+						
 				// No se ha obtenido respuesta o se notifica la cancelacion
 				if (data == undefined || data == null || data == "CANCEL") {
 					processErrorResponse("es.gob.afirma.core.AOCancelledOperationException", ErrorCode.Functional.CANCELLED_OP);
+					return;
+				}
+				
+				// Se recibe un mensaje de espera, la operacion solicitada no ha terminado aun
+				if (data == "#wait") {
+					setTimeout(function() {
+				        ws.send("getresult?idsession=" + idSession);
+				    }, AUTOFIRMA_GETRESULT_TIME);
 					return;
 				}
 				
