@@ -46,6 +46,8 @@ var AutoScript = ( function ( window, undefined ) {
 		var resetStickySignatory = false;
 		
 		var appName = null;
+		
+		var serviceTimeout = -1;
 				
 		var DOMAIN_NAME;
 		try {
@@ -659,12 +661,18 @@ var AutoScript = ( function ( window, undefined ) {
 			appName = name;
 		}
 		
+		/** Establece el tiempo de espera para la lectura de llamadas a servicios. */
+		var setServiceTimeout = function (timeoutMs) {
+			serviceTimeout = timeoutMs;
+		}
+		
 		var selectCertificate = function (params, successCallback, errorCallback) {
 			clienteFirma.selectCertificate(params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 			
 		var sign = function (dataB64, algorithm, format, params, successCallback, errorCallback) {
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.sign(dataB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
@@ -673,26 +681,31 @@ var AutoScript = ( function ( window, undefined ) {
 			// El cliente de firma no soporta la cofirma en la que se proporcionan los datos. Esto impide
 			// que se pueda cofirmar una firma CAdES explicita con un algoritmo de firma distinto al de la
 			// firmar original
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.coSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var cosign = function (signB64, algorithm, format, params, successCallback, errorCallback) {
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.coSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var counterSign = function (signB64, algorithm, format, params, successCallback, errorCallback) {
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.counterSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var signAndSaveToFile = function (operationId, dataB64, algorithm, format, params, outputFileName, successCallback, errorCallback) {
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.signAndSaveToFile(operationId, dataB64, algorithm, format, params, outputFileName, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 
 		var signBatchXML = function (batchB64, batchPreSignerUrl, batchPostSignerUrl, params, successCallback, errorCallback) {
+			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.signBatchXML(batchB64, batchPreSignerUrl, batchPostSignerUrl, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
@@ -751,6 +764,8 @@ var AutoScript = ( function ( window, undefined ) {
 			jsonRequest.stoponerror = stopOnError;
 			
 			var jsonRequestB64 = Base64.encode(JSON.stringify(jsonRequest), true);
+			
+			certFilters = AfirmaUtils.appendServiceTimeout(certFilters);
 			
 			clienteFirma.signBatchJSON(jsonRequestB64, batchPreSignerUrl, batchPostSignerUrl, certFilters, successCallback, errorCallback);
 			jsonRequest = null;
@@ -1976,6 +1991,33 @@ var AutoScript = ( function ( window, undefined ) {
 					}
 				}
 				
+				/**
+				 * Inserta el parametro serviceTimeout en los extraParams si esta definido.
+				 * @param {string} params - Cadena de parametros extra.
+				 * @returns {string} La cadena de parametros con el timeout anadido.
+				 */
+				function appendServiceTimeout(params) {
+				    if (!serviceTimeout || serviceTimeout < 0) {
+				        return params;
+				    }
+				
+				    if (!params || typeof params !== "string" || params.trim() === "") {
+				        return "serviceTimeout=" + serviceTimeout;
+				    }
+				
+				    // Evita duplicados si ya existe
+				    if (params.indexOf("serviceTimeout=") !== -1) {
+				        return params;
+				    }
+				
+				    // Anade con salto de línea si ya hay otros parametros
+				    if (!params.endsWith("\n")) {
+				        params += "\n";
+				    }
+				
+				    return params + "serviceTimeout=" + serviceTimeout;
+				}
+				
 				/* Metodos que publicamos del objeto */
 				return {
 					/** Genera un nuevo identificador de sesion aleatorio. */
@@ -1983,7 +2025,8 @@ var AutoScript = ( function ( window, undefined ) {
 					getRandomPorts : getRandomPorts,
 					parseJSONData : parseJSONData,
 					checkExistingId : checkExistingId,
-					getRandom : getRandom
+					getRandom : getRandom,
+					appendServiceTimeout : appendServiceTimeout
 				};
 		})(window, undefined);
 
@@ -5717,6 +5760,7 @@ var AutoScript = ( function ( window, undefined ) {
 			setLocale : setLocale,
 			setMinimumClientVersion : setMinimumClientVersion,
 			setAppName : setAppName,
+			setServiceTimeout : setServiceTimeout,
 
 			/* Gestion de errores */
 			getErrorMessage : getErrorMessage,
