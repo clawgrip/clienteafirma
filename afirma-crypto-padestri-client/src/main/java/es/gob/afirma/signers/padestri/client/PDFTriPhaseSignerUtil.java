@@ -78,6 +78,7 @@ final class PDFTriPhaseSignerUtil {
 	private static final String PARAMETER_NAME_CERT = "cert"; //$NON-NLS-1$
 	private static final String PARAMETER_NAME_EXTRA_PARAM = "params"; //$NON-NLS-1$
 	private static final String PARAMETER_NAME_SESSION_DATA = "session"; //$NON-NLS-1$
+	private static final String PARAMETER_SERVICE_TIMEOUT = "serviceTimeout"; //$NON-NLS-1$
 
 	private static final String PADES_FORMAT = "pades"; //$NON-NLS-1$
 
@@ -125,8 +126,12 @@ final class PDFTriPhaseSignerUtil {
 
 			final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 			try {
+				int readTimeout = -1;
+				if (extraParams.containsKey(PARAMETER_SERVICE_TIMEOUT)) {
+					readTimeout = Integer.parseInt((String) extraParams.get(PARAMETER_SERVICE_TIMEOUT));
+				}
 				preSignResult = UrlHttpManagerFactory.getInstalledManager().readUrl(
-						urlBuffer.toString(), UrlHttpMethod.POST, errorProcessor);
+						urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, errorProcessor);
 
 			} catch (final IOException e) {
 				if (errorProcessor.isCancelled()) {
@@ -227,8 +232,12 @@ final class PDFTriPhaseSignerUtil {
 
 			final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 			try {
+				int readTimeout = -1;
+				if (extraParams.containsKey(PARAMETER_SERVICE_TIMEOUT)) {
+					readTimeout = Integer.parseInt((String) extraParams.get(PARAMETER_SERVICE_TIMEOUT));
+				}
 				postSignResult = UrlHttpManagerFactory.getInstalledManager().readUrl(
-						urlBuffer.toString(), UrlHttpMethod.POST, errorProcessor);
+						urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, errorProcessor);
 			} catch (final IOException e) {
 				if (errorProcessor.isCancelled()) {
 					LOGGER.info(

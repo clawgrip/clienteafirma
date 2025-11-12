@@ -142,6 +142,7 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 
 	private static final String EXTRAPARAM_FORMAT = "format"; //$NON-NLS-1$
 	private static final String EXTRAPARAM_USE_MANIFEST = "useManifest"; //$NON-NLS-1$
+	private static final String EXTRAPARAM_SERVICE_TIMEOUT = "serviceTimeout"; //$NON-NLS-1$
 
 	private final String signFormat;
 
@@ -429,7 +430,11 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 
 			final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 			try {
-				preSignResult = urlManager.readUrl(urlBuffer.toString(), UrlHttpMethod.POST, errorProcessor);
+				int readTimeout = -1;
+				if (extraParams.containsKey(EXTRAPARAM_SERVICE_TIMEOUT)) {
+					readTimeout = Integer.parseInt((String) extraParams.get(EXTRAPARAM_SERVICE_TIMEOUT));
+				}
+				preSignResult = urlManager.readUrl(urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, errorProcessor);
 			} catch (final IOException e) {
 				if (errorProcessor.isCancelled()) {
 					LOGGER.info(
@@ -526,8 +531,13 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 				urlBuffer.append(HTTP_AND).append(PARAMETER_NAME_EXTRA_PARAM).append(HTTP_EQUALS).
 				append(AOUtil.properties2Base64(xParams));
 			}
+			
+			int readTimeout = -1;
+			if (extraParams.containsKey(EXTRAPARAM_SERVICE_TIMEOUT)) {
+				readTimeout = Integer.parseInt((String) extraParams.get(EXTRAPARAM_SERVICE_TIMEOUT));
+			}
 
-			postSignResult = urlManager.readUrl(urlBuffer.toString(), UrlHttpMethod.POST);
+			postSignResult = urlManager.readUrl(urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, new Properties());
 
 		}
 		catch (final HttpError e) {

@@ -48,6 +48,7 @@ public final class BatchSigner {
 	private static final String BATCH_JSON_PARAM = "json"; //$NON-NLS-1$
 	private static final String BATCH_CRT_PARAM = "certs"; //$NON-NLS-1$
 	private static final String BATCH_TRI_PARAM = "tridata"; //$NON-NLS-1$
+	private static final String SERVICE_TIMEOUT_PARAM = "serviceTimeout"; //$NON-NLS-1$
 
 	private static final String EQU = "="; //$NON-NLS-1$
 	private static final String AMP = "&"; //$NON-NLS-1$
@@ -250,11 +251,16 @@ public final class BatchSigner {
 		byte[] ret;
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 		final String batchUrlSafe = Base64.encode(batch, true);
+		int readTimeout = -1;
+		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
+			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
+		}
 		try {
 			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
 					batchPreSignerUrl + "?" + //$NON-NLS-1$
 							BATCH_XML_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
+							readTimeout,
 							UrlHttpMethod.POST, errorProcessor
 					);
 		}
@@ -300,7 +306,8 @@ public final class BatchSigner {
 							BATCH_XML_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates) + AMP +
 							BATCH_TRI_PARAM + EQU + Base64.encode(td2.toString().getBytes(DEFAULT_CHARSET), true),
-							UrlHttpMethod.POST
+							readTimeout,
+							UrlHttpMethod.POST, new Properties()
 					);
 		}
 		catch (final HttpError e) {
@@ -411,11 +418,16 @@ public final class BatchSigner {
 		byte[] ret;
 		String batchUrlSafe = Base64.encode(batch, true);
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
+		int readTimeout = -1;
+		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
+			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
+		}
 		try {
 			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
 				batchPreSignerUrl + "?" + //$NON-NLS-1$
-					BATCH_JSON_PARAM + EQU + batchUrlSafe + AMP +
-					BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
+				BATCH_JSON_PARAM + EQU + batchUrlSafe + AMP +
+				BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
+				readTimeout,
 				UrlHttpMethod.POST, errorProcessor
 			);
 		}
@@ -487,7 +499,8 @@ public final class BatchSigner {
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates) + AMP +
 							BATCH_TRI_PARAM + EQU +
 							Base64.encode(TriphaseDataParser.triphaseDataToJsonString(td).getBytes(DEFAULT_CHARSET), true),
-							UrlHttpMethod.POST
+							readTimeout,
+							UrlHttpMethod.POST, new Properties()
 					);
 		}
 		catch (final HttpError e) {
