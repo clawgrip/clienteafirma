@@ -149,7 +149,7 @@ public final class BatchSigner {
 	 * &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
 	 * &lt;signbatch stoponerror="true" algorithm="SHA1"&gt;
 	 *  &lt;singlesign id="f8526f7b-d30a-4720-9e35-fe3494217944"&gt;
-	 *   &lt;datasource&gt;http://google.com&lt;/datasource&gt;
+	 *   &lt;datasource&gt;http://dominio.com&lt;/datasource&gt;
 	 *   &lt;format&gt;XAdES&lt;/format&gt;
 	 *   &lt;suboperation&gt;sign&lt;/suboperation&gt;
 	 *   &lt;extraparams&gt;Iw0KI1RodSBBdW[...]QNCg==&lt;/extraparams&gt;

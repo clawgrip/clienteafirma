@@ -2476,7 +2476,7 @@ var AutoScript = ( function ( window, undefined ) {
 					console.log("Procesado por defecto del mensaje");
 				}
 				
-				webSocket.onerror = function() {
+				webSocket.onerror = function(e) {
 					console.log("Procesado por defecto del error");
 				}
 				

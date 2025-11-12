@@ -151,6 +151,9 @@ public final class ProtocolInvocationLauncher {
 	 * @return Resultado de la operaci&oacute;n.
 	 */
     public static String launch(final String urlString, final int protocolVersion, final boolean bySocket)  {
+
+    	LOGGER.info("Se recibe una llamada de operacion"); //$NON-NLS-1$
+
         // En macOS sobrecargamos el "Acerca de..." del sistema operativo, que tambien
         // aparece en la invocacion por protocolo
         if (Platform.OS.MACOSX.equals(Platform.getOS())) {
@@ -657,6 +660,8 @@ public final class ProtocolInvocationLauncher {
                 // se tiene que descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
 
+                	LOGGER.info("Se descargan los datos del servidor intermedio"); //$NON-NLS-1$
+
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
@@ -674,6 +679,8 @@ public final class ProtocolInvocationLauncher {
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
 					}
+
+                    LOGGER.info("Fin de la descarga de los datos. Se carga la configuracion de firma de la peticion"); //$NON-NLS-1$
 
                     params = ProtocolInvocationUriParser.getParametersToSign(xmlData, true);
                 }

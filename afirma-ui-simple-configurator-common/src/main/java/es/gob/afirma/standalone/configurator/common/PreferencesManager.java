@@ -72,7 +72,7 @@ public final class PreferencesManager {
 	private static final String INTERNAL_SYSTEM_PREFERENCE_NODE = "/es/gob/afirma/standalone/ui/internalpreferences"; //$NON-NLS-1$
 
 	/** Preferencias con la configuraci&oacute;n de la aplicaci&oacute;n aplicada por el usuario. */
-	private static final Preferences USER_PREFERENCES;
+	private static Preferences USER_PREFERENCES;
 
 	/**
 	 * Preferencias con la configuraci&oacute;n de la aplicaci&oacute;n establecida a nivel de sistema, que puede ser
@@ -81,7 +81,7 @@ public final class PreferencesManager {
 	private static Preferences SYSTEM_PREFERENCES;
 
 	/**Valores por defecto de las propiedades de configuraci&oacute;n de la aplicaci&oacute;n. */
-	private static final Properties DEFAULT_PREFERENCES;
+	private static  Properties DEFAULT_PREFERENCES;
 
 	/**
 	 * Preferencias del sistema que siempre apuntar&aacute; a las preferencias
@@ -116,6 +116,8 @@ public final class PreferencesManager {
 		/** Valor por defecto de las preferencias. */
 		DEFAULT
 	}
+
+	private static boolean initialized = false;
 
 	private PreferencesManager() {
 		// No permitimos la instanciacion
@@ -598,7 +600,15 @@ public final class PreferencesManager {
 	//**************** FIN PREFERENCIAS UNICAMENTE DE SISTEMA ***************************************************************
 	//**************************************************************************************************************************
 
-	static {
+	private static void init() {
+
+		// No hacemos nada si ya estaban inicializados los objetos
+		if (initialized) {
+			return;
+		}
+
+		LOGGER.info("Cargamos los objetos de acceso a las preferencias del sistema"); //$NON-NLS-1$
+
 		final Preferences userRootPreferences = Preferences.userRoot();
 
 		// Cargamos las preferencias de usuario
@@ -657,6 +667,9 @@ public final class PreferencesManager {
 					+ e
 			);
 		}
+
+		// Marcamos la clase como inicializada
+		initialized = true;
 	}
 
 	/**
@@ -721,6 +734,9 @@ public final class PreferencesManager {
 	 * @param key Clave del valor que queremos recuperar.
 	 * @return El valor almacenado de la propiedad o su valor por defecto si no se encontr&oacute;. */
 	public static String get(final String key) {
+
+		init();
+
 		final String userValue = USER_PREFERENCES.get(key, null);
 		final String systemValue = SYSTEM_PREFERENCES != null ? SYSTEM_PREFERENCES.get(key, null) : null;
 		final String defaultValue = DEFAULT_PREFERENCES.getProperty(key);
@@ -741,6 +757,8 @@ public final class PreferencesManager {
 	 * @return El valor almacenado de la propiedad o su valor por defecto si no se encontr&oacute;.
 	 */
 	public static String get(final String key, final PreferencesSource src) {
+
+		init();
 
 		if (src == null) {
 			return get(key);
@@ -764,6 +782,9 @@ public final class PreferencesManager {
 	 * @param key Clave del valor que queremos recuperar.
 	 * @return La preferencia almacenada o la configurada en el sistema si no se encontr&oacute;. */
 	public static boolean getBoolean(final String key) {
+
+		init();
+
 		final boolean defaultValue = Boolean.parseBoolean(DEFAULT_PREFERENCES.getProperty(key));
 		return USER_PREFERENCES.getBoolean(key,
 				SYSTEM_PREFERENCES != null
@@ -781,6 +802,8 @@ public final class PreferencesManager {
 	 * @return El valor almacenado de la propiedad o {@code false} si no estaba declarado.
 	 */
 	public static boolean getBoolean(final String key, final PreferencesSource src) {
+
+		init();
 
 		if (src == null) {
 			return getBoolean(key);
@@ -809,6 +832,9 @@ public final class PreferencesManager {
 	 * @param key Clave con la que identificaremos el valor.
 	 * @param value Valor que se desea almacenar. */
 	public static void put(final String key, final String value) {
+
+		init();
+
 		final String defaultValue = DEFAULT_PREFERENCES.getProperty(key);
 		final String systemValue = SYSTEM_PREFERENCES != null
 				? SYSTEM_PREFERENCES.get(key, defaultValue)
@@ -831,6 +857,9 @@ public final class PreferencesManager {
 	 * @param key Clave con la que identificaremos el valor.
 	 * @param value Valor que se desea almacenar. */
 	public static void putBoolean(final String key, final boolean value) {
+
+		init();
+
 		final boolean systemValue = SYSTEM_PREFERENCES != null
 				? SYSTEM_PREFERENCES.getBoolean(key, Boolean.parseBoolean(DEFAULT_PREFERENCES.getProperty(key)))
 				: Boolean.parseBoolean(DEFAULT_PREFERENCES.getProperty(key));
@@ -852,6 +881,8 @@ public final class PreferencesManager {
 	 * @param value Valor que se desea almacenar.
 	 */
 	public static void putSystemPref(final String key, final String value) {
+
+		init();
 
 		if (SYSTEM_PREFERENCES == null) {
 			createSystemPrefs();
@@ -896,6 +927,9 @@ public final class PreferencesManager {
 	 * @param value Valor que se desea almacenar.
 	 */
 	public static void putBooleanSystemPref(final String key, final boolean value) {
+
+		init();
+
 		if (SYSTEM_PREFERENCES == null) {
 			createSystemPrefs();
 		}
@@ -914,6 +948,9 @@ public final class PreferencesManager {
 	 * @param key Clave que eliminar.
 	 */
 	public static void remove(final String key) {
+
+		init();
+
 		USER_PREFERENCES.remove(key);
 	}
 
@@ -922,6 +959,9 @@ public final class PreferencesManager {
 	 * @param key Clave que eliminar.
 	 */
 	public static void removeSystemPrefs(final String key) {
+
+		init();
+
 		if (SYSTEM_PREFERENCES != null) {
 			SYSTEM_PREFERENCES.remove(key);
 		}
@@ -932,6 +972,9 @@ public final class PreferencesManager {
 	 * @throws BackingStoreException Si ocurre un error eliminando las preferencias.
 	 */
 	public static void clearAll() throws BackingStoreException {
+
+		init();
+
 		USER_PREFERENCES.clear();
 	}
 
@@ -940,6 +983,9 @@ public final class PreferencesManager {
 	 * @throws BackingStoreException Si ocurre un error eliminando las preferencias.
 	 */
 	public static void clearAllSystemPrefs() throws BackingStoreException {
+
+		init();
+
 		if (SYSTEM_PREFERENCES != null) {
 			try {
 				SYSTEM_PREFERENCES.clear();
@@ -961,6 +1007,9 @@ public final class PreferencesManager {
 	 * @throws BackingStoreException Cuando ocurre un error durante el guardado.
 	 */
 	public static void flush() throws BackingStoreException {
+
+		init();
+
 		USER_PREFERENCES.flush();
 	}
 
@@ -970,6 +1019,8 @@ public final class PreferencesManager {
 	 * @throws BackingStoreException Cuando ocurre un error durante el guardado.
 	 */
 	public static void flushSystemPrefs() throws BackingStoreException {
+
+		init();
 
 		if (SYSTEM_PREFERENCES == null) {
 			return;
@@ -1048,6 +1099,8 @@ public final class PreferencesManager {
 	 */
 	public static Map<String, Object> getPrefsToExport() {
 
+		init();
+
 		final Map<String, Object> result = new HashMap<>();
 		try {
 			if (SYSTEM_PREFERENCES != null) {
@@ -1096,6 +1149,9 @@ public final class PreferencesManager {
 
 	public static void setConfigFileInfo(final String url, final boolean allowUpdates, final ConfigDataInfo configDataInfo) {
 
+		init();
+
+
 		try {
 			if (url != null) {
 				INTERNAL_PREFERENCES.put(SYSTEM_PREFERENCE_CONFIG_FILE_URL, url);
@@ -1123,6 +1179,9 @@ public final class PreferencesManager {
 	}
 
 	static void setConfigCheckDate() {
+
+		init();
+
 		final String formatedDate = new SimpleDateFormat(CONFIGURATION_DATE_FORMAT).format(new Date());
 		try {
 			INTERNAL_PREFERENCES.put(SYSTEM_PREFERENCE_CONFIGURATION_DATE, formatedDate);
@@ -1182,6 +1241,8 @@ public final class PreferencesManager {
 	 * @throws BackingStoreException Cuando no se pueden eliminar las preferencias.
 	 */
 	public static void removeSystemPrefs() throws BackingStoreException {
+		init();
+
 		if (REAL_SYSTEM_PREFERENCES != null) {
 			final Preferences parent = REAL_SYSTEM_PREFERENCES.parent();
 			REAL_SYSTEM_PREFERENCES.removeNode();
@@ -1195,6 +1256,9 @@ public final class PreferencesManager {
 	}
 
 	private static void removeEmptyTree(final Preferences node) throws BackingStoreException {
+
+		init();
+
 		Preferences parent = node;
 		while (!parent.name().isEmpty() && parent.childrenNames().length == 0 && parent.keys().length == 0) {
 			final Preferences newParent = parent.parent();

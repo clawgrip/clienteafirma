@@ -769,6 +769,10 @@ public final class XAdESUtil {
 				// cuando no lo hacen si se incluye este atributo
 				final SigningCertificateV2Info issuerInfo = null;
 
+
+
+				//TODO: Aun no se soporta la generacion del IssuerSerialV2. Habria que calcular
+				// el valor Base64 del campo y crear el ussuerInfo con el
 //		        final GeneralNames gns = new GeneralNames(new GeneralName(
 //		        		X500Name.getInstance(signingCertificate.getIssuerX500Principal().getEncoded())));
 //		        final IssuerSerial issuerSerial = new IssuerSerial(gns, signingCertificate.getSerialNumber());
@@ -783,6 +787,9 @@ public final class XAdESUtil {
 //		        	issuerSerialB64 = null;
 //				}
 //				issuerInfo = issuerSerialB64 != null ? new SigningCertificateV2Info(issuerSerialB64) : null;
+
+
+
 
 				((XadesWithBaselineAttributes) xades).setSigningCertificateV2(
 						signingCertificate,

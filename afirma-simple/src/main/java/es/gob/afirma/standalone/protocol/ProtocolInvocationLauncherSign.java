@@ -170,9 +170,6 @@ final class ProtocolInvocationLauncherSign {
 				operation);
 
 		if (options.getCipherConfig() != null) {
-
-			Logger.getLogger("es.gob.afirma").info(" ====================== Configuracion de cifrado que se recibe: " + options.getCipherConfig());
-
 			try {
 				final ServerCipher serverCipher = ServerCipherFactory.newServerCipher(options.getCipherConfig());
 				processor.setServerCipher(serverCipher);
@@ -574,7 +571,7 @@ final class ProtocolInvocationLauncherSign {
 		if (pkeSelected == null) {
 			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
 
-			LOGGER.info("Obtenido gestor de almacenes de claves: " + aoks); //$NON-NLS-1$
+			LOGGER.info("Cargamos el almacen de claves: " + aoks); //$NON-NLS-1$
 			final AOKeyStoreManager ksm;
 			try {
 				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
@@ -589,10 +586,12 @@ final class ProtocolInvocationLauncherSign {
 				throw e;
 			}
 			catch (final Exception e) {
-				LOGGER.log(Level.SEVERE, "Error obteniendo el AOKeyStoreManager", e); //$NON-NLS-1$
+				LOGGER.log(Level.SEVERE, "Error en la carga del almacen", e); //$NON-NLS-1$
 				final ErrorCode errorCode = e instanceof AOControlledException ? ((AOControlledException) e).getErrorCode() : KeyStoreErrorCode.Internal.LOADING_KEYSTORE_INTERNAL_ERROR;
 				throw new SocketOperationException(e, errorCode);
 			}
+
+			LOGGER.info("Almacen de claves cargado"); //$NON-NLS-1$
 
 			LOGGER.info("Cargando dialogo de seleccion de certificados..."); //$NON-NLS-1$
 			try {
@@ -613,7 +612,11 @@ final class ProtocolInvocationLauncherSign {
 						libName,
 						true); // invocationFromBrowser
 				dialog.allowOpenExternalStores(filterManager.isExternalStoresOpeningAllowed());
+
+				LOGGER.info("Mostramos el dialogo de seleccion de certificados"); //$NON-NLS-1$
 				dialog.show();
+
+				LOGGER.info("Certificado seleccionado por el usuario"); //$NON-NLS-1$
 
 				// Obtenemos el almacen del certificado seleccionado (que puede no ser el mismo
 				// que se indico originalmente por haberlo cambiado desde el dialogo de
@@ -627,12 +630,12 @@ final class ProtocolInvocationLauncherSign {
 				throw e;
 			}
 			catch (final AOCertificatesNotFoundException e) {
-				LOGGER.severe("No hay certificados validos en el almacen: " + e); //$NON-NLS-1$
+				LOGGER.warning("No hay certificados validos en el almacen: " + e); //$NON-NLS-1$
 				final ErrorCode errorCode = SimpleErrorCode.Functional.NO_CERTS_FOUND_SIGNING;
 				throw new SocketOperationException(e, errorCode);
 			}
 			catch (final Exception e) {
-				LOGGER.severe("Error al mostrar el dialogo de seleccion de certificados: " + e); //$NON-NLS-1$
+				LOGGER.log(Level.SEVERE, "Error al mostrar el dialogo de seleccion de certificados", e); //$NON-NLS-1$
 				final ErrorCode errorCode = e instanceof AOControlledException ? ((AOControlledException) e).getErrorCode() : KeyStoreErrorCode.Internal.LOADING_KEYSTORE_INTERNAL_ERROR;
 				throw new SocketOperationException(e, errorCode);
 			}
