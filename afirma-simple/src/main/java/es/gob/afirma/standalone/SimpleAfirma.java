@@ -884,14 +884,26 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		// Establecemos los almacenes de claves de Java y de Autofirma como de confianza para las
 		// conexiones remotas
 		if (secureConnections) {
+
+			boolean truststoreConfigured;
 			try {
 				LOGGER.info("Configuramos el almacen de confianza de la aplicacion"); //$NON-NLS-1$
-				SslSecurityManager.configureAfirmaTrustManagers();
-				// Se fuerza a realizar una primera conexion, ya que hemos identificado que en algunos casos
-				// la primera conexion puede fallar, pero permitira aplicar los cambios en el contexto SSL
+				truststoreConfigured = SslSecurityManager.configureAfirmaTrustManagers();
+
+			} catch (final Exception e) {
+				LOGGER.warning("Error al configurar almacenes de confianza: " + e); //$NON-NLS-1$
+				truststoreConfigured = false;
+			}
+
+			LOGGER.info("El almacen de confianza de la aplicacion existe y se ha configurado: " + truststoreConfigured); //$NON-NLS-1$
+
+			// Si se ha configurado el almacen de confianza propio de Autofirma, realizamos una
+			// primera conexion, ya que hemos identificado que en algunos casos la primera conexion
+			// puede fallar, pero permitira aplicar los cambios en el contexto SSL
+			if (truststoreConfigured) {
 				LOGGER.info("Realizamos conexion de prueba"); //$NON-NLS-1$
 				try {
-					final URL url = new URL("https://test.conexion.gob.es/"); //$NON-NLS-1$
+					final URL url = new URI("https://test.conexion.gob.es/").toURL(); //$NON-NLS-1$
 					final HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 					conn.setConnectTimeout(100);
 					conn.connect();
@@ -899,8 +911,6 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 				}
 				catch (final Exception e) { /* La primera vez falla para aplicar cambios en trust managers*/ }
 				LOGGER.info("Fin de la conexion de prueba"); //$NON-NLS-1$
-			} catch (final Exception e) {
-				LOGGER.warning("Error al configurar almacenes de confianza: " + e); //$NON-NLS-1$
 			}
 		}
 
