@@ -44,6 +44,8 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	private static final String HEADER_BATCH_2 = "afirma://batch/?"; //$NON-NLS-1$
 
 	private final int protocol;
+	
+	private boolean isAsyncOperation;
 
 	/**
 	 * Genera un servidor websocket que atiende las peticiones de Autofirma.
@@ -89,7 +91,11 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 			final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
 			setConnectionLostTimeout(batchOperation ? 240 : 60);
 			// Ejecutamos la peticion y devolvemos el resultado
-			broadcast(ProtocolInvocationLauncher.launch(message, this.protocol, true), Collections.singletonList(ws));
+			if (this.isAsyncOperation) {
+				WebSocketServerOperationHandler.handleOperation(this.protocol, message, this.sessionId, this, ws);
+			} else {
+				broadcast(ProtocolInvocationLauncher.launch(message, this.protocol, true), Collections.singletonList(ws));
+			}			
 		}
 	}
 
@@ -110,6 +116,14 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	 */
 	private static boolean isLocalAddress(final InetAddress address) {
 		return address != null && LOCALHOST_ADDRESS.equals(address.getHostAddress());
+	}
+	
+	/**
+	 * Indica si el m&eacute;todo debe de tratar la operaci&oacute;n como as&iacute;ncrona o no.
+	 * @param isAsyncOp {@code true} si se desea que se trate la operacion como as&iacute;ncrona.
+	 */
+	public void setAsyncOperation(final boolean isAsyncOp) {
+		this.isAsyncOperation = isAsyncOp;
 	}
 
 	/**

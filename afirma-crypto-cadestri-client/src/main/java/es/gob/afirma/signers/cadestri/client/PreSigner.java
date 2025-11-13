@@ -38,7 +38,7 @@ import es.gob.afirma.core.signers.TriphaseUtil;
 final class PreSigner {
 	
 	/** Timeout de espera para descartar la lectura de petici&oacute;n. */
-	private static final String SERVICE_TIMEOUT_PARAM = "serviceTimeout"; //$NON-NLS-1$
+	private static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
 	private PreSigner() {
 		// No instanciable
@@ -86,10 +86,12 @@ final class PreSigner {
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 		try {
 			int readTimeout = -1;
+			final Properties props = new Properties();
 			if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
 				readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
+				props.put(SERVICE_TIMEOUT_PARAM, readTimeout);
 			}
-			data = urlManager.readUrl(urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, errorProcessor);
+			data = urlManager.readUrl(urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, props, errorProcessor);
 		} catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
 				Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$

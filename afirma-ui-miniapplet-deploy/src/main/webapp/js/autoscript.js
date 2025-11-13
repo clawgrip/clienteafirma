@@ -672,7 +672,6 @@ var AutoScript = ( function ( window, undefined ) {
 		}
 			
 		var sign = function (dataB64, algorithm, format, params, successCallback, errorCallback) {
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.sign(dataB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
@@ -681,31 +680,26 @@ var AutoScript = ( function ( window, undefined ) {
 			// El cliente de firma no soporta la cofirma en la que se proporcionan los datos. Esto impide
 			// que se pueda cofirmar una firma CAdES explicita con un algoritmo de firma distinto al de la
 			// firmar original
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.coSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var cosign = function (signB64, algorithm, format, params, successCallback, errorCallback) {
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.coSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var counterSign = function (signB64, algorithm, format, params, successCallback, errorCallback) {
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.counterSign(signB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 		
 		var signAndSaveToFile = function (operationId, dataB64, algorithm, format, params, outputFileName, successCallback, errorCallback) {
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.signAndSaveToFile(operationId, dataB64, algorithm, format, params, outputFileName, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
 
 		var signBatchXML = function (batchB64, batchPreSignerUrl, batchPostSignerUrl, params, successCallback, errorCallback) {
-			params = AfirmaUtils.appendServiceTimeout(params);
 			clienteFirma.signBatchXML(batchB64, batchPreSignerUrl, batchPostSignerUrl, params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
@@ -764,8 +758,6 @@ var AutoScript = ( function ( window, undefined ) {
 			jsonRequest.stoponerror = stopOnError;
 			
 			var jsonRequestB64 = Base64.encode(JSON.stringify(jsonRequest), true);
-			
-			certFilters = AfirmaUtils.appendServiceTimeout(certFilters);
 			
 			clienteFirma.signBatchJSON(jsonRequestB64, batchPreSignerUrl, batchPostSignerUrl, certFilters, successCallback, errorCallback);
 			jsonRequest = null;
@@ -1991,33 +1983,6 @@ var AutoScript = ( function ( window, undefined ) {
 					}
 				}
 				
-				/**
-				 * Inserta el parametro serviceTimeout en los extraParams si esta definido.
-				 * @param {string} params - Cadena de parametros extra.
-				 * @returns {string} La cadena de parametros con el timeout anadido.
-				 */
-				function appendServiceTimeout(params) {
-				    if (!serviceTimeout || serviceTimeout < 0) {
-				        return params;
-				    }
-				
-				    if (!params || typeof params !== "string" || params.trim() === "") {
-				        return "serviceTimeout=" + serviceTimeout;
-				    }
-				
-				    // Evita duplicados si ya existe
-				    if (params.indexOf("serviceTimeout=") !== -1) {
-				        return params;
-				    }
-				
-				    // Anade con salto de línea si ya hay otros parametros
-				    if (!params.endsWith("\n")) {
-				        params += "\n";
-				    }
-				
-				    return params + "serviceTimeout=" + serviceTimeout;
-				}
-				
 				/* Metodos que publicamos del objeto */
 				return {
 					/** Genera un nuevo identificador de sesion aleatorio. */
@@ -2025,8 +1990,7 @@ var AutoScript = ( function ( window, undefined ) {
 					getRandomPorts : getRandomPorts,
 					parseJSONData : parseJSONData,
 					checkExistingId : checkExistingId,
-					getRandom : getRandom,
-					appendServiceTimeout : appendServiceTimeout
+					getRandom : getRandom
 				};
 		})(window, undefined);
 
@@ -2260,6 +2224,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
+				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
 				
 				return data;
 			}
@@ -2290,6 +2255,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
+				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
 				
 				return data;
 			}
@@ -2318,6 +2284,7 @@ var AutoScript = ( function ( window, undefined ) {
 						data.localBatchProcess = createKeyValuePair ("localBatchProcess", true);
 					}
 				}
+				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
 				
 				return data;
 			}
@@ -3305,6 +3272,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
+				data.servicetimeout = generateDataKeyValue ("servicetimeout", serviceTimeout >= 0 ? serviceTimeout : null);
 
 				return data;
 			}
@@ -3329,6 +3297,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
+				data.servicetimeout = generateDataKeyValue ("servicetimeout", serviceTimeout >= 0 ? serviceTimeout : null);
 
 				return data;
 			}
@@ -4370,6 +4339,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (extraParams != null && extraParams != undefined) { 	params[params.length] = {key:"properties", value:Base64.encode(extraParams)}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 
 				configureExtraParams(params, extraParams);
 
@@ -4475,6 +4447,10 @@ var AutoScript = ( function ( window, undefined ) {
 						outputFileName != undefined) {					params[params.length] = {key:"filename", value:outputFileName}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+
 
 				configureExtraParams(params, extraParams);
 				
@@ -4565,6 +4541,10 @@ var AutoScript = ( function ( window, undefined ) {
 						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+
 				params[params.length] = {key:"needcert", value:"true"}; 
 
 				configureExtraParams(params, extraParams);
@@ -4647,6 +4627,9 @@ var AutoScript = ( function ( window, undefined ) {
 						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:true}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
 
 				configureExtraParams(params, certFilters);

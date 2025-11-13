@@ -78,11 +78,10 @@ public class AfirmaWebSocketServerManager {
 				switch (protocolVersion) {
 				case PROTOCOL_VERSION_4:
 				case PROTOCOL_VERSION_5:
+					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);	
 					if (isAsyncOp) {
-						instance = new AfirmaWebSocketServerV4SupAsync(ports[i], channelInfo.getIdSession(), protocolVersion);
-					} else {
-						instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
-					}					
+						((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(true);
+					}
 					break;
 
 				default:

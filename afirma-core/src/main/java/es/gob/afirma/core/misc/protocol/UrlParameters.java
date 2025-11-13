@@ -79,6 +79,9 @@ public abstract class UrlParameters {
 
 	/** Nombre de aplicaci&oacute;n o dominio desde el que se realiza la llamada. */
 	protected static final String APP_NAME_PARAM = "appname"; //$NON-NLS-1$
+	
+	/** Tiempo de espera para la lectura d epeticiones. */
+	protected static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
 	/** Codificaci&oacute;n por defecto. */
 	private static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
@@ -96,6 +99,7 @@ public abstract class UrlParameters {
 	private String defaultKeyStoreLib = null;
 	private Properties extraParams = null;
 	private String filename = null;
+	private int serviceTimeout = -1;
 
 	/**
 	 * Obtiene los par&aacute;metros adicionales de la firma.
@@ -249,6 +253,14 @@ public abstract class UrlParameters {
 
 	public byte [] getCipherConfig() {
 		return this.cipherConfig;
+	}
+
+	public int getServiceTimeout() {
+		return this.serviceTimeout;
+	}
+
+	public void setServiceTimeout(final int serviceTimeout) {
+		this.serviceTimeout = serviceTimeout;
 	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{

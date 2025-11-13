@@ -48,7 +48,7 @@ public final class BatchSigner {
 	private static final String BATCH_JSON_PARAM = "json"; //$NON-NLS-1$
 	private static final String BATCH_CRT_PARAM = "certs"; //$NON-NLS-1$
 	private static final String BATCH_TRI_PARAM = "tridata"; //$NON-NLS-1$
-	private static final String SERVICE_TIMEOUT_PARAM = "serviceTimeout"; //$NON-NLS-1$
+	private static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
 	private static final String EQU = "="; //$NON-NLS-1$
 	private static final String AMP = "&"; //$NON-NLS-1$
@@ -252,16 +252,20 @@ public final class BatchSigner {
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 		final String batchUrlSafe = Base64.encode(batch, true);
 		int readTimeout = -1;
+		final Properties props = new Properties();
 		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
 			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
+			props.put(SERVICE_TIMEOUT_PARAM, readTimeout);
 		}
 		try {
 			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
 					batchPreSignerUrl + "?" + //$NON-NLS-1$
 							BATCH_XML_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
-							readTimeout,
-							UrlHttpMethod.POST, errorProcessor
+							-1,
+							UrlHttpMethod.POST, 
+							props, 
+							errorProcessor
 					);
 		}
 		catch (final HttpError e) {
@@ -419,16 +423,20 @@ public final class BatchSigner {
 		String batchUrlSafe = Base64.encode(batch, true);
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 		int readTimeout = -1;
+		final Properties props = new Properties();
 		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
 			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
+			props.put(SERVICE_TIMEOUT_PARAM, readTimeout);
 		}
 		try {
 			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
 				batchPreSignerUrl + "?" + //$NON-NLS-1$
 				BATCH_JSON_PARAM + EQU + batchUrlSafe + AMP +
 				BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
-				readTimeout,
-				UrlHttpMethod.POST, errorProcessor
+				-1,
+				UrlHttpMethod.POST, 
+				props, 
+				errorProcessor
 			);
 		}
 		catch (final HttpError e) {

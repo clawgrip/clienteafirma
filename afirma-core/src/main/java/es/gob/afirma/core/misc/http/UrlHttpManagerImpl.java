@@ -48,10 +48,7 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 	public static final String JAVA_PARAM_SECURE_DOMAINS_LIST = "secureDomainsList"; //$NON-NLS-1$
 
 	/** Tiempo de espera por defecto para descartar una conexi&oacute;n HTTP. */
-	public static final int DEFAULT_CONNECTION_TIMEOUT = -1;
-	
-	/** Tiempo de espera por defecto para descartar una conexi&oacute;n HTTP. */
-	public static final int DEFAULT_READ_TIMEOUT = -1;
+	public static final int DEFAULT_TIMEOUT = -1;
 
 
 
@@ -73,27 +70,27 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 
 	@Override
 	public byte[] readUrl(final String url, final UrlHttpMethod method) throws IOException {
-		return readUrl(url, DEFAULT_CONNECTION_TIMEOUT, null, null, method);
+		return readUrl(url, DEFAULT_TIMEOUT, null, null, method);
 	}
 
 	@Override
 	public byte[] readUrl(final String url, final UrlHttpMethod method, final HttpErrorProcessor processor) throws IOException {
-		return readUrl(url, DEFAULT_CONNECTION_TIMEOUT, null, null, method, processor);
+		return readUrl(url, DEFAULT_TIMEOUT, null, null, method, processor);
 	}
 
 	@Override
 	public byte[] readUrl(final String url, final UrlHttpMethod method, final HttpErrorProcessor processor, final SSLConfig sslConfig) throws IOException {
-		return readUrl(url, DEFAULT_CONNECTION_TIMEOUT, null, null, method, processor, sslConfig);
+		return readUrl(url, DEFAULT_TIMEOUT, null, null, method, processor, sslConfig);
 	}
 
 	@Override
 	public byte[] readUrl(final String urlToRead,
-			              final int connectionTimeout,
+			              final int timeout,
 			              final String contentType,
 			              final String accept,
 			              final UrlHttpMethod method) throws IOException {
 		final Properties headers = buildHeaders(contentType, accept);
-		return readUrl(urlToRead, connectionTimeout, method, headers);
+		return readUrl(urlToRead, timeout, method, headers);
 	}
 
 	private static Properties buildHeaders(final String contentType, final String accept) {
@@ -130,24 +127,24 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 
 	@Override
 	public byte[] readUrl(final String urlToRead,
-	                      final int connectionTimeout,
+	                      final int timeout,
 		                  final UrlHttpMethod method,
 		                  final Properties requestProperties,
 		                  final HttpErrorProcessor httpProcessor) throws IOException {
-		return readUrl(urlToRead, connectionTimeout, method, requestProperties, httpProcessor, null);
+		return readUrl(urlToRead, timeout, method, requestProperties, httpProcessor, null);
 	}
 
 
 	@Override
-	public byte[] readUrl(final String url, final int connectionTimeout, final String contentType, final String accept, final UrlHttpMethod method,
+	public byte[] readUrl(final String url, final int timeout, final String contentType, final String accept, final UrlHttpMethod method,
 			final HttpErrorProcessor httpProcessor, final SSLConfig sslConfig) throws IOException {
 		final Properties headers = buildHeaders(contentType, accept);
-		return readUrl(url, connectionTimeout, method, headers, httpProcessor, sslConfig);
+		return readUrl(url, timeout, method, headers, httpProcessor, sslConfig);
 	}
 
 	@Override
 	public byte[] readUrl(final String urlToRead,
-	                      final int connectionTimeout,
+	                      final int timeout,
 		                  final UrlHttpMethod method,
 		                  final Properties requestProperties,
 		                  final HttpErrorProcessor httpProcessor,
@@ -262,6 +259,15 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 			if (!headers.containsKey("Origin")) { //$NON-NLS-1$
 				conn.addRequestProperty("Origin", uri.getProtocol() +  "://" + uri.getHost()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			
+			// Si en las propiedades se agrego un timeout, lo indicamos en la conexion
+			if (headers.containsKey("servicetimeout")) { //$NON-NLS-1$
+				final int readTimeout = (int) headers.get("servicetimeout"); //$NON-NLS-1$
+				if (readTimeout >= 0) {
+					conn.setReadTimeout(readTimeout); 
+				}				
+				headers.remove("servicetimeout"); //$NON-NLS-1$
+			}
 
 			// Ponemos el resto de las cabeceras
 			for (final Map.Entry<?, ?> entry : headers.entrySet()) {
@@ -281,8 +287,8 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 			}
 
 			// Si se ha establecido un tiempo de timeout, se configura como tiempo maximo hasta la conexion
-			if (connectionTimeout != DEFAULT_CONNECTION_TIMEOUT) {
-				conn.setConnectTimeout(connectionTimeout);
+			if (timeout != DEFAULT_TIMEOUT) {
+				conn.setConnectTimeout(timeout);
 			}
 
 			conn.connect();
@@ -306,7 +312,7 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 		catch (final IOException e) {
 			if (httpProcessor != null) {
 				LOGGER.log(Level.WARNING, "Fallo la conexion pero intentamos recuperarla: " + e); //$NON-NLS-1$
-				return httpProcessor.processHttpError(e, this, url, connectionTimeout, method, requestProperties);
+				return httpProcessor.processHttpError(e, this, url, timeout, method, requestProperties);
 			}
 
 			throw e;
@@ -314,127 +320,6 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 
 		return data;
 	}
-	
-	@Override
-	public byte[] readUrl(final String urlToRead,
-	                      final int readTimeout,
-		                  final UrlHttpMethod method,
-		                  final HttpErrorProcessor httpProcessor) throws IOException {
-
-
-		if (urlToRead == null) {
-			throw new IllegalArgumentException("La URL a leer no puede ser nula"); //$NON-NLS-1$
-		}
-
-		// Vemos si lleva usuario y contrasena
-		final String authString;
-		final String url;
-		final URLName un = new URLName(urlToRead);
-
-		if (un.getUsername() != null || un.getPassword() != null) {
-			final String tmpStr;
-			if (un.getUsername() != null && un.getPassword() != null) {
-				tmpStr = un.getUsername() + URN_SEPARATOR + un.getPassword();
-			}
-			else if (un.getUsername() != null) {
-				tmpStr = un.getUsername();
-			}
-			else {
-				tmpStr = un.getPassword();
-			}
-			authString = Base64.encode(tmpStr.getBytes());
-			url = un.getProtocol() +
-				PROT_SEPARATOR +
-					un.getHost() +
-						(un.getPort() != -1 ? URN_SEPARATOR +
-							Integer.toString(un.getPort()) : "") + //$NON-NLS-1$
-								"/" + //$NON-NLS-1$
-									(un.getFile() != null ? un.getFile() : ""); //$NON-NLS-1$
-		}
-		else {
-			url = urlToRead;
-			authString = null;
-		}
-
-		String urlParameters = null;
-		String request = null;
-		if (UrlHttpMethod.POST.equals(method) || UrlHttpMethod.PUT.equals(method)) {
-			final StringTokenizer st = new StringTokenizer(url, "?"); //$NON-NLS-1$
-			request = st.nextToken();
-			if (url.contains("?")) { //$NON-NLS-1$
-				urlParameters = st.nextToken();
-			}
-		}
-
-		final URL uri = new URL(request != null ? request : url);
-
-		final byte[] data;
-		try {
-			final HttpURLConnection conn;
-			if (Platform.OS.ANDROID.equals(Platform.getOS()) || isLocal(uri)) {
-				conn = (HttpURLConnection) uri.openConnection(Proxy.NO_PROXY);
-			}
-			else {
-				conn = (HttpURLConnection) uri.openConnection();
-			}
-
-			conn.setUseCaches(false);
-			conn.setDefaultUseCaches(false);
-
-			conn.setRequestMethod(method.toString());
-			
-			if (authString != null) {
-				conn.addRequestProperty("Authorization", "Basic " + authString); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-
-			if (urlParameters != null) {
-				conn.setRequestProperty(
-						"Content-Length", String.valueOf(urlParameters.getBytes(StandardCharsets.UTF_8).length) //$NON-NLS-1$
-						);
-				conn.setDoOutput(true);
-				try (
-						final OutputStream os = conn.getOutputStream()
-						) {
-					os.write(urlParameters.getBytes(StandardCharsets.UTF_8));
-				}
-			}
-
-			// Si se ha establecido un tiempo de timeout, 
-			// se configura como tiempo maximo hasta la lectura de la peticion
-			if (readTimeout != DEFAULT_READ_TIMEOUT && readTimeout >= 0) {
-				conn.setReadTimeout(readTimeout);
-			}
-
-			conn.connect();
-			final int resCode = conn.getResponseCode();
-			final String statusCode = Integer.toString(resCode);
-			if (statusCode.startsWith("4") || statusCode.startsWith("5")) { //$NON-NLS-1$ //$NON-NLS-2$
-				throw new HttpError(
-						resCode,
-						conn.getResponseMessage(),
-						AOUtil.getDataFromInputStream(
-								conn.getErrorStream()
-								),
-						url
-						);
-			}
-
-			try (final InputStream is = conn.getInputStream()) {
-				data = AOUtil.getDataFromInputStream(is);
-			}
-		}
-		catch (final IOException e) {
-			if (httpProcessor != null) {
-				LOGGER.log(Level.WARNING, "Fallo la conexion pero intentamos recuperarla: " + e); //$NON-NLS-1$
-				return httpProcessor.processHttpError(e, this, url, readTimeout, method, null);
-			}
-
-			throw e;
-		}
-
-		return data;
-	}
-	
 
 	/**
 	 * Indica si la URL a la que se desea acceder est&aacute; en el bucle

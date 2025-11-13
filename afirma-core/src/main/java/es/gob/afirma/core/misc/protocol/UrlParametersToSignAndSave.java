@@ -305,6 +305,10 @@ public final class UrlParametersToSignAndSave extends UrlParameters {
 		else {
 			setExtraParams(new Properties());
 		}
+		
+		if (params.containsKey(SERVICE_TIMEOUT_PARAM)) {
+			getExtraParams().put(SERVICE_TIMEOUT_PARAM, Integer.parseInt(params.get(SERVICE_TIMEOUT_PARAM)));
+		}
 
 		// Valor de parametro sticky
 		if (params.containsKey(STICKY_PARAM)) {
