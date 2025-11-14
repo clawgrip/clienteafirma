@@ -21,16 +21,18 @@ import java.util.logging.Logger;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.AOInvalidSignatureFormatException;
 import es.gob.afirma.core.misc.Base64;
+import es.gob.afirma.core.misc.http.UrlHttpManager;
+import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
-import es.gob.afirma.core.signers.AOSigner;
+import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 
 /** Firmador PAdES en tres fases.
  * Las firmas que genera no se etiquetan como ETSI, sino como "Adobe PKCS#7 Detached".
  * @author Tom&acute;s Garc&iacute;a-Mer&aacute;s */
-public final class AOPDFTriPhaseSigner implements AOSigner {
+public final class AOPDFTriPhaseSigner extends AOTriphaseSigner {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -76,6 +78,15 @@ public final class AOPDFTriPhaseSigner implements AOSigner {
 		catch (final Exception e) {
 			throw new IllegalArgumentException("No se ha proporcionado una URL valida para el servidor de firma: " + extraParams.getProperty(PROPERTY_NAME_SIGN_SERVER_URL), e); //$NON-NLS-1$
 		}
+		
+		// Creamos el objeto de conexion
+		final UrlHttpManager urlManager;
+		if (this.httpConnection != null) {
+			urlManager = this.httpConnection;
+		}
+		else {
+			urlManager = UrlHttpManagerFactory.getInstalledManager();
+		}
 
 		// Decodificamos el identificador del documento
 		final String documentId = Base64.encode(data, true);
@@ -85,6 +96,7 @@ public final class AOPDFTriPhaseSigner implements AOSigner {
 		// ---------
 
 		final byte[] preSignResult = PDFTriPhaseSignerUtil.doPresign(
+				urlManager,
 				signServerUrl,
 				algorithm,
 				certChain,
@@ -111,6 +123,7 @@ public final class AOPDFTriPhaseSigner implements AOSigner {
 		// ---------
 
 		final byte[] postSignResult = PDFTriPhaseSignerUtil.doPostSign(
+			urlManager,
 			preResultAsBase64,
 			signServerUrl,
 			algorithm,

@@ -99,7 +99,6 @@ public abstract class UrlParameters {
 	private String defaultKeyStoreLib = null;
 	private Properties extraParams = null;
 	private String filename = null;
-	private int serviceTimeout = -1;
 
 	/**
 	 * Obtiene los par&aacute;metros adicionales de la firma.
@@ -253,14 +252,6 @@ public abstract class UrlParameters {
 
 	public byte [] getCipherConfig() {
 		return this.cipherConfig;
-	}
-
-	public int getServiceTimeout() {
-		return this.serviceTimeout;
-	}
-
-	public void setServiceTimeout(final int serviceTimeout) {
-		this.serviceTimeout = serviceTimeout;
 	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{

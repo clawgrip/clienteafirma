@@ -32,8 +32,10 @@ import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.SecureXmlBuilder;
+import es.gob.afirma.core.misc.http.ConnectionConfig;
 import es.gob.afirma.core.misc.http.HttpError;
 import es.gob.afirma.core.misc.http.SSLErrorProcessor;
+import es.gob.afirma.core.misc.http.UrlHttpManager;
 import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.misc.http.UrlHttpMethod;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
@@ -410,6 +412,16 @@ public final class BatchSigner {
 			);
 		}
 
+		ConnectionConfig connectionConfig = null;
+		int serviceTimeout = extraParams.containsKey(SERVICE_TIMEOUT_PARAM) ? 
+							 Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM)) : -1;
+		if (serviceTimeout >= 0) {
+			connectionConfig = new ConnectionConfig();
+			connectionConfig.setReadTimeout(serviceTimeout);
+		}
+		final UrlHttpManager urlHttpManager = getConfiguredHttpConnection(connectionConfig);
+		
+
 		// Obtenemos informacion del lote
 		String algorithm;
 		try {
@@ -619,5 +631,20 @@ public final class BatchSigner {
 		throw new IllegalArgumentException(
 				"El nodo 'signbatch' debe contener al manos el atributo de algoritmo" //$NON-NLS-1$
 			);
+	}
+	
+	/**
+	 * Configura la conexi&oacute;n a usar segun el objeto pasado por par&aacute;metro.
+	 * @param connConfig Configuracion para la conexi&oacute;n;
+	 * @return Objeto para conexi&oacute;n.
+	 */
+	private static UrlHttpManager getConfiguredHttpConnection(final ConnectionConfig connConfig) {
+
+		// Creamos el objeto de conexion y lo configuramos si es preciso
+		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
+		if (connConfig != null) {
+			connConfig.apply(urlManager);
+		}
+		return urlManager;
 	}
 }

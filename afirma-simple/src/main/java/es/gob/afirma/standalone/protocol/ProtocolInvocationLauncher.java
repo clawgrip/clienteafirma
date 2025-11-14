@@ -235,11 +235,8 @@ public final class ProtocolInvocationLauncher {
         	 }
 
         	 try { 
-        		 boolean isAsyncOp = false;
-        		 if (jvc > 3) {
-        			 isAsyncOp = true;
-        		 } 
-        		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, isAsyncOp);  				      		 
+        		boolean asynchronous = jvc > 3;
+        		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, asynchronous);  				      		 
 			} catch (final UnsupportedProtocolException e) {
              	LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
              	ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);

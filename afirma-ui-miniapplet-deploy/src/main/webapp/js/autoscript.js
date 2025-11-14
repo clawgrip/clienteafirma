@@ -47,7 +47,7 @@ var AutoScript = ( function ( window, undefined ) {
 		
 		var appName = null;
 		
-		var serviceTimeout = -1;
+		var serviceTimeout = null;
 				
 		var DOMAIN_NAME;
 		try {
@@ -2224,7 +2224,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
-				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}				
 				
 				return data;
 			}
@@ -2255,7 +2257,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
-				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 				
 				return data;
 			}
@@ -2284,7 +2288,9 @@ var AutoScript = ( function ( window, undefined ) {
 						data.localBatchProcess = createKeyValuePair ("localBatchProcess", true);
 					}
 				}
-				data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout == -1 ? null : serviceTimeout, true);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 				
 				return data;
 			}
@@ -3272,7 +3278,9 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
-				data.servicetimeout = generateDataKeyValue ("servicetimeout", serviceTimeout >= 0 ? serviceTimeout : null);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 
 				return data;
 			}
@@ -3297,7 +3305,9 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
-				data.servicetimeout = generateDataKeyValue ("servicetimeout", serviceTimeout >= 0 ? serviceTimeout : null);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 
 				return data;
 			}

@@ -281,8 +281,15 @@ final class ProtocolInvocationLauncherSign {
 				throw new SocketOperationException(errorCode);
 			}
 		}
-
+		
 		if (signer instanceof AOTriphaseSigner) {
+			ConnectionConfig connectionConfig = null;
+			int serviceTimeout = options.getExtraParams().containsKey(AfirmaExtraParams.SERVICE_TIMEOUT) ? 
+								 Integer.parseInt((String) options.getExtraParams().get(AfirmaExtraParams.SERVICE_TIMEOUT)) : -1;
+			if (serviceTimeout >= 0) {
+				connectionConfig = new ConnectionConfig();
+				connectionConfig.setReadTimeout(serviceTimeout);
+			}
 			final UrlHttpManager httpConnection = getConfiguredHttpConnection(connectionConfig);
 			((AOTriphaseSigner) signer).setHttpConnection(httpConnection);
 		}
@@ -572,10 +579,15 @@ final class ProtocolInvocationLauncherSign {
 		return result;
 	}
 
+	/**
+	 * Configura la conexi&oacute;n a usar segun el objeto pasado por par&aacute;metro.
+	 * @param connConfig Configuracion para la conexi&oacute;n;
+	 * @return Objeto para conexi&oacute;n.
+	 */
 	private static UrlHttpManager getConfiguredHttpConnection(final ConnectionConfig connConfig) {
 
 		// Creamos el objeto de conexion y lo configuramos si es preciso
-		final UrlHttpManager urlManager =UrlHttpManagerFactory.getInstalledManager();
+		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
 		if (connConfig != null) {
 			connConfig.apply(urlManager);
 		}

@@ -27,6 +27,7 @@ import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.http.HttpError;
 import es.gob.afirma.core.misc.http.SSLErrorProcessor;
+import es.gob.afirma.core.misc.http.UrlHttpManager;
 import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.misc.http.UrlHttpMethod;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
@@ -91,7 +92,8 @@ final class PDFTriPhaseSignerUtil {
 	/** Indicador de finalizaci&oacute;n correcta de proceso. */
 	private static final String SUCCESS = "OK"; //$NON-NLS-1$
 
-	static byte[] doPresign(final URL signServerUrl,
+	static byte[] doPresign(final UrlHttpManager urlManager,
+							final URL signServerUrl,
 			                final String algorithm,
 			                final Certificate[] certChain,
 			                final String documentId,
@@ -126,14 +128,8 @@ final class PDFTriPhaseSignerUtil {
 
 			final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 			try {
-				int readTimeout = -1;
-				final Properties props = new Properties();
-				if (extraParams.containsKey(PARAMETER_SERVICE_TIMEOUT)) {
-					readTimeout = Integer.parseInt((String) extraParams.get(PARAMETER_SERVICE_TIMEOUT));
-					props.put(PARAMETER_SERVICE_TIMEOUT, readTimeout);
-				}
-				preSignResult = UrlHttpManagerFactory.getInstalledManager().readUrl(
-						urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, props, errorProcessor);
+				preSignResult = urlManager.readUrl(
+						urlBuffer.toString(), UrlHttpMethod.POST, errorProcessor);
 
 			} catch (final IOException e) {
 				if (errorProcessor.isCancelled()) {
@@ -209,7 +205,8 @@ final class PDFTriPhaseSignerUtil {
 		).toString().getBytes();
 	}
 
-	static byte[] doPostSign(final String preResultAsBase64,
+	static byte[] doPostSign(final UrlHttpManager urlManager,
+							 final String preResultAsBase64,
 			                 final URL signServerUrl,
                              final String algorithm,
                              final Certificate[] certChain,
@@ -234,14 +231,8 @@ final class PDFTriPhaseSignerUtil {
 
 			final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 			try {
-				int readTimeout = -1;
-				final Properties props = new Properties();
-				if (extraParams.containsKey(PARAMETER_SERVICE_TIMEOUT)) {
-					readTimeout = Integer.parseInt((String) extraParams.get(PARAMETER_SERVICE_TIMEOUT));
-					props.put(PARAMETER_SERVICE_TIMEOUT, readTimeout);
-				}
-				postSignResult = UrlHttpManagerFactory.getInstalledManager().readUrl(
-						urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, props, errorProcessor);
+				postSignResult = urlManager.readUrl(
+						urlBuffer.toString(), UrlHttpMethod.POST, errorProcessor);
 			} catch (final IOException e) {
 				if (errorProcessor.isCancelled()) {
 					LOGGER.info(

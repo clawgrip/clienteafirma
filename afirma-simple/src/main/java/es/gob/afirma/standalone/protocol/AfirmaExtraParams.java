@@ -37,4 +37,7 @@ class AfirmaExtraParams {
 
 	/** Directorio del di&aacute;logo de guardado de fichero. */
 	static final String HEADLESS = "headless"; //$NON-NLS-1$
+	
+	/** Tiempo de espera para leer una petici&oacute;n. */
+	static final String SERVICE_TIMEOUT = "servicetimeout"; //$NON-NLS-1$
 }
