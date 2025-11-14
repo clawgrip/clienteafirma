@@ -34,7 +34,7 @@ import es.gob.afirma.core.util.tree.AOTreeModel;
  * Las firmas PKCS#1 se realizan por completo en cliente, no tiene prefirma ni postfirma. Este
  * manejador permite emular la gestion de firmas trif&aacute;de PKCS#1 lo que nos permite que los
  * datos a firmar se obtengan desde el servidor trifasico en lugar del cliente. */
-public class AOPkcs1TriPhaseSigner implements AOSigner {
+public class AOPkcs1TriPhaseSigner extends AOTriphaseSigner {
 
 	/** <i>Logger</i> para la clase y sus derivadas. */
 	protected static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
@@ -221,7 +221,7 @@ public class AOPkcs1TriPhaseSigner implements AOSigner {
 	 * S&oacute;lo se utiliza el {@code serverUrl}.
 	 * @return Resultado de la operaci&oacute;n de firma.
 	 * @throws AOException Cuando se produce un error durante la operaci&oacute;n. */
-	protected static byte[] triPhaseOperation(final String format,
+	protected byte[] triPhaseOperation(final String format,
 			                                final String cryptoOperation,
 			                                final byte[] data,
 			                                final String algorithm,
@@ -255,7 +255,14 @@ public class AOPkcs1TriPhaseSigner implements AOSigner {
 		// Decodificamos el identificador del documento
 		final String documentId = Base64.encode(data, true);
 
-		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
+		// Creamos el objeto de conexion
+		final UrlHttpManager urlManager;
+		if (this.httpConnection != null) {
+			urlManager = this.httpConnection;
+		}
+		else {
+			urlManager = UrlHttpManagerFactory.getInstalledManager();
+		}
 
 		// Preparamos el parametro de cadena de certificados
 		final String cerChainParamContent;
@@ -400,5 +407,4 @@ public class AOPkcs1TriPhaseSigner implements AOSigner {
 			throw new AOException("El resultado devuelto por el servidor no es correcto: " + e, e, ErrorCode.ThirdParty.MALFORMED_POSTSIGN_RESPONSE); //$NON-NLS-1$
 		}
 	}
-
 }

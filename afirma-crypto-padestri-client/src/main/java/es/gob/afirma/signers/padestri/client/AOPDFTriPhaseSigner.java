@@ -255,5 +255,4 @@ public final class AOPDFTriPhaseSigner implements AOSigner {
 
     	return newExtraParams;
     }
-
 }

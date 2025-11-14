@@ -48,12 +48,16 @@ import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
+import es.gob.afirma.core.misc.http.ConnectionConfig;
+import es.gob.afirma.core.misc.http.UrlHttpManager;
+import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSign;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
+import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.signers.ExtraParamsProcessor;
 import es.gob.afirma.core.signers.OptionalDataInterface;
@@ -276,6 +280,11 @@ final class ProtocolInvocationLauncherSign {
 				final ErrorCode errorCode = ErrorCode.Request.UNSUPPORTED_SIGNATURE_FORMAT;
 				throw new SocketOperationException(errorCode);
 			}
+		}
+
+		if (signer instanceof AOTriphaseSigner) {
+			final UrlHttpManager httpConnection = getConfiguredHttpConnection(connectionConfig);
+			((AOTriphaseSigner) signer).setHttpConnection(httpConnection);
 		}
 
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
@@ -561,6 +570,16 @@ final class ProtocolInvocationLauncherSign {
 		result.setDataFilename(extraData);
 
 		return result;
+	}
+
+	private static UrlHttpManager getConfiguredHttpConnection(final ConnectionConfig connConfig) {
+
+		// Creamos el objeto de conexion y lo configuramos si es preciso
+		final UrlHttpManager urlManager =UrlHttpManagerFactory.getInstalledManager();
+		if (connConfig != null) {
+			connConfig.apply(urlManager);
+		}
+		return urlManager;
 	}
 
 	private static SignOperationResult selectCertAndSign(final PrivateKeyEntry pkeSelected, final AOKeyStore aoks,
