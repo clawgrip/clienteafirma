@@ -4346,7 +4346,6 @@ var AutoScript = ( function ( window, undefined ) {
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (format != null && format != undefined) {			params[params.length] = {key:"format", value:format}; }
 				if (algorithm != null && algorithm != undefined) {		params[params.length] = {key:"algorithm", value:algorithm}; }
-				if (extraParams != null && extraParams != undefined) { 	params[params.length] = {key:"properties", value:Base64.encode(extraParams)}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
 				if (serviceTimeout != null 

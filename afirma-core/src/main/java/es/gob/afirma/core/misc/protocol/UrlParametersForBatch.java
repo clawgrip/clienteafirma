@@ -318,10 +318,6 @@ public final class UrlParametersForBatch extends UrlParameters {
 		else {
 			setExtraParams(new Properties());
 		}
-		
-		if (params.containsKey(SERVICE_TIMEOUT_PARAM)) {
-			getExtraParams().setProperty(SERVICE_TIMEOUT_PARAM, params.get(SERVICE_TIMEOUT_PARAM));
-		}
 
 		// Valor de parametro sticky
 		if (params.containsKey(PARAM_STICKY)) {

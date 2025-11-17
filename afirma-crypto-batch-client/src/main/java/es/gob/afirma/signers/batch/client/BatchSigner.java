@@ -222,6 +222,160 @@ public final class BatchSigner {
 										IOException,
 										AOException {
 
+		return signXML(batch, batchPreSignerUrl, batchPostSignerUrl, certificates, pk, extraParams, null);
+	}
+	
+	/** Procesa un lote de firmas.
+	 * Los lotes deben proporcionase definidos en un fichero XML con el siguiente esquema XSD:
+	 * <pre>
+	 * &lt;xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
+  	 * &lt;xs:element name="signbatch"&gt;
+	 *     &lt;xs:complexType&gt;
+	 *       &lt;xs:sequence&gt;
+	 *         &lt;xs:element name="singlesign" maxOccurs="unbounded" minOccurs="1"&gt;
+	 *           &lt;xs:complexType&gt;
+	 *             &lt;xs:sequence&gt;
+	 *               &lt;xs:element type="xs:string" name="datasource"/&gt;
+	 *               &lt;xs:element name="format"&gt;
+	 *                 &lt;xs:simpleType&gt;
+	 *                   &lt;xs:restriction base="xs:string"&gt;
+	 *                     &lt;xs:enumeration value="XAdES"/&gt;
+	 *                     &lt;xs:enumeration value="CAdES"/&gt;
+	 *                     &lt;xs:enumeration value="PAdES"/&gt;
+	 *                   &lt;/xs:restriction&gt;
+	 *                 &lt;/xs:simpleType&gt;
+	 *               &lt;/xs:element&gt;
+	 *               &lt;xs:element name="suboperation"&gt;
+	 *                 &lt;xs:simpleType&gt;
+	 *                   &lt;xs:restriction base="xs:string"&gt;
+	 *                     &lt;xs:enumeration value="sign"/&gt;
+	 *                     &lt;xs:enumeration value="cosign"/&gt;
+	 *                   &lt;/xs:restriction&gt;
+	 *                 &lt;/xs:simpleType&gt;
+	 *               &lt;/xs:element&gt;
+	 *               &lt;xs:element name="extraparams"&gt;
+	 *                 &lt;xs:simpleType&gt;
+	 *                  &lt;xs:restriction  base="xs:base64Binary" /&gt;
+	 *                 &lt;/xs:simpleType&gt;
+	 *               &lt;/xs:element&gt;
+	 *               &lt;xs:element name="signsaver"&gt;
+	 *                 &lt;xs:complexType&gt;
+	 *                   &lt;xs:sequence&gt;
+	 *                     &lt;xs:element type="xs:string" name="class"/&gt;
+	 *                     &lt;xs:element name="config"&gt;
+	 *                       &lt;xs:simpleType&gt;
+	 *                         &lt;xs:restriction  base="xs:base64Binary" /&gt;
+	 *                       &lt;/xs:simpleType&gt;
+	 *                     &lt;/xs:element&gt;
+	 *                   &lt;/xs:sequence&gt;
+	 *                 &lt;/xs:complexType&gt;
+	 *               &lt;/xs:element&gt;
+	 *             &lt;/xs:sequence&gt;
+	 *             &lt;xs:attribute type="xs:string" name="id" use="required"/&gt;
+	 *           &lt;/xs:complexType&gt;
+	 *         &lt;/xs:element&gt;
+	 *       &lt;/xs:sequence&gt;
+	 *       &lt;xs:attribute type="xs:integer" name="concurrenttimeout" use="optional"/&gt;
+	 *       &lt;xs:attribute type="xs:string" name="stoponerror" use="optional"/&gt;
+	 *         &lt;xs:simpleType&gt;
+	 *           &lt;xs:restriction base="xs:string"&gt;
+	 *             &lt;xs:enumeration value="true"/&gt;
+	 *             &lt;xs:enumeration value="false"/&gt;
+	 *           &lt;/xs:restriction&gt;
+	 *         &lt;/xs:simpleType&gt;
+	 *       &lt;/xs:attribute&gt;
+	 *       &lt;xs:attribute type="xs:string" name="algorithm" use="required"&gt;
+	 *         &lt;xs:simpleType&gt;
+	 *           &lt;xs:restriction base="xs:string"&gt;
+	 *             &lt;xs:enumeration value="SHA1"/&gt;
+	 *             &lt;xs:enumeration value="SHA256"/&gt;
+	 *             &lt;xs:enumeration value="SHA384"/&gt;
+	 *             &lt;xs:enumeration value="SHA512"/&gt;
+	 *           &lt;/xs:restriction&gt;
+	 *         &lt;/xs:simpleType&gt;
+	 *       &lt;xs:attribute&gt;
+	 *     &lt;/xs:complexType&gt;
+	 *   &lt;/xs:element&gt;
+	 * &lt;/xs:schema&gt;
+	 * </pre>
+	 * Un ejemplo de definici&oacute;n XML de lote de firmas podr&iacute;a ser
+	 * este (ejemplo con dos firmas en el lote):
+	 * <pre>
+	 * &lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+	 * &lt;signbatch stoponerror="true" algorithm="SHA1"&gt;
+	 *  &lt;singlesign id="f8526f7b-d30a-4720-9e35-fe3494217944"&gt;
+	 *   &lt;datasource&gt;http://google.com&lt;/datasource&gt;
+	 *   &lt;format&gt;XAdES&lt;/format&gt;
+	 *   &lt;suboperation&gt;sign&lt;/suboperation&gt;
+	 *   &lt;extraparams&gt;Iw0KI1RodSBBdW[...]QNCg==&lt;/extraparams&gt;
+	 *   &lt;signsaver&gt;
+	 *    &lt;class&gt;es.gob.afirma.signers.batch.SignSaverFile&lt;/class&gt;
+	 *    &lt;config&gt;Iw0KI1RodSBBdWcgMT[...]wNCg==&lt;/config&gt;
+	 *   &lt;/signsaver&gt;
+	 *  &lt;/singlesign&gt;
+	 *  &lt;singlesign id="0e9cc5de-63ee-45ee-ae02-4a6591ab9a46"&gt;
+	 *   &lt;datasource&gt;SG9sYSBNdW5kbw==&lt;/datasource&gt;
+	 *   &lt;format&gt;CAdES&lt;/format&gt;
+	 *   &lt;suboperation&gt;sign&lt;/suboperation&gt;
+	 *   &lt;extraparams&gt;Iw0KI1RodSBBdWc[...]NCg==&lt;/extraparams&gt;
+	 *   &lt;signsaver&gt;
+	 *    &lt;class&gt;es.gob.afirma.signers.batch.SignSaverFile&lt;/class&gt;
+	 *    &lt;config&gt;Iw0KI1RodSBBdWcgMTM[...]Cg==&lt;/config&gt;
+	 *   &lt;/signsaver&gt;
+	 *  &lt;/singlesign&gt;
+	 * &lt;/signbatch&gt;
+	 * </pre>
+	 * @param batch XML de definici&oacute;n del lote de firmas.
+	 * @param batchPreSignerUrl URL del servicio remoto de preproceso de lotes de firma.
+	 * @param batchPostSignerUrl URL del servicio remoto de postproceso de lotes de firma.
+	 * @param certificates Cadena de certificados del firmante.
+	 * @param pk Clave privada para realizar las firmas cliente.
+	 * @param extraParams Par&aacute;metros extra de configuraci&oacute;n de la operaci&oacute;n.
+	 * @param urlHttpManager Objeto con las propiedades para realizar las conexiones necesarias.
+	 * Permite configurar, por ejemplo, si se permite mostrar di&aacute;logos gr&aacute;ficos en
+	 * la operaci&oacute;n.
+	 * @return Registro del resultado general del proceso por lote, en un XML con este esquema:
+	 * <pre>
+	 * &lt;xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
+	 *  &lt;xs:element name="signs"&gt;
+	 *    &lt;xs:complexType&gt;
+	 *      &lt;xs:sequence&gt;
+	 *        &lt;xs:element name="sign" maxOccurs="unbounded" minOccurs="1"&gt;
+	 *          &lt;xs:complexType&gt;
+	 *            &lt;xs:sequence&gt;
+	 *              &lt;xs:element name="result"&gt;
+	 *                &lt;xs:simpleType&gt;
+	 *                  &lt;xs:restriction base="xs:string"&gt;
+	 *                    &lt;xs:enumeration value="OK"/&gt;
+	 *                    &lt;xs:enumeration value="KO"/&gt;
+	 *                    &lt;xs:enumeration value="NP"/&gt;
+	 *                  &lt;/xs:restriction&gt;
+	 *                &lt;/xs:simpleType&gt;
+	 *              &lt;/xs:element&gt;
+	 *              &lt;xs:element type="xs:string" name="reason" minOccurs="0"/&gt;
+	 *            &lt;/xs:sequence&gt;
+	 *            &lt;xs:attribute type="xs:string" name="id" use="required"/&gt;
+	 *          &lt;/xs:complexType&gt;
+	 *        &lt;/xs:element&gt;
+	 *      &lt;/xs:sequence&gt;
+	 *    &lt;/xs:complexType&gt;
+	 *  &lt;/xs:element&gt;
+	 * &lt;/xs:schema&gt;
+	 * </pre>
+	 * @throws IOException Si hay problemas de red o en el tratamiento de datos.
+	 * @throws CertificateEncodingException Si los certificados proporcionados no son v&aacute;lidos.
+	 * @throws AOException Si hay errores en las firmas cliente.
+	 */
+	public static String signXML(final byte[] batch,
+			final String batchPreSignerUrl,
+			final String batchPostSignerUrl,
+			final Certificate[] certificates,
+			final PrivateKey pk,
+			final Properties extraParams, 
+			final UrlHttpManager urlHttpManager) throws CertificateEncodingException,
+										IOException,
+										AOException {
+
 		if (batch == null || batch.length == 0) {
 			throw new IllegalArgumentException("El lote de firma no puede ser nulo ni vacio"); //$NON-NLS-1$
 		}
@@ -240,7 +394,7 @@ public final class BatchSigner {
 					"La cadena de certificados del firmante no puede ser nula ni vacia" //$NON-NLS-1$
 					);
 		}
-
+		
 		// Obtenemos informacion del lote
 		String algorithm;
 		try {
@@ -249,24 +403,23 @@ public final class BatchSigner {
 		catch (final Exception e) {
 			throw new AOException("El lote proporcionado no es un JSON bien formado o no tiene la estructura correcta", e, BatchErrorCode.Request.MALFORMED_XML_BATCH); //$NON-NLS-1$
 		}
+		
+		UrlHttpManager httpConnection;
+		if (urlHttpManager == null) {
+			httpConnection = UrlHttpManagerFactory.getInstalledManager();
+		} else {
+			httpConnection = urlHttpManager;
+		}
 
 		byte[] ret;
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
 		final String batchUrlSafe = Base64.encode(batch, true);
-		int readTimeout = -1;
-		final Properties props = new Properties();
-		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
-			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
-			props.put(SERVICE_TIMEOUT_PARAM, readTimeout);
-		}
 		try {
-			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
+			ret = httpConnection.readUrl(
 					batchPreSignerUrl + "?" + //$NON-NLS-1$
 							BATCH_XML_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
-							-1,
-							UrlHttpMethod.POST, 
-							props, 
+							UrlHttpMethod.POST,
 							errorProcessor
 					);
 		}
@@ -307,13 +460,12 @@ public final class BatchSigner {
 
 		// Llamamos al servidor de nuevo para el postproceso
 		try {
-			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
+			ret = httpConnection.readUrl(
 					batchPostSignerUrl + "?" + //$NON-NLS-1$
 							BATCH_XML_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates) + AMP +
 							BATCH_TRI_PARAM + EQU + Base64.encode(td2.toString().getBytes(DEFAULT_CHARSET), true),
-							readTimeout,
-							UrlHttpMethod.POST, new Properties()
+							UrlHttpMethod.POST
 					);
 		}
 		catch (final HttpError e) {
@@ -393,6 +545,37 @@ public final class BatchSigner {
 			                  final PrivateKey pk,
 			                  final Properties extraParams) throws CertificateEncodingException,
 			                                              AOException {
+		
+		return signJSON(batch, batchPreSignerUrl, batchPostSignerUrl, certificates, pk, extraParams, null);
+	}
+	
+	/**
+	 * Procesa un lote de firmas.
+	 * Los lotes deben proporcionase definidos en un fichero JSON con un determinado esquema.
+	 * Puede ver dicho esquema y un ejemplo de petici&oacute;n
+	 * <a href="doc-files/batch-scheme.html">aqu&iacute;</a>.
+	 * @param batch JSON de definici&oacute;n del lote de firmas.
+	 * @param batchPreSignerUrl URL del servicio remoto de preproceso de lotes de firma.
+	 * @param batchPostSignerUrl URL del servicio remoto de postproceso de lotes de firma.
+	 * @param certificates Cadena de certificados del firmante.
+	 * @param pk Clave privada para realizar las firmas cliente.
+	 * @param extraParams Par&aacute;metros extra de configuraci&oacute;n de la operaci&oacute;n.
+	 * @param urlHttpManager Objeto con las propiedades para realizar las conexiones necesarias.
+	 * Permite configurar, por ejemplo, si se permite mostrar di&aacute;logos gr&aacute;ficos en
+	 * la operaci&oacute;n.
+	 * @return Cadena JSON con el resultado de la firma del lote. La estructura presentar&aacute;
+	 * la estructura indicada <a href="doc-files/resultlog-scheme.html">aqu&iacute;</a>.
+	 * @throws CertificateEncodingException Si los certificados proporcionados no son v&aacute;lidos.
+	 * @throws AOException Si hay errores en las firmas cliente.
+	 * */
+	public static String signJSON(final byte[] batch,
+			                  final String batchPreSignerUrl,
+			                  final String batchPostSignerUrl,
+			                  final Certificate[] certificates,
+			                  final PrivateKey pk,
+			                  final Properties extraParams,
+			                  final UrlHttpManager urlHttpManager) throws CertificateEncodingException,
+			                                              AOException {
 		if (batch == null || batch.length == 0) {
 			throw new IllegalArgumentException("El lote de firma no puede ser nulo ni vacio"); //$NON-NLS-1$
 		}
@@ -412,16 +595,6 @@ public final class BatchSigner {
 			);
 		}
 
-		ConnectionConfig connectionConfig = null;
-		int serviceTimeout = extraParams.containsKey(SERVICE_TIMEOUT_PARAM) ? 
-							 Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM)) : -1;
-		if (serviceTimeout >= 0) {
-			connectionConfig = new ConnectionConfig();
-			connectionConfig.setReadTimeout(serviceTimeout);
-		}
-		final UrlHttpManager urlHttpManager = getConfiguredHttpConnection(connectionConfig);
-		
-
 		// Obtenemos informacion del lote
 		String algorithm;
 		try {
@@ -430,24 +603,23 @@ public final class BatchSigner {
 		catch (final Exception e) {
 			throw new AOException("El lote proporcionado no es un JSON bien formado o no tiene la estructura correcta", e, BatchErrorCode.Request.MALFORMED_JSON_BATCH); //$NON-NLS-1$
 		}
+		
+		UrlHttpManager httpConnection;
+		if (urlHttpManager == null) {
+			httpConnection = UrlHttpManagerFactory.getInstalledManager();
+		} else {
+			httpConnection = urlHttpManager;
+		}
 
 		byte[] ret;
 		String batchUrlSafe = Base64.encode(batch, true);
 		final SSLErrorProcessor errorProcessor = new SSLErrorProcessor(extraParams);
-		int readTimeout = -1;
-		final Properties props = new Properties();
-		if (extraParams.containsKey(SERVICE_TIMEOUT_PARAM)) {
-			readTimeout = Integer.parseInt((String) extraParams.get(SERVICE_TIMEOUT_PARAM));
-			props.put(SERVICE_TIMEOUT_PARAM, readTimeout);
-		}
 		try {
-			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
+			ret = httpConnection.readUrl(
 				batchPreSignerUrl + "?" + //$NON-NLS-1$
 				BATCH_JSON_PARAM + EQU + batchUrlSafe + AMP +
 				BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates),
-				-1,
-				UrlHttpMethod.POST, 
-				props, 
+				UrlHttpMethod.POST,
 				errorProcessor
 			);
 		}
@@ -491,8 +663,6 @@ public final class BatchSigner {
 			return JSONBatchInfoParser.buildResult(presignErrors).toString();
 		}
 
-
-
 		// Si hubo errores, actualizamos la informacion del lote con ellos
 		if (presignErrors != null) {
 			final BatchInfo batchInfo = JSONBatchInfoParser.parse(batch);
@@ -513,14 +683,13 @@ public final class BatchSigner {
 
 		// Llamamos al servidor de nuevo para el postproceso
 		try {
-			ret = UrlHttpManagerFactory.getInstalledManager().readUrl(
+			ret = httpConnection.readUrl(
 					batchPostSignerUrl + "?" + //$NON-NLS-1$
 							BATCH_JSON_PARAM + EQU + batchUrlSafe + AMP +
 							BATCH_CRT_PARAM + EQU + getCertChainAsBase64(certificates) + AMP +
 							BATCH_TRI_PARAM + EQU +
 							Base64.encode(TriphaseDataParser.triphaseDataToJsonString(td).getBytes(DEFAULT_CHARSET), true),
-							readTimeout,
-							UrlHttpMethod.POST, new Properties()
+							UrlHttpMethod.POST
 					);
 		}
 		catch (final HttpError e) {
@@ -633,18 +802,4 @@ public final class BatchSigner {
 			);
 	}
 	
-	/**
-	 * Configura la conexi&oacute;n a usar segun el objeto pasado por par&aacute;metro.
-	 * @param connConfig Configuracion para la conexi&oacute;n;
-	 * @return Objeto para conexi&oacute;n.
-	 */
-	private static UrlHttpManager getConfiguredHttpConnection(final ConnectionConfig connConfig) {
-
-		// Creamos el objeto de conexion y lo configuramos si es preciso
-		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
-		if (connConfig != null) {
-			connConfig.apply(urlManager);
-		}
-		return urlManager;
-	}
 }

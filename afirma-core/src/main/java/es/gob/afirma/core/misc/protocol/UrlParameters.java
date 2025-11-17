@@ -94,6 +94,7 @@ public abstract class UrlParameters {
 	private String id = null;
 	private String minimumClientVersion = null;
 	private boolean activeWaiting = false;
+	private int serviceTimeout = -1;
 
 	private String defaultKeyStore = null;
 	private String defaultKeyStoreLib = null;
@@ -253,6 +254,14 @@ public abstract class UrlParameters {
 	public byte [] getCipherConfig() {
 		return this.cipherConfig;
 	}
+	
+	void setServiceTimeout(final int serviceTimeout) {
+		this.serviceTimeout = serviceTimeout;
+	}
+
+	public int getServiceTimeout() {
+		return this.serviceTimeout;
+	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException, ParameterLocalAccessRequestedException{
 
@@ -282,6 +291,13 @@ public abstract class UrlParameters {
 
 		if (params.containsKey(MINIMUM_CLIENT_VERSION_PARAM)) {
 			setMinimumClientVersion(params.get(MINIMUM_CLIENT_VERSION_PARAM));
+		}
+		
+		if (params.containsKey(SERVICE_TIMEOUT_PARAM)) {
+			int servTimeout = Integer.parseInt((String) params.get(SERVICE_TIMEOUT_PARAM));
+			if (servTimeout >= 0) {
+				setServiceTimeout(servTimeout);
+			}			
 		}
 
 		// Comprobamos que se nos hayan indicado los datos o, en su defecto, el
