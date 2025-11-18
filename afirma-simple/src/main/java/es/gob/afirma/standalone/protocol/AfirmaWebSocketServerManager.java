@@ -50,10 +50,11 @@ public class AfirmaWebSocketServerManager {
 	 * Inicia un WebSocket para la comunicaci&oacute;n con el navegador.
 	 * @param channelInfo Informaci&oacute;n para la construcci&oacute;n de la comunicaci&oacute;n.
 	 * @param requestedProtocolVersion Versi&oacute;n del protocolo de comunicaci&oacute;n.
+	 * @param asynchronous Si viene con valor <code>true</code> tratar&aacute; las operaciones de forma as&iacute;ncrona si viene a false las tratara como s&iacute;ncronas<code>false</code>.
 	 * @throws UnsupportedProtocolException Cuando se ha solicitado el uso de una versi&oacute;n de protocolo no soportada.
 	 * @throws SocketOperationException Cuando
 	 */
-	public static void startService(final ChannelInfo channelInfo, final int requestedProtocolVersion) throws UnsupportedProtocolException, SocketOperationException {
+	public static void startService(final ChannelInfo channelInfo, final int requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException {
 
 		checkSupportProtocol(requestedProtocolVersion);
 
@@ -74,6 +75,7 @@ public class AfirmaWebSocketServerManager {
 				case PROTOCOL_VERSION_4:
 				case PROTOCOL_VERSION_5:
 					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
+					((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(asynchronous);
 					break;
 
 				default:

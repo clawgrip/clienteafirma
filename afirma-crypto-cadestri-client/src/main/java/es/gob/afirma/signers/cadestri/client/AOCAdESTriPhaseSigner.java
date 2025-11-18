@@ -33,8 +33,8 @@ import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
-import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOTriphaseException;
+import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.signers.TriphaseData;
 import es.gob.afirma.core.signers.TriphaseDataSigner;
@@ -42,7 +42,7 @@ import es.gob.afirma.core.util.tree.AOTreeModel;
 
 /** Firmador CAdES en tres fases.
  * @author Tom&acute;s Garc&iacute;a-Mer&aacute;s */
-public class AOCAdESTriPhaseSigner implements AOSigner {
+public class AOCAdESTriPhaseSigner extends AOTriphaseSigner {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -66,7 +66,6 @@ public class AOCAdESTriPhaseSigner implements AOSigner {
 	private static final String CONFIG_NEEDED_ERROR_PREFIX = ERROR_PREFIX + "21:"; //$NON-NLS-1$
 	/** Indicador de finalizaci&oacute;n correcta de proceso. */
 	private static final String SUCCESS = "OK"; //$NON-NLS-1$
-
 
 	@Override
 	public byte[] sign(final byte[] data,
@@ -218,7 +217,7 @@ public class AOCAdESTriPhaseSigner implements AOSigner {
 	 * @param extraParams Par&aacute;metros para la configuraci&oacute;n de la operaci&oacute;n.
 	 * @return Resultado de la operaci&oacute;n de firma.
 	 * @throws AOException Cuando se produce un error durante la operaci&oacute;n. */
-	protected static byte[] triPhaseOperation(final String format,
+	protected byte[] triPhaseOperation(final String format,
 			                                  final String cryptoOperation,
 			                                  final byte[] docId,
 			                                  final String algorithm,
@@ -250,7 +249,14 @@ public class AOCAdESTriPhaseSigner implements AOSigner {
 		// Decodificamos el identificador del documento
 		final String documentId = Base64.encode(docId, true);
 
-		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
+		// Creamos el objeto de conexion
+		final UrlHttpManager urlManager;
+		if (this.httpConnection != null) {
+			urlManager = this.httpConnection;
+		}
+		else {
+			urlManager = UrlHttpManagerFactory.getInstalledManager();
+		}
 
 		// ---------
 		// PREFIRMA
@@ -446,6 +452,4 @@ public class AOCAdESTriPhaseSigner implements AOSigner {
 
 		return exception;
 	}
-
-
 }

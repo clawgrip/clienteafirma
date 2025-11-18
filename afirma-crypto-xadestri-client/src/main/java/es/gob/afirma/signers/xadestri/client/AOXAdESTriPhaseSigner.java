@@ -44,7 +44,7 @@ import es.gob.afirma.core.misc.http.UrlHttpMethod;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
-import es.gob.afirma.core.signers.AOSigner;
+import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.AOTriphaseException;
 import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.signers.OptionalDataInterface;
@@ -66,7 +66,7 @@ import es.gob.afirma.signers.xml.NotFoundXPathException;
  * (prevaleciendo estos sobre el identificador) de tal forma que estos viajan en cada una de las operaciones con el
  * servidor. El resultado ser&aacute; an&aacute;logo al anterior, recuperandose &uacute;nicamente el identificador
  * remoto asignado al resultado. */
-public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
+public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalDataInterface {
 
 	protected static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -142,6 +142,7 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 
 	private static final String EXTRAPARAM_FORMAT = "format"; //$NON-NLS-1$
 	private static final String EXTRAPARAM_USE_MANIFEST = "useManifest"; //$NON-NLS-1$
+	private static final String EXTRAPARAM_SERVICE_TIMEOUT = "servicetimeout"; //$NON-NLS-1$
 
 	private final String signFormat;
 
@@ -342,7 +343,7 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 	 * @param extraParams Par&aacute;metros para la configuraci&oacute;n de la operaci&oacute;n.
 	 * @return Resultado de la operaci&oacute;n de firma.
 	 * @throws AOException Cuando se produce un error durante la operaci&oacute;n. */
-	protected static byte[] triPhaseOperation(final String format,
+	protected byte[] triPhaseOperation(final String format,
 			                                final String cryptoOperation,
 			                                final byte[] data,
 			                                final String algorithm,
@@ -372,6 +373,15 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 				"No se ha proporcionado una URL valida para el servidor de firma: " + extraParams.getProperty(PROPERTY_NAME_SIGN_SERVER_URL), e //$NON-NLS-1$
 			);
 		}
+		
+		// Creamos el objeto de conexion
+		final UrlHttpManager urlManager;
+		if (this.httpConnection != null) {
+			urlManager = this.httpConnection;
+		}
+		else {
+			urlManager = UrlHttpManagerFactory.getInstalledManager();
+		}
 
 		// Retiramos del extraParams las propiedades que no se utilizaran o no
 		// se deberian configurar desde el exterior
@@ -381,8 +391,6 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 
 		// Decodificamos el identificador del documento
 		final String documentId = data != null ? Base64.encode(data, true) : null;
-
-		final UrlHttpManager urlManager = UrlHttpManagerFactory.getInstalledManager();
 
 		// Preparamos el parametro de cadena de certificados
 		final String cerChainParamContent;
@@ -526,8 +534,13 @@ public class AOXAdESTriPhaseSigner implements AOSigner, OptionalDataInterface {
 				urlBuffer.append(HTTP_AND).append(PARAMETER_NAME_EXTRA_PARAM).append(HTTP_EQUALS).
 				append(AOUtil.properties2Base64(xParams));
 			}
+			
+			int readTimeout = -1;
+			if (extraParams.containsKey(EXTRAPARAM_SERVICE_TIMEOUT)) {
+				readTimeout = Integer.parseInt((String) extraParams.get(EXTRAPARAM_SERVICE_TIMEOUT));
+			}
 
-			postSignResult = urlManager.readUrl(urlBuffer.toString(), UrlHttpMethod.POST);
+			postSignResult = urlManager.readUrl(urlBuffer.toString(), readTimeout, UrlHttpMethod.POST, new Properties());
 
 		}
 		catch (final HttpError e) {

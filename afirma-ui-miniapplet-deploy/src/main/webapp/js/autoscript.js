@@ -24,7 +24,7 @@ var SupportDialog;
 var AutoScript = ( function ( window, undefined ) {
 
 		var VERSION = "1.10.0";
-		var VERSION_CODE = 3;
+		var VERSION_CODE = 4;
 
 		var PROTOCOL_VERSION = 4;
 
@@ -46,6 +46,8 @@ var AutoScript = ( function ( window, undefined ) {
 		var resetStickySignatory = false;
 		
 		var appName = null;
+		
+		var serviceTimeout = null;
 				
 		var DOMAIN_NAME;
 		try {
@@ -657,6 +659,11 @@ var AutoScript = ( function ( window, undefined ) {
 		/** Establece el nombre de aplicacion o dominio desde el que se realiza la llamada. */
 		var setAppName = function (name) {
 			appName = name;
+		}
+		
+		/** Establece el tiempo de espera para la lectura de llamadas a servicios. */
+		var setServiceTimeout = function (timeoutMs) {
+			serviceTimeout = timeoutMs;
 		}
 		
 		var selectCertificate = function (params, successCallback, errorCallback) {
@@ -2007,6 +2014,9 @@ var AutoScript = ( function ( window, undefined ) {
 			var OPERATION_SELECT_CERTIFICATE = "certificate";
 
 			var OPERATION_SIGN = "sign";
+			
+			// Tiempo de espera entre los intentos de conexion para obtener el resultado de la operacion por websocket
+			var AUTOFIRMA_GETRESULT_TIME = 2000;
 
 			/** Informacion de error. */
 			var errorMessage = '';
@@ -2214,6 +2224,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}				
 				
 				return data;
 			}
@@ -2244,6 +2257,9 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				data.appname = createKeyValuePair ("appname", !appName ? appName : DOMAIN_NAME);
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 				
 				return data;
 			}
@@ -2272,6 +2288,9 @@ var AutoScript = ( function ( window, undefined ) {
 						data.localBatchProcess = createKeyValuePair ("localBatchProcess", true);
 					}
 				}
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 				
 				return data;
 			}
@@ -2478,7 +2497,7 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				webSocket.onerror = function(e) {
 					console.log("Procesado por defecto del error");
-				}
+				};
 				
 				return webSocket;
 			}
@@ -2552,11 +2571,18 @@ var AutoScript = ( function ( window, undefined ) {
 			 * el tipo de operacion que la envie.
 			 */
 			function processResponse (data) {
-				
-				
+						
 				// No se ha obtenido respuesta o se notifica la cancelacion
 				if (data == undefined || data == null || data == "CANCEL") {
 					processErrorResponse("es.gob.afirma.core.AOCancelledOperationException", ErrorCode.Functional.CANCELLED_OP);
+					return;
+				}
+				
+				// Se recibe un mensaje de espera, la operacion solicitada no ha terminado aun
+				if (data == "#wait") {
+					setTimeout(function() {
+				        ws.send("getresult?idsession=" + idSession);
+				    }, AUTOFIRMA_GETRESULT_TIME);
 					return;
 				}
 				
@@ -3252,6 +3278,9 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 
 				return data;
 			}
@@ -3276,6 +3305,9 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = generateDataKeyValue ("resetsticky", resetStickySignatory);
 				}
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
+				if (serviceTimeout != null && serviceTimeout >= 0) {
+					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
+				}	
 
 				return data;
 			}
@@ -4314,9 +4346,11 @@ var AutoScript = ( function ( window, undefined ) {
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (format != null && format != undefined) {			params[params.length] = {key:"format", value:format}; }
 				if (algorithm != null && algorithm != undefined) {		params[params.length] = {key:"algorithm", value:algorithm}; }
-				if (extraParams != null && extraParams != undefined) { 	params[params.length] = {key:"properties", value:Base64.encode(extraParams)}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 
 				configureExtraParams(params, extraParams);
 
@@ -4422,6 +4456,10 @@ var AutoScript = ( function ( window, undefined ) {
 						outputFileName != undefined) {					params[params.length] = {key:"filename", value:outputFileName}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+
 
 				configureExtraParams(params, extraParams);
 				
@@ -4512,6 +4550,10 @@ var AutoScript = ( function ( window, undefined ) {
 						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+
 				params[params.length] = {key:"needcert", value:"true"}; 
 
 				configureExtraParams(params, extraParams);
@@ -4594,6 +4636,9 @@ var AutoScript = ( function ( window, undefined ) {
 						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:true}; } // Espera activa
 				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (serviceTimeout != null 
+					&& serviceTimeout != undefined
+					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
 
 				configureExtraParams(params, certFilters);
@@ -5707,6 +5752,7 @@ var AutoScript = ( function ( window, undefined ) {
 			setLocale : setLocale,
 			setMinimumClientVersion : setMinimumClientVersion,
 			setAppName : setAppName,
+			setServiceTimeout : setServiceTimeout,
 
 			/* Gestion de errores */
 			getErrorMessage : getErrorMessage,

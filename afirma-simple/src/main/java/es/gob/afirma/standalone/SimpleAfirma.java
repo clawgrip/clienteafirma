@@ -916,7 +916,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
 		LOGGER.info("Identificamos si es una llamada por linea de comandos"); //$NON-NLS-1$
     	// Uso en modo linea de comandos
-    	if (isUsingCommnadLine(args) || isHeadlessMode()) {
+    	if (isUsingCommandLine(args) || isHeadlessMode()) {
     		CommandLineLauncher.main(args);
     		return;
     	}
@@ -972,7 +972,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     	try {
     		// Invocacion por protocolo
-    		if (args != null && args.length > 0 && args[0].toLowerCase().startsWith(PROTOCOL_URL_START_LOWER_CASE)) {
+    		if (args != null && args.length > 0 
+    		 && args[0].toLowerCase().startsWith(PROTOCOL_URL_START_LOWER_CASE)) {
 
     			LOGGER.info("Identificamos que es una invocacion por protocolo"); //$NON-NLS-1$
 
@@ -1296,7 +1297,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 * @return {@code true} si se considera que la aplicaci&oacute;n se ejecuta
 	 * 		en l&iacute;nea de comandos.
 	 */
-	private static boolean isUsingCommnadLine(final String[] args) {
+	private static boolean isUsingCommandLine(final String[] args) {
 		return args != null && args.length > 0 && !args[0].toLowerCase().startsWith(PROTOCOL_URL_START_LOWER_CASE);
 	}
 

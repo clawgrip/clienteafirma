@@ -32,6 +32,8 @@ import es.gob.afirma.core.keystores.PinException;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
+import es.gob.afirma.core.misc.http.ConnectionConfig;
+import es.gob.afirma.core.misc.http.UrlHttpManager;
 import es.gob.afirma.core.misc.protocol.ParameterException;
 import es.gob.afirma.core.misc.protocol.UrlParametersForBatch;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
@@ -378,6 +380,17 @@ final class ProtocolInvocationLauncherBatch {
 			CertificateEncodingException, AOException, ParameterException, IOException {
 
 		String batchResult;
+
+		ConnectionConfig connectionConfig = null;
+		final int serviceTimeout = options.getServiceTimeout();
+
+		if (serviceTimeout >= 0) {
+			connectionConfig = new ConnectionConfig();
+			connectionConfig.setReadTimeout(serviceTimeout);
+		}
+
+		final UrlHttpManager urlHttpManager = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);
+
 		if (options.isJsonBatch()) {
 			if(options.isLocalBatchProcess()) {
 				final BatchSignOperation batchConfig =
@@ -390,7 +403,8 @@ final class ProtocolInvocationLauncherBatch {
 						options.getBatchPostSignerUrl(),
 						pke.getCertificateChain(),
 						pke.getPrivateKey(),
-						options.getExtraParams());
+						options.getExtraParams(),
+						urlHttpManager);
 			}
 		} else {
 			batchResult = BatchSigner.signXML(
@@ -399,7 +413,8 @@ final class ProtocolInvocationLauncherBatch {
 					options.getBatchPostSignerUrl(),
 					pke.getCertificateChain(),
 					pke.getPrivateKey(),
-					options.getExtraParams());
+					options.getExtraParams(),
+					urlHttpManager);
 		}
 		return batchResult.getBytes(StandardCharsets.UTF_8);
 	}

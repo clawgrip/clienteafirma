@@ -45,6 +45,8 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 
 	private final int protocol;
 
+	private boolean isAsyncOperation;
+
 	/**
 	 * Genera un servidor websocket que atiende las peticiones de Autofirma.
 	 * @param port Puerto a trav&eacute;s del que realizar la comunicaci&oacute;n.
@@ -85,11 +87,18 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 		// Si recibimos cualquier cosa distinta de un eco, consideraremos que es una peticion de
 		// operacion y la procesaremos como tal
 		else {
-			// Si se trata de una operacion de firma de lote, incrementamos el tiempo de timeout
-			final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
-			setConnectionLostTimeout(batchOperation ? 240 : 60);
 			// Ejecutamos la peticion y devolvemos el resultado
-			broadcast(ProtocolInvocationLauncher.launch(message, this.protocol, true), Collections.singletonList(ws));
+			if (this.isAsyncOperation) {
+				// Se va a procesar la operacion de forma asincrona, asi que no habra riesgo de
+				// timeout en el websocket porque no quedara bloqueado. Se devolvera un mensaje
+				// de espera y se haran consultas recurrentes hasta obtener el resultado
+				WebSocketServerOperationHandler.handleOperation(this.protocol, message, this.sessionId, this, ws);
+			} else {
+				// Si se trata de una operacion de firma de lote, incrementamos el tiempo de timeout
+				final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
+				setConnectionLostTimeout(batchOperation ? 240 : 60);
+				broadcast(ProtocolInvocationLauncher.launch(message, this.protocol, true), Collections.singletonList(ws));
+			}
 		}
 	}
 
@@ -110,6 +119,14 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	 */
 	private static boolean isLocalAddress(final InetAddress address) {
 		return address != null && LOCALHOST_ADDRESS.equals(address.getHostAddress());
+	}
+
+	/**
+	 * Indica si el m&eacute;todo debe de tratar la operaci&oacute;n como as&iacute;ncrona o no.
+	 * @param isAsyncOp {@code true} si se desea que se trate la operacion como as&iacute;ncrona.
+	 */
+	public void setAsyncOperation(final boolean isAsyncOp) {
+		this.isAsyncOperation = isAsyncOp;
 	}
 
 	/**
