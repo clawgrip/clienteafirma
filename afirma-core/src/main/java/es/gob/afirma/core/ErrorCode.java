@@ -175,7 +175,7 @@ public class ErrorCode {
 		public static final ErrorCode CERTIFICATE_NEEDED 						= new ErrorCode("501001", "Error en la operacion, no hay certificados"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode INVALID_FORMAT_FILE						= new ErrorCode("501002", "El formato de fichero no es valido para la operacion que se intenta realizar"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode INVALID_SMARTCARD_PIN						= new ErrorCode("501003", "El PIN del la tarjeta inteligente es incorrecto"); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		public static final ErrorCode DOCUMENT_TOO_LARGE						= new ErrorCode("501005", "El documento supera el tamano maximo permitido"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode COMPATIBLE_SIGNATURE_NOT_FOUND			= new ErrorCode("501006", "La firma no es compatible con el formato de firma utilizado"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode SIGNING_LTS								= new ErrorCode("501007", "Se esta intentando firmar una firma longeva que quedara invalidada"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -190,6 +190,7 @@ public class ErrorCode {
 	public static class Request {
 		public static final ErrorCode UNSUPPORTED_CIPHER_KEY				= new ErrorCode("600009", "La clave de cifrado recibida no esta soportada"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode LOCAL_RETRIEVE_URL					= new ErrorCode("600010", "La URL del servlet de recuperacion no puede ser local"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode INVALID_READ_TIMEOUT					= new ErrorCode("600012", "El tiempo de espera de lectura de los servicios no es valido"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		public static final ErrorCode DATA_NOT_FOUND						= new ErrorCode("600100", "No se ha recibido los datos en la peticion ni el id del fichero a descargar para la operacion de firma"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode RETRIEVE_URL_TO_SIGN_NOT_FOUND		= new ErrorCode("600101", "No se ha recibido la URL del servlet para descargar la informacion de la operacion de firma"); //$NON-NLS-1$ //$NON-NLS-2$

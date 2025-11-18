@@ -204,7 +204,7 @@ final class ProtocolInvocationLauncherUtil {
 
 		return format;
 	}
-	
+
 	/**
 	 * Configura la conexi&oacute;n a usar segun el objeto pasado por par&aacute;metro.
 	 * @param connConfig Configuracion para la conexi&oacute;n;

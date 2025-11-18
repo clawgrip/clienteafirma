@@ -96,8 +96,9 @@
 	
 	function doSignBatch() {
 		try {
-			
 			AutoScript.setLocalBatchProcess(false);
+			
+			AutoScript.setServiceTimeout(0);
 			
 			AutoScript
 					.signBatchProcess(
@@ -245,12 +246,13 @@
 </head>
 <body>
 	<script type="text/javascript">
+	
 			//AutoScript.setForceWSMode(true);
-			AutoScript.cargarAppAfirma();
-			AutoScript.setServlets(
+				AutoScript.setServlets(
 					window.location.origin + "/afirma-signature-storage/StorageService", 
 					window.location.origin + "/afirma-signature-retriever/RetrieveService");
-		</script>
+			AutoScript.cargarAppAfirma();
+	</script>
 
 	<fieldset style="margin-bottom:30px;">
 		<legend>Configuraci&oacute;n de la operaci&oacute;n</legend>

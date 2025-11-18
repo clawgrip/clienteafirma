@@ -9,8 +9,6 @@
 
 package es.gob.afirma.standalone.protocol;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,8 +45,6 @@ public class AfirmaWebSocketServerManager {
 	private static int protocolVersion = -1;
 
 	static AfirmaWebSocketServer instance = null;
-	
-	static Map<String, ActiveWebSocketOperationThread> waitingThreadMap = new HashMap<String, ActiveWebSocketOperationThread>();
 
 	/**
 	 * Inicia un WebSocket para la comunicaci&oacute;n con el navegador.
@@ -78,8 +74,8 @@ public class AfirmaWebSocketServerManager {
 				switch (protocolVersion) {
 				case PROTOCOL_VERSION_4:
 				case PROTOCOL_VERSION_5:
-					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);	
-					((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(asynchronous);					
+					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
+					((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(asynchronous);
 					break;
 
 				default:

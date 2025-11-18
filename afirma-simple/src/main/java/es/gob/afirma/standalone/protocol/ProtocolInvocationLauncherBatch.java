@@ -380,17 +380,17 @@ final class ProtocolInvocationLauncherBatch {
 			CertificateEncodingException, AOException, ParameterException, IOException {
 
 		String batchResult;
-		
+
 		ConnectionConfig connectionConfig = null;
-		int serviceTimeout = options.getServiceTimeout();
-		
+		final int serviceTimeout = options.getServiceTimeout();
+
 		if (serviceTimeout >= 0) {
 			connectionConfig = new ConnectionConfig();
 			connectionConfig.setReadTimeout(serviceTimeout);
 		}
-		
-		final UrlHttpManager urlHttpManager = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);	
-		
+
+		final UrlHttpManager urlHttpManager = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);
+
 		if (options.isJsonBatch()) {
 			if(options.isLocalBatchProcess()) {
 				final BatchSignOperation batchConfig =

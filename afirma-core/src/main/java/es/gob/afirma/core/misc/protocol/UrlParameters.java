@@ -79,7 +79,7 @@ public abstract class UrlParameters {
 
 	/** Nombre de aplicaci&oacute;n o dominio desde el que se realiza la llamada. */
 	protected static final String APP_NAME_PARAM = "appname"; //$NON-NLS-1$
-	
+
 	/** Tiempo de espera para la lectura d epeticiones. */
 	protected static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
@@ -254,7 +254,7 @@ public abstract class UrlParameters {
 	public byte [] getCipherConfig() {
 		return this.cipherConfig;
 	}
-	
+
 	void setServiceTimeout(final int serviceTimeout) {
 		this.serviceTimeout = serviceTimeout;
 	}
@@ -292,12 +292,17 @@ public abstract class UrlParameters {
 		if (params.containsKey(MINIMUM_CLIENT_VERSION_PARAM)) {
 			setMinimumClientVersion(params.get(MINIMUM_CLIENT_VERSION_PARAM));
 		}
-		
+
 		if (params.containsKey(SERVICE_TIMEOUT_PARAM)) {
-			int servTimeout = Integer.parseInt((String) params.get(SERVICE_TIMEOUT_PARAM));
-			if (servTimeout >= 0) {
-				setServiceTimeout(servTimeout);
-			}			
+			try {
+				final int servTimeout = Integer.parseInt(params.get(SERVICE_TIMEOUT_PARAM));
+				if (servTimeout >= 0) {
+					setServiceTimeout(servTimeout);
+				}
+			} catch (final Exception e) {
+				throw new ParameterException("El valor del parametro del tiempo de espera de lectura de los servicios no es valido",  //$NON-NLS-1$
+						ErrorCode.Request.UNSUPPORTED_CIPHER_KEY);
+			}
 		}
 
 		// Comprobamos que se nos hayan indicado los datos o, en su defecto, el
