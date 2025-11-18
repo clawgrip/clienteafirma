@@ -44,7 +44,7 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	private static final String HEADER_BATCH_2 = "afirma://batch/?"; //$NON-NLS-1$
 
 	private final int protocol;
-	
+
 	private boolean isAsyncOperation;
 
 	/**
@@ -87,15 +87,18 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 		// Si recibimos cualquier cosa distinta de un eco, consideraremos que es una peticion de
 		// operacion y la procesaremos como tal
 		else {
-			// Si se trata de una operacion de firma de lote, incrementamos el tiempo de timeout
-			final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
-			setConnectionLostTimeout(batchOperation ? 240 : 60);
 			// Ejecutamos la peticion y devolvemos el resultado
 			if (this.isAsyncOperation) {
+				// Se va a procesar la operacion de forma asincrona, asi que no habra riesgo de
+				// timeout en el websocket porque no quedara bloqueado. Se devolvera un mensaje
+				// de espera y se haran consultas recurrentes hasta obtener el resultado
 				WebSocketServerOperationHandler.handleOperation(this.protocol, message, this.sessionId, this, ws);
 			} else {
+				// Si se trata de una operacion de firma de lote, incrementamos el tiempo de timeout
+				final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
+				setConnectionLostTimeout(batchOperation ? 240 : 60);
 				broadcast(ProtocolInvocationLauncher.launch(message, this.protocol, true), Collections.singletonList(ws));
-			}			
+			}
 		}
 	}
 
@@ -117,7 +120,7 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	private static boolean isLocalAddress(final InetAddress address) {
 		return address != null && LOCALHOST_ADDRESS.equals(address.getHostAddress());
 	}
-	
+
 	/**
 	 * Indica si el m&eacute;todo debe de tratar la operaci&oacute;n como as&iacute;ncrona o no.
 	 * @param isAsyncOp {@code true} si se desea que se trate la operacion como as&iacute;ncrona.
