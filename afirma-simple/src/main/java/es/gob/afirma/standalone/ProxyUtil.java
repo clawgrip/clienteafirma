@@ -80,7 +80,7 @@ public final class ProxyUtil {
 		        final InetSocketAddress addr = (InetSocketAddress) proxies.get(0).address();
 				LOGGER.info("Se usara proxy para las conexiones HTTP: " + addr.getHostName() + ":" + addr.getPort()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			proxies = proxySelector.select(new URI("https://www.google.com")); //$NON-NLS-1$
+			proxies = proxySelector.select(new URI("https://firmaelectronica.gob.es/")); //$NON-NLS-1$
 			if (proxies.isEmpty() || proxies.get(0).address() == null) {
 				LOGGER.info("No se usara proxy para las conexiones HTTPS"); //$NON-NLS-1$
 			}
@@ -241,9 +241,9 @@ public final class ProxyUtil {
 	}
 
     private static final char[] PWD_CIPHER_KEY_DES = new char[] {'8', 'W', '{', 't', '2', 'r', ',', 'B'};
-    
+
     private static final String PWD_CIPHER_KEY_AES = "3zevqLjBQTqWKCDEev3kNyjRWQpeuKe3xYlcdGmBYZE="; //$NON-NLS-1$
-    
+
     private static final String PWD_CIPHER_IV_AES = "NKAe+g8shVCYWEEhLNPU0A=="; //$NON-NLS-1$
 
     /** Cifra una contrase&ntilde;a.
@@ -257,7 +257,7 @@ public final class ProxyUtil {
     	if (password == null || password.length < 1) {
     		return null;
     	}
-    	
+
     	try {
     		final ServerCipher serverCipher = new AesServerCipher(Base64.decode(PWD_CIPHER_KEY_AES), Base64.decode(PWD_CIPHER_IV_AES));
         	return serverCipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
@@ -266,7 +266,7 @@ public final class ProxyUtil {
     		final ServerCipher serverCipher = new DesServerCipher(String.valueOf(PWD_CIPHER_KEY_DES).getBytes());
         	return serverCipher.cipherData(String.valueOf(password).getBytes(StandardCharsets.UTF_8));
     	}
-    	
+
     }
 
     /** Descifra una contrase&ntilde;a
@@ -278,9 +278,9 @@ public final class ProxyUtil {
     	if (cipheredPassword == null  || cipheredPassword.isEmpty()) {
     		return null;
     	}
-    	
+
     	byte[] p;
-    	
+
     	try {
     		final ServerCipher serverCipher = new AesServerCipher(Base64.decode(PWD_CIPHER_KEY_AES), Base64.decode(PWD_CIPHER_IV_AES));
     		p = serverCipher.decipherData(String.valueOf(cipheredPassword).getBytes(StandardCharsets.UTF_8));

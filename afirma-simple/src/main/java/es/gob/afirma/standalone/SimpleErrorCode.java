@@ -90,6 +90,7 @@ public class SimpleErrorCode {
         public static final ErrorCode INVALID_POLICY_IDENTIFIER_OID 		= new ErrorCode("521007", "El identificador debe tener un formato OID valido"); //$NON-NLS-1$ //$NON-NLS-2$
         public static final ErrorCode EMPTY_POLICY_HASH 					= new ErrorCode("521008", "La huella digital no puede ser nula ni vacia"); //$NON-NLS-1$ //$NON-NLS-2$
         public static final ErrorCode INVALID_POLICY_QUALIFIER_URL 			= new ErrorCode("521009", "El calificador debe ser una URL valida"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode INVALID_PROXY_CONFIG		 			= new ErrorCode("521010", "La configuracion de proxy no es valida"); //$NON-NLS-1$ //$NON-NLS-2$
 
         public static final ErrorCode INVALID_PLUGIN_FILE   				= new ErrorCode("530007", "El plugin no es valido para ser importado"); //$NON-NLS-1$ //$NON-NLS-2$
         public static final ErrorCode PLUGIN_FILE_NOT_FOUND   				= new ErrorCode("530009", "No se ha encontrado el fichero del plugin"); //$NON-NLS-1$ //$NON-NLS-2$
