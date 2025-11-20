@@ -1,6 +1,7 @@
 package es.gob.afirma.standalone.plugins;
 
 import java.util.List;
+import es.gob.afirma.ciphers.ServerCipher;
 
 /**
  * Procesador de los datos de entrada para la identificaci&oacute;n de las operaciones de firma a realizar.

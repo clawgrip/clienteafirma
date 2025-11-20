@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.plugins.EncryptingException;
 import es.gob.afirma.standalone.plugins.PluginControlledException;
-import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.plugins.SignDataProcessor;
 import es.gob.afirma.standalone.plugins.SignOperation;
 import es.gob.afirma.standalone.plugins.SignResult;

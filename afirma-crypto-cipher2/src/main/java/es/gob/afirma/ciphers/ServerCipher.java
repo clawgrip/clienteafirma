@@ -1,4 +1,4 @@
-package es.gob.afirma.standalone.plugins;
+package es.gob.afirma.ciphers;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

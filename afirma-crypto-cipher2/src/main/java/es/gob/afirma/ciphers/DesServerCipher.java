@@ -1,4 +1,4 @@
-package es.gob.afirma.standalone.crypto;
+package es.gob.afirma.ciphers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import es.gob.afirma.core.misc.Base64;
-import es.gob.afirma.standalone.plugins.ServerCipher;
 
 public class DesServerCipher implements ServerCipher {
 

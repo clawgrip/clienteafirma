@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 
 import javax.security.auth.callback.PasswordCallback;
 
+import es.gob.afirma.ciphers.ServerCipher;
+import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOCancelledOperationException;
 import es.gob.afirma.core.AOControlledException;
 import es.gob.afirma.core.ErrorCode;
@@ -39,8 +41,6 @@ import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
-import es.gob.afirma.standalone.crypto.ServerCipherFactory;
-import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 final class ProtocolInvocationLauncherSelectCert {

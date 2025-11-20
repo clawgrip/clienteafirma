@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import es.gob.afirma.ciphers.ServerCipher;
+import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.RuntimeConfigNeededException;
 import es.gob.afirma.core.misc.http.ConnectionConfig;
@@ -26,8 +28,6 @@ import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
 import es.gob.afirma.standalone.SimpleErrorCode;
-import es.gob.afirma.standalone.crypto.ServerCipherFactory;
-import es.gob.afirma.standalone.plugins.ServerCipher;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
 
 final class ProtocolInvocationLauncherUtil {

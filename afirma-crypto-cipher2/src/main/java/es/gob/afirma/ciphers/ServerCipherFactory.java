@@ -1,11 +1,9 @@
-package es.gob.afirma.standalone.crypto;
+package es.gob.afirma.ciphers;
 
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import es.gob.afirma.standalone.plugins.ServerCipher;
 
 /**
  * Instancia clases para cifrar datos segun el algoritmo configurado por JSON.

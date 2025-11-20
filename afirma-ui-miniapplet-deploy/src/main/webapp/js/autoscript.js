@@ -5250,7 +5250,13 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				else {
 					if (decipherConfig) {
-						decipherDatasAndProcessResult(datas, decipherConfig, successCallback, errorCallback);
+						try {
+							decipherDatasAndProcessResult(datas, decipherConfig, successCallback, errorCallback);					
+						} catch (e) {
+							// En caso de intentar descifrar en AES y detectar un error, se descifrara en DES.
+							datas = decipherDES(datas, decipherConfig.desKey);
+							processSuccessResult(datas, successCallback);
+						}
 					} else {
 						processSuccessResult(datas, successCallback);	
 					}

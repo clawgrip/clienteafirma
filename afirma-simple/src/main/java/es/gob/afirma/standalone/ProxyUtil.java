@@ -29,11 +29,11 @@ import org.json.JSONException;
 import com.github.markusbernhardt.proxy.ProxySearch;
 import com.github.markusbernhardt.proxy.ProxySearch.Strategy;
 
+import es.gob.afirma.ciphers.AesServerCipher;
+import es.gob.afirma.ciphers.DesServerCipher;
+import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
-import es.gob.afirma.standalone.crypto.AesServerCipher;
-import es.gob.afirma.standalone.crypto.DesServerCipher;
-import es.gob.afirma.standalone.plugins.ServerCipher;
 
 /** Utilidades para el manejo y establecimiento del <i>Proxy</i> de red para las
  * conexiones de la aplicaci&oacute;n.
