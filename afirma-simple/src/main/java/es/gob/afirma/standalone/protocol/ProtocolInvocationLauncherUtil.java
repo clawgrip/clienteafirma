@@ -18,6 +18,7 @@ import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.RuntimeConfigNeededException;
+import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.http.ConnectionConfig;
 import es.gob.afirma.core.misc.http.UrlHttpManager;
 import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
@@ -38,11 +39,11 @@ final class ProtocolInvocationLauncherUtil {
 		// No instanciable
 	}
 
-	static final class InvalidEncryptedDataLengthException extends AOException {
+	static final class IntermediateServerErrorSendedException extends AOException {
 
 		private static final long serialVersionUID = 1L;
 
-		InvalidEncryptedDataLengthException(final String msg) {
+		IntermediateServerErrorSendedException(final String msg) {
 			super(msg, SimpleErrorCode.Internal.ERROR_RECIVED_FROM_CLIENT);
 		}
 	}
@@ -57,7 +58,7 @@ final class ProtocolInvocationLauncherUtil {
 	}
 
 	static byte[] getDataFromRetrieveServlet(final UrlParameters params) throws DecryptionException,
-	                                                                                    InvalidEncryptedDataLengthException,
+																						IntermediateServerErrorSendedException,
 	                                                                                    IOException {
 		// Preparamos la URL
 		final StringBuilder dataUrl = new StringBuilder(
@@ -72,8 +73,8 @@ final class ProtocolInvocationLauncherUtil {
 
 		// Si los datos recibidos representan un error, detenemos la ejecucion
 		if (recoveredData.length > 8 && new String(Arrays.copyOf(recoveredData, 8)).toLowerCase().startsWith("err-")) { //$NON-NLS-1$
-			LOGGER.severe("Se recupera un error desde el servidor intermedio: " + new String(recoveredData)); //$NON-NLS-1$
-			throw new InvalidEncryptedDataLengthException("Se recupera un error desde el servidor intermedio: " + new String(recoveredData)); //$NON-NLS-1$
+			LOGGER.severe("Se recupera un error desde el servidor intermedio: " + LoggerUtil.getTrimBytes(recoveredData)); //$NON-NLS-1$
+			throw new IntermediateServerErrorSendedException("Se recupera un error desde el servidor intermedio: " + LoggerUtil.getTrimBytes(recoveredData)); //$NON-NLS-1$
 		}
 
 		// Si no ha ocurrido un error, debemos haber recibido los datos cifrados

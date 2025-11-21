@@ -43,7 +43,7 @@ import es.gob.afirma.standalone.JMulticardUtilities;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.DecryptionException;
-import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.InvalidEncryptedDataLengthException;
+import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.IntermediateServerErrorSendedException;
 import es.gob.afirma.standalone.ui.AboutDialog;
 import es.gob.afirma.standalone.ui.OSXHandler;
 
@@ -237,9 +237,9 @@ public final class ProtocolInvocationLauncher {
         		 channelInfo.setPorts(new int[] { DEFAULT_WEBSOCKET_PORT });
         	 }
 
-        	 try { 
-        		boolean asynchronous = jvc > 3;
-        		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, asynchronous);  				      		 
+        	 try {
+        		final boolean asynchronous = jvc > 3;
+        		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, asynchronous);
 			} catch (final UnsupportedProtocolException e) {
              	LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
              	ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
@@ -306,7 +306,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] batchDefinition;
                     try {
                     	batchDefinition = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
 						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio", e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -393,7 +393,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
                     	LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -476,7 +476,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
 						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -570,7 +570,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
 						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -666,7 +666,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
 						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -715,7 +715,7 @@ public final class ProtocolInvocationLauncher {
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
                 	sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
-                } 
+                }
 
                 return msg;
             } catch (final NeedsUpdatedVersionException e) {
@@ -758,7 +758,7 @@ public final class ProtocolInvocationLauncher {
                     final byte[] xmlData;
                     try {
                         xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final InvalidEncryptedDataLengthException e) {
+					} catch (final IntermediateServerErrorSendedException e) {
 						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
 						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -928,7 +928,7 @@ public final class ProtocolInvocationLauncher {
 
 		return protocolVersion;
 	}
-	
+
 	/**
 	 * Extrae los parametros declarados en una URL con sus valores asignados.
 	 * @param url URL de la que extraer los par&aacute;metros.
