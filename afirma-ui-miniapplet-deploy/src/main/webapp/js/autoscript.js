@@ -26,8 +26,6 @@ var AutoScript = ( function ( window, undefined ) {
 		var VERSION = "1.10.0";
 		var VERSION_CODE = 4;
 
-		var PROTOCOL_VERSION = 4;
-
 		/* ========== DEPRECADO: No se utiliza, pero se mantiene por compatibilidad con los despliegues del MiniApplet. */
 		var JAVA_ARGUMENTS = null;
 		var SYSTEM_PROPERTIES = null;
@@ -661,7 +659,7 @@ var AutoScript = ( function ( window, undefined ) {
 			appName = name;
 		}
 		
-		/** Establece el tiempo de espera para la lectura de llamadas a servicios. */
+		/** Establece el tiempo de espera en milisegundos para la lectura de llamadas a servicios. */
 		var setServiceTimeout = function (timeoutMs) {
 			serviceTimeout = timeoutMs;
 		}
@@ -1999,6 +1997,8 @@ var AutoScript = ( function ( window, undefined ) {
 		 */
 		var AppAfirmaWebSocketClient = ( function (window, undefined) {
 			
+			var PROTOCOL_VERSION = 5;
+			
 			var SERVER_HOST = "127.0.0.1";
 
 			var URL_REQUEST_PREFIX = "wss://" + SERVER_HOST + ":";
@@ -2933,6 +2933,8 @@ var AutoScript = ( function ( window, undefined ) {
 		 */
 		var AppAfirmaJSSocket = ( function (clientAddress, window, undefined) {
 
+			var PROTOCOL_VERSION = 4;
+			
 			/**
 			 *  Atributos para la configuracion del objeto sustituto del applet Java de firma
 			 */
@@ -4130,6 +4132,8 @@ var AutoScript = ( function ( window, undefined ) {
 		 */
 		var AppAfirmaJSWebService = ( function (clientAddress, window, undefined) {
 
+			var PROTOCOL_VERSION = 4;
+			
 			/* Longitud maxima que generalmente se permite a una URL. */
 			var MAX_LONG_GENERAL_URL = 2000;
 			
@@ -4162,9 +4166,6 @@ var AutoScript = ( function ( window, undefined ) {
 			var retrieverServletAddress = null;
 			var storageServletAddress = null;
 
-			/** Indica si se soportan los nuevos mecanismos de cifrado */
-			var newCiphersSupported = false;
-			
 			if (clientAddress != undefined && clientAddress != null) {
 				if (clientAddress.indexOf("://") != -1 && clientAddress.indexOf("/", clientAddress.indexOf("://") + 3) != -1) {
 					var servletsBase = clientAddress.substring(0, clientAddress.indexOf("/", clientAddress.indexOf("://") + 3));
@@ -4177,6 +4178,14 @@ var AutoScript = ( function ( window, undefined ) {
 			} else {
 				retrieverServletAddress = window.location.origin + "/afirma-signature-retriever/RetrieveService";
 				storageServletAddress = window.location.origin + "/afirma-signature-storage/StorageService";
+			}
+
+			/** Indica si se tiene constancia de que el cliente de firma soporta los nuevos mecanismos de cifrado */
+			var newCiphersSupported = false;
+
+			/** Indica si el navegador soporta los nuevos mecanismos de cifrado avanzado. */
+			function isSecureEnvironment() {
+				return window.crypto && window.crypto.subtle && window.crypto.subtle.generateKey; 
 			}
 			
 			/**
@@ -4195,14 +4204,14 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSelectCertificate(null, parameters, successCallback, errorCallback);
-				}
-				else {
+				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSelectCertificate, parameters, successCallback, errorCallback);
 				}
+				else {
+					innerSelectCertificate(null, parameters, successCallback, errorCallback);
+				}
 			}
-			
+						
 			function innerSelectCertificate(cipherConfig, parameters, successCallback, errorCallback) {
 				
 				currentOperation = OPERATION_SELECT_CERTIFICATE;
@@ -4298,11 +4307,11 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSignOperation(null, parameters, successCallback, errorCallback);
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerSignOperation, parameters, successCallback, errorCallback);
 				}
 				else {
-					executeWithAdvancedCipher(innerSignOperation, parameters, successCallback, errorCallback);
+					innerSignOperation(null, parameters, successCallback, errorCallback);
 				}
 			}
 			
@@ -4400,11 +4409,11 @@ var AutoScript = ( function ( window, undefined ) {
 					outputFileName : outputFileName
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerSignAndSaveFile, parameters, successCallback, errorCallback);
 				}
 				else {
-					executeWithAdvancedCipher(innerSignAndSaveFile, parameters, successCallback, errorCallback);
+					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
 				}
 			}
 			
@@ -4498,11 +4507,11 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSignBatchXML(null, parameters, successCallback, errorCallback);
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerSignBatchXML, parameters, successCallback, errorCallback);
 				}
 				else {
-					executeWithAdvancedCipher(innerSignBatchXML, parameters, successCallback, errorCallback);
+					innerSignBatchXML(null, parameters, successCallback, errorCallback);
 				}
 			}
 
@@ -4593,11 +4602,11 @@ var AutoScript = ( function ( window, undefined ) {
 					certFilters : certFilters
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerSignBatchJSON, parameters, successCallback, errorCallback);	
 				}
 				else {
-					executeWithAdvancedCipher(innerSignBatchJSON, parameters, successCallback, errorCallback);
+					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
 				}
 			}
 
@@ -4681,11 +4690,11 @@ var AutoScript = ( function ( window, undefined ) {
 					description : description
 				};
 
-				if (Platform.isInternetExplorer()) {
-					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerSaveDataToFile, parameters, successCallback, errorCallback);
 				}
 				else {
-					executeWithAdvancedCipher(innerSaveDataToFile, parameters, successCallback, errorCallback);
+					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
 				}
 			}
 
@@ -5240,18 +5249,12 @@ var AutoScript = ( function ( window, undefined ) {
 					datas.push(html.substring(sepPos1));
 				}
 				
-				// Si estamos en Internet Explorer, usamos directamente el mecanismo de
-				// cifrado antiguo. Si no, usamos el nuevo
-				if (Platform.isInternetExplorer()) {
-					if (decipherConfig) {
-					 	datas = decipherDES(datas, decipherConfig.desKey);
-					}
-					processSuccessResult(datas, successCallback);
-				}
-				else {
+/*				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado.
+				// Si no, usamos el clasico
+				if (isSecureEnvironment()) {
 					if (decipherConfig) {
 						try {
-							decipherDatasAndProcessResult(datas, decipherConfig, successCallback, errorCallback);					
+							advDecipherDatasAndProcessResultAsync(datas, decipherConfig, successCallback, errorCallback);					
 						} catch (e) {
 							// En caso de intentar descifrar en AES y detectar un error, se descifrara en DES.
 							datas = decipherDES(datas, decipherConfig.desKey);
@@ -5261,6 +5264,28 @@ var AutoScript = ( function ( window, undefined ) {
 						processSuccessResult(datas, successCallback);	
 					}
 				}
+				else {
+					if (decipherConfig) {
+					 	datas = decipherDES(datas, decipherConfig.desKey);
+					}
+					processSuccessResult(datas, successCallback);
+				}*/
+				
+				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado.
+				if (isSecureEnvironment() && decipherConfig) {
+					try {
+						advDecipherDatasAndProcessResultAsync(datas, decipherConfig, successCallback, errorCallback);
+						return;					
+					} catch (e) {
+						console.log("El cliente de firma no uso el cifrado avanzado, se usara el corriente");
+					}
+				}
+				
+				// Si el cifrado avanzado no estaba disponible o fallo, usamos el descifrado corriente
+				if (decipherConfig) {
+				 	datas = decipherDES(datas, decipherConfig.desKey);
+				}
+				processSuccessResult(datas, successCallback);
 			}
 			
 			function processSuccessResult (datas, successCallback) {
@@ -5352,7 +5377,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 			}
 			
-			function decipherDatasAndProcessResult(cipheredDatas, decipherConfig, successCallback, errorCallback) {
+			function advDecipherDatasAndProcessResultAsync(cipheredDatas, decipherConfig, successCallback, errorCallback) {
 
 				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(decipherConfig.cipherConfig));
 				var keyObj = JSON.parse(keyStringDecoded);				
@@ -5392,6 +5417,8 @@ var AutoScript = ( function ( window, undefined ) {
 					);
 				}).then(function(deciphered) {
 					decipheredDatas.push(arrayBufferToBase64(deciphered));
+					// Indicamos que el cliente de firma soporta el cifrado avanzado
+					newCiphersSupported = true;
 					// Si hemos descifrado ya todos los datos, procesamos la respuesta; si no, seguimos decifrando
 					if (cipheredDatas.length == decipheredDatas.length) {
 						processSuccessResult(decipheredDatas, successCallback);
