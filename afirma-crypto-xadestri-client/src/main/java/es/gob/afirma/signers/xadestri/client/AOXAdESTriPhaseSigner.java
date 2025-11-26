@@ -11,6 +11,7 @@ package es.gob.afirma.signers.xadestri.client;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -44,8 +45,8 @@ import es.gob.afirma.core.misc.http.UrlHttpMethod;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
-import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.AOTriphaseException;
+import es.gob.afirma.core.signers.AOTriphaseSigner;
 import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.signers.OptionalDataInterface;
 import es.gob.afirma.core.signers.TriphaseData;
@@ -373,7 +374,7 @@ public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalD
 				"No se ha proporcionado una URL valida para el servidor de firma: " + extraParams.getProperty(PROPERTY_NAME_SIGN_SERVER_URL), e //$NON-NLS-1$
 			);
 		}
-		
+
 		// Creamos el objeto de conexion
 		final UrlHttpManager urlManager;
 		if (this.httpConnection != null) {
@@ -463,6 +464,9 @@ public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalD
 			}
 			throw ex;
 		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La prefirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.PRESIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
+		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de prefirma", e, ErrorCode.Communication.PRESIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$
 		}
@@ -534,7 +538,7 @@ public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalD
 				urlBuffer.append(HTTP_AND).append(PARAMETER_NAME_EXTRA_PARAM).append(HTTP_EQUALS).
 				append(AOUtil.properties2Base64(xParams));
 			}
-			
+
 			int readTimeout = -1;
 			if (extraParams.containsKey(EXTRAPARAM_SERVICE_TIMEOUT)) {
 				readTimeout = Integer.parseInt((String) extraParams.get(EXTRAPARAM_SERVICE_TIMEOUT));
@@ -556,6 +560,9 @@ public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalD
 				ex = new AOException("El servicio de postfirma devolvio un error", e, ErrorCode.ThirdParty.POSTSIGN_HTTP_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La postfirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.POSTSIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de postfirma", e, ErrorCode.Communication.POSTSIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$
@@ -605,7 +612,7 @@ public class AOXAdESTriPhaseSigner extends AOTriphaseSigner implements OptionalD
 			final int separatorPos2 = msg.indexOf(":", separatorPos + 1); //$NON-NLS-1$
 			final String errorCode = msg.substring(separatorPos + 1, separatorPos2);
 			final String errorMsg = msg.substring(separatorPos2 + 1);
-			
+
 			if (NotFoundXPathException.REQUESTOR_MSG_CODE.equals(errorCode)) {
 				exception = new NotFoundXPathException(errorMsg);
 			} else if (SigningLTSException.REQUESTOR_MSG_CODE.equals(errorCode)) {

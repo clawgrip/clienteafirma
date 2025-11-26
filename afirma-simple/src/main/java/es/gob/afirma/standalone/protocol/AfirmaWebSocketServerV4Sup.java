@@ -15,6 +15,7 @@ import java.util.Collections;
 import org.java_websocket.WebSocket;
 
 import es.gob.afirma.core.ErrorCode;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.standalone.SimpleErrorCode;
 
 /**
@@ -43,7 +44,7 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	/** Uno de los prefijos que puede presentar el mensaje de invocaci&oacute;n de una firma de lote. Versi&oacute;n 1. */
 	private static final String HEADER_BATCH_2 = "afirma://batch/?"; //$NON-NLS-1$
 
-	private final int protocol;
+	private final ProtocolVersion protocol;
 
 	private boolean isAsyncOperation;
 
@@ -53,7 +54,7 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	 * @param sessionId Identificador de sesi&oacute;n con la que deben autenticarse
 	 * las llamadas.
 	 */
-	public AfirmaWebSocketServerV4Sup(final int port, final String sessionId, final int protocol) {
+	public AfirmaWebSocketServerV4Sup(final int port, final String sessionId, final ProtocolVersion protocol) {
 		super(port, sessionId);
 		this.protocol = protocol;
 	}
@@ -108,7 +109,7 @@ public final class AfirmaWebSocketServerV4Sup extends AfirmaWebSocketServer {
 	 * @param protocolVersion Versi&oacute;n del protocolo.
 	 * @return Mensaje de error.
 	 */
-	private static String getErrorMessage(final ErrorCode errorCode, final int protocolVersion) {
+	private static String getErrorMessage(final ErrorCode errorCode, final ProtocolVersion protocolVersion) {
 		return ProtocolInvocationLauncherErrorManager.getErrorMessage(protocolVersion, errorCode);
 	}
 

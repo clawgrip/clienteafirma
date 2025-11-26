@@ -35,7 +35,7 @@ class CommandProcessorThread extends Thread {
 	/** N&uacute;mero m&aacute;ximo de intentos de lectura consecutivos en el <i>buffer</i> sin que se encuentren datos. */
 	private static final int MAX_READING_BUFFER_TRIES = 10;
 
-	private static final int PROTOCOL_VERSION = ProtocolVersion.VERSION_3.getVersion();
+	private static final ProtocolVersion MIN_PROTOCOL_VERSION = ProtocolVersion.getInstance(ProtocolVersion.VERSION_3);
 
 	private static final String MEMORY_ERROR = "MEMORY_ERROR";//$NON-NLS-1$
 	// ip locales para que no nos vengan peticiones externas
@@ -79,9 +79,9 @@ class CommandProcessorThread extends Thread {
 
 	private final String idSession;
 
-	private final int protocolVersion;
+	private final ProtocolVersion protocolVersion;
 
-	public CommandProcessorThread(final Socket socket, final Timer timer, final String idSession, final int protocolVersion) {
+	public CommandProcessorThread(final Socket socket, final Timer timer, final String idSession, final ProtocolVersion protocolVersion) {
 		this.localSocket = socket;
 		this.timer = timer;
 		this.idSession = idSession;
@@ -473,7 +473,7 @@ class CommandProcessorThread extends Thread {
 	 */
 	private void sendError(final ErrorCode errorCode) {
 		try {
-			sendData(createHttpResponse(true, ProtocolInvocationLauncherErrorManager.getErrorMessage(PROTOCOL_VERSION, errorCode)), this.localSocket, "ID de sesion erroneo"); //$NON-NLS-1$
+			sendData(createHttpResponse(true, ProtocolInvocationLauncherErrorManager.getErrorMessage(this.protocolVersion, errorCode)), this.localSocket, "ID de sesion erroneo"); //$NON-NLS-1$
 		} catch (final IOException ex) {
 			LOGGER.warning("No se ha podido informar a la aplicacion del error producido: " + ex); //$NON-NLS-1$
 		}

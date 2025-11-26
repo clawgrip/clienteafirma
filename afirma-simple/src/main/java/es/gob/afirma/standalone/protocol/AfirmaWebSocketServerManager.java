@@ -16,6 +16,7 @@ import javax.net.ssl.SSLContext;
 
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 
@@ -30,19 +31,14 @@ public class AfirmaWebSocketServerManager {
 	/** Versi&oacute;n de protocolo con varios puertos y comprobaci&oacute;n de ID de sesi&oacute;n. */
 	private static final int PROTOCOL_VERSION_4 = 4;
 
-	/** Versi&oacute;n de protocolo que usa los nuevos codigos de error. */
-	private static final int PROTOCOL_VERSION_5 = 5;
-
 	/** Versi&oacute;n de protocolo actual. */
-	private static final int CURRENT_PROTOCOL_VERSION = PROTOCOL_VERSION_5;
+	private static final int CURRENT_PROTOCOL_VERSION = PROTOCOL_VERSION_4;
 
 	/** Listado de versiones de protocolo soportadas. */
-	private static final int[] SUPPORTED_PROTOCOL_VERSIONS = new int[] { PROTOCOL_VERSION_3, PROTOCOL_VERSION_4, PROTOCOL_VERSION_5 };
+	private static final int[] SUPPORTED_PROTOCOL_VERSIONS = new int[] { PROTOCOL_VERSION_3, PROTOCOL_VERSION_4 };
 
     /** Propiedad del sistema para configurar la optimizacion de WebSockets para VDI. */
 	private static final String SYSTEM_PROPERTY_OPTIMIZED_FOR_VDI = "websockets.optimizedForVdi"; //$NON-NLS-1$
-
-	private static int protocolVersion = -1;
 
 	static AfirmaWebSocketServer instance = null;
 
@@ -54,11 +50,9 @@ public class AfirmaWebSocketServerManager {
 	 * @throws UnsupportedProtocolException Cuando se ha solicitado el uso de una versi&oacute;n de protocolo no soportada.
 	 * @throws SocketOperationException Cuando
 	 */
-	public static void startService(final ChannelInfo channelInfo, final int requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException {
+	public static void startService(final ChannelInfo channelInfo, final ProtocolVersion requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException {
 
 		checkSupportProtocol(requestedProtocolVersion);
-
-		protocolVersion = requestedProtocolVersion;
 
  		// Configuramos la optimizacion para VDI segun lo establecido en el dialogo de preferencias
  		final boolean optimizedForVdi = PreferencesManager
@@ -71,10 +65,9 @@ public class AfirmaWebSocketServerManager {
 			LOGGER.info("Tratamos de abrir el socket en el puerto: " + ports[i]); //$NON-NLS-1$
 
 			try {
-				switch (protocolVersion) {
+				switch (requestedProtocolVersion.getMajorVersion()) {
 				case PROTOCOL_VERSION_4:
-				case PROTOCOL_VERSION_5:
-					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), protocolVersion);
+					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), requestedProtocolVersion);
 					((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(asynchronous);
 					break;
 
@@ -104,13 +97,13 @@ public class AfirmaWebSocketServerManager {
 	 * @param version Identificador de la versi&oacute;n del protocolo.
 	 * @throws UnsupportedProtocolException Cuando la versi&oacute;n de protocolo utilizada no se encuentra
 	 *                                      entre las soportadas. */
-	private static void checkSupportProtocol(final int version) throws UnsupportedProtocolException {
+	private static void checkSupportProtocol(final ProtocolVersion requestversion) throws UnsupportedProtocolException {
 		for (final int supportedVersion : SUPPORTED_PROTOCOL_VERSIONS) {
-			if (supportedVersion == version) {
+			if (supportedVersion == requestversion.getMajorVersion()) {
 				return;
 			}
 		}
-		throw new UnsupportedProtocolException(version, version > CURRENT_PROTOCOL_VERSION);
+		throw new UnsupportedProtocolException(requestversion, requestversion.getMajorVersion() > CURRENT_PROTOCOL_VERSION);
 	}
 
 }

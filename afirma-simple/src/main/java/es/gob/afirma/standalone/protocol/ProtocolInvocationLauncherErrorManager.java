@@ -269,11 +269,13 @@ final class ProtocolInvocationLauncherErrorManager {
 		OLD_ERRORS_ASSOCIATION.put(SimpleErrorCode.Communication.READING_FROM_SOCKET, ERROR_PARAMS);
 	}
 
-	static void showError(final int protocolVersion, final AOControlledException controlledException) {
+	static void showError(final ProtocolVersion protocolVersion, final AOControlledException controlledException) {
 		showError(protocolVersion, controlledException.getErrorCode());
 	}
 
-	static void showError(final int protocolVersion, final ErrorCode errorCode) {
+	private static final ProtocolVersion PROTOCOL_VERSION_WITH_ERROR_CODES = ProtocolVersion.getInstance(ProtocolVersion.VERSION_4_1);
+
+	static void showError(final ProtocolVersion protocolVersion, final ErrorCode errorCode) {
 		final String message = getText(errorCode);
 
 		if (HEADLESS) {
@@ -286,8 +288,8 @@ final class ProtocolInvocationLauncherErrorManager {
 				MacUtils.focusApplication();
 			}
 
-			// Mostramos el error al usuario
-			final String title = protocolVersion <= ProtocolVersion.VERSION_4.getVersion()
+			// Mostramos el error al usuario. Lo haremos de una forma u otra segun si el protocolo lo soporta o no
+			final String title = protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)
 					? ProtocolMessages.getString("ProtocolLauncher.67") //$NON-NLS-1$
 					: ProtocolMessages.getString("ProtocolLauncher.29", AUTOFIRMA_ERROR_PREFIX + errorCode.getCode()); //$NON-NLS-1$
 			AOUIFactory.showErrorMessage(
@@ -299,13 +301,25 @@ final class ProtocolInvocationLauncherErrorManager {
 		}
 	}
 
-	static String getErrorMessage(final int protocolVersion, final ErrorCode errorCode) {
+	static String getErrorMessage(final ProtocolVersion protocolVersion, final ErrorCode errorCode) {
 
 		String message = null;
 
-		// Si se utiliza el protocolo 4 o anterior y el codigo de error tiene un valor antiguo
+		// Si se utiliza el protocolo 4.1 o superior, se utiliza el formato de mensaje nuevo, pero
+		// con una cabecera compatible con el formato antiguo para mantener la compatibilidad
+		if (protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)) {
+			// Establecemos una cabecera de error compatible con la usada en versiones anteriores del protocolo.
+			// Aunque no transmite informacion, permite que el receptor del error lo identifique como tal
+			final String code = AUTOFIRMA_ERROR_PREFIX + errorCode.getCode();
+			final String prefix = errorCode.equals(ErrorCode.Functional.CANCELLED_OPERATION)
+					? CANCELLATION_ERROR_PREFIX
+							: DEFAULT_ERROR_PREFIX;
+
+			message = prefix + code + " - " + errorCode.getDescription(); //$NON-NLS-1$
+		}
+		// En caso contrario, el codigo de error tiene un valor antiguo
 		// asociado, se utiliza el formato de mensaje antiguo
-		if (protocolVersion <= ProtocolVersion.VERSION_4.getVersion()) {
+		else {
 			String code = OLD_ERRORS_ASSOCIATION.get(errorCode);
 			if (code == null) {
 				code = ERROR_UNKNOWN;
@@ -318,19 +332,6 @@ final class ProtocolInvocationLauncherErrorManager {
 			}
 		}
 
-		// En caso contrario, se utiliza el formato de mensaje nuevo, pero con una cabecera
-		// compatible con el formato antiguo para mantener la compatibilidad
-		else {
-
-			// Establecemos una cabecera de error compatible con la usada en versiones anteriores del protocolo.
-			// Aunque no transmite informacion, permite que el receptor del error lo identifique como tal
-			final String code = AUTOFIRMA_ERROR_PREFIX + errorCode.getCode();
-			final String prefix = errorCode.equals(ErrorCode.Functional.CANCELLED_OPERATION)
-					? CANCELLATION_ERROR_PREFIX
-					: DEFAULT_ERROR_PREFIX;
-
-			message = prefix + code + " - " + errorCode.getDescription(); //$NON-NLS-1$
-		}
 		return message;
 	}
 

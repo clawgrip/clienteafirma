@@ -10,6 +10,7 @@
 package es.gob.afirma.signers.padestri.client;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -28,7 +29,6 @@ import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.http.HttpError;
 import es.gob.afirma.core.misc.http.SSLErrorProcessor;
 import es.gob.afirma.core.misc.http.UrlHttpManager;
-import es.gob.afirma.core.misc.http.UrlHttpManagerFactory;
 import es.gob.afirma.core.misc.http.UrlHttpMethod;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
 import es.gob.afirma.core.signers.AOTriphaseException;
@@ -157,6 +157,9 @@ final class PDFTriPhaseSignerUtil {
 			}
 			throw ex;
 		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La prefirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.PRESIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
+		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de prefirma", e, ErrorCode.Communication.PRESIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$
 		}
@@ -260,6 +263,9 @@ final class PDFTriPhaseSignerUtil {
 				ex = new AOException("El servicio de postfirma devolvio un error", e, ErrorCode.ThirdParty.POSTSIGN_HTTP_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La postfirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.POSTSIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de postfirma", e, ErrorCode.Communication.POSTSIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$

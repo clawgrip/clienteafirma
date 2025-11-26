@@ -2,6 +2,8 @@ package es.gob.afirma.standalone.protocol;
 
 import java.util.logging.Logger;
 
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+
 /**
  * Hilo que envia peri&oacute;dicamente una señal "#WAIT" al cliente conectado por WebSocket.
  */
@@ -9,7 +11,7 @@ public class ActiveWebSocketOperationThread extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
-    private final int protocol;
+    private final ProtocolVersion protocol;
     private final String operation;
     private final String idSession;
 
@@ -17,13 +19,13 @@ public class ActiveWebSocketOperationThread extends Thread {
 
     /**
      * Crea el hilo para realizar la operaci&oacute;n indicada por par&aacute;metro.
-     * 
+     *
      * @param protocol Versi&oacute;n de protocolo.
      * @param operation Cadena con la operaci&oacute;n a realizar.
      * @param idSession Identificador de la sesi&oacute;n.
      */
     public ActiveWebSocketOperationThread(
-    		final int protocol,
+    		final ProtocolVersion protocol,
     		final String operation,
             final String idSession) {
 
@@ -34,7 +36,7 @@ public class ActiveWebSocketOperationThread extends Thread {
 
     @Override
     public void run() {
-    	
+
     	LOGGER.info("Iniciando hilo de operacion para la sesion: " + this.idSession); //$NON-NLS-1$
 
     	try {
@@ -56,5 +58,5 @@ public class ActiveWebSocketOperationThread extends Thread {
 	public void setOperationResult(final String operationResult) {
 		this.operationResult = operationResult;
 	}
-	
+
 }

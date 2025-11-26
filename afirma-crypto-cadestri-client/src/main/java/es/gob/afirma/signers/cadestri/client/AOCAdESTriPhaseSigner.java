@@ -12,6 +12,7 @@ package es.gob.afirma.signers.cadestri.client;
 import static es.gob.afirma.signers.cadestri.client.ProtocolConstants.PROPERTY_NAME_SIGN_SERVER_URL;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -293,6 +294,9 @@ public class AOCAdESTriPhaseSigner extends AOTriphaseSigner {
 			}
 			throw ex;
 		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La prefirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.PRESIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
+		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de prefirma", e, ErrorCode.Communication.PRESIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$
 		}
@@ -370,6 +374,9 @@ public class AOCAdESTriPhaseSigner extends AOTriphaseSigner {
 				ex = new AOException("El servicio de postfirma devolvio un error", e, ErrorCode.ThirdParty.POSTSIGN_HTTP_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La postfirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.POSTSIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			throw new AOException("No se ha podido conectar con el servicio de postfirma", e, ErrorCode.Communication.POSTSIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$

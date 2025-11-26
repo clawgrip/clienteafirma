@@ -10,6 +10,7 @@
 package es.gob.afirma.core.signers;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -313,6 +314,9 @@ public class AOPkcs1TriPhaseSigner extends AOTriphaseSigner {
 		catch (final HttpError e) {
 			throw new AOException("El servicio de prefirma devolvio un error: " + e, e, ErrorCode.ThirdParty.PRESIGN_HTTP_ERROR); //$NON-NLS-1$
 		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La prefirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.PRESIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
+		}
 		catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
 				LOGGER.info("El usuario no permite la importacion del certificado SSL de confianza del servicio de firma trifasica: " //$NON-NLS-1$
@@ -387,6 +391,9 @@ public class AOPkcs1TriPhaseSigner extends AOTriphaseSigner {
 		}
 		catch (final HttpError e) {
 			throw new AOException("El servicio de postfirma devolvio un error: " + e, e, ErrorCode.ThirdParty.POSTSIGN_HTTP_ERROR); //$NON-NLS-1$
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("La postfirma en servidor ha excedido el tiempo de espera", e, ErrorCode.Communication.POSTSIGN_SERVICE_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			throw new AOException("Error en la llamada de postfirma al servidor: " + e, e, ErrorCode.Communication.POSTSIGN_SERVICE_CONNECTION_ERROR); //$NON-NLS-1$

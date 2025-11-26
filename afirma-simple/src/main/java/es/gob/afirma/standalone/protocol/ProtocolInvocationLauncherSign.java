@@ -52,6 +52,7 @@ import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.http.ConnectionConfig;
 import es.gob.afirma.core.misc.http.UrlHttpManager;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSign;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
 import es.gob.afirma.core.signers.AOSignConstants;
@@ -130,18 +131,16 @@ final class ProtocolInvocationLauncherSign {
 	 * <i>socket</i> local.
 	 */
 	static StringBuilder processSign(final UrlParametersToSign options,
-			final int protocolVersion, final PrivateKeyEntry pkeSelected) throws SocketOperationException {
+			final ProtocolVersion protocolVersion, final PrivateKeyEntry pkeSelected) throws SocketOperationException {
 		if (options == null) {
 			LOGGER.severe("Las opciones de firma son nulas"); //$NON-NLS-1$
 			throw new SocketOperationException(SimpleErrorCode.Request.REQUEST_URI_NOT_FOUND);
 		}
 
-		// Comprobamos si soportamos la version del protocolo indicada
-		if (!ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.support(protocolVersion)) {
-			LOGGER.severe(String.format(
-					"Version de protocolo no soportada (%1d). Version actual: %2d. Hay que actualizar la aplicacion.", //$NON-NLS-1$
-					Integer.valueOf(protocolVersion),
-					Integer.valueOf(ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.getVersion())));
+        // Comprobamos si soportamos la version del protocolo indicada
+		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
+			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
+					protocolVersion.toString()));
 			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
 		}
 
@@ -216,7 +215,7 @@ final class ProtocolInvocationLauncherSign {
 		return dataToSend;
 	}
 
-	private static SignDataProcessor selectProcessor(final int protocolVersion,
+	private static SignDataProcessor selectProcessor(final ProtocolVersion protocolVersion,
 			final SignOperation operation) {
 
 		List<AfirmaPlugin> plugins;
@@ -232,7 +231,7 @@ final class ProtocolInvocationLauncherSign {
 				try {
 					final PluginInfo pluginInfo = plugin.getInfo();
 					if (PermissionChecker.check(pluginInfo, Permission.INLINE_PROCESS)) {
-						final SignDataProcessor processor = plugin.getInlineProcessor(protocolVersion);
+						final SignDataProcessor processor = plugin.getInlineProcessor(protocolVersion.getMajorVersion());
 						if (processor == null) {
 							LOGGER.warning(String.format(
 									"El plugin '%s' definio que procesaba las peticiones del navegador, pero no declaro ningun procesador", //$NON-NLS-1$
@@ -277,17 +276,17 @@ final class ProtocolInvocationLauncherSign {
 				throw new SocketOperationException(errorCode);
 			}
 		}
-		
+
 		if (signer instanceof AOTriphaseSigner) {
-			
+
 			ConnectionConfig connectionConfig = null;
-			int serviceTimeout = options.getServiceTimeout();
-			
+			final int serviceTimeout = options.getServiceTimeout();
+
 			if (serviceTimeout >= 0) {
 				connectionConfig = new ConnectionConfig();
 				connectionConfig.setReadTimeout(serviceTimeout);
 			}
-			
+
 			final UrlHttpManager httpConnection = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);
 			((AOTriphaseSigner) signer).setHttpConnection(httpConnection);
 		}

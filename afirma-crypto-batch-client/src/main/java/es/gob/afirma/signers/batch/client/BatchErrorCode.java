@@ -18,12 +18,16 @@ public class BatchErrorCode {
 
 		public static final ErrorCode JSON_BATCH_PRESIGN_CONNECTION_ERROR			= new ErrorCode("401500", "Error de conexion con el servidor trifasico al hacer la prefirma Batch JSON"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode JSON_BATCH_PRESIGN_COMMUNICATION_ERROR		= new ErrorCode("401501", "Error de comunicacion con el servidor trifasico al hacer la prefirma Batch JSON"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode JSON_BATCH_PRESIGN_TIMEOUT					= new ErrorCode("401502", "Se excedio el tiempo maximo de espera en la llamada a la prefirma de lote JSON del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode JSON_BATCH_POSTSIGN_CONNECTION_ERROR			= new ErrorCode("401600", "Error de conexion con el servidor trifasico al hacer la posfirma Batch JSON"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode JSON_BATCH_POSTSIGN_COMMUNICATION_ERROR		= new ErrorCode("401601", "Error de comunicacion con el servidor trifasico al hacer la posfirma Batch JSON"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode JSON_BATCH_POSTSIGN_TIMEOUT					= new ErrorCode("401602", "Se excedio el tiempo maximo de espera en la llamada a la postfirma de lote JSON del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode XML_BATCH_PRESIGN_CONNECTION_ERROR			= new ErrorCode("401700", "Error de conexion con el servidor trifasico al hacer la prefirma Batch XML"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode XML_BATCH_PRESIGN_COMMUNICATION_ERROR			= new ErrorCode("401701", "Error de comunicacion con el servidor trifasico al hacer la prefirma Batch XML"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode XML_BATCH_PRESIGN_TIMEOUT						= new ErrorCode("401702", "Se excedio el tiempo maximo de espera en la llamada a la prefirma de lote XML del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode XML_BATCH_POSTSIGN_CONNECTION_ERROR			= new ErrorCode("401800", "Error de conexion con el servidor trifasico al hacer la posfirma Batch XML"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode XML_BATCH_POSTSIGN_COMMUNICATION_ERROR		= new ErrorCode("401801", "Error de comunicacion con el servidor trifasico al hacer la posfirma Batch XML"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode XML_BATCH_POSTSIGN_TIMEOUT					= new ErrorCode("401802", "Se excedio el tiempo maximo de espera en la llamada a la postfirma de lote XML del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 

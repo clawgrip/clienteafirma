@@ -37,6 +37,7 @@ import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.http.ConnectionConfig;
 import es.gob.afirma.core.misc.http.UrlHttpManager;
 import es.gob.afirma.core.misc.protocol.ParameterException;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.core.misc.protocol.UrlParametersForBatch;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
 import es.gob.afirma.keystores.AOCertificatesNotFoundException;
@@ -65,6 +66,8 @@ final class ProtocolInvocationLauncherBatch {
 		// No instanciable
 	}
 
+
+
 	/** Procesa un lote de firma en invocaci&oacute;n por protocolo.
 	 * @param options Par&aacute;metros de la operaci&oacute;n.
 	 * @param protocolVersion Versi&oacute;n del protocolo de comunicaci&oacute;n.
@@ -72,13 +75,12 @@ final class ProtocolInvocationLauncherBatch {
 	 * @throws SocketOperationException Si hay errores en la
 	 *                                  comunicaci&oacute;n por <i>socket</i> local. */
 	static String processBatch(final UrlParametersForBatch options,
-			final int protocolVersion) throws SocketOperationException {
+			final ProtocolVersion protocolVersion) throws SocketOperationException {
 
         // Comprobamos si soportamos la version del protocolo indicada
-		if (!ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.support(protocolVersion)) {
-			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Version actual: %s2. Hay que actualizar la aplicacion.", //$NON-NLS-1$
-					Integer.valueOf(protocolVersion),
-					Integer.valueOf(ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.getVersion())));
+		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
+			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
+					protocolVersion.toString()));
 			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
 		}
 
@@ -223,7 +225,7 @@ final class ProtocolInvocationLauncherBatch {
 	}
 
 	private static SignOperationResult sign(final UrlParametersForBatch options, final AOKeyStore aoks, final boolean useDefaultStore,
-			final CertFilterManager filterManager, final int protocolVersion)
+			final CertFilterManager filterManager, final ProtocolVersion protocolVersion)
 			throws AOCancelledOperationException, SocketOperationException {
 
 		final PrivateKeyEntry pke;

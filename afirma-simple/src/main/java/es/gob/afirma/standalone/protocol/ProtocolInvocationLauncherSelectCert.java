@@ -27,6 +27,7 @@ import es.gob.afirma.core.keystores.CertificateContext;
 import es.gob.afirma.core.keystores.KeyStoreManager;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.Platform;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSelectCert;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
 import es.gob.afirma.keystores.AOCertificatesNotFoundException;
@@ -59,7 +60,7 @@ final class ProtocolInvocationLauncherSelectCert {
 	 * @throws SocketOperationException Si hay errores en la
 	 *                                  comunicaci&oacute;n por <i>socket</i> local. */
 	static String processSelectCert(final UrlParametersToSelectCert options,
-			final int protocolVersion) throws SocketOperationException {
+			final ProtocolVersion protocolVersion) throws SocketOperationException {
 
 		if (options == null) {
 			LOGGER.severe("Las opciones de seleccion de certificado son nulas"); //$NON-NLS-1$
@@ -67,11 +68,9 @@ final class ProtocolInvocationLauncherSelectCert {
 		}
 
         // Comprobamos si soportamos la version del protocolo indicada
-		if (!ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.support(protocolVersion)) {
-			LOGGER.severe(String.format(
-					"Version de protocolo no soportada (%1s). Version actual: %s2. Hay que actualizar la aplicacion.", //$NON-NLS-1$
-					Integer.valueOf(protocolVersion),
-					Integer.valueOf(ProtocolInvocationLauncher.MAX_PROTOCOL_VERSION_SUPPORTED.getVersion())));
+		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
+			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
+					protocolVersion.toString()));
 			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
 		}
 

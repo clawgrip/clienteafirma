@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import org.java_websocket.WebSocket;
 
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+
 public class WebSocketServerOperationHandler {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
@@ -25,7 +27,7 @@ public class WebSocketServerOperationHandler {
 	 * @param server Servidor donde realizar la operaci&oacute;n.
 	 * @param ws WebSocket donde mandar el resultado.
 	 */
-	public static void handleOperation(final int protocol,
+	public static void handleOperation(final ProtocolVersion protocol,
 									   final String operation,
 									   final String sessionId,
 									   final AfirmaWebSocketServerV4Sup server,

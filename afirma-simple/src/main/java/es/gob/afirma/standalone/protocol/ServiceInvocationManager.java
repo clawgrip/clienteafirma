@@ -27,6 +27,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.swing.Timer;
 
 import es.gob.afirma.core.misc.Platform;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 /** Gestor de la invocaci&oacute;n por <i>socket</i>. */
@@ -100,7 +101,7 @@ public final class ServiceInvocationManager {
 	 * @param channelInfo Informaci&oacute;n para el establecimiento del canal Par&aacute;metros de la URL de llamada (debe indicarse el puerto).
 	 * @param protocolVersion Versi&oacute;n declarada del protocolo.
 	 * @throws UnsupportedProtocolException Si no se soporta el protocolo o la versi&oacute;n de este. */
-	static void startService(final ChannelInfo channelInfo, final int protocolVersion) throws UnsupportedProtocolException {
+	static void startService(final ChannelInfo channelInfo, final ProtocolVersion protocolVersion) throws UnsupportedProtocolException {
 
 		checkSupportProtocol(protocolVersion);
 
@@ -209,13 +210,13 @@ public final class ServiceInvocationManager {
 	 * @param protocolVersion Identificador de la versi&oacute;n del protocolo.
 	 * @throws UnsupportedProtocolException Cuando la versi&oacute;n de protocolo utilizada no se encuentra
 	 *                                      entre las soportadas. */
-	private static void checkSupportProtocol(final int protocolVersion) throws UnsupportedProtocolException {
+	private static void checkSupportProtocol(final ProtocolVersion protocolVersion) throws UnsupportedProtocolException {
 		for (final int version : SUPPORTED_PROTOCOL_VERSIONS) {
-			if (version == protocolVersion) {
+			if (version == protocolVersion.getMajorVersion()) {
 				return;
 			}
 		}
 
-		throw new UnsupportedProtocolException(protocolVersion, protocolVersion > CURRENT_PROTOCOL_VERSION);
+		throw new UnsupportedProtocolException(protocolVersion, protocolVersion.getMajorVersion() > CURRENT_PROTOCOL_VERSION);
 	}
 }

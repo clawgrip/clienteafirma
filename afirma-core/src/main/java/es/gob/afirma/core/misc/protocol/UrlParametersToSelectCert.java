@@ -150,7 +150,7 @@ public final class UrlParametersToSelectCert extends UrlParameters {
 			setMinimumProtocolVersion(params.get(VER_PARAM));
 		}
 		else {
-			setMinimumProtocolVersion(Integer.toString(ProtocolVersion.VERSION_0.getVersion()));
+			setMinimumProtocolVersion(ProtocolVersion.VERSION_0);
 		}
 
 		// Si hemos recibido el identificador para la descarga de la configuracion,

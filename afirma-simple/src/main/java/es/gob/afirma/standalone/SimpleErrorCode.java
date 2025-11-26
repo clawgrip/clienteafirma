@@ -56,8 +56,15 @@ public class SimpleErrorCode {
 		public static final ErrorCode RECIVING_DATA_OF_SAVE_OPERATION	= new ErrorCode("401103", "Error en la descarga de la operacion de guardado de datos"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode RECIVING_DATA_OF_LOAD_OPERATION	= new ErrorCode("401104", "Error en la descarga de la operacion de carga de datos"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode RECIVING_DATA_OF_SIGN_AND_SAVE_OPERATION	= new ErrorCode("401105", "Error en la descarga de la operacion de firma y guardado"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_SIGN_TIMEOUT	= new ErrorCode("401106", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de firma"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_CERT_TIMEOUT	= new ErrorCode("401107", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de seleccion de certificados"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_BATCH_TIMEOUT	= new ErrorCode("401108", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de firma de lote"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_SAVE_TIMEOUT	= new ErrorCode("401109", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de guardado"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_LOAD_TIMEOUT	= new ErrorCode("401110", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de carga de datos"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode RECIVING_DATA_OF_SIGN_AND_SAVE_TIMEOUT	= new ErrorCode("401111", "Se excedio el tiempo maximo del servicio de recuperacion de datos del servidor intermedio con los datos de firma y guardado"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		public static final ErrorCode SENDING_RESULT_OPERATION			= new ErrorCode("401200", "Error en el envio del resultado de la operacion"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode SENDING_RESULT_TIMEOUT			= new ErrorCode("401201", "Se excedio el tiempo maximo de espera en la llamada al servicio de guardado del servidor intermedio"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		public static final ErrorCode EXTERNAL_REQUEST					= new ErrorCode("420001", "Se ha realizado la peticion desde un puerto externo"); //$NON-NLS-1$ //$NON-NLS-2$
 

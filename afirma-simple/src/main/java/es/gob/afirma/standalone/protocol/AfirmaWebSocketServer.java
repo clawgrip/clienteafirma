@@ -18,6 +18,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+
 /**
  * Servidor para la comunicaci&oacute;n por <i>WebSocket</i> acorde a la versi&oacute;n
  * inicial del protocolo.
@@ -38,7 +40,7 @@ public class AfirmaWebSocketServer extends WebSocketServer {
 	/** Uno de los prefijos que puede presentar el mensaje de invocaci&oacute;n de una firma de lote. Versi&oacute;n 1. */
 	private static final String HEADER_BATCH_2 = "afirma://batch/?"; //$NON-NLS-1$
 
-	private static int protocolVersion = -1;
+	private static final ProtocolVersion MIN_PROTOCOL_VERSION = ProtocolVersion.getInstance(ProtocolVersion.VERSION_0);
 
 	protected String sessionId;
 
@@ -110,7 +112,7 @@ public class AfirmaWebSocketServer extends WebSocketServer {
 			final boolean batchOperation = message.startsWith(HEADER_BATCH_1) || message.startsWith(HEADER_BATCH_2);
 			setConnectionLostTimeout(batchOperation ? 240 : 60);
 			// Ejecutamos la peticion y devolvemos el resultado
-			broadcast(ProtocolInvocationLauncher.launch(message, protocolVersion, true), Collections.singletonList(ws));
+			broadcast(ProtocolInvocationLauncher.launch(message, MIN_PROTOCOL_VERSION, true), Collections.singletonList(ws));
 		}
 	}
 

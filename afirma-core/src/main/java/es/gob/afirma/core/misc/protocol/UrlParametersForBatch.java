@@ -216,7 +216,7 @@ public final class UrlParametersForBatch extends UrlParameters {
 			setMinimumProtocolVersion(params.get(PARAM_VER));
 		}
 		else {
-			setMinimumProtocolVersion(Integer.toString(ProtocolVersion.VERSION_0.getVersion()));
+			setMinimumProtocolVersion(ProtocolVersion.VERSION_0);
 		}
 
 		if (params.containsKey(APP_NAME_PARAM)) {

@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.core.misc.Base64;
+import es.gob.afirma.core.misc.protocol.ProtocolVersion;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.plugins.EncryptingException;
 import es.gob.afirma.standalone.plugins.PluginControlledException;
@@ -26,6 +27,11 @@ public class NativeSignDataProcessor extends SignDataProcessor {
 
 	public NativeSignDataProcessor(final int protocolVersion) {
 		super(protocolVersion);
+		this.cipher = null;
+	}
+
+	public NativeSignDataProcessor(final ProtocolVersion protocolVersion) {
+		super(protocolVersion.getMajorVersion());
 		this.cipher = null;
 	}
 

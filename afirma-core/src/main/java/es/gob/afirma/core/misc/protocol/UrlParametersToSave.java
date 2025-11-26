@@ -173,7 +173,7 @@ public final class UrlParametersToSave extends UrlParameters {
 			setMinimumProtocolVersion(params.get(VER_PARAM));
 		}
 		else {
-			setMinimumProtocolVersion(Integer.toString(ProtocolVersion.VERSION_0.getVersion()));
+			setMinimumProtocolVersion(ProtocolVersion.VERSION_0);
 		}
 
 		// Validamos la URL del servlet de guardado en caso de ser necesaria

@@ -12,6 +12,7 @@ package es.gob.afirma.signers.batch.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -32,7 +33,6 @@ import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.SecureXmlBuilder;
-import es.gob.afirma.core.misc.http.ConnectionConfig;
 import es.gob.afirma.core.misc.http.HttpError;
 import es.gob.afirma.core.misc.http.SSLErrorProcessor;
 import es.gob.afirma.core.misc.http.UrlHttpManager;
@@ -50,7 +50,6 @@ public final class BatchSigner {
 	private static final String BATCH_JSON_PARAM = "json"; //$NON-NLS-1$
 	private static final String BATCH_CRT_PARAM = "certs"; //$NON-NLS-1$
 	private static final String BATCH_TRI_PARAM = "tridata"; //$NON-NLS-1$
-	private static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
 	private static final String EQU = "="; //$NON-NLS-1$
 	private static final String AMP = "&"; //$NON-NLS-1$
@@ -224,7 +223,7 @@ public final class BatchSigner {
 
 		return signXML(batch, batchPreSignerUrl, batchPostSignerUrl, certificates, pk, extraParams, null);
 	}
-	
+
 	/** Procesa un lote de firmas.
 	 * Los lotes deben proporcionase definidos en un fichero XML con el siguiente esquema XSD:
 	 * <pre>
@@ -371,7 +370,7 @@ public final class BatchSigner {
 			final String batchPostSignerUrl,
 			final Certificate[] certificates,
 			final PrivateKey pk,
-			final Properties extraParams, 
+			final Properties extraParams,
 			final UrlHttpManager urlHttpManager) throws CertificateEncodingException,
 										IOException,
 										AOException {
@@ -394,7 +393,7 @@ public final class BatchSigner {
 					"La cadena de certificados del firmante no puede ser nula ni vacia" //$NON-NLS-1$
 					);
 		}
-		
+
 		// Obtenemos informacion del lote
 		String algorithm;
 		try {
@@ -403,7 +402,7 @@ public final class BatchSigner {
 		catch (final Exception e) {
 			throw new AOException("El lote proporcionado no es un JSON bien formado o no tiene la estructura correcta", e, BatchErrorCode.Request.MALFORMED_XML_BATCH); //$NON-NLS-1$
 		}
-		
+
 		UrlHttpManager httpConnection;
 		if (urlHttpManager == null) {
 			httpConnection = UrlHttpManagerFactory.getInstalledManager();
@@ -436,6 +435,9 @@ public final class BatchSigner {
 				ex = new AOException("El servicio de prefirma de lotes XML devolvio un error", e, BatchErrorCode.ThirdParty.XML_BATCH_PRESIGN_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("El servicio de prefirma de lote XML ha excedido el tiempo de espera maximo establecido", e, BatchErrorCode.Communication.XML_BATCH_PRESIGN_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
@@ -481,6 +483,9 @@ public final class BatchSigner {
 				ex = new AOException("El servicio de postfirma de lotes XML devolvio un error", e, BatchErrorCode.ThirdParty.XML_BATCH_POSTSIGN_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("El servicio de postfirma de lote XML ha excedido el tiempo de espera maximo establecido", e, BatchErrorCode.Communication.XML_BATCH_POSTSIGN_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
@@ -545,10 +550,10 @@ public final class BatchSigner {
 			                  final PrivateKey pk,
 			                  final Properties extraParams) throws CertificateEncodingException,
 			                                              AOException {
-		
+
 		return signJSON(batch, batchPreSignerUrl, batchPostSignerUrl, certificates, pk, extraParams, null);
 	}
-	
+
 	/**
 	 * Procesa un lote de firmas.
 	 * Los lotes deben proporcionase definidos en un fichero JSON con un determinado esquema.
@@ -603,7 +608,7 @@ public final class BatchSigner {
 		catch (final Exception e) {
 			throw new AOException("El lote proporcionado no es un JSON bien formado o no tiene la estructura correcta", e, BatchErrorCode.Request.MALFORMED_JSON_BATCH); //$NON-NLS-1$
 		}
-		
+
 		UrlHttpManager httpConnection;
 		if (urlHttpManager == null) {
 			httpConnection = UrlHttpManagerFactory.getInstalledManager();
@@ -636,6 +641,9 @@ public final class BatchSigner {
 				ex = new AOException("El servicio de prefirma de lotes JSON devolvio un error", e, BatchErrorCode.ThirdParty.JSON_BATCH_PRESIGN_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("El servicio de prefirma de lote JSON ha excedido el tiempo de espera maximo establecido", e, BatchErrorCode.Communication.JSON_BATCH_PRESIGN_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
@@ -705,6 +713,9 @@ public final class BatchSigner {
 				ex = new AOException("El servicio de postfirma de lotes JSON devolvio un error", e, BatchErrorCode.ThirdParty.JSON_BATCH_POSTSIGN_ERROR);  //$NON-NLS-1$
 			}
 			throw ex;
+		}
+		catch (final SocketTimeoutException e) {
+			throw new AOException("El servicio de postfirma de lote JSON ha excedido el tiempo de espera maximo establecido", e, BatchErrorCode.Communication.JSON_BATCH_POSTSIGN_TIMEOUT); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			if (errorProcessor.isCancelled()) {
@@ -801,5 +812,5 @@ public final class BatchSigner {
 				"El nodo 'signbatch' debe contener al manos el atributo de algoritmo" //$NON-NLS-1$
 			);
 	}
-	
+
 }
