@@ -1997,7 +1997,7 @@ var AutoScript = ( function ( window, undefined ) {
 		 */
 		var AppAfirmaWebSocketClient = ( function (window, undefined) {
 			
-			var PROTOCOL_VERSION = 5;
+			var PROTOCOL_VERSION = 4;
 			
 			var SERVER_HOST = "127.0.0.1";
 
@@ -4207,7 +4207,10 @@ var AutoScript = ( function ( window, undefined ) {
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSelectCertificate, parameters, successCallback, errorCallback);
 				}
+				
+				//TODO; Hace que si el despliegue esta en HTTP, se muestre una advertencia
 				else {
+					// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 					innerSelectCertificate(null, parameters, successCallback, errorCallback);
 				}
 			}
