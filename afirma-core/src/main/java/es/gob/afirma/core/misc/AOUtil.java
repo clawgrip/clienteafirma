@@ -212,9 +212,9 @@ public final class AOUtil {
         LOGGER.warning("Principal no valido, se devolvera la entrada"); //$NON-NLS-1$
         return principal;
     }
-    
+
     /** Obtiene las unidades organizativas(Organizational Unit, OU) de un <i>Principal</i>
-     * X&#46;400. 
+     * X&#46;400.
      * @param principal <i>Principal</i> del cual queremos obtener el nombre
      *        com&uacute;n
      * @return Unidad organizativa (Organizational Unit, OU) de un <i>Principal</i>
@@ -224,16 +224,16 @@ public final class AOUtil {
             return null;
         }
 
-        final ArrayList<String> ousList = new ArrayList<String>();
-        
+        final ArrayList<String> ousList = new ArrayList<>();
+
         String ou = getRDNvalueFromLdapName("ou", principal); //$NON-NLS-1$
         String principalAux = principal;
         while (ou != null) {
         	ousList.add(ou);
-        	principalAux = principalAux.replace("OU=" + ou, "");  //$NON-NLS-1$//$NON-NLS-2$
+        	principalAux = principalAux.replace("OU=" + ou, "").replace("OU=\"" + ou, "\"");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         	ou = getRDNvalueFromLdapName("ou", principalAux); //$NON-NLS-1$
         }
-        
+
         return ousList.toArray(new String[0]);
     }
 
