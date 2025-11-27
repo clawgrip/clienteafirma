@@ -73,12 +73,14 @@ var AutoScript = ( function ( window, undefined ) {
 		    install_client: "<br>Si lo tiene instalado o lo acaba de instalar, pulse el bot&oacute;n para reintentar la operaci&oacute;n.",
 		    ios_download_url: "<a href='https://apps.apple.com/us/app/cliente-firma-movil/id627410001?itsct=apps_box_badge&amp;itscg=30200'><img src='https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/es-es?size=250x83&amp;releaseDate=1381536000' alt='Descarga en la App Store'></a>",
 		    loading: "Cargando",
-		    no_compatible_procedure: "Esta aplicaci&oacute;n no permite firmar desde el navegador en dispositivos m&oacute;viles. ",
+		    no_compatible_procedure: "Esta aplicaci&oacute;n no permite firmar desde el navegador en dispositivos m&oacute;viles.",
 				pc_download_url: "<a target='_blank' href='https://firmaelectronica.gob.es/ciudadanos/descargas'>Portal de Firma Electr&oacute;nica</a>",
 		    procedure_from_url: "Puede realizar el tr&aacute;mite desde la siguiente aplicaci&oacute;n:",
 		    restore_installation: "Si lo tiene instalado, puede restaurar la instalaci&oacute;n desde Autofirma en Herramientas -> Restaurar instalaci&oacute;n",
 		    retry_operation: "Reintentar operaci\u00F3n",
 		    timeout_receiving_sign: "No se ha podido conectar con el cliente de firma. Si no lo tiene instalado, puede descargarlo desde:",
+			unsecure_context: "El contexto de ejecuci&oacute;n no es seguro y no se usar&aacute;n las funciones de cifrado avanzadas.",
+			ok: "Aceptar",
 		    warning: "Advertencia:"
 	  	};
 	  	LOCALIZED_STRINGS["gl_ES"] = {
@@ -104,7 +106,9 @@ var AutoScript = ( function ( window, undefined ) {
 		    restore_installation: "Se o tes instalado, podes restaurar a instalaci&oacute;n desde Autofirma en Ferramentas -> Restaurar instalaci&oacute;n.",
 		    retry_operation: "Reintento a operaci\u00F3n",
 		    timeout_receiving_sign: "Non se puido conectar co cliente que asina. Se non o tes instalado, podes descargalo desde:",
-		    warning: "Aviso:"
+			unsecure_context: "O contexto de execución non é seguro e non se usarán as funcións de cifrado avanzadas.",
+		    ok: "Aceptar",
+			warning: "Aviso:"
 	  	};
 		LOCALIZED_STRINGS["va_ES"] = {
 				access_from_pc: "Accedisca des d'un PC per a realitzar el tr&agrave;mit.",
@@ -129,6 +133,8 @@ var AutoScript = ( function ( window, undefined ) {
 				restore_installation: "Si el t&eacute; instal·lat, pot restaurar la instal·laci&oacute; des d'Autofirma en Eines -> Restaurar instal·laci&oacute;",
 				retry_operation: "Reintentar operaci\u00F3",
 				timeout_receiving_sign: "No s'ha pogut connectar amb el client de signatura. Si no el t&eacute; instal·lat, pot descarregar-ho des de:",
+				unsecure_context: "El context d'execució no és segur i no s'usaran les funcions de xifrat avançades.",
+				ok: "Acceptar",
 				warning: "Advertiment:"
 		};
 		LOCALIZED_STRINGS["ca_ES"] = {
@@ -154,6 +160,8 @@ var AutoScript = ( function ( window, undefined ) {
 				restore_installation: "Si el t&eacute; instal·lat, pot restaurar la instal·laci&oacute; des d'Autofirma en Eines -> Restaurar instal·laci&oacute;",
 				retry_operation: "Reintentar operaci\u00F3",
 				timeout_receiving_sign: "No s'ha pogut connectar amb el client de signatura. Si no el t&eacute; instal·lat, pot descarregar-ho des de:",
+				unsecure_context: "El context d'execució no és segur i no s'usaran les funcions de xifrat avançades.",
+				ok: "Acceptar",
 				warning: "Advertiment:"
 		};
 		LOCALIZED_STRINGS["eu_ES"] = {
@@ -179,6 +187,8 @@ var AutoScript = ( function ( window, undefined ) {
 				restore_installation: "Instalatuta baduzu, instalazioa Autofirma-tik berrezar dezakezu Tresnak aukeran -> Instalazioa leheneratu",
 				retry_operation: "Saiatu berriro",
 				timeout_receiving_sign: "Ezin izan da konektatu sinadura-bezeroarekin. Instalatuta ez baduzu, hemendik deskarga dezakezu:",
+				unsecure_context: "Exekuzio-testuingurua ez da segurua eta ez dira enkriptatze-funtzio aurreratuak erabiliko.",
+				ok: "Onartu",
 				warning: "Oharra:"
 		};
 		LOCALIZED_STRINGS["en_US"] = {
@@ -204,6 +214,8 @@ var AutoScript = ( function ( window, undefined ) {
 				restore_installation: "If you have it installed, you can restore the installation from Autofirma on Tools -> Restore Installation",
 				retry_operation: "Retry operation",
 				timeout_receiving_sign: "It was not possible to connect with the signature client. If you don't have it installed, you can download it from:",
+				unsecure_context: "The execution context is not secure and advanced encryption functions will not be used.",
+				ok: "Ok",
 				warning: "Warning:"
 		};
 
@@ -309,6 +321,9 @@ var AutoScript = ( function ( window, undefined ) {
 		var downloadSuccessFunction = null;
 		var downloadErrorFunction = null;
 		var downloadTypeData = null;
+		
+		/* Tipos de dialogos de advertencia */
+		var WARNING_INSECURE_CONTEXT = 1;
 		
 		/* Tipos de errores para mostrar en los dialogos */
 		var ERROR_CONNECTING_AFIRMA = 1;
@@ -1542,6 +1557,28 @@ var AutoScript = ( function ( window, undefined ) {
 	      return enabled;
 	    }
 	
+		function showWarningDialog(
+	      warningType,
+	      closeButtonCallback
+	    ) {
+	      var messageWarning;
+	      var closeButtonText;
+	      switch (warningType) {
+	        case WARNING_INSECURE_CONTEXT:
+	          messageWarning = buildUnsecureContextWarningMsg();
+	          closeButtonText = currentLocale.ok;
+	          break;
+	      }
+	      var enabled = showSupportDialog(
+	        messageWarning,
+			null,
+			null,
+	        closeButtonText,
+	        closeButtonCallback
+	      );
+	      return enabled;
+	    }
+		
 	    /**
 	     * Muestra un diálogo de soporte responsivo.
 	     * Siempre se utiliza un div con backdrop que bloquea todo el scroll (body y html).
@@ -1781,6 +1818,10 @@ var AutoScript = ( function ( window, undefined ) {
 	      return errorMsg;
 	    }
 	
+		function buildUnsecureContextWarningMsg() {
+			return warningText + currentLocale.unsecure_context;
+		}
+		
 	    return {
 	      buildErrorConnectingApplicationMsg: buildErrorConnectingApplicationMsg,
 	      buildCustomUrl: buildCustomUrl,
@@ -1809,6 +1850,7 @@ var AutoScript = ( function ( window, undefined ) {
 	      setAdminContactInfo: setAdminContactInfo,
 	      showLoadingDialog: showLoadingDialog,
 	      showErrorDialog: showErrorDialog,
+		  showWarningDialog: showWarningDialog,
 	      disposeSupportDialog: disposeSupportDialog,
 	    };
 	  })();
@@ -4204,13 +4246,22 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSelectCertificate, parameters, successCallback, errorCallback);
 				}
-				
-				//TODO; Hace que si el despliegue esta en HTTP, se muestre una advertencia
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta.
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSelectCertificate(null, parameters, successCallback, errorCallback) })) {
+						innerSelectCertificate(null, parameters, successCallback, errorCallback);
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
-					// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 					innerSelectCertificate(null, parameters, successCallback, errorCallback);
 				}
 			}
@@ -4310,9 +4361,22 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSignOperation, parameters, successCallback, errorCallback);
 				}
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSignOperation(null, parameters, successCallback, errorCallback) })) {
+						innerSignOperation(null, parameters, successCallback, errorCallback)
+					}
+					
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
 					innerSignOperation(null, parameters, successCallback, errorCallback);
 				}
@@ -4412,9 +4476,21 @@ var AutoScript = ( function ( window, undefined ) {
 					outputFileName : outputFileName
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSignAndSaveFile, parameters, successCallback, errorCallback);
 				}
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSignAndSaveFile(null, parameters, successCallback, errorCallback) })) {
+						innerSignAndSaveFile(null, parameters, successCallback, errorCallback);		
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
 					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
 				}
@@ -4510,9 +4586,21 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSignBatchXML, parameters, successCallback, errorCallback);
 				}
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSignBatchXML(null, parameters, successCallback, errorCallback) })) {
+						innerSignBatchXML(null, parameters, successCallback, errorCallback);
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
 					innerSignBatchXML(null, parameters, successCallback, errorCallback);
 				}
@@ -4605,9 +4693,21 @@ var AutoScript = ( function ( window, undefined ) {
 					certFilters : certFilters
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSignBatchJSON, parameters, successCallback, errorCallback);	
 				}
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSignBatchJSON(null, parameters, successCallback, errorCallback) })) {
+						innerSignBatchJSON(null, parameters, successCallback, errorCallback);
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
 					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
 				}
@@ -4693,9 +4793,21 @@ var AutoScript = ( function ( window, undefined ) {
 					description : description
 				};
 
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
 				if (isSecureEnvironment()) {
 					executeWithAdvancedCipher(innerSaveDataToFile, parameters, successCallback, errorCallback);
 				}
+				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerSaveDataToFile(null, parameters, successCallback, errorCallback) }) ) {
+						innerSaveDataToFile(null, parameters, successCallback, errorCallback);
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
 				else {
 					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
 				}
@@ -4845,6 +4957,10 @@ var AutoScript = ( function ( window, undefined ) {
 			 */
 			function isURLTooLong(url) {
 				return url.length > MAX_LONG_GENERAL_URL;
+			}
+			
+			function isHttpsAddress() {
+				return window.location.protocol == "https:";
 			}
 			
 			/* Genera un numero aleatorio para utilizar como clave de cifrado. */
@@ -5252,29 +5368,8 @@ var AutoScript = ( function ( window, undefined ) {
 					datas.push(html.substring(sepPos1));
 				}
 				
-/*				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado.
-				// Si no, usamos el clasico
-				if (isSecureEnvironment()) {
-					if (decipherConfig) {
-						try {
-							advDecipherDatasAndProcessResultAsync(datas, decipherConfig, successCallback, errorCallback);					
-						} catch (e) {
-							// En caso de intentar descifrar en AES y detectar un error, se descifrara en DES.
-							datas = decipherDES(datas, decipherConfig.desKey);
-							processSuccessResult(datas, successCallback);
-						}
-					} else {
-						processSuccessResult(datas, successCallback);	
-					}
-				}
-				else {
-					if (decipherConfig) {
-					 	datas = decipherDES(datas, decipherConfig.desKey);
-					}
-					processSuccessResult(datas, successCallback);
-				}*/
-				
-				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado.
+				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado
+				// de forma asincrona y finalizamos
 				if (isSecureEnvironment() && decipherConfig) {
 					try {
 						advDecipherDatasAndProcessResultAsync(datas, decipherConfig, successCallback, errorCallback);
