@@ -322,12 +322,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersForBatch params =
                 		ProtocolInvocationUriParserUtil.getParametersToBatch(urlParams, !bySocket);
 
-                // Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-                if (requestedProtocolVersion == null) {
-               		requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-                	reviewProtocolVersion(requestedProtocolVersion, jvc);
-                }
-
 				// Si se indica un identificador de fichero, es que el JSON o XML de definicion de lote
 				// se tiene que
                 // descargar desde el servidor intermedio
@@ -363,6 +357,12 @@ public final class ProtocolInvocationLauncher {
                     	paramsMap = ProtocolInvocationUriParserUtil.parseXml(batchDefinition);
                     }
 					params = ProtocolInvocationUriParserUtil.getParametersToBatch(paramsMap, !bySocket);
+                }
+
+                // Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+                if (requestedProtocolVersion == null) {
+               		requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+                	reviewProtocolVersion(requestedProtocolVersion, jvc);
                 }
 
                 // En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
@@ -416,13 +416,6 @@ public final class ProtocolInvocationLauncher {
         		UrlParametersToSelectCert params =
         				ProtocolInvocationUriParserUtil.getParametersToSelectCert(urlParams, !bySocket);
 
-        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-        		if (requestedProtocolVersion == null) {
-        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-        			reviewProtocolVersion(requestedProtocolVersion, jvc);
-        		}
-
-
         		// Si se indica un identificador de fichero, es que la configuracion de la
         		// operacion
         		// se tiene que descargar desde el servidor intermedio
@@ -451,6 +444,12 @@ public final class ProtocolInvocationLauncher {
         			}
 
         			params = ProtocolInvocationUriParser.getParametersToSelectCert(xmlData, true);
+        		}
+
+        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+        		if (requestedProtocolVersion == null) {
+        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+        			reviewProtocolVersion(requestedProtocolVersion, jvc);
         		}
 
         		// En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
@@ -504,12 +503,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersToSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSave(urlParams, !bySocket);
 
-        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-        		if (requestedProtocolVersion == null) {
-        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-        			reviewProtocolVersion(requestedProtocolVersion, jvc);
-        		}
-
                 LOGGER.info("Cantidad de datos a guardar: " + (params.getData() == null ? 0 : params.getData().length)); //$NON-NLS-1$
 
 				// Si se indica un identificador de fichero, es que la configuracion de la
@@ -542,6 +535,12 @@ public final class ProtocolInvocationLauncher {
 
                     params = ProtocolInvocationUriParser.getParametersToSave(xmlData, true);
                 }
+
+        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+        		if (requestedProtocolVersion == null) {
+        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+        			reviewProtocolVersion(requestedProtocolVersion, jvc);
+        		}
 
                 // En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
                 // que se espere activamente hasta el fin de la tarea
@@ -604,12 +603,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersToSignAndSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSignAndSave(urlParams, !bySocket);
 
-        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-        		if (requestedProtocolVersion == null) {
-        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-        			reviewProtocolVersion(requestedProtocolVersion, jvc);
-        		}
-
 				LOGGER.info("Cantidad de datos a firmar y guardar: " //$NON-NLS-1$
 						+ (params.getData() == null ? 0 : params.getData().length));
 
@@ -643,6 +636,12 @@ public final class ProtocolInvocationLauncher {
 
                     params = ProtocolInvocationUriParser.getParametersToSignAndSave(xmlData, true);
                 }
+
+        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+        		if (requestedProtocolVersion == null) {
+        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+        			reviewProtocolVersion(requestedProtocolVersion, jvc);
+        		}
 
                 // En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
                 // que se espere activamente hasta el fin de la tarea
@@ -708,12 +707,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersToSign params =
                 		ProtocolInvocationUriParserUtil.getParametersToSign(urlParams, !bySocket);
 
-        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-        		if (requestedProtocolVersion == null) {
-        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-        			reviewProtocolVersion(requestedProtocolVersion, jvc);
-        		}
-
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
@@ -749,6 +742,12 @@ public final class ProtocolInvocationLauncher {
                     params = ProtocolInvocationUriParser.getParametersToSign(xmlData, true);
                 }
 
+        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+        		if (requestedProtocolVersion == null) {
+        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+        			reviewProtocolVersion(requestedProtocolVersion, jvc);
+        		}
+
                 // En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
                 // que se espere activamente hasta el fin de la tarea
                 if (!bySocket && params.isActiveWaiting()) {
@@ -776,6 +775,7 @@ public final class ProtocolInvocationLauncher {
                 // Si no es por sockets, se devuelve el resultado al servidor y detenemos la
                 // espera activa si se encontraba vigente
                 if (!bySocket) {
+                	LOGGER.info("Enviamos el resultado de la operacion de firma al servidor intermedio"); //$NON-NLS-1$
                 	sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
                 }
 
@@ -808,12 +808,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersToLoad params =
                 		ProtocolInvocationUriParserUtil.getParametersToLoad(urlParams);
 
-        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
-        		if (requestedProtocolVersion == null) {
-        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
-        			reviewProtocolVersion(requestedProtocolVersion, jvc);
-        		}
-
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
@@ -844,6 +838,12 @@ public final class ProtocolInvocationLauncher {
 
                     params = ProtocolInvocationUriParser.getParametersToLoad(xmlData);
                 }
+
+        		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
+        		if (requestedProtocolVersion == null) {
+        			requestedProtocolVersion = parseProtocolVersion(params.getMinimumProtocolVersion());
+        			reviewProtocolVersion(requestedProtocolVersion, jvc);
+        		}
 
                 // En caso de comunicacion por servidor intermedio, solicitamos, si corresponde,
                 // que se espere activamente hasta el fin de la tarea
@@ -969,12 +969,18 @@ public final class ProtocolInvocationLauncher {
 	 * @return Version de protocolo o {@code 1} si no era una cadena v&aacute;lida.
 	 */
 	private static ProtocolVersion parseProtocolVersion(final String version) {
+
 		ProtocolVersion protocolVersion;
-    	try {
-    		protocolVersion = ProtocolVersion.getInstance(version);
-		} catch (final Exception e) {
-			LOGGER.warning("Se ha proporcionado en la llamada un identificador de version del protocolo con formato no soportado: " + e); //$NON-NLS-1$
-    		protocolVersion = ProtocolVersion.getInstance(ProtocolVersion.VERSION_0);
+		if (version != null) {
+			try {
+				protocolVersion = ProtocolVersion.getInstance(version);
+			} catch (final Exception e) {
+				LOGGER.warning("Se ha proporcionado en la llamada un identificador de version del protocolo con formato no soportado: " + e); //$NON-NLS-1$
+				protocolVersion = ProtocolVersion.getInstance(ProtocolVersion.VERSION_0);
+			}
+		}
+		else {
+			protocolVersion = ProtocolVersion.getInstance(ProtocolVersion.VERSION_0);
 		}
     	return protocolVersion;
 	}

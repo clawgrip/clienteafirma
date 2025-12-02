@@ -289,7 +289,7 @@ final class ProtocolInvocationLauncherErrorManager {
 			}
 
 			// Mostramos el error al usuario. Lo haremos de una forma u otra segun si el protocolo lo soporta o no
-			final String title = protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)
+			final String title = protocolVersion != null && protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)
 					? ProtocolMessages.getString("ProtocolLauncher.67") //$NON-NLS-1$
 					: ProtocolMessages.getString("ProtocolLauncher.29", AUTOFIRMA_ERROR_PREFIX + errorCode.getCode()); //$NON-NLS-1$
 			AOUIFactory.showErrorMessage(
@@ -307,7 +307,7 @@ final class ProtocolInvocationLauncherErrorManager {
 
 		// Si se utiliza el protocolo 4.1 o superior, se utiliza el formato de mensaje nuevo, pero
 		// con una cabecera compatible con el formato antiguo para mantener la compatibilidad
-		if (protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)) {
+		if (protocolVersion != null && protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)) {
 			// Establecemos una cabecera de error compatible con la usada en versiones anteriores del protocolo.
 			// Aunque no transmite informacion, permite que el receptor del error lo identifique como tal
 			final String code = AUTOFIRMA_ERROR_PREFIX + errorCode.getCode();
