@@ -39,15 +39,6 @@ final class ProtocolInvocationLauncherUtil {
 		// No instanciable
 	}
 
-	static final class IntermediateServerErrorSendedException extends AOException {
-
-		private static final long serialVersionUID = 1L;
-
-		IntermediateServerErrorSendedException(final String msg) {
-			super(msg, SimpleErrorCode.Internal.ERROR_RECIVED_FROM_CLIENT);
-		}
-	}
-
 	static final class DecryptionException extends AOException {
 
 		private static final long serialVersionUID = 1L;

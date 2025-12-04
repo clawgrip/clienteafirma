@@ -4197,6 +4197,9 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			var currentOperation = OPERATION_SIGN;
 			
+			var innerOperationFunction;
+			var innerOperationParams;
+			
 			/** Certificado en base 64 que se deve usar por defecto cuando la opcion stickySignatory
 			 * este activada. */
 			var stickyCertificate;
@@ -4260,7 +4263,7 @@ var AutoScript = ( function ( window, undefined ) {
 						innerSelectCertificate(null, parameters, successCallback, errorCallback);
 					}
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSelectCertificate(null, parameters, successCallback, errorCallback);
 				}
@@ -4268,7 +4271,11 @@ var AutoScript = ( function ( window, undefined ) {
 						
 			function innerSelectCertificate(cipherConfig, parameters, successCallback, errorCallback) {
 				
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
 				currentOperation = OPERATION_SELECT_CERTIFICATE;
+				innerOperationFunction = innerSelectCertificate;
+				innerOperationParams = parameters;
 								
 				var idSession = AfirmaUtils.generateNewIdSession();
 				
@@ -4376,7 +4383,7 @@ var AutoScript = ( function ( window, undefined ) {
 					}
 					
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSignOperation(null, parameters, successCallback, errorCallback);
 				}
@@ -4384,7 +4391,11 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			function innerSignOperation(cipherConfig, parameters, successCallback, errorCallback) {
 			
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
 				currentOperation = OPERATION_SIGN;
+				innerOperationFunction = innerSignOperation;
+				innerOperationParams = parameters;
 				
 				var signId = parameters.signId;
 				var dataB64 = parameters.dataB64;
@@ -4490,7 +4501,7 @@ var AutoScript = ( function ( window, undefined ) {
 						innerSignAndSaveFile(null, parameters, successCallback, errorCallback);		
 					}
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
 				}
@@ -4498,7 +4509,11 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			function innerSignAndSaveFile(cipherConfig, parameters, successCallback, errorCallback) {
 
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
 				currentOperation = OPERATION_SIGN;
+				innerOperationFunction = innerSignAndSaveFile;
+				innerOperationParams = parameters;
 				
 				var signId = parameters.signId;
 				var dataB64 = parameters.dataB64;
@@ -4600,14 +4615,19 @@ var AutoScript = ( function ( window, undefined ) {
 						innerSignBatchXML(null, parameters, successCallback, errorCallback);
 					}
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSignBatchXML(null, parameters, successCallback, errorCallback);
 				}
 			}
 
 			function innerSignBatchXML(cipherConfig, parameters, successCallback, errorCallback) {
+
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
 				currentOperation = OPERATION_BATCH;
+				innerOperationFunction = innerSignBatchXML;
+				innerOperationParams = parameters;
 
 				var batchB64 = parameters.batchB64;
 				var batchPreSignerUrl = parameters.batchPreSignerUrl;
@@ -4707,14 +4727,19 @@ var AutoScript = ( function ( window, undefined ) {
 						innerSignBatchJSON(null, parameters, successCallback, errorCallback);
 					}
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
 				}
 			}
 
 			function innerSignBatchJSON(cipherConfig, parameters, successCallback, errorCallback) {
+
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
 				currentOperation = OPERATION_BATCH;
+				innerOperationFunction = innerSignBatchJSON;
+				innerOperationParams = parameters;
 
 				var jsonRequestB64 = parameters.jsonRequestB64;
 				var batchPreSignerUrl = parameters.batchPreSignerUrl;
@@ -4807,7 +4832,7 @@ var AutoScript = ( function ( window, undefined ) {
 						innerSaveDataToFile(null, parameters, successCallback, errorCallback);
 					}
 				}
-				// Si no se tiene acceso a la CryptoAPI por culpa de usar HTTP, se emite un aviso
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
 				else {
 					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
 				}
@@ -4815,6 +4840,11 @@ var AutoScript = ( function ( window, undefined ) {
 
 			function innerSaveDataToFile(cipherConfig, parameters, successCallback, errorCallback) {
 
+				// Registramos los datos de la operacion actual para gestionar la respuesta y
+				// los reintentos
+				innerOperationFunction = innerSaveDataToFile;
+				innerOperationParams = parameters;
+				
 				var dataB64 = parameters.dataB64;
 				var title = parameters.title;
 				var filename = parameters.filename;
@@ -5059,10 +5089,18 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var errorOcurred = false;
 
+				// Sacamos de los parametros el ID necesario para la respuesta				
+				var responseId = "";
+				for (var i = 0; i < params.length && !responseId; i++) {
+					if (params[i].key == "id") {
+						responseId = params[i].value;
+					}
+				}
+				
 				httpRequest.onreadystatechange = function () {
 					if (httpRequest.readyState == 4) {
 						 if (httpRequest.status == 200) {
-							url = buildUrlWithoutData(op, fileId, retrieverServletAddress, cipherConfig);
+							url = buildUrlWithoutData(op, fileId, responseId, retrieverServletAddress, storageServletAddress, cipherConfig);
 							if (isURLTooLong(url)) {
 								errorCode = ErrorCode.Request.TOO_LONG_URL.code;
 								errorCallback("java.lang.IllegalArgumentException",ErrorCode.Request.TOO_LONG_URL.message, errorCode);
@@ -5186,7 +5224,7 @@ var AutoScript = ( function ( window, undefined ) {
 
 				// Preguntamos repetidamente por el resultado
 				if (!!idSession) {
-					getStoredFileFromServlet(idSession, retrieverServletAddress, decipherConfig, intentURL, successCallback, errorCallback);
+					getStoredFileFromServlet(idSession, retrieverServletAddress, decipherConfig, innerOperationFunction, innerOperationParams, successCallback, errorCallback);
 				}
 			}
 
@@ -5242,18 +5280,24 @@ var AutoScript = ( function ( window, undefined ) {
 			 * Crea una URL a partir de los parametros introducidos para la invocaci&oacute;n de
 			 * una app nativa para que descargue la configuracion de la operaci&oacute;n a realizar.
 			 * @param op Codigo de la operacion a la que tiene que invocar la URL.
-			 * @param id Identificador para la descarga.
+			 * @param fileId Identificador para la descarga.
+			 * @param responseId Identificador de la respuesta.
 			 * @param rtServlet Servlet para la descarga de la configuraci&oacute;n.
+			 * @param stServlet Servlet para la subida de la configuraci&oacute;n.
 			 * @param decipherConfig Configuracion para el descifrado. Si no se indica, no se descifra.
 			 * @returns URL para la llamada a la app con los datos necesarios para que descargue
 			 * la configuraci&oacute;n de la operaci&oacute;n a realizar.
 			 */
-			function buildUrlWithoutData (op, id, rtServlet, decipherConfig) {
+			function buildUrlWithoutData (op, fileId, responseId, rtServlet, stServlet, decipherConfig) {
 				var j = 0;
 				var newParams = new Array();
-				newParams[j++] = {key:"fileid", value:id};
+				newParams[j++] = {key:"fileid", value:fileId};
+				newParams[j++] = {key:"rid", value:responseId};
 				if (rtServlet != null || rtServlet != undefined) {
 					newParams[j++] = {key:"rtservlet", value:rtServlet};
+				}
+				if (stServlet != null || stServlet != undefined) {
+					newParams[j++] = {key:"stservlet", value:stServlet};
 				}
 				if (decipherConfig != null || decipherConfig != undefined) {
 					if (decipherConfig.desKey) {
@@ -5623,7 +5667,7 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			var iterations = 0;
 
-			function getStoredFileFromServlet (idDocument, servletAddress, decipherConfig, intentURL, successCallback, errorCallback) {
+			function getStoredFileFromServlet (idDocument, servletAddress, decipherConfig, operationFunction, operationParams, successCallback, errorCallback) {
 
 				var httpRequest = getHttpRequest();
 				if (!httpRequest) {
@@ -5631,14 +5675,14 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 
 				iterations = 0;
-				setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, servletAddress, "op=get&v=1_0&id=" + idDocument + "&it=0", decipherConfig, intentURL, idDocument, false, successCallback, errorCallback);
+				setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, servletAddress, "op=get&v=1_0&id=" + idDocument + "&it=0", decipherConfig, operationFunction, operationParams, false, successCallback, errorCallback);
 			}
 
-			function retrieveRequest(httpRequest, url, params, decipherConfig, intentURL, idDocument, afirmaConnected, successCallback, errorCallback) {
+			function retrieveRequest(httpRequest, url, params, decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback) {
 
 				if (wrongInstallation) {
 					var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_AFIRMA,
-																	function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback) },
+																	function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback) },
 																	function (){errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);});
 					if (!enabled) {
 						errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);
@@ -5650,7 +5694,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (iterations > NUM_MAX_ITERATIONS) {
 					if(!!afirmaConnected) {
 						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																		function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback)},
+																		function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
 																		function() {errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if (!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5663,7 +5707,7 @@ var AutoScript = ( function ( window, undefined ) {
 							errorType = ERROR_CONNECTING_SERVICE;
 						}
 						var enabled = Dialog.showErrorDialog(errorType,
-																	function (){execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback) },
+																	function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
 																	function (){errorCallback("java.lang.IOException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if(!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5684,7 +5728,7 @@ var AutoScript = ( function ( window, undefined ) {
 									iterations = 0;
 									afirmaConnected = true;
 								}
-								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, intentURL, idDocument, afirmaConnected, successCallback, errorCallback);
+								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
 							}
 						}
 						// En iOS, a veces, despues de abrirse Autofirma, la primera llamada al metodo de recuperacion
@@ -5692,11 +5736,11 @@ var AutoScript = ( function ( window, undefined ) {
 						// proseguimos intentandolo hasta obtener un respuesta correcta o agotar los intentos 
 						else if (httpRequest.status == 0) {
 							var oldIterations = iterations-1;
-							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, intentURL, idDocument, successCallback, errorCallback);
+							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, successCallback, errorCallback);
 						}
 						else {
 							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																			function() {execAppIntent(intentURL, idDocument, decipherConfig, successCallback, errorCallback)},
+																			function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
 																			function() {errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);});
 							if (!enabled) {
 								errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);

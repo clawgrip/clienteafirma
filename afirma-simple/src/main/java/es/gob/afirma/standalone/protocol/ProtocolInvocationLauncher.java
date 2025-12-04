@@ -45,7 +45,6 @@ import es.gob.afirma.standalone.JMulticardUtilities;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.DecryptionException;
-import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.IntermediateServerErrorSendedException;
 import es.gob.afirma.standalone.ui.AboutDialog;
 import es.gob.afirma.standalone.ui.OSXHandler;
 
@@ -326,37 +325,35 @@ public final class ProtocolInvocationLauncher {
 				// se tiene que
                 // descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
-                    final byte[] batchDefinition;
-                    try {
-                    	batchDefinition = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final IntermediateServerErrorSendedException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio", e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final DecryptionException e) {
-                        LOGGER.log(Level.SEVERE, "Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-                    } catch (final SocketTimeoutException e) {
-						LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma de lote", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_TIMEOUT;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					} catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_OPERATION;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					}
+                	try {
+                		final byte[] batchDefinition;
+                		try {
+                			batchDefinition = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+                		} catch (final DecryptionException e) {
+                			throw new IntermediateServerErrorSendedException("Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+                		} catch (final SocketTimeoutException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma de lote", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_TIMEOUT);
+                		} catch (final IOException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_OPERATION);
+                		}
 
-                    final Map <String, String> paramsMap;
+                		final Map <String, String> paramsMap;
 
-                    if (params.isJsonBatch()) {
-                    	paramsMap = TriphaseDataParser.parseParamsListJson(batchDefinition);
-                    } else {
-                    	paramsMap = ProtocolInvocationUriParserUtil.parseXml(batchDefinition);
-                    }
-					params = ProtocolInvocationUriParserUtil.getParametersToBatch(paramsMap, !bySocket);
+                		if (params.isJsonBatch()) {
+                			paramsMap = TriphaseDataParser.parseParamsListJson(batchDefinition);
+                		} else {
+                			paramsMap = ProtocolInvocationUriParserUtil.parseXml(batchDefinition);
+                		}
+                		params = ProtocolInvocationUriParserUtil.getParametersToBatch(paramsMap, !bySocket);
+                	} catch (final IntermediateServerErrorSendedException e) {
+                		LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+                		processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+                		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                	}
                 }
 
                 // Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -397,7 +394,7 @@ public final class ProtocolInvocationLauncher {
                 }
 
                 return msg;
-			} catch (final ParameterException e) {
+        	} catch (final ParameterException e) {
                 LOGGER.log(Level.SEVERE, "Error en los parametros de firma por lotes: " + e, e); //$NON-NLS-1$
 				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
 				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -420,30 +417,29 @@ public final class ProtocolInvocationLauncher {
         		// operacion
         		// se tiene que descargar desde el servidor intermedio
         		if (params.getFileId() != null) {
-        			final byte[] xmlData;
         			try {
-        				xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-        			} catch (final IntermediateServerErrorSendedException e) {
-        				LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-        				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-        				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-        			} catch (final DecryptionException e) {
-        				LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
-        				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-        				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-        			} catch (final SocketTimeoutException e) {
-        				LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la seleccion de certificado", e); //$NON-NLS-1$
-        				final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_CERT_TIMEOUT;
-        				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-        				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-        			} catch (final IOException e) {
-        				LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-        				final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_CERT_OPERATION;
-        				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-        				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-        			}
+        				final byte[] xmlData;
+        				try {
+        					xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+        				} catch (final DecryptionException e) {
+        					throw new IntermediateServerErrorSendedException(
+        							"Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+        				} catch (final SocketTimeoutException e) {
+        					throw new IntermediateServerErrorSendedException(
+        							"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la seleccion de certificado", e, //$NON-NLS-1$
+        							SimpleErrorCode.Communication.RECIVING_DATA_OF_CERT_TIMEOUT);
+        				} catch (final IOException e) {
+        					throw new IntermediateServerErrorSendedException(
+        							"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+        							SimpleErrorCode.Communication.RECIVING_DATA_OF_CERT_OPERATION);
+        				}
 
-        			params = ProtocolInvocationUriParser.getParametersToSelectCert(xmlData, true);
+        				params = ProtocolInvocationUriParser.getParametersToSelectCert(xmlData, true);
+        			} catch (final IntermediateServerErrorSendedException e) {
+        				LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+        				processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+        				return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+        			}
         		}
 
         		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -509,31 +505,29 @@ public final class ProtocolInvocationLauncher {
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
+                	try {
+                		final byte[] xmlData;
+                		try {
+                			xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+                		} catch (final DecryptionException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+                		} catch (final SocketTimeoutException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para el guardado de datos", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SAVE_TIMEOUT);
+                		} catch (final IOException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SAVE_OPERATION);
+                		}
 
-                    final byte[] xmlData;
-                    try {
-                        xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final IntermediateServerErrorSendedException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final DecryptionException e) {
-						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final SocketTimeoutException e) {
-						LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para el guardado de datos", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SAVE_TIMEOUT;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					} catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SAVE_OPERATION;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					}
-
-                    params = ProtocolInvocationUriParser.getParametersToSave(xmlData, true);
+                		params = ProtocolInvocationUriParser.getParametersToSave(xmlData, true);
+                	} catch (final IntermediateServerErrorSendedException e) {
+                		LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+                		processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+                		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                	}
                 }
 
         		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -610,31 +604,29 @@ public final class ProtocolInvocationLauncher {
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
+                	try {
+                		final byte[] xmlData;
+                		try {
+                			xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+                		} catch (final DecryptionException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+                		} catch (final SocketTimeoutException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma y guardado", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_AND_SAVE_TIMEOUT);
+                		} catch (final IOException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_AND_SAVE_OPERATION);
+                		}
 
-                    final byte[] xmlData;
-                    try {
-                        xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final IntermediateServerErrorSendedException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final DecryptionException e) {
-						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final SocketTimeoutException e) {
-						LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma y guardado", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_AND_SAVE_TIMEOUT;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					} catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_OPERATION;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					}
-
-                    params = ProtocolInvocationUriParser.getParametersToSignAndSave(xmlData, true);
+                		params = ProtocolInvocationUriParser.getParametersToSignAndSave(xmlData, true);
+                	} catch (final IntermediateServerErrorSendedException e) {
+                		LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+                		processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+                		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                	}
                 }
 
         		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -711,35 +703,33 @@ public final class ProtocolInvocationLauncher {
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
+                	try {
+                		LOGGER.info("Se descargan los datos del servidor intermedio"); //$NON-NLS-1$
 
-                	LOGGER.info("Se descargan los datos del servidor intermedio"); //$NON-NLS-1$
+                		final byte[] xmlData;
+                		try {
+                			xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+                		} catch (final DecryptionException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+                		} catch (final SocketTimeoutException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_TIMEOUT);
+                		} catch (final IOException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_OPERATION);
+                		}
 
-                    final byte[] xmlData;
-                    try {
-                        xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final IntermediateServerErrorSendedException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final DecryptionException e) {
-						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final SocketTimeoutException e) {
-						LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la firma", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_TIMEOUT;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					} catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_SIGN_OPERATION;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					}
+                		LOGGER.info("Fin de la descarga de los datos. Se carga la configuracion de firma de la peticion"); //$NON-NLS-1$
 
-                    LOGGER.info("Fin de la descarga de los datos. Se carga la configuracion de firma de la peticion"); //$NON-NLS-1$
-
-                    params = ProtocolInvocationUriParser.getParametersToSign(xmlData, true);
+                		params = ProtocolInvocationUriParser.getParametersToSign(xmlData, true);
+                	} catch (final IntermediateServerErrorSendedException e) {
+                		LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+                		processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+                		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                	}
                 }
 
         		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -812,31 +802,29 @@ public final class ProtocolInvocationLauncher {
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
                 if (params.getFileId() != null) {
+                	try {
+                		final byte[] xmlData;
+                		try {
+                			xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
+                		} catch (final DecryptionException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al descifrar los datos obtenidos", e); //$NON-NLS-1$
+                		} catch (final SocketTimeoutException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la carga de fichero", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_LOAD_TIMEOUT);
+                		} catch (final IOException e) {
+                			throw new IntermediateServerErrorSendedException(
+                					"Error al recuperar los datos enviados por el cliente a traves del servidor intermedio", e, //$NON-NLS-1$
+                					SimpleErrorCode.Communication.RECIVING_DATA_OF_LOAD_OPERATION);
+                		}
 
-                    final byte[] xmlData;
-                    try {
-                        xmlData = ProtocolInvocationLauncherUtil.getDataFromRetrieveServlet(params);
-					} catch (final IntermediateServerErrorSendedException e) {
-						LOGGER.log(Level.SEVERE, "El cliente notifico un error a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final DecryptionException e) {
-						LOGGER.log(Level.SEVERE, "Error al descifrar: " + e, e); //$NON-NLS-1$
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-					} catch (final SocketTimeoutException e) {
-						LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera de la llamada al servico de recuperacion del servidor intermedio cuando se trataron de obtener los datos para la carga de fichero", e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_BATCH_TIMEOUT;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					} catch (final IOException e) {
-						LOGGER.log(Level.SEVERE, "Error al recuperar los datos enviados por el cliente a traves del servidor intermedio: " + e, e); //$NON-NLS-1$
-						final ErrorCode errorCode = SimpleErrorCode.Communication.RECIVING_DATA_OF_LOAD_OPERATION;
-						ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
-						return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
-					}
-
-                    params = ProtocolInvocationUriParser.getParametersToLoad(xmlData);
+                		params = ProtocolInvocationUriParser.getParametersToLoad(xmlData);
+                	} catch (final IntermediateServerErrorSendedException e) {
+                		LOGGER.log(Level.SEVERE, "Se obtuvo un error al descargar los datos del servidor intermedio", e); //$NON-NLS-1$
+                		processIntermediateServiceError(e.getMessage(), e.getErrorCode(), params.getStorageServletUrl(), params.getId());
+                		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+                	}
                 }
 
         		// Si la peticion no se hizo a traves de socket/websocket, la version de protocolo se indica en la propia operacion
@@ -903,6 +891,21 @@ public final class ProtocolInvocationLauncher {
 		final ErrorCode errorCode = SimpleErrorCode.Request.UNSUPPORTED_OPERATION;
 		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
 		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, errorCode);
+    }
+
+    /**
+     * Envia un error al servidor intermedio o, si no proporcionan los datos necesarios, se muestra al usuario.
+     * @param msg Mensaje de error que enviar.
+     * @param errorCode C&oacute;digo de error.
+     * @param storageServerUrl URL del servicio de guardado del servidor intermedio.
+     * @param id Identificador para el guardado en el servidor intermedio.
+     */
+    public static void processIntermediateServiceError(final String msg, final ErrorCode errorCode, final URL storageServerUrl, final String id) {
+    	if (storageServerUrl != null && id != null) {
+    		sendDataToServer(msg, storageServerUrl.toString(), id);
+    	} else {
+    		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, errorCode);
+    	}
     }
 
     /**
@@ -1018,8 +1021,6 @@ public final class ProtocolInvocationLauncher {
 	 * @return Conjunto de par&aacute;metros con sus valores.
 	 */
 	private static Map<String, String> extractParams(final String url) {
-
-		LOGGER.info(" ========================= URL de la peticion:\n" + url);
 
 		final Map<String, String> params = new HashMap<>();
 
