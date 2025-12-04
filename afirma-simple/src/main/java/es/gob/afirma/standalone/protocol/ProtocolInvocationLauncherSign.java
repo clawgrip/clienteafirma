@@ -107,6 +107,7 @@ import es.gob.afirma.standalone.plugins.manager.PermissionChecker;
 import es.gob.afirma.standalone.plugins.manager.PluginException;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 import es.gob.afirma.standalone.ui.DataDebugDialog;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog.SignPdfDialogListener;
 
@@ -164,6 +165,14 @@ final class ProtocolInvocationLauncherSign {
 		operation.setFormat(options.getSignatureFormat());
 		operation.setExtraParams(options.getExtraParams());
 		operation.setAnotherParams(options.getAnotherParams());
+		
+		//Comprobamos que ya se haya configurado el contexto SSL
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (InterruptedException e) {
+			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configua el contexto SSL: " + e); //$NON-NLS-1$
+			throw new SocketOperationException(SimpleErrorCode.Internal.ERROR_LOAD_TRUSTED_CERT);
+		}
 
 		// Determinamos que procesador se utilizara para tratar los datos. Este puede ser uno
 		// derivado de un plugin que se active ante estos datos o el procesador nativo
@@ -291,32 +300,6 @@ final class ProtocolInvocationLauncherSign {
 			((AOTriphaseSigner) signer).setHttpConnection(httpConnection);
 		}
 
-		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
-		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
-
-		// Si hay marcado un almacen como el ultimo seleccionado, lo usamos (este es el caso en el que se llaman
-		// varias operaciones de firma dentro de la misma invocacion a la aplicacion)
-		AOKeyStore aoks = null;
-		if (lastSelectedKeyStore != null && !lastSelectedKeyStore.isEmpty()) {
-			aoks = SimpleKeyStoreManager.getLastSelectedKeystore();
-		}
-		// Si no, si el usuario definio un almacen por defecto para usarlo en las llamadas a la aplicacion, lo usamos
-		else if (useDefaultStore) {
-			final String defaultStore = PreferencesManager.get(PreferencesManager.PREFERENCE_KEYSTORE_DEFAULT_STORE);
-			if (!PreferencesManager.VALUE_KEYSTORE_DEFAULT.equals(defaultStore)) {
-				aoks = SimpleKeyStoreManager.getKeyStore(defaultStore, true);
-			}
-		}
-		// Si no, si en la llamada se definio el almacen que se debia usar, lo usamos
-		else {
-			aoks = SimpleKeyStoreManager.getKeyStore(options.getDefaultKeyStore(), true);
-		}
-
-		// Si aun no se ha definido el almacen, se usara el por defecto para el sistema operativo
-		if (aoks == null) {
-			aoks = AOKeyStore.getDefaultKeyStoreTypeByOs(Platform.getOS());
-		}
-
 		// Comprobamos si es necesario pedir datos de entrada al usuario
 		boolean needRequestData = false;
 		if (data == null) {
@@ -360,6 +343,9 @@ final class ProtocolInvocationLauncherSign {
 						if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 							MacUtils.focusApplication();
 						}
+						
+						ProgressInfoDialogManager.hideProgressDialog();
+						
 						selectedDataFile = AOUIFactory.getLoadFiles(
 								dialogTitle,
 								extraParams.getProperty(AfirmaExtraParams.LOAD_FILE_CURRENT_DIR), // currentDir
@@ -393,6 +379,7 @@ final class ProtocolInvocationLauncherSign {
 						final ErrorCode errorCode = ErrorCode.Internal.LOADING_DATA_ERROR;
 						throw new SocketOperationException(e, errorCode);
 					}
+					
 		}
 
 		// No haber fijado aun el firmador significa que se selecciono el formato AUTO y
@@ -426,6 +413,7 @@ final class ProtocolInvocationLauncherSign {
 		// Si se ha pedido comprobar las firmas antes de agregarle la nueva firma, lo hacemos ahora
 		if (data != null &&
 				Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.CHECK_SIGNATURES))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
 			final SignValider validator = SignValiderFactory.getSignValider(signer);
 			SignValidity validity = null;
 			if (validator != null) {
@@ -500,6 +488,8 @@ final class ProtocolInvocationLauncherSign {
 					throw new SocketOperationException(validity.getErrorException(), errorCode);
 				}
 			}
+			
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -527,6 +517,32 @@ final class ProtocolInvocationLauncherSign {
 			LOGGER.info("El usuario ha cancelado el dialogo de firma visible"); //$NON-NLS-1$
 			throw new SocketOperationException(new VisibleSignatureMandatoryException(
 					"Es obligatorio mostrar la firma en el documento PDF")); //$NON-NLS-1$
+		}
+		
+		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
+		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
+
+		// Si hay marcado un almacen como el ultimo seleccionado, lo usamos (este es el caso en el que se llaman
+		// varias operaciones de firma dentro de la misma invocacion a la aplicacion)
+		AOKeyStore aoks = null;
+		if (lastSelectedKeyStore != null && !lastSelectedKeyStore.isEmpty()) {
+			aoks = SimpleKeyStoreManager.getLastSelectedKeystore();
+		}
+		// Si no, si el usuario definio un almacen por defecto para usarlo en las llamadas a la aplicacion, lo usamos
+		else if (useDefaultStore) {
+			final String defaultStore = PreferencesManager.get(PreferencesManager.PREFERENCE_KEYSTORE_DEFAULT_STORE);
+			if (!PreferencesManager.VALUE_KEYSTORE_DEFAULT.equals(defaultStore)) {
+				aoks = SimpleKeyStoreManager.getKeyStore(defaultStore, true);
+			}
+		}
+		// Si no, si en la llamada se definio el almacen que se debia usar, lo usamos
+		else {
+			aoks = SimpleKeyStoreManager.getKeyStore(options.getDefaultKeyStore(), true);
+		}
+
+		// Si aun no se ha definido el almacen, se usara el por defecto para el sistema operativo
+		if (aoks == null) {
+			aoks = AOKeyStore.getDefaultKeyStoreTypeByOs(Platform.getOS());
 		}
 
 		PrivateKeyEntry pke = null;
@@ -585,17 +601,28 @@ final class ProtocolInvocationLauncherSign {
 		PrivateKeyEntry pke = pkeSelected;
 
 		if (pkeSelected == null) {
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+			AOKeyStoreManager ksm;
 
-			LOGGER.info("Cargamos el almacen de claves: " + aoks); //$NON-NLS-1$
-			final AOKeyStoreManager ksm;
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
-						keyStoreLib, // Lib
-						null, // Description
-						pwc, // PasswordCallback
-						null // Parent
-						);
+
+				// Esperamos a que termine de ejecutarse el hilo
+				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
+				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
+				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
+				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
+						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+				} else {
+					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+					ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+							keyStoreLib, // Lib
+							null, // Description
+							pwc, // PasswordCallback
+							null // Parent
+							);
+				}
 			}
 			catch (final AOCancelledOperationException e) {
 				LOGGER.info("Operacion cancelada por el usuario: " + e); //$NON-NLS-1$
@@ -674,7 +701,9 @@ final class ProtocolInvocationLauncherSign {
 		// Ejecutamos la firma
 		byte[] sign;
 		try {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			sign = executeSign(signer, cryptoOperation, data, signatureAlgorithm, pke, extraParams);
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 		catch (final LockedKeyStoreException e) {
 			LOGGER.log(Level.SEVERE, "El almacen de claves esta bloqueado", e); //$NON-NLS-1$

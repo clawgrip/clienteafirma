@@ -182,6 +182,12 @@ public final class PreferencesManager {
 	 * cuando se use el cliente sobre VDI para evitar un mal mayor.
 	 */
 	public static final String PREFERENCE_GENERAL_VDI_OPTIMIZATION = "vdiOptimization"; //$NON-NLS-1$
+	
+	/**
+	 * Configura una propiedad para habilitar un di&aacute;logo de espera que indica la tarea que este ejecutando
+	 * Autofirma en ese mismo instante.
+	 */
+	public static final String PREFERENCE_GENERAL_ENABLE_PROGRESS_DIALOG = "enableProgressDialog"; //$NON-NLS-1$
 
 	/** Algoritmo de huella para firma.
 	 * Esta preferencia debe tener uno de estos valores:

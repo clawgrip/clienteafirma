@@ -126,17 +126,26 @@ final class ProtocolInvocationLauncherSelectCert {
 			pke = ProtocolInvocationLauncher.getStickyKeyEntry();
 
 		} else {
-
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
-			final AOKeyStoreManager ksm;
+			AOKeyStoreManager ksm;
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(
-						aoks, // Store
-						aoksLib, // Lib
-						null, // Description
-						pwc, // PasswordCallback
-						null // Parent
-				);
+				// Esperamos a que termine de ejecutarse el hilo
+				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
+				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
+				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
+				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
+						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+				} else {
+					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+					ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+							aoksLib, // Lib
+							null, // Description
+							pwc, // PasswordCallback
+							null // Parent
+							);
+				}
 			}
 			catch (final AOCancelledOperationException e) {
 				throw e;

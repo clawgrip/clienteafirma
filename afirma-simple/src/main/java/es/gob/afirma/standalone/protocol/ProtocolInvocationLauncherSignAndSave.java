@@ -103,6 +103,7 @@ import es.gob.afirma.standalone.plugins.manager.PermissionChecker;
 import es.gob.afirma.standalone.plugins.manager.PluginException;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 import es.gob.afirma.standalone.ui.DataDebugDialog;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog.SignPdfDialogListener;
 
@@ -160,6 +161,14 @@ final class ProtocolInvocationLauncherSignAndSave {
 		operation.setFormat(options.getSignatureFormat());
 		operation.setExtraParams(options.getExtraParams());
 		operation.setAnotherParams(options.getAnotherParams());
+		
+		// Comprobamos que ya se haya configurado el contexto SSL
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (InterruptedException e) {
+			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configua el contexto SSL: " + e); //$NON-NLS-1$
+			throw new SocketOperationException(SimpleErrorCode.Internal.ERROR_LOAD_TRUSTED_CERT);
+		}
 
 		// Determinamos que procesador se utilizara para tratar los datos. Este puede ser uno
 		// derivado de un plugin que se active ante estos datos o el procesador nativo
@@ -403,6 +412,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 		// Si se ha pedido comprobar las firmas antes de agregarle la nueva firma, lo hacemos ahora
 		if (data != null &&
 				Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.CHECK_SIGNATURES))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
 			final SignValider validator = SignValiderFactory.getSignValider(signer);
 			SignValidity validity = null;
 			if (validator != null) {
@@ -481,6 +491,8 @@ final class ProtocolInvocationLauncherSignAndSave {
 					throw new SocketOperationException(errorCode);
 				}
 			}
+			
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -602,17 +614,28 @@ final class ProtocolInvocationLauncherSignAndSave {
 		PrivateKeyEntry pke = pkeSelected;
 
 		if (pkeSelected == null) {
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
-
-			LOGGER.info("Obtenido gestor de almacenes de claves: " + aoks); //$NON-NLS-1$
-			final AOKeyStoreManager ksm;
+			AOKeyStoreManager ksm;
+			
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
-						keyStoreLib, // Lib
-						null, // Description
-						pwc, // PasswordCallback
-						null // Parent
-						);
+
+				// Esperamos a que termine de ejecutarse el hilo
+				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
+				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
+				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
+				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
+						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+				} else {
+					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+					ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+							keyStoreLib, // Lib
+							null, // Description
+							pwc, // PasswordCallback
+							null // Parent
+							);
+				}
 			}
 			catch (final AOCancelledOperationException e) {
 				LOGGER.info("Operacion cancelada por el usuario: " + e); //$NON-NLS-1$
@@ -936,13 +959,9 @@ final class ProtocolInvocationLauncherSignAndSave {
 				AOSignConstants.SIGN_FORMAT_PDF_TRI, AOSignConstants.SIGN_FORMAT_PADES,
 				AOSignConstants.SIGN_FORMAT_PADES_TRI, AOSignConstants.PADES_SUBFILTER_BES,
 				AOSignConstants.PADES_SUBFILTER_BASIC);
-		if (!formatPadesList.contains(format)) {
-			return false;
-		}
-
 		// Comprobamos que se han incluido los parametros asociados a mostrar la
 		// firma.
-		if (!extraParams.containsKey(PdfExtraParams.VISIBLE_SIGNATURE)) {
+		if (!formatPadesList.contains(format) || !extraParams.containsKey(PdfExtraParams.VISIBLE_SIGNATURE)) {
 			return false;
 		}
 

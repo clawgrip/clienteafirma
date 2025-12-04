@@ -46,6 +46,8 @@ var AutoScript = ( function ( window, undefined ) {
 		var appName = null;
 		
 		var serviceTimeout = null;
+		
+		var showDialog = true;
 				
 		var DOMAIN_NAME;
 		try {
@@ -677,6 +679,11 @@ var AutoScript = ( function ( window, undefined ) {
 		/** Establece el tiempo de espera en milisegundos para la lectura de llamadas a servicios. */
 		var setServiceTimeout = function (timeoutMs) {
 			serviceTimeout = timeoutMs;
+		}
+		
+		/** Indica si Autofirma debe de mostrar su dialogo de carga o no. */
+		var showLoadingDialog = function (showDlg) {
+			showDialog = showDlg;
 		}
 		
 		var selectCertificate = function (params, successCallback, errorCallback) {
@@ -2247,6 +2254,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (resetStickySignatory) {
 					data.resetSticky = createKeyValuePair ("resetsticky", resetStickySignatory);
 				}
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 				
 				return data;
 			}
@@ -2268,7 +2278,10 @@ var AutoScript = ( function ( window, undefined ) {
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}				
+				}
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 				
 				return data;
 			}
@@ -2302,6 +2315,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 				
 				return data;
 			}
@@ -2333,6 +2349,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 				
 				return data;
 			}
@@ -3325,6 +3344,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 
 				return data;
 			}
@@ -3352,6 +3374,9 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+				}
 
 				return data;
 			}
@@ -4427,6 +4452,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }				
 
 				configureExtraParams(params, extraParams);
 
@@ -4547,7 +4573,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-
+				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
 
 				configureExtraParams(params, extraParams);
 				
@@ -4653,6 +4679,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
 
 				params[params.length] = {key:"needcert", value:"true"}; 
 
@@ -4752,6 +4779,7 @@ var AutoScript = ( function ( window, undefined ) {
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
+				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
 
 				configureExtraParams(params, certFilters);
 								
@@ -5884,6 +5912,7 @@ var AutoScript = ( function ( window, undefined ) {
 			setMinimumClientVersion : setMinimumClientVersion,
 			setAppName : setAppName,
 			setServiceTimeout : setServiceTimeout,
+			showLoadingDialog : showLoadingDialog,
 
 			/* Gestion de errores */
 			getErrorMessage : getErrorMessage,

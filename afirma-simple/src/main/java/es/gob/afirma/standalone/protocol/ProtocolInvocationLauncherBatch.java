@@ -51,10 +51,12 @@ import es.gob.afirma.keystores.filters.CertFilterManager;
 import es.gob.afirma.keystores.filters.EncodedCertificateFilter;
 import es.gob.afirma.signers.batch.client.BatchSigner;
 import es.gob.afirma.standalone.SimpleAfirma;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 final class ProtocolInvocationLauncherBatch {
 
@@ -92,6 +94,14 @@ final class ProtocolInvocationLauncherBatch {
    				throw new SocketOperationException(SimpleErrorCode.Functional.MINIMUM_VERSION_NON_SATISTIED);
         	}
         }
+        
+		//Comprobamos que ya se haya configurado el contexto SSL
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (InterruptedException e) {
+			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configua el contexto SSL: " + e); //$NON-NLS-1$
+			throw new SocketOperationException(SimpleErrorCode.Internal.ERROR_LOAD_TRUSTED_CERT);
+		}
 
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
@@ -242,17 +252,28 @@ final class ProtocolInvocationLauncherBatch {
 			} else {
 				aoksLib = options.getDefaultKeyStoreLib();
 			}
-
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+			
 			final AOKeyStoreManager ksm;
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(
-					aoks, // Store
-					aoksLib, // Lib
-					null, // Description
-					pwc,  // PasswordCallback
-					null  // Parent
-				);
+				// Esperamos a que termine de ejecutarse el hilo
+				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
+				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
+				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
+				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
+						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+				} else {
+					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+					ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+							aoksLib, // Lib
+							null, // Description
+							pwc, // PasswordCallback
+							null // Parent
+							);
+				}
+
 			}
 			catch (final AOCancelledOperationException e) {
 				LOGGER.info("Operacion cancelada por el usuario: " + e); //$NON-NLS-1$
@@ -321,7 +342,9 @@ final class ProtocolInvocationLauncherBatch {
 
 		final byte[] batchResult;
 		try {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			batchResult = signBatch(options, pke);
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 		catch (final PinException e) {
 			// Si falla la operacion por culpa del PIN, configuramos el uso del mismo certificado, pero obligamos al

@@ -48,6 +48,8 @@ import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.Decrypti
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.IntermediateServerErrorSendedException;
 import es.gob.afirma.standalone.ui.AboutDialog;
 import es.gob.afirma.standalone.ui.OSXHandler;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
+import es.gob.afirma.standalone.ui.tasks.LoadKeystoreTask;
 
 /**
  * Gestiona la ejecuci&oacute;n de Autofirma en una invocaci&oacute;n por
@@ -106,6 +108,8 @@ public final class ProtocolInvocationLauncher {
      * Versi&oacute;n del protocolo de comunicaci&oacute;n solicitada.
      */
     private static ProtocolVersion requestedProtocolVersion = null;
+    
+    private static LoadKeystoreTask loadKeyStoreTask = null;
 
 	/**
 	 * Recupera la entrada con la clave y certificado prefijados para las
@@ -321,6 +325,12 @@ public final class ProtocolInvocationLauncher {
         	try {
                 UrlParametersForBatch params =
                 		ProtocolInvocationUriParserUtil.getParametersToBatch(urlParams, !bySocket);
+                
+                ProgressInfoDialogManager.init(params.isShowLoadingDialog());
+                
+                // Iniciamos la tarea para cargar los almacenes de claves
+        		loadKeyStoreTask = new LoadKeystoreTask();
+                new Thread(loadKeyStoreTask).start();
 
 				// Si se indica un identificador de fichero, es que el JSON o XML de definicion de lote
 				// se tiene que
@@ -415,6 +425,12 @@ public final class ProtocolInvocationLauncher {
         	try {
         		UrlParametersToSelectCert params =
         				ProtocolInvocationUriParserUtil.getParametersToSelectCert(urlParams, !bySocket);
+        		
+        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
+        		
+        		// Iniciamos la tarea para cargar los almacenes de claves
+        		loadKeyStoreTask = new LoadKeystoreTask();
+                new Thread(loadKeyStoreTask).start();
 
         		// Si se indica un identificador de fichero, es que la configuracion de la
         		// operacion
@@ -502,6 +518,8 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSave(urlParams, !bySocket);
+                
+        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
 
                 LOGGER.info("Cantidad de datos a guardar: " + (params.getData() == null ? 0 : params.getData().length)); //$NON-NLS-1$
 
@@ -602,6 +620,12 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSignAndSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSignAndSave(urlParams, !bySocket);
+                
+        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
+        		
+        		// Iniciamos la tarea para cargar los almacenes de claves
+        		loadKeyStoreTask = new LoadKeystoreTask();
+                new Thread(loadKeyStoreTask).start();
 
 				LOGGER.info("Cantidad de datos a firmar y guardar: " //$NON-NLS-1$
 						+ (params.getData() == null ? 0 : params.getData().length));
@@ -706,6 +730,12 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSign params =
                 		ProtocolInvocationUriParserUtil.getParametersToSign(urlParams, !bySocket);
+                
+        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
+        		
+        		// Iniciamos la tarea para cargar los almacenes de claves
+        		loadKeyStoreTask = new LoadKeystoreTask();
+                new Thread(loadKeyStoreTask).start();
 
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
@@ -807,7 +837,9 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToLoad params =
                 		ProtocolInvocationUriParserUtil.getParametersToLoad(urlParams);
-
+                
+        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
+        		
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
@@ -1114,4 +1146,9 @@ public final class ProtocolInvocationLauncher {
 		}
 		return false;
 	}
+
+	public static LoadKeystoreTask getLoadKeyStoreTask() {
+		return loadKeyStoreTask;
+	}
+	
 }
