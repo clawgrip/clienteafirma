@@ -9,6 +9,11 @@
 
 package es.gob.afirma.standalone.ui;
 
+import java.util.Map;
+
+import es.gob.afirma.core.misc.protocol.ProtocolInvocationUriParser;
+import es.gob.afirma.standalone.SimpleAfirma;
+
 /** Clase que gestiona los mensajes mostrados por el di&aacute;logo de progreso
  * y que muestra o esconde el di&aacute;logo.*/
 
@@ -18,8 +23,17 @@ public final class ProgressInfoDialogManager {
 	
 	private static boolean showProgressDialog;
 	
-	public static void init(boolean showProgressDialogParam) {
-		showProgressDialog = showProgressDialogParam;
+	/** Par&aacute;metro de entrada para mostrar o no el di&aacute;logo de espera. */
+	protected static final String SHOW_LOADING_DIALOG_PARAM = "dlgload"; //$NON-NLS-1$
+	
+	public static void init(String [] args) {
+		if (args != null && args.length > 0 
+	    		 && args[0].toLowerCase().startsWith(SimpleAfirma.PROTOCOL_URL_START_LOWER_CASE)) {
+			Map <String,String> paramsMap = ProtocolInvocationUriParser.parserUri(args[0]);
+			if (paramsMap.containsKey(SHOW_LOADING_DIALOG_PARAM)) {
+				showProgressDialog = Boolean.parseBoolean(paramsMap.get(SHOW_LOADING_DIALOG_PARAM));
+			}
+		}
 	}
 	
 	/** Elimina el di&aacute;logo de la vista 

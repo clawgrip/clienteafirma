@@ -317,7 +317,7 @@ public final class ProtocolInvocationUriParser {
 	 * @param uri URL de llamada.
 	 * @return Devuelve una tabla <i>hash</i> con cada par&aacute;metro asociado a un valor.
 	 */
-	private static Map<String, String> parserUri(final String uri) {
+	public static Map<String, String> parserUri(final String uri) {
 		final Map<String, String> params = new HashMap<>();
 		final String[] parameters = uri.substring(uri.indexOf('?') + 1).split("&"); //$NON-NLS-1$
 		for (final String param : parameters) {

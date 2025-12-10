@@ -128,13 +128,15 @@ final class ProtocolInvocationLauncherSelectCert {
 		} else {
 			AOKeyStoreManager ksm;
 			try {
-				// Esperamos a que termine de ejecutarse el hilo
-				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
 
 				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
 				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
 				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
 						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+					
+					// Esperamos a que termine de ejecutarse el hilo
+					ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+					
 					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
 				} else {
 					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
@@ -253,6 +255,7 @@ final class ProtocolInvocationLauncherSelectCert {
 			synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 				try {
 					LOGGER.info("Enviamos el resultado de la operacion de seleccion de certificado al servidor intermedio"); //$NON-NLS-1$
+					SimpleAfirma.getSSLContextConfigurationTask().join();
 					IntermediateServerUtil.sendData(dataToSend, options.getStorageServletUrl().toString(), options.getId());
 				}
 				catch (final Exception e) {

@@ -88,6 +88,7 @@ import es.gob.afirma.standalone.ui.ClosePanel;
 import es.gob.afirma.standalone.ui.DNIeWaitPanel;
 import es.gob.afirma.standalone.ui.MainMenu;
 import es.gob.afirma.standalone.ui.MainScreen;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.SignDetailPanel;
 import es.gob.afirma.standalone.ui.SignOperationConfig;
 import es.gob.afirma.standalone.ui.SignPanel;
@@ -140,7 +141,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 * Inicio (en min&uacute;sculas) de una ruta que invoca a la aplicaci&oacute;n
 	 * por protocolo.
 	 */
-    private static final String PROTOCOL_URL_START_LOWER_CASE = "afirma://"; //$NON-NLS-1$
+    public static final String PROTOCOL_URL_START_LOWER_CASE = "afirma://"; //$NON-NLS-1$
 
 	/**
 	 * Esquema y host de las URL de petici&oacute;n para la comunicaci&oacute;n por
@@ -283,11 +284,11 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 					DEFAULT_WINDOW_HEIGHT);
         	this.container = this.window;
 
-        	this.loadDefaultKeyStore();
-        	this.configureMenuBar();
+        	loadDefaultKeyStore();
+        	configureMenuBar();
 
         	if (preSelectedFile != null) {
-        		this.loadFileToSign(preSelectedFile, signConfig);
+        		loadFileToSign(preSelectedFile, signConfig);
         	}
         }
     }
@@ -339,8 +340,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     public void propertyChange(final PropertyChangeEvent evt) {
 
     	if (DNIeWaitPanel.PROP_DNIE_REJECTED.equals(evt.getPropertyName())) {
-   			this.loadDefaultKeyStore();
-            this.loadMainApp();
+   			loadDefaultKeyStore();
+            loadMainApp();
     	}
     	else if (DNIeWaitPanel.PROP_HELP_REQUESTED.equals(evt.getPropertyName())) {
     		showHelp("Autofirma.html"); //$NON-NLS-1$
@@ -352,11 +353,11 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 			} catch (final Exception e) {
 				LOGGER.severe("Fallo la inicializacion del DNIe, se intentara el almacen por defecto del sistema: " + e //$NON-NLS-1$
                 );
-                this.loadDefaultKeyStore();
+                loadDefaultKeyStore();
 			} finally {
                 this.container.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
-            this.loadMainApp();
+            loadMainApp();
     	}
     }
 
@@ -365,7 +366,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     	this.window.setTitle(SimpleAfirmaMessages.getString("SimpleAfirma.10", getVersion())); //$NON-NLS-1$
 
-    	this.configureMenuBar();
+    	configureMenuBar();
 
     	final JPanel newPanel = new SignPanel(this.window, this);
 
@@ -387,7 +388,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     @Override
     public void windowClosing(final WindowEvent we) {
-    	this.askForClosing();
+    	askForClosing();
     }
 
 	@Override
@@ -840,6 +841,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 * @param args Par&aacute;metros en l&iacute;nea de comandos
 	 */
     public static void main(final String[] args) {
+    	
+    	ProgressInfoDialogManager.init(args);
 
     	// Configuramos el log de la aplicacion
     	configureLog();
@@ -924,16 +927,9 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     	// Comprobamos actualizaciones si estan habilitadas
         if (updatesEnabled && PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_UPDATECHECK)) {
-        	LOGGER.info("Buscamos actualizaciones"); //$NON-NLS-1$
-        	try {
-				sslContextConfigurationTask.join();
-				Updater.checkForUpdates(null);
-			} catch (InterruptedException e) {
-				LOGGER.severe("El hilo para la configuracion del contexto SSL no se ha ejecutado correctamente: " + e); //$NON-NLS-1$
-				AOUIFactory.showErrorMessage(SimpleAfirmaMessages.getString("SimpleAfirma.8"), //$NON-NLS-1$
-						SimpleAfirmaMessages.getString("SimpleAfirma.48"), //$NON-NLS-1$
-						JOptionPane.WARNING_MESSAGE, e);
-			}			
+        	
+        	LOGGER.info("Buscamos actualizaciones"); //$NON-NLS-1$     	
+			Updater.checkForUpdates(null, sslContextConfigurationTask);
 		} else {
 			LOGGER.info("No se buscaran nuevas versiones de la aplicacion"); //$NON-NLS-1$
 		}
@@ -1133,7 +1129,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 */
     public boolean askForClosing() {
     	if (PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_OMIT_ASKONCLOSE)) {
-    		this.closeApplication(0);
+    		closeApplication(0);
             return true;
     	}
     	final ClosePanel closePanel = new ClosePanel();
@@ -1141,7 +1137,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		if (AOUIFactory.showConfirmDialog(this.container, closePanel,
             SimpleAfirmaMessages.getString("SimpleAfirma.48"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-            this.closeApplication(0);
+            closeApplication(0);
             return true;
         }
         return false;
@@ -1150,6 +1146,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     /** Configura el registro (<i>log</i>) de la aplicaci&oacute;n. */
     private static void configureLog() {
     	// Configuramos, si procede, el log en fichero
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.4")); //$NON-NLS-1$
     	try {
     		final String afirmaDebug = System.getProperty(SYSTEM_PROPERTY_DEBUG_FILE);
     		if (afirmaDebug != null) {

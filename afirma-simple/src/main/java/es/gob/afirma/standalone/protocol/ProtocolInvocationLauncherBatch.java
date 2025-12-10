@@ -95,14 +95,6 @@ final class ProtocolInvocationLauncherBatch {
         	}
         }
         
-		//Comprobamos que ya se haya configurado el contexto SSL
-		try {
-			SimpleAfirma.getSSLContextConfigurationTask().join();
-		} catch (InterruptedException e) {
-			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configua el contexto SSL: " + e); //$NON-NLS-1$
-			throw new SocketOperationException(SimpleErrorCode.Internal.ERROR_LOAD_TRUSTED_CERT);
-		}
-
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
 
@@ -255,13 +247,15 @@ final class ProtocolInvocationLauncherBatch {
 			
 			final AOKeyStoreManager ksm;
 			try {
-				// Esperamos a que termine de ejecutarse el hilo
-				ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
 
 				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
 				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
 				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
 						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+
+					// Esperamos a que termine de ejecutarse el hilo
+					ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
 					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
 				} else {
 					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
@@ -402,7 +396,7 @@ final class ProtocolInvocationLauncherBatch {
 
 	private static byte[] signBatch(final UrlParametersForBatch options, final PrivateKeyEntry pke)
 			throws AOCancelledOperationException, PinException, IllegalArgumentException,
-			CertificateEncodingException, AOException, ParameterException, IOException {
+			CertificateEncodingException, AOException, ParameterException, IOException, InterruptedException {
 
 		String batchResult;
 
@@ -413,6 +407,8 @@ final class ProtocolInvocationLauncherBatch {
 			connectionConfig = new ConnectionConfig();
 			connectionConfig.setReadTimeout(serviceTimeout);
 		}
+		
+		SimpleAfirma.getSSLContextConfigurationTask().join();
 
 		final UrlHttpManager urlHttpManager = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);
 

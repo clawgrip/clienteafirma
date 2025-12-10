@@ -82,9 +82,6 @@ public abstract class UrlParameters {
 
 	/** Tiempo de espera para la lectura de peticiones. */
 	protected static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
-	
-	/** ar&aacute;metro de entrada para mostrar o no el di&aacute;logo de espera. */
-	protected static final String SHOW_LOADING_DIALOG_PARAM = "showloadingdialog"; //$NON-NLS-1$
 
 	/** Codificaci&oacute;n por defecto. */
 	private static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
@@ -103,7 +100,6 @@ public abstract class UrlParameters {
 	private String defaultKeyStoreLib = null;
 	private Properties extraParams = null;
 	private String filename = null;
-	private boolean showLoadingDialog = true;
 
 	/**
 	 * Obtiene los par&aacute;metros adicionales de la firma.
@@ -240,21 +236,6 @@ public abstract class UrlParameters {
 	protected void setMinimumClientVersion(final String minimumClientVersion) {
 		this.minimumClientVersion = minimumClientVersion;
 	}
-	
-	/** Indica si se debe de mostrar o no el di&aacute;logo de carga de Autofirma.
-	 * @return {@code true} si se debe mostrar el di&aacute;logo de carga,
-	 * {@code false} en caso contrario. */
-	public boolean isShowLoadingDialog() {
-		return this.showLoadingDialog;
-	}
-
-	/**
-	 * Establece si se debe de mostrar o no el di&aacute;logo de carga de Autofirma.
-	 * @param showLoadingDialog Indica si se muestra o no el di&aacute;logo.
-	 */
-	public void setShowProgressDialog(final boolean showLoadingDialog) {
-		this.showLoadingDialog = showLoadingDialog;
-	}
 
 	/** Obtiene el identificador de sesi&oacute;n.
 	 * @return Identificador de sesi&oacute;n */
@@ -293,7 +274,7 @@ public abstract class UrlParameters {
 						decodedCipherConfig = addLegacyDesConfig(decodedCipherConfig, cipherKeyDES);
 					}
 				}
-				this.setCipherConfig(decodedCipherConfig);
+				setCipherConfig(decodedCipherConfig);
 			} catch (final IOException e) {
 				throw new ParameterException("El JSON para la clave de cifrado no esta formado correctamente",  //$NON-NLS-1$
 												ErrorCode.Request.UNSUPPORTED_CIPHER_KEY);
@@ -301,31 +282,27 @@ public abstract class UrlParameters {
 		} else if (params.containsKey(KEY_PARAM)) {
 			final String cipherKeyDES = verifyDESCipherKey(params);
 			if (cipherKeyDES != null) {
-				this.setCipherConfig(createDesJSON(cipherKeyDES).getBytes());
+				setCipherConfig(createDesJSON(cipherKeyDES).getBytes());
 			}
 		}
 
-		this.setActiveWaiting(params.containsKey(ACTIVE_WAITING_PARAM) &&
+		setActiveWaiting(params.containsKey(ACTIVE_WAITING_PARAM) &&
 				Boolean.parseBoolean(params.get(ACTIVE_WAITING_PARAM)));
 
 		if (params.containsKey(MINIMUM_CLIENT_VERSION_PARAM)) {
-			this.setMinimumClientVersion(params.get(MINIMUM_CLIENT_VERSION_PARAM));
+			setMinimumClientVersion(params.get(MINIMUM_CLIENT_VERSION_PARAM));
 		}
 
 		if (params.containsKey(SERVICE_TIMEOUT_PARAM)) {
 			try {
 				final int servTimeout = Integer.parseInt(params.get(SERVICE_TIMEOUT_PARAM));
 				if (servTimeout >= 0) {
-					this.setServiceTimeout(servTimeout);
+					setServiceTimeout(servTimeout);
 				}
 			} catch (final Exception e) {
 				throw new ParameterException("El valor del parametro del tiempo de espera de lectura de los servicios no es valido",  //$NON-NLS-1$
 						ErrorCode.Request.UNSUPPORTED_CIPHER_KEY);
 			}
-		}
-		
-		if (params.containsKey(SHOW_LOADING_DIALOG_PARAM)) {
-			this.setShowProgressDialog(Boolean.parseBoolean(params.get(SHOW_LOADING_DIALOG_PARAM)));
 		}
 
 		// Comprobamos que se nos hayan indicado los datos o, en su defecto, el
@@ -335,7 +312,7 @@ public abstract class UrlParameters {
 
 			if (params.containsKey(FILE_ID_PARAM)) {
 
-				this.setFileId(params.get(FILE_ID_PARAM));
+				setFileId(params.get(FILE_ID_PARAM));
 
 				if (!params.containsKey(RETRIEVE_SERVLET_PARAM)) {
 					throw new ParameterException(
@@ -345,7 +322,7 @@ public abstract class UrlParameters {
 				}
 
 				try {
-					this.setRetrieveServletUrl(
+					setRetrieveServletUrl(
 						validateURL(
 							params.get(RETRIEVE_SERVLET_PARAM)
 						)
@@ -373,7 +350,7 @@ public abstract class UrlParameters {
 				);
 			}
 			try {
-				this.setData(
+				setData(
 					DataDownloader.downloadData(
 						dataPrm,
 						// Boolean.parseBoolean() da false con null y en general con cualquier cosa que

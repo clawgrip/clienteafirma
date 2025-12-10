@@ -28,6 +28,7 @@ import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
+import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
 
@@ -67,6 +68,14 @@ final class ProtocolInvocationLauncherUtil {
 							.append(params.getFileId());
 
 		LOGGER.info("Intentamos recuperar los datos del servidor con la URL:\n" + dataUrl.toString()); //$NON-NLS-1$
+		
+		//Comprobamos que ya se haya configurado el contexto SSL
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (InterruptedException e) {
+			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
+			throw new IntermediateServerErrorSendedException("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
+		}
 
 		// Leemos los datos
 		final byte[] recoveredData = IntermediateServerUtil.retrieveData(params.getRetrieveServletUrl().toString(), params.getFileId());

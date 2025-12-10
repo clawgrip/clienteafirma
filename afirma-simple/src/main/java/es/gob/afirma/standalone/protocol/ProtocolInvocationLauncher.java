@@ -42,13 +42,13 @@ import es.gob.afirma.core.misc.protocol.UrlParametersToSign;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSignAndSave;
 import es.gob.afirma.signers.batch.client.TriphaseDataParser;
 import es.gob.afirma.standalone.JMulticardUtilities;
+import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.DecryptionException;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.IntermediateServerErrorSendedException;
 import es.gob.afirma.standalone.ui.AboutDialog;
 import es.gob.afirma.standalone.ui.OSXHandler;
-import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.tasks.LoadKeystoreTask;
 
 /**
@@ -145,7 +145,7 @@ public final class ProtocolInvocationLauncher {
 	 * @return Resultado de la operaci&oacute;n.
 	 */
     public static String launch(final String urlString)  {
-        return launch(urlString, null, false);
+        return launch(urlString, null, true);
     }
 
     /**
@@ -326,8 +326,6 @@ public final class ProtocolInvocationLauncher {
                 UrlParametersForBatch params =
                 		ProtocolInvocationUriParserUtil.getParametersToBatch(urlParams, !bySocket);
                 
-                ProgressInfoDialogManager.init(params.isShowLoadingDialog());
-                
                 // Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
                 new Thread(loadKeyStoreTask).start();
@@ -426,8 +424,6 @@ public final class ProtocolInvocationLauncher {
         		UrlParametersToSelectCert params =
         				ProtocolInvocationUriParserUtil.getParametersToSelectCert(urlParams, !bySocket);
         		
-        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
-        		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
                 new Thread(loadKeyStoreTask).start();
@@ -518,8 +514,6 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSave(urlParams, !bySocket);
-                
-        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
 
                 LOGGER.info("Cantidad de datos a guardar: " + (params.getData() == null ? 0 : params.getData().length)); //$NON-NLS-1$
 
@@ -620,8 +614,6 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSignAndSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSignAndSave(urlParams, !bySocket);
-                
-        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
         		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
@@ -730,8 +722,6 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSign params =
                 		ProtocolInvocationUriParserUtil.getParametersToSign(urlParams, !bySocket);
-                
-        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
         		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
@@ -837,8 +827,6 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToLoad params =
                 		ProtocolInvocationUriParserUtil.getParametersToLoad(urlParams);
-                
-        		ProgressInfoDialogManager.init(params.isShowLoadingDialog());
         		
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
@@ -970,11 +958,12 @@ public final class ProtocolInvocationLauncher {
 		// Esperamos a que termine cualquier otro envio al servidor para que no se pisen
 		synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 			try {
+				SimpleAfirma.getSSLContextConfigurationTask().join();
 				IntermediateServerUtil.sendData(data, serviceUrl, id);
 			} catch (final SocketTimeoutException e) {
 				LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera maximo en la llamada al servicio de guardado del servidor intermedio", e); //$NON-NLS-1$
 				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Communication.SENDING_RESULT_TIMEOUT);
-			} catch (final IOException e) {
+			} catch (final Exception e) {
 				LOGGER.log(Level.SEVERE, "Error al enviar los datos al servidor intermedio: " + e, e); //$NON-NLS-1$
 				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Communication.SENDING_RESULT_OPERATION);
 			}

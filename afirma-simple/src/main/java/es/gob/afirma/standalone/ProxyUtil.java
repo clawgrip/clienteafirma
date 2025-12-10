@@ -34,6 +34,7 @@ import es.gob.afirma.ciphers.DesServerCipher;
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 /** Utilidades para el manejo y establecimiento del <i>Proxy</i> de red para las
  * conexiones de la aplicaci&oacute;n.
@@ -66,6 +67,8 @@ public final class ProxyUtil {
 			LOGGER.info("No se usara proxy para las conexiones de red"); //$NON-NLS-1$
 			return;
 		}
+    	
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
 
     	// Establecemos el selector del proxy
 		ProxySelector.setDefault(proxySelector);

@@ -2255,7 +2255,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.resetSticky = createKeyValuePair ("resetsticky", resetStickySignatory);
 				}
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2280,7 +2280,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2316,7 +2316,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2350,7 +2350,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -3345,7 +3345,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 
 				return data;
@@ -3375,7 +3375,7 @@ var AutoScript = ( function ( window, undefined ) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
 				}	
 				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("showloadingdialog", showDialog);
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 
 				return data;
@@ -4452,7 +4452,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }				
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }				
 
 				configureExtraParams(params, extraParams);
 
@@ -4573,7 +4573,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, extraParams);
 				
@@ -4679,7 +4679,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				params[params.length] = {key:"needcert", value:"true"}; 
 
@@ -4779,7 +4779,7 @@ var AutoScript = ( function ( window, undefined ) {
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
-				if (!showDialog) {										params[params.length] = {key:"showloadingdialog", showDialog}; }	
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, certFilters);
 								
