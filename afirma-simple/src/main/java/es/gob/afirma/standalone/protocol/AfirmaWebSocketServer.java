@@ -19,6 +19,7 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+import es.gob.afirma.standalone.protocol.AfirmaWebSocketServerManager.BindingErrorListener;
 
 /**
  * Servidor para la comunicaci&oacute;n por <i>WebSocket</i> acorde a la versi&oacute;n
@@ -37,12 +38,14 @@ public class AfirmaWebSocketServer extends WebSocketServer {
 	/** Uno de los prefijos que puede presentar el mensaje de invocaci&oacute;n de una firma de lote. Versi&oacute;n 1. */
 	private static final String HEADER_BATCH_1 = "afirma://batch?"; //$NON-NLS-1$
 
-	/** Uno de los prefijos que puede presentar el mensaje de invocaci&oacute;n de una firma de lote. Versi&oacute;n 1. */
+	/** Uno de los prefijos que puede presentar el mensaje de invocaci&oacute;n de una firma de lote. Versi&oacute;n 2. */
 	private static final String HEADER_BATCH_2 = "afirma://batch/?"; //$NON-NLS-1$
 
 	private static final ProtocolVersion MIN_PROTOCOL_VERSION = ProtocolVersion.getInstance(ProtocolVersion.VERSION_0);
 
 	protected String sessionId;
+
+	private AfirmaWebSocketBindingErrorListener bindingErrorListener = null;
 
 	/**
 	 * Genera un servidor websocket que atiende las peticiones de Autofirma.
@@ -119,5 +122,14 @@ public class AfirmaWebSocketServer extends WebSocketServer {
 	@Override
 	public void onError(final WebSocket ws, final Exception ex) {
 		LOGGER.log(Level.SEVERE, "Error en el socket del puerto " + getAddress().getPort(), ex); //$NON-NLS-1$
+		if (ex instanceof java.net.BindException && this.bindingErrorListener != null) {
+			LOGGER.severe("Se identifica como un error en la apertura del puerto " + getAddress().getPort() //$NON-NLS-1$
+					+ ". Se reintenta con el siguiente puerto disponible"); //$NON-NLS-1$
+			this.bindingErrorListener.onErrorBinding();
+		}
+	}
+
+	public void setBindingErrorListener(final BindingErrorListener bindingErrorListener) {
+		this.bindingErrorListener = bindingErrorListener;
 	}
 }
