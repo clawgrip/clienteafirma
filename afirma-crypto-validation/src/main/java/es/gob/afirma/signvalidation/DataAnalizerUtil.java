@@ -475,8 +475,13 @@ public final class DataAnalizerUtil {
 	private static Map<String, PdfObject> getFieldValues(final PdfReader reader){
 		final LinkedHashMap<String, PdfObject> fields = new LinkedHashMap<>();
 
-		// Obtenermos los valores de los campos declarados
+		// Obtenermos los valores de los campos declarados y, si no
+		// hay ninguno, devolvermos un listado vacio
 		final PRAcroForm form = reader.getAcroForm();
+		if (form == null) {
+			return fields;
+		}
+
 		final ArrayList<FieldInformation> fiList = form.getFields();
 		for (int i = 0; i < fiList.size(); i++) {
 			final FieldInformation fi = fiList.get(i);
