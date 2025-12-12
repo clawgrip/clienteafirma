@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.security.auth.callback.PasswordCallback;
+
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOException;
@@ -27,6 +29,10 @@ import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
+import es.gob.afirma.keystores.AOKeyStore;
+import es.gob.afirma.keystores.AOKeyStoreManager;
+import es.gob.afirma.keystores.AOKeyStoreManagerFactory;
+import es.gob.afirma.keystores.KeystoreAlternativeException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
 import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
@@ -74,7 +80,6 @@ final class ProtocolInvocationLauncherUtil {
 			SimpleAfirma.getSSLContextConfigurationTask().join();
 		} catch (InterruptedException e) {
 			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
-			throw new IntermediateServerErrorSendedException("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
 		}
 
 		// Leemos los datos
@@ -228,5 +233,40 @@ final class ProtocolInvocationLauncherUtil {
 			connConfig.apply(urlManager);
 		}
 		return urlManager;
+	}
+	
+	/**
+	 * Obtiene el almac&eacute;n solicitado.
+	 * @param aoks Almacen a obtener.
+	 * @param aoksLib Libreria en caso de que se necesite.
+	 * @return Almac&eacute;n a usar.
+	 * @throws KeystoreAlternativeException si ocurre un error al acceder o validar el keystore alternativo.
+	 * @throws IOException si se produce un error de entrada/salida durante la lectura o escritura de datos.
+	 * @throws InterruptedException si el hilo actual es interrumpido mientras se ejecuta la operaci&oacute;n.
+	 */
+	static AOKeyStoreManager getAOKeyStoreManager(AOKeyStore aoks, String aoksLib) throws KeystoreAlternativeException, IOException, InterruptedException {
+		
+		// Esperamos a que termine de ejecutarse el hilo
+		ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+
+		// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
+		// de Autofirma, si no coincide con el solicitado, se intentara cargar este
+		if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) ) {
+
+			if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
+				return ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+			}
+
+		} 
+
+		final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+		return AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+				aoksLib, // Lib
+				null, // Description
+				pwc, // PasswordCallback
+				null // Parent
+				);		
+
 	}
 }

@@ -67,7 +67,6 @@ public class LoadKeystoreTask extends Thread{
 					pwc, // PasswordCallback
 					null // Parent
 					);
-
     	} catch (final Exception e) {
     		LOGGER.severe("Error al cargar almacen de claves :" + e); //$NON-NLS-1$ 
     		this.e = e;

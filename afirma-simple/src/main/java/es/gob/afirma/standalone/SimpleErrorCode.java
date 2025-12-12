@@ -35,7 +35,7 @@ public class SimpleErrorCode {
 		public static final ErrorCode NEEDS_UPDATED_VERSION				= new ErrorCode("200701", "Se necesita actualizar la aplicacion"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode NO_DETECTED_PROXIES				= new ErrorCode("200702", "No se han detectado proxies en el sisema"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode ERROR_LOAD_TRUSTED_CERT			= new ErrorCode("200800", "Error al cargar el certificado de confianza"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		public static final ErrorCode TRUSTSTORE_INCORRECT_INSTALLATION	= new ErrorCode("200801", "El almacen de confianza de Autofirma no se encuentra instalado correctamente"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		public static final ErrorCode SOCKET_INITIALIZING_ERROR			= new ErrorCode("220001", "No se pudo abrir el socket de comunicacion"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode DECRYPTING_PARAMS_ERROR			= new ErrorCode("220002", "Error desencriptando los datos del servidor"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -112,12 +112,10 @@ public class SimpleErrorCode {
 
 		public static final ErrorCode UNSUPPORTED_REQUEST_SCHEME		= new ErrorCode("620009", "El esquema de la URL de invocacion no esta soportado"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode INVALID_SESSION_ID				= new ErrorCode("620010", "El identificador de sesion del websocket es incorrecto"); //$NON-NLS-1$ //$NON-NLS-2$
-		public static final ErrorCode UNSUPPORED_PROTOCOL_VERSION		= new ErrorCode("620011", "Version de protocolo de comunicacion con el navegador no soportada"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode UNSUPPORTED_PROTOCOL_VERSION		= new ErrorCode("620011", "Version de protocolo de comunicacion con el navegador no soportada"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode REQUEST_URI_NOT_FOUND				= new ErrorCode("620012", "No se ha proporcionado la URI de invocacion"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode PORTS_NOT_FOUND					= new ErrorCode("620013", "No se han proporciona los puertos de conexion"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode MALFORMED_REQUEST_TO_SOCKET		= new ErrorCode("620016", "Los parametros recibidos en el socket no son correctos"); //$NON-NLS-1$ //$NON-NLS-2$
-
-
 
 	}
 }

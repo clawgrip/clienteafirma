@@ -1,7 +1,9 @@
 package es.gob.afirma.standalone.ui.tasks;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -42,8 +44,7 @@ public class SSLContextConfigurationTask extends Thread{
     		try {
     			LOGGER.info("Configuramos el almacen de confianza de la aplicacion"); //$NON-NLS-1$
     			truststoreConfigured = SslSecurityManager.configureAfirmaTrustManagers();
-
-    		} catch (final Exception e) {
+    		} catch (IOException | GeneralSecurityException e) {
     			LOGGER.warning("Error al configurar almacenes de confianza: " + e); //$NON-NLS-1$
     			truststoreConfigured = false;
     			this.e = e;    		

@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.security.auth.callback.PasswordCallback;
-
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOCancelledOperationException;
@@ -34,7 +32,6 @@ import es.gob.afirma.keystores.AOCertificatesNotFoundException;
 import es.gob.afirma.keystores.AOKeyStore;
 import es.gob.afirma.keystores.AOKeyStoreDialog;
 import es.gob.afirma.keystores.AOKeyStoreManager;
-import es.gob.afirma.keystores.AOKeyStoreManagerFactory;
 import es.gob.afirma.keystores.CertificateFilter;
 import es.gob.afirma.keystores.KeyStoreErrorCode;
 import es.gob.afirma.keystores.filters.CertFilterManager;
@@ -71,7 +68,7 @@ final class ProtocolInvocationLauncherSelectCert {
 		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
 			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
 					protocolVersion.toString()));
-			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
+			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORTED_PROTOCOL_VERSION);
 		}
 
         // Comprobamos si se exige una version minima del Cliente
@@ -128,26 +125,7 @@ final class ProtocolInvocationLauncherSelectCert {
 		} else {
 			AOKeyStoreManager ksm;
 			try {
-
-				// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
-				// de Autofirma, si no coincide con el solicitado, se intentara cargar este
-				if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) 
-						&& ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
-					
-					// Esperamos a que termine de ejecutarse el hilo
-					ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
-					
-					ksm = ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
-				} else {
-					final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
-
-					ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
-							aoksLib, // Lib
-							null, // Description
-							pwc, // PasswordCallback
-							null // Parent
-							);
-				}
+				ksm = ProtocolInvocationLauncherUtil.getAOKeyStoreManager(aoks, aoksLib);
 			}
 			catch (final AOCancelledOperationException e) {
 				throw e;
@@ -255,7 +233,11 @@ final class ProtocolInvocationLauncherSelectCert {
 			synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 				try {
 					LOGGER.info("Enviamos el resultado de la operacion de seleccion de certificado al servidor intermedio"); //$NON-NLS-1$
-					SimpleAfirma.getSSLContextConfigurationTask().join();
+					try {
+						SimpleAfirma.getSSLContextConfigurationTask().join();
+					} catch (InterruptedException e) {
+						LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
+					}
 					IntermediateServerUtil.sendData(dataToSend, options.getStorageServletUrl().toString(), options.getId());
 				}
 				catch (final Exception e) {

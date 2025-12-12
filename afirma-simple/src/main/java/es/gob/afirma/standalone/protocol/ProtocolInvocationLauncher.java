@@ -9,6 +9,7 @@
 
 package es.gob.afirma.standalone.protocol;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 import es.gob.afirma.core.AOCancelledOperationException;
+import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
@@ -40,9 +42,11 @@ import es.gob.afirma.core.misc.protocol.UrlParametersToSave;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSelectCert;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSign;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSignAndSave;
+import es.gob.afirma.core.ui.AOUIFactory;
 import es.gob.afirma.signers.batch.client.TriphaseDataParser;
 import es.gob.afirma.standalone.JMulticardUtilities;
 import es.gob.afirma.standalone.SimpleAfirma;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.DecryptionException;
@@ -275,8 +279,23 @@ public final class ProtocolInvocationLauncher {
         	}
 
         	try {
+        		
+        		final File trustedKeyStoreFile = SecureSocketUtils.getKeyStoreFile();
+
+        		// Si no encontramos el almacen de confianza de Autofirma, avisamos al usuario y cerramos la aplicacion
+        		if (trustedKeyStoreFile == null || !trustedKeyStoreFile.exists() || !trustedKeyStoreFile.isFile()) {
+        			AOUIFactory.showErrorMessage(
+        					null,
+        					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
+        					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
+        					JOptionPane.ERROR_MESSAGE,
+        					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
+        			forceCloseApplication(0);
+        		}
+        		
         		// A partir de Autoscript 1.10 se admite la llamada asincrona a traves de Websockets
         		final boolean asynchronous = jvc > 3;
+        		
         		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, asynchronous);
         	} catch (final UnsupportedProtocolException e) {
         		LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
@@ -328,7 +347,7 @@ public final class ProtocolInvocationLauncher {
                 
                 // Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
-                new Thread(loadKeyStoreTask).start();
+        		loadKeyStoreTask.start();
 
 				// Si se indica un identificador de fichero, es que el JSON o XML de definicion de lote
 				// se tiene que
@@ -426,8 +445,8 @@ public final class ProtocolInvocationLauncher {
         		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
-                new Thread(loadKeyStoreTask).start();
-
+        		loadKeyStoreTask.start();
+        	    
         		// Si se indica un identificador de fichero, es que la configuracion de la
         		// operacion
         		// se tiene que descargar desde el servidor intermedio
@@ -617,7 +636,7 @@ public final class ProtocolInvocationLauncher {
         		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
-                new Thread(loadKeyStoreTask).start();
+        		loadKeyStoreTask.start();
 
 				LOGGER.info("Cantidad de datos a firmar y guardar: " //$NON-NLS-1$
 						+ (params.getData() == null ? 0 : params.getData().length));
@@ -725,7 +744,7 @@ public final class ProtocolInvocationLauncher {
         		
         		// Iniciamos la tarea para cargar los almacenes de claves
         		loadKeyStoreTask = new LoadKeystoreTask();
-                new Thread(loadKeyStoreTask).start();
+        		loadKeyStoreTask.start();
 
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
@@ -958,7 +977,11 @@ public final class ProtocolInvocationLauncher {
 		// Esperamos a que termine cualquier otro envio al servidor para que no se pisen
 		synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 			try {
-				SimpleAfirma.getSSLContextConfigurationTask().join();
+				try {
+					SimpleAfirma.getSSLContextConfigurationTask().join();
+				} catch (InterruptedException e) {
+					LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
+				}
 				IntermediateServerUtil.sendData(data, serviceUrl, id);
 			} catch (final SocketTimeoutException e) {
 				LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera maximo en la llamada al servicio de guardado del servidor intermedio", e); //$NON-NLS-1$
@@ -1139,5 +1162,6 @@ public final class ProtocolInvocationLauncher {
 	public static LoadKeystoreTask getLoadKeyStoreTask() {
 		return loadKeyStoreTask;
 	}
+	
 	
 }

@@ -94,6 +94,7 @@ import es.gob.afirma.standalone.ui.SignOperationConfig;
 import es.gob.afirma.standalone.ui.SignPanel;
 import es.gob.afirma.standalone.ui.SignResultListPanel;
 import es.gob.afirma.standalone.ui.SignatureResultViewer;
+import es.gob.afirma.standalone.ui.tasks.CheckTrustKeyStoreTask;
 import es.gob.afirma.standalone.ui.tasks.SSLContextConfigurationTask;
 import es.gob.afirma.standalone.updater.Updater;
 
@@ -864,7 +865,9 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     	// Se establece la configuracion del proxy
     	LOGGER.info("Configuramos el proxy de la aplicacion"); //$NON-NLS-1$
     	try {
+    		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
     		ProxyUtil.setProxySettings();
+    	 	ProgressInfoDialogManager.hideProgressDialog();  
     	}
     	catch (final Throwable e) {
     		LOGGER.log(Level.SEVERE, "Error al aplicar la configuracion de proxy", e); //$NON-NLS-1$
@@ -970,6 +973,9 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     		else if (!isSimpleAfirmaAlreadyRunning()) {
 
     			LOGGER.info("Apertura como herramienta de escritorio"); //$NON-NLS-1$
+    			
+    			CheckTrustKeyStoreTask checkTrustStoreTask = new CheckTrustKeyStoreTask();
+    	        new Thread(checkTrustStoreTask).start();  
 
 				printSystemInfo();
 
@@ -1165,6 +1171,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		} catch (final Exception e) {
     		LOGGER.warning("No se ha podido verificar si se deseaba modificar el nivel de log: " + e); //$NON-NLS-1$
     	}
+    	
+    	ProgressInfoDialogManager.hideProgressDialog();
 	}
 
 	/**

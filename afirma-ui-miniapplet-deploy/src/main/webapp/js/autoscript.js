@@ -2368,6 +2368,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.description = createKeyValuePair("desc", description);
 				data.filePath = createKeyValuePair("filePath", filePath);
 				data.multiload = createKeyValuePair("multiload", multiload);
+				if (!showDialog) { data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);}
 				
 				return data;
 			}
@@ -2384,6 +2385,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.extension = createKeyValuePair ("exts", extension);
 				data.description = createKeyValuePair ("desc", description);
 				data.dat = createKeyValuePair ("dat",  dataB64 == "" ? null : dataB64, true);
+				if (!showDialog) { data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);}
 				
 				return data;
 			}
@@ -2482,6 +2484,9 @@ var AutoScript = ( function ( window, undefined ) {
 					+ "&v=" + PROTOCOL_VERSION
 					+ "&jvc=" + VERSION_CODE
 					+ "&idsession=" + idSession;
+				if (!showDialog) {
+					url += "&dlgload=" + showDialog;
+				}
 				openUrl(url);
 			}
 
@@ -3239,6 +3244,10 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				if (localBatchProcess) {
 					data.localBatchProcess = generateDataKeyValue ("localBatchProcess",  true);
+				}
+				
+				if (!showDialog) {
+					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 
 				return data;
@@ -4316,6 +4325,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (storageServletAddress != null &&
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, extraParams);
 				
@@ -4872,6 +4882,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (description != null && description != undefined) {	params[params.length] = {key:"description", value:description}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
 				if (dataB64 != null && dataB64 != undefined && dataB64 != "") {			params[params.length] = {key:"dat", value:dataB64}; }
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 				
 				
 				var url = buildUrl(opId, params);

@@ -21,7 +21,7 @@ public final class ProgressInfoDialogManager {
 
 	private static ProgressInfoDialog infoDialog;
 	
-	private static boolean showProgressDialog;
+	private static boolean showProgressDialog = true;
 	
 	/** Par&aacute;metro de entrada para mostrar o no el di&aacute;logo de espera. */
 	protected static final String SHOW_LOADING_DIALOG_PARAM = "dlgload"; //$NON-NLS-1$
@@ -33,6 +33,9 @@ public final class ProgressInfoDialogManager {
 			if (paramsMap.containsKey(SHOW_LOADING_DIALOG_PARAM)) {
 				showProgressDialog = Boolean.parseBoolean(paramsMap.get(SHOW_LOADING_DIALOG_PARAM));
 			}
+		} else {
+			// Para la aplicacion de escritorio no se mostrara
+			showProgressDialog = false;
 		}
 	}
 	
@@ -44,12 +47,15 @@ public final class ProgressInfoDialogManager {
 			return;
 		}
 
-	    if (infoDialog == null || !infoDialog.isEnabledDialog()) {
+	    if (infoDialog == null) {
 	        infoDialog = new ProgressInfoDialog(null);
 	    }
 
-	    infoDialog.setMessage(message);
-	    infoDialog.setVisible(true);
+	    if (infoDialog.isEnabledDialog()) {
+	    	infoDialog.setMessage(message);
+	    	infoDialog.setVisible(true);
+	    }
+	    
 	}
 
 	/** Elimina el di&aacute;logo de la vista */

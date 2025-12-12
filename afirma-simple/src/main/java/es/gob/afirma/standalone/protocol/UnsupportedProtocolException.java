@@ -28,7 +28,7 @@ public class UnsupportedProtocolException extends AOException {
 	private final ProtocolVersion version;
 
 	UnsupportedProtocolException(final ProtocolVersion version, final boolean newVersionNeeded) {
-		super("Version del protocolo no soportada", SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION); //$NON-NLS-1$
+		super("Version del protocolo no soportada", SimpleErrorCode.Request.UNSUPPORTED_PROTOCOL_VERSION); //$NON-NLS-1$
 		this.version = version;
 		this.newVersionNeeded = newVersionNeeded;
 	}

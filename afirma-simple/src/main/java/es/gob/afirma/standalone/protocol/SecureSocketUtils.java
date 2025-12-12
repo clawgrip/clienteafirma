@@ -14,7 +14,7 @@ import javax.net.ssl.SSLContext;
 
 import es.gob.afirma.standalone.DesktopUtil;
 
-class SecureSocketUtils {
+public class SecureSocketUtils {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -62,7 +62,7 @@ class SecureSocketUtils {
 	/** Obtiene el fichero del almac&eacute;n con la clave SSL de alguno de los directorios
 	 * del sistema en los que puede estar.
 	 * @return Almac&eacute;n de claves o {@code null} si no se encontr&oacute;. */
-	private static File getKeyStoreFile() {
+	public static File getKeyStoreFile() {
 
 		File appDir = DesktopUtil.getApplicationDirectory();
 

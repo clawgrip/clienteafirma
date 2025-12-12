@@ -36,15 +36,20 @@ public class ActiveWaitingThread extends Thread {
 
 	@Override
 	public void run() {
+		
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (InterruptedException e) {
+			LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
+		}
 
 		while (!this.cancelled) {
 
 			synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 				if (!this.cancelled) {
-					try {
-						SimpleAfirma.getSSLContextConfigurationTask().join();
+					try {					
 						IntermediateServerUtil.sendData(WAIT_CONSTANT, this.storageServiceUrl, this.transactionId);
-					} catch (final IOException | InterruptedException e) {
+					} catch (final IOException e) {
 						LOGGER.warning("No se ha podido enviar la peticion de espera: " + e); //$NON-NLS-1$
 					}
 				}
