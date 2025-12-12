@@ -59,37 +59,63 @@ public class AfirmaWebSocketServerManager {
  				.getBoolean(PreferencesManager.PREFERENCE_GENERAL_VDI_OPTIMIZATION);
          System.setProperty(SYSTEM_PROPERTY_OPTIMIZED_FOR_VDI, Boolean.toString(optimizedForVdi));
 
-		int i = 0;
-		final int[] ports = channelInfo.getPorts();
-		do {
-			LOGGER.info("Tratamos de abrir el socket en el puerto: " + ports[i]); //$NON-NLS-1$
+		int port = channelInfo.nextPortAvailable();
+		while (instance == null && port != -1) {
+			LOGGER.info("Tratamos de abrir el socket en el puerto: " + port); //$NON-NLS-1$
 
 			try {
 				switch (requestedProtocolVersion.getMajorVersion()) {
 				case PROTOCOL_VERSION_4:
-					instance = new AfirmaWebSocketServerV4Sup(ports[i], channelInfo.getIdSession(), requestedProtocolVersion);
+					instance = new AfirmaWebSocketServerV4Sup(port, channelInfo.getIdSession(), requestedProtocolVersion);
 					((AfirmaWebSocketServerV4Sup) instance).setAsyncOperation(asynchronous);
 					break;
 
 				default:
-					instance = new AfirmaWebSocketServer(ports[i], channelInfo.getIdSession());
+					instance = new AfirmaWebSocketServer(port, channelInfo.getIdSession());
 					break;
 				}
 
 				final SSLContext sc = SecureSocketUtils.getSecureSSLContext();
 				instance.setWebSocketFactory(new DefaultSSLWebSocketServerFactory(sc));
+				instance.setBindingErrorListener(new BindingErrorListener(channelInfo, requestedProtocolVersion, asynchronous));
 				instance.start();
 			}
 			catch (final Exception e) {
-				LOGGER.log(Level.WARNING, "No se ha podido abrir un socket en el puerto: " + ports[i], e); //$NON-NLS-1$
+				LOGGER.log(Level.WARNING, "No se ha podido abrir un socket en el puerto: " + port, e); //$NON-NLS-1$
 				instance = null;
+				port = channelInfo.nextPortAvailable();
 			}
-			i++;
 		}
-		while (instance == null && i < ports.length);
 
 		if (instance == null) {
 			throw new SocketOperationException("No se ha podido abrir ningun socket. Se aborta la comunicacion.", SimpleErrorCode.Internal.SOCKET_INITIALIZING_ERROR); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Clase para procesar los errores de conexi&oacute;n con el WebSocket.
+	 */
+	public static class BindingErrorListener implements AfirmaWebSocketBindingErrorListener {
+
+		private final ChannelInfo channelInfo;
+		private final ProtocolVersion protocolVersion;
+		private final boolean asynchronous;
+
+		public BindingErrorListener(final ChannelInfo channelInfo, final ProtocolVersion protocolVersion, final boolean asynchronous) {
+			this.channelInfo = channelInfo;
+			this.protocolVersion = protocolVersion;
+			this.asynchronous = asynchronous;
+		}
+
+		@Override
+		public void onErrorBinding() {
+			try {
+				instance = null;
+				AfirmaWebSocketServerManager.startService(this.channelInfo, this.protocolVersion, this.asynchronous);
+			} catch (final Exception e) {
+				LOGGER.log(Level.SEVERE, "El reintento de inicio del websockets ha fallado. Cerramos la aplicacion", e); //$NON-NLS-1$
+				Runtime.getRuntime().halt(-1);
+			}
 		}
 	}
 
