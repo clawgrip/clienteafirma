@@ -5736,7 +5736,7 @@ var AutoScript = ( function ( window, undefined ) {
 						// proseguimos intentandolo hasta obtener un respuesta correcta o agotar los intentos 
 						else if (httpRequest.status == 0) {
 							var oldIterations = iterations-1;
-							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, successCallback, errorCallback);
+							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
 						}
 						else {
 							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
