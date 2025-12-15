@@ -26,6 +26,7 @@ import es.gob.afirma.signers.xades.XAdESErrorCode;
 import es.gob.afirma.signers.xml.XMLErrorCode;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 /** Gestiona los errores de la ejecuci&oacute;n del Cliente Afirma en una invocaci&oacute;n
  * por protocolo.
@@ -276,6 +277,9 @@ final class ProtocolInvocationLauncherErrorManager {
 	private static final ProtocolVersion PROTOCOL_VERSION_WITH_ERROR_CODES = ProtocolVersion.getInstance(ProtocolVersion.VERSION_4_1);
 
 	static void showError(final ProtocolVersion protocolVersion, final ErrorCode errorCode) {
+		
+		ProgressInfoDialogManager.hideProgressDialog();
+		
 		final String message = getText(errorCode);
 
 		if (HEADLESS) {

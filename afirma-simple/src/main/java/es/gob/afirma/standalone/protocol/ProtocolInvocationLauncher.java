@@ -149,7 +149,7 @@ public final class ProtocolInvocationLauncher {
 	 * @return Resultado de la operaci&oacute;n.
 	 */
     public static String launch(final String urlString)  {
-        return launch(urlString, null, true);
+        return launch(urlString, null, false);
     }
 
     /**

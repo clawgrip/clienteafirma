@@ -21,6 +21,7 @@ import es.gob.afirma.core.ui.GenericFileFilter;
 import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 final class ProtocolInvocationLauncherSave {
 
@@ -62,6 +63,7 @@ final class ProtocolInvocationLauncherSave {
 			if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 				MacUtils.focusApplication();
 			}
+			ProgressInfoDialogManager.hideProgressDialog();
 			AOUIFactory.getSaveDataToFile(
 				options.getData(),
 				options.getTitle(),

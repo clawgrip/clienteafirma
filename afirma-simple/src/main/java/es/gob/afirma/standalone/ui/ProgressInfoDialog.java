@@ -10,6 +10,7 @@
 package es.gob.afirma.standalone.ui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -37,7 +38,7 @@ public final class ProgressInfoDialog extends JDialog {
 	public ProgressInfoDialog(final Frame parent) {
 
 	    super(parent);
-	    this.setUndecorated(true);
+	    setUndecorated(true);
 
 	    final RoundedPanel panel = new RoundedPanel(20);
 	    panel.setLayout(new GridBagLayout());
@@ -51,34 +52,39 @@ public final class ProgressInfoDialog extends JDialog {
 	    c.weightx = 1;
 
 	    this.labelProgress.setHorizontalAlignment(SwingConstants.CENTER);
+	    this.labelProgress.setFont(
+	        this.labelProgress.getFont().deriveFont(Font.PLAIN, 18f)
+	    );
 	    panel.add(this.labelProgress, c);
 
-	    this.setContentPane(panel);
+	    setContentPane(panel);
 
-	    this.pack();
+	    pack();
 
-	    this.setShape(new RoundRectangle2D.Double(
-	        0, 0, this.getWidth(), this.getHeight(), 20, 20
+	    setShape(new RoundRectangle2D.Double(
+	        0, 0, getWidth(), getHeight(), 20, 20
 	    ));
 
-	    this.setLocationRelativeTo(null);
-	    this.setResizable(false);
+	    setLocationRelativeTo(null);
+	    setResizable(false);
 	    
 	    this.enabledDialog = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_ENABLE_PROGRESS_DIALOG);
-	    this.setVisible(this.enabledDialog);
+	    setVisible(this.enabledDialog);
 	}
 
 	/** Establece el mensaje del di&aacute;logo.
 	 * @param message Mensaje del di&aacute;logo. */
 	public void setMessage(final String message) {
 		this.labelProgress.setText(message);
-		this.pack();
+		pack();
 		
-		this.setShape(new RoundRectangle2D.Double(
-		        0, 0, this.getWidth(), this.getHeight(), 20, 20
+		setShape(new RoundRectangle2D.Double(
+		        0, 0, getWidth(), getHeight(), 20, 20
 		));
 		
-		this.revalidate();
+		setLocationRelativeTo(null);
+		
+		revalidate();
 		this.repaint();
 	}
 

@@ -266,6 +266,7 @@ final class ProtocolInvocationLauncherBatch {
 					final File file = new File(aoksLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 					ksm,
 					null,
@@ -315,7 +316,6 @@ final class ProtocolInvocationLauncherBatch {
 		try {
 			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			batchResult = signBatch(options, pke);
-			ProgressInfoDialogManager.hideProgressDialog();
 		}
 		catch (final PinException e) {
 			// Si falla la operacion por culpa del PIN, configuramos el uso del mismo certificado, pero obligamos al

@@ -479,7 +479,6 @@ final class ProtocolInvocationLauncherSign {
 				}
 			}
 			
-			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -508,6 +507,8 @@ final class ProtocolInvocationLauncherSign {
 			throw new SocketOperationException(new VisibleSignatureMandatoryException(
 					"Es obligatorio mostrar la firma en el documento PDF")); //$NON-NLS-1$
 		}
+		
+		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
 		
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
@@ -616,6 +617,7 @@ final class ProtocolInvocationLauncherSign {
 					final File file = new File(keyStoreLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 						ksm,
 						null,
@@ -675,7 +677,6 @@ final class ProtocolInvocationLauncherSign {
 		try {
 			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			sign = executeSign(signer, cryptoOperation, data, signatureAlgorithm, pke, extraParams);
-			ProgressInfoDialogManager.hideProgressDialog();
 		}
 		catch (final LockedKeyStoreException e) {
 			LOGGER.log(Level.SEVERE, "El almacen de claves esta bloqueado", e); //$NON-NLS-1$

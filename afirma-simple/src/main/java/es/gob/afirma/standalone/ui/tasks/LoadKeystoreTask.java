@@ -72,8 +72,6 @@ public class LoadKeystoreTask extends Thread{
     		this.e = e;
     	}
     	
-    	ProgressInfoDialogManager.hideProgressDialog();
-    	
     }
 
 	public AOKeyStoreManager getKeyStoreManager() {

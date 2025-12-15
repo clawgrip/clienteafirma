@@ -844,6 +844,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     public static void main(final String[] args) {
     	
     	ProgressInfoDialogManager.init(args);
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.6")); //$NON-NLS-1$
 
     	// Configuramos el log de la aplicacion
     	configureLog();
@@ -867,7 +868,6 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     	try {
     		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
     		ProxyUtil.setProxySettings();
-    	 	ProgressInfoDialogManager.hideProgressDialog();  
     	}
     	catch (final Throwable e) {
     		LOGGER.log(Level.SEVERE, "Error al aplicar la configuracion de proxy", e); //$NON-NLS-1$
@@ -1172,7 +1172,6 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     		LOGGER.warning("No se ha podido verificar si se deseaba modificar el nivel de log: " + e); //$NON-NLS-1$
     	}
     	
-    	ProgressInfoDialogManager.hideProgressDialog();
 	}
 
 	/**

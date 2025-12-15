@@ -336,6 +336,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 				if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 					MacUtils.focusApplication();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				selectedDataFile = AOUIFactory.getLoadFiles(
 					dialogTitle,
 					extraParams.getProperty(AfirmaExtraParams.LOAD_FILE_CURRENT_DIR), // currentDir
@@ -482,7 +483,6 @@ final class ProtocolInvocationLauncherSignAndSave {
 				}
 			}
 			
-			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -496,6 +496,8 @@ final class ProtocolInvocationLauncherSignAndSave {
 			LOGGER.info("Se ha indicado una politica no compatible: " + e); //$NON-NLS-1$
 			throw new SocketOperationException(e);
 		}
+		
+		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
 
 		final CertFilterManager filterManager = new CertFilterManager(extraParams);
 
@@ -548,6 +550,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 			(fileExts == null ? " (*.*)" : String.format(" (*.%1s)", fileExts.replace(",", ",*."))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		try {
+			ProgressInfoDialogManager.hideProgressDialog();
 			AOUIFactory.getSaveDataToFile(
 				signature,
 				ProtocolMessages.getString("ProtocolLauncher.31"), // Titulo del dialogo //$NON-NLS-1$
@@ -627,6 +630,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 					final File file = new File(keyStoreLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 						ksm,
 						null,
@@ -678,6 +682,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 
 		byte[] sign;
 		try {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			sign = executeSign(signer, cryptoOperation, data, signatureAlgorithm, pke, extraParams);
 		}
 		catch (final LockedKeyStoreException e) {

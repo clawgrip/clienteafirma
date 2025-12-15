@@ -40,6 +40,7 @@ import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 final class ProtocolInvocationLauncherSelectCert {
 
@@ -145,6 +146,7 @@ final class ProtocolInvocationLauncherSelectCert {
 					final File file = new File(aoksLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 					ksm,
 					null,
