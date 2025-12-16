@@ -366,6 +366,8 @@ final class ProtocolInvocationLauncherBatch {
 						: SimpleErrorCode.Internal.INTERNAL_XML_BATCH_ERROR;
 			ProtocolInvocationLauncherErrorManager.showError(protocolVersion, errorCode);
 			throw new SocketOperationException(e, errorCode);
+		} finally {
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		return new SignOperationResult(batchResult, pke);

@@ -843,11 +843,11 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 */
     public static void main(final String[] args) {
     	
-    	ProgressInfoDialogManager.init(args);
-    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.6")); //$NON-NLS-1$
-
     	// Configuramos el log de la aplicacion
     	configureLog();
+    	
+    	ProgressInfoDialogManager.init(args);
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
 
     	LOGGER.info("Arranque de la aplicacion"); //$NON-NLS-1$
 
@@ -866,7 +866,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     	// Se establece la configuracion del proxy
     	LOGGER.info("Configuramos el proxy de la aplicacion"); //$NON-NLS-1$
     	try {
-    		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
+    		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.4")); //$NON-NLS-1$
     		ProxyUtil.setProxySettings();
     	}
     	catch (final Throwable e) {
@@ -1152,7 +1152,6 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     /** Configura el registro (<i>log</i>) de la aplicaci&oacute;n. */
     private static void configureLog() {
     	// Configuramos, si procede, el log en fichero
-    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.4")); //$NON-NLS-1$
     	try {
     		final String afirmaDebug = System.getProperty(SYSTEM_PROPERTY_DEBUG_FILE);
     		if (afirmaDebug != null) {

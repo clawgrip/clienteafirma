@@ -708,6 +708,8 @@ final class ProtocolInvocationLauncherSignAndSave {
 					filters, filters != null, true);
 			return selectCertAndSign(null, aoks, keyStoreLib, newFilterManager, stickySignatory,
 					data, signatureAlgorithm, signer, cryptoOperation, extraParams);
+		} finally {
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		return new SignOperationResult(sign, pke);
