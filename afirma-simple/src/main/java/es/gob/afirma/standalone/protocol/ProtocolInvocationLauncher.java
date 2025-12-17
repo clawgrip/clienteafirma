@@ -9,7 +9,6 @@
 
 package es.gob.afirma.standalone.protocol;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -27,7 +26,6 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 import es.gob.afirma.core.AOCancelledOperationException;
-import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
@@ -42,11 +40,9 @@ import es.gob.afirma.core.misc.protocol.UrlParametersToSave;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSelectCert;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSign;
 import es.gob.afirma.core.misc.protocol.UrlParametersToSignAndSave;
-import es.gob.afirma.core.ui.AOUIFactory;
 import es.gob.afirma.signers.batch.client.TriphaseDataParser;
 import es.gob.afirma.standalone.JMulticardUtilities;
 import es.gob.afirma.standalone.SimpleAfirma;
-import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.protocol.ProtocolInvocationLauncherUtil.DecryptionException;
@@ -279,19 +275,6 @@ public final class ProtocolInvocationLauncher {
         	}
 
         	try {
-        		
-        		final File trustedKeyStoreFile = SecureSocketUtils.getKeyStoreFile();
-
-        		// Si no encontramos el almacen de confianza de Autofirma, avisamos al usuario y cerramos la aplicacion
-        		if (trustedKeyStoreFile == null || !trustedKeyStoreFile.exists() || !trustedKeyStoreFile.isFile()) {
-        			AOUIFactory.showErrorMessage(
-        					null,
-        					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
-        					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
-        					JOptionPane.ERROR_MESSAGE,
-        					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
-        			forceCloseApplication(0);
-        		}
         		
         		// A partir de Autoscript 1.10 se admite la llamada asincrona a traves de Websockets
         		final boolean asynchronous = jvc > 3;

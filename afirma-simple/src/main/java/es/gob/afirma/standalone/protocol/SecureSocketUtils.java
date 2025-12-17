@@ -31,7 +31,7 @@ public class SecureSocketUtils {
 	 * @throws GeneralSecurityException Cuando no se ha podido cargar el almac&eacute;n de claves SSL.
 	 * @throws IOException Cuando no se ha encontrado el almacen de claves SSL o este no es v&aacute;lido.
 	 */
-	static SSLContext getSecureSSLContext() throws GeneralSecurityException, IOException {
+	public static SSLContext getSecureSSLContext() throws GeneralSecurityException, IOException {
 
 		// Ruta del almacen para el cifrado SSL
 		final File sslKeyStoreFile = getKeyStoreFile();
@@ -62,7 +62,7 @@ public class SecureSocketUtils {
 	/** Obtiene el fichero del almac&eacute;n con la clave SSL de alguno de los directorios
 	 * del sistema en los que puede estar.
 	 * @return Almac&eacute;n de claves o {@code null} si no se encontr&oacute;. */
-	public static File getKeyStoreFile() {
+	private static File getKeyStoreFile() {
 
 		File appDir = DesktopUtil.getApplicationDirectory();
 

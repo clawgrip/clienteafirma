@@ -973,9 +973,6 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     		else if (!isSimpleAfirmaAlreadyRunning()) {
 
     			LOGGER.info("Apertura como herramienta de escritorio"); //$NON-NLS-1$
-    			
-    			CheckTrustKeyStoreTask checkTrustStoreTask = new CheckTrustKeyStoreTask();
-    	        new Thread(checkTrustStoreTask).start();  
 
 				printSystemInfo();
 
@@ -1054,6 +1051,11 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
 				LOGGER.info("Comprobando si es una version de Java compatible"); //$NON-NLS-1$
 				checkJavaVersion(saf.getMainFrame());
+				
+				// Comprobamos si el almacen de confianza con el certificado SSL esta instalado correctamente
+    			CheckTrustKeyStoreTask checkTrustStoreTask = new CheckTrustKeyStoreTask(saf.getMainFrame());
+    			checkTrustStoreTask.execute();
+    			
 			} else {
 				LOGGER.log(Level.WARNING, "La aplicacion ya se encuentra activa en otra ventana. Se cerrara esta instancia"); //$NON-NLS-1$
 	    		AOUIFactory.showErrorMessage(SimpleAfirmaMessages.getString("SimpleAfirma.3"), //$NON-NLS-1$

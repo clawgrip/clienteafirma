@@ -13,10 +13,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
+import javax.swing.JOptionPane;
 
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
+import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+import es.gob.afirma.core.ui.AOUIFactory;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 
@@ -53,6 +57,20 @@ public class AfirmaWebSocketServerManager {
 	public static void startService(final ChannelInfo channelInfo, final ProtocolVersion requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException {
 
 		checkSupportProtocol(requestedProtocolVersion);
+		
+    	// Si al intentar obtener el contexto SSL, se recibe alguna excepcion, se mostrar el error
+    	try {
+    		SecureSocketUtils.getSecureSSLContext();
+    	} catch (Exception e) {
+			LOGGER.severe("No se ha encontrado el almacen de claves de Autofirma"); //$NON-NLS-1$
+			AOUIFactory.showErrorMessage(
+					null,
+					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
+					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE,
+					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
+			ProtocolInvocationLauncher.forceCloseApplication(0);
+    	}
 
  		// Configuramos la optimizacion para VDI segun lo establecido en el dialogo de preferencias
  		final boolean optimizedForVdi = PreferencesManager

@@ -12,22 +12,21 @@ package es.gob.afirma.standalone.protocol;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketTimeoutException;
-import java.security.GeneralSecurityException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
+import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.protocol.ProtocolVersion;
+import es.gob.afirma.core.ui.AOUIFactory;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
+import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 /** Gestor de la invocaci&oacute;n por <i>socket</i>. */
@@ -104,9 +103,24 @@ public final class ServiceInvocationManager {
 	static void startService(final ChannelInfo channelInfo, final ProtocolVersion protocolVersion) throws UnsupportedProtocolException {
 
 		checkSupportProtocol(protocolVersion);
+		
+		SSLContext sc = null;
+		
+    	// Si al intentar obtener el contexto SSL, se recibe alguna excepcion, se mostrar el error
+    	try {
+    		sc = SecureSocketUtils.getSecureSSLContext();
+    	} catch (Exception e) {
+			LOGGER.severe("No se ha encontrado el almacen de claves de Autofirma"); //$NON-NLS-1$
+			AOUIFactory.showErrorMessage(
+					null,
+					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
+					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE,
+					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
+			ProtocolInvocationLauncher.forceCloseApplication(0);
+    	}
 
 		try {
-			final SSLContext sc = SecureSocketUtils.getSecureSSLContext();
 
 			final SSLServerSocketFactory ssocketFactory = sc.getServerSocketFactory();
 
@@ -148,24 +162,6 @@ public final class ServiceInvocationManager {
 		// error de vuelta y no debemos mostrar dialogos graficos
 		catch (final IOException e) {
 			LOGGER.log(Level.SEVERE, "Error en la comunicacion a traves del socket", e); //$NON-NLS-1$
-		}
-		catch(final KeyStoreException e){
-            LOGGER.severe("Error con el keyStore: " + e); //$NON-NLS-1$
-		}
-        catch(final NoSuchAlgorithmException e){
-            LOGGER.severe("Error con el algoritmo del  certificado: " + e); //$NON-NLS-1$
-        }
-        catch(final CertificateException e){
-            LOGGER.severe("Error con el certificado: " + e); //$NON-NLS-1$
-        }
-        catch(final UnrecoverableKeyException e){
-            LOGGER.severe("Error al recuperar la key: " + e); //$NON-NLS-1$
-        }
-        catch(final KeyManagementException e){
-            LOGGER.severe("Error con el KeyManager: " + e); //$NON-NLS-1$
-        }
-		catch (final GeneralSecurityException e) {
-			LOGGER.severe("Error durante la carga del almacen de claves SSL: " + e); //$NON-NLS-1$
 		}
 	}
 
