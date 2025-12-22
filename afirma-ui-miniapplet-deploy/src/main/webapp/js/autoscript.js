@@ -682,7 +682,7 @@ var AutoScript = ( function ( window, undefined ) {
 		}
 		
 		/** Indica si Autofirma debe de mostrar su dialogo de carga o no. */
-		var showLoadingDialog = function (showDlg) {
+		var enableProgressDialog = function (showDlg) {
 			showDialog = showDlg;
 		}
 		
@@ -1443,7 +1443,7 @@ var AutoScript = ( function ( window, undefined ) {
 	      "'>" +
 	      currentLocale.warning +
 	      "</span> ";
-	
+
 	    //Setters
 	    function enableSupportDialog(isEnabled) {
 	      enabled = isEnabled;
@@ -2254,9 +2254,6 @@ var AutoScript = ( function ( window, undefined ) {
 				if (resetStickySignatory) {
 					data.resetSticky = createKeyValuePair ("resetsticky", resetStickySignatory);
 				}
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
-				}
 				
 				return data;
 			}
@@ -2278,9 +2275,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2314,9 +2308,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2348,9 +2339,6 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 				
 				return data;
@@ -2368,7 +2356,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.description = createKeyValuePair("desc", description);
 				data.filePath = createKeyValuePair("filePath", filePath);
 				data.multiload = createKeyValuePair("multiload", multiload);
-				if (!showDialog) { data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);}
 				
 				return data;
 			}
@@ -2385,7 +2372,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.extension = createKeyValuePair ("exts", extension);
 				data.description = createKeyValuePair ("desc", description);
 				data.dat = createKeyValuePair ("dat",  dataB64 == "" ? null : dataB64, true);
-				if (!showDialog) { data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);}
 				
 				return data;
 			}
@@ -2487,6 +2473,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (!showDialog) {
 					url += "&dlgload=" + showDialog;
 				}
+
 				openUrl(url);
 			}
 
@@ -3245,10 +3232,6 @@ var AutoScript = ( function ( window, undefined ) {
 				if (localBatchProcess) {
 					data.localBatchProcess = generateDataKeyValue ("localBatchProcess",  true);
 				}
-				
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
-				}
 
 				return data;
 			}
@@ -3328,7 +3311,10 @@ var AutoScript = ( function ( window, undefined ) {
 					+ "&v=" + PROTOCOL_VERSION
 					+ "&jvc=" + VERSION_CODE
 					+ "&idsession=" + idSession;
-				
+				if (!showDialog) {
+					url += "&dlgload=" + showDialog;
+				}
+					
 				openUrl(url);
 			}
 
@@ -3352,9 +3338,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 
 				return data;
@@ -3382,9 +3365,6 @@ var AutoScript = ( function ( window, undefined ) {
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
-				if (!showDialog) {
-					data.showloadingdialog = createKeyValuePair ("dlgload", showDialog);
 				}
 
 				return data;
@@ -4881,8 +4861,8 @@ var AutoScript = ( function ( window, undefined ) {
 				if (extension != null && extension != undefined) {		params[params.length] = {key:"extension", value:extension}; }
 				if (description != null && description != undefined) {	params[params.length] = {key:"description", value:description}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (dataB64 != null && dataB64 != undefined && dataB64 != "") {			params[params.length] = {key:"dat", value:dataB64}; }
 				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
+				if (dataB64 != null && dataB64 != undefined && dataB64 != "") {			params[params.length] = {key:"dat", value:dataB64}; }
 				
 				
 				var url = buildUrl(opId, params);
@@ -5923,7 +5903,7 @@ var AutoScript = ( function ( window, undefined ) {
 			setMinimumClientVersion : setMinimumClientVersion,
 			setAppName : setAppName,
 			setServiceTimeout : setServiceTimeout,
-			showLoadingDialog : showLoadingDialog,
+			enableProgressDialog : enableProgressDialog,
 
 			/* Gestion de errores */
 			getErrorMessage : getErrorMessage,
