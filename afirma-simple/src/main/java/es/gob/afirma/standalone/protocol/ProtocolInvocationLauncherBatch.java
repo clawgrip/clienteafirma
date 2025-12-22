@@ -91,7 +91,7 @@ final class ProtocolInvocationLauncherBatch {
    				throw new SocketOperationException(SimpleErrorCode.Functional.MINIMUM_VERSION_NON_SATISTIED);
         	}
         }
-        
+
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
 
@@ -125,9 +125,11 @@ final class ProtocolInvocationLauncherBatch {
 			operationResult = sign(options, aoks, useDefaultStore, filterManager, protocolVersion);
 		}
 		catch (final AOCancelledOperationException e) {
+			ProgressInfoDialogManager.hideProgressDialog();
 			throw e;
 		}
 		catch (final SocketOperationException e) {
+			ProgressInfoDialogManager.hideProgressDialog();
 			throw e;
 		}
 
@@ -241,7 +243,7 @@ final class ProtocolInvocationLauncherBatch {
 			} else {
 				aoksLib = options.getDefaultKeyStoreLib();
 			}
-			
+
 			final AOKeyStoreManager ksm;
 			try {
 				ksm = ProtocolInvocationLauncherUtil.getAOKeyStoreManager(aoks, aoksLib);
@@ -314,7 +316,10 @@ final class ProtocolInvocationLauncherBatch {
 
 		final byte[] batchResult;
 		try {
-			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de firma
+			if (!Boolean.parseBoolean(options.getExtraParams().getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+			}
 			batchResult = signBatch(options, pke);
 		}
 		catch (final PinException e) {
@@ -386,10 +391,10 @@ final class ProtocolInvocationLauncherBatch {
 			connectionConfig = new ConnectionConfig();
 			connectionConfig.setReadTimeout(serviceTimeout);
 		}
-		
+
 		try {
 			SimpleAfirma.getSSLContextConfigurationTask().join();
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			LOGGER.log(Level.SEVERE, "No se ha podido configurar el contexto SSL correctamente: ", e); //$NON-NLS-1$
 		}
 

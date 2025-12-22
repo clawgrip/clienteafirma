@@ -163,7 +163,7 @@ final class ProtocolInvocationLauncherSign {
 		operation.setFormat(options.getSignatureFormat());
 		operation.setExtraParams(options.getExtraParams());
 		operation.setAnotherParams(options.getAnotherParams());
-		
+
 		// Determinamos que procesador se utilizara para tratar los datos. Este puede ser uno
 		// derivado de un plugin que se active ante estos datos o el procesador nativo
 		final SignDataProcessor processor = selectProcessor(
@@ -193,6 +193,7 @@ final class ProtocolInvocationLauncherSign {
 				// Salvo que el procesador indique que se permiten los errores, se relanza para
 				// bloquear la ejecucion
 				if (!processor.isErrorsAllowed()) {
+					ProgressInfoDialogManager.hideProgressDialog();
 					throw e;
 				}
 			}
@@ -333,9 +334,9 @@ final class ProtocolInvocationLauncherSign {
 						if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 							MacUtils.focusApplication();
 						}
-						
+
 						ProgressInfoDialogManager.hideProgressDialog();
-						
+
 						selectedDataFile = AOUIFactory.getLoadFiles(
 								dialogTitle,
 								extraParams.getProperty(AfirmaExtraParams.LOAD_FILE_CURRENT_DIR), // currentDir
@@ -369,7 +370,7 @@ final class ProtocolInvocationLauncherSign {
 						final ErrorCode errorCode = ErrorCode.Internal.LOADING_DATA_ERROR;
 						throw new SocketOperationException(e, errorCode);
 					}
-					
+
 		}
 
 		// No haber fijado aun el firmador significa que se selecciono el formato AUTO y
@@ -403,7 +404,11 @@ final class ProtocolInvocationLauncherSign {
 		// Si se ha pedido comprobar las firmas antes de agregarle la nueva firma, lo hacemos ahora
 		if (data != null &&
 				Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.CHECK_SIGNATURES))) {
-			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
+
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la comprobacion de firmas
+			if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
+			}
 			final SignValider validator = SignValiderFactory.getSignValider(signer);
 			SignValidity validity = null;
 			if (validator != null) {
@@ -478,7 +483,7 @@ final class ProtocolInvocationLauncherSign {
 					throw new SocketOperationException(validity.getErrorException(), errorCode);
 				}
 			}
-			
+
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -507,9 +512,12 @@ final class ProtocolInvocationLauncherSign {
 			throw new SocketOperationException(new VisibleSignatureMandatoryException(
 					"Es obligatorio mostrar la firma en el documento PDF")); //$NON-NLS-1$
 		}
-		
-		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
-		
+
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la carga del almacen
+		if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
+		}
+
 		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
 
@@ -672,10 +680,14 @@ final class ProtocolInvocationLauncherSign {
 		// Si se pidio cachear la referencia a clave, se hace. Si no, se libera la que hubiese
 		ProtocolInvocationLauncher.setStickyKeyEntry(stickySignatory ? pke : null);
 
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de firma
+		if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+		}
+
 		// Ejecutamos la firma
 		byte[] sign;
 		try {
-			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
 			sign = executeSign(signer, cryptoOperation, data, signatureAlgorithm, pke, extraParams);
 		}
 		catch (final LockedKeyStoreException e) {
@@ -725,15 +737,15 @@ final class ProtocolInvocationLauncherSign {
 			final PrivateKeyEntry pke, final Properties extraParams) throws SocketOperationException, PinException, LockedKeyStoreException {
 
 		byte[] signature;
-		
+
 		try {
-			
+
 			try {
 				SimpleAfirma.getSSLContextConfigurationTask().join();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
 			}
-			
+
 			try {
 				switch (cryptoOperation) {
 				case SIGN:

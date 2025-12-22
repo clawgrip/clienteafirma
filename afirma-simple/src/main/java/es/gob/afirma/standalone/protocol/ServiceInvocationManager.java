@@ -12,21 +12,15 @@ package es.gob.afirma.standalone.protocol;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketTimeoutException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.protocol.ProtocolVersion;
-import es.gob.afirma.core.ui.AOUIFactory;
-import es.gob.afirma.standalone.SimpleAfirmaMessages;
-import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 
 /** Gestor de la invocaci&oacute;n por <i>socket</i>. */
@@ -96,72 +90,61 @@ public final class ServiceInvocationManager {
 		// No instanciable
 	}
 
-	/** Inicia el servicio. Se intenta establecer un <code>socket</code> que escuche en el puerto pasado por la URL.
+	/**
+	 * Inicia el servicio. Se intenta establecer un <code>socket</code> que escuche en el puerto pasado por la URL.
 	 * @param channelInfo Informaci&oacute;n para el establecimiento del canal Par&aacute;metros de la URL de llamada (debe indicarse el puerto).
 	 * @param protocolVersion Versi&oacute;n declarada del protocolo.
-	 * @throws UnsupportedProtocolException Si no se soporta el protocolo o la versi&oacute;n de este. */
-	static void startService(final ChannelInfo channelInfo, final ProtocolVersion protocolVersion) throws UnsupportedProtocolException {
+	 * @throws UnsupportedProtocolException Si no se soporta el protocolo o la versi&oacute;n de este.
+	 * @throws SllKeyStoreException Cuando no se encuentre o no se pueda cargar el almac&eacute;n SSL para la securizaci&oacute;n del socket.
+	 * @throws IOException Cuando no se puede abrir el socket o se cierra durante la operaci&oacute;n.
+	 */
+	static void startService(final ChannelInfo channelInfo, final ProtocolVersion protocolVersion) throws UnsupportedProtocolException,
+		SllKeyStoreException, IOException {
 
 		checkSupportProtocol(protocolVersion);
-		
+
 		SSLContext sc = null;
-		
+
     	// Si al intentar obtener el contexto SSL, se recibe alguna excepcion, se mostrar el error
     	try {
     		sc = SecureSocketUtils.getSecureSSLContext();
-    	} catch (Exception e) {
-			LOGGER.severe("No se ha encontrado el almacen de claves de Autofirma"); //$NON-NLS-1$
-			AOUIFactory.showErrorMessage(
-					null,
-					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
-					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
-					JOptionPane.ERROR_MESSAGE,
-					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
-			ProtocolInvocationLauncher.forceCloseApplication(0);
+    	} catch (final Exception e) {
+			throw new SllKeyStoreException("No se ha podido cargar el certificado SSL para la securizacion del WebSocket", e); //$NON-NLS-1$
     	}
 
-		try {
+		final SSLServerSocketFactory ssocketFactory = sc.getServerSocketFactory();
 
-			final SSLServerSocketFactory ssocketFactory = sc.getServerSocketFactory();
+		final SSLServerSocket ssocket = tryPorts(channelInfo.getPorts(), ssocketFactory);
+		ssocket.setReuseAddress(true);
 
-			final SSLServerSocket ssocket = tryPorts(channelInfo.getPorts(), ssocketFactory);
-			ssocket.setReuseAddress(true);
+		// TODO: Restringimos las suites a utilizar a las por defecto de Java 11 (compatible con Java 8 y posteriores)
+		// omitiendo las suites de TLSv1.3 ya que la implementacion de estas no es compatible con la implementacion
+		// de Chrome v74 y anteriores (probablemente porque la version implementada en Java se basa en uno de los
+		// ultimos bocetos del estandar y no en la version final).
+		// Se hace de esta manera porque Java no responde a los mecanismos tradicionales para desactivar el protocolo
+		// (como la propiedad "jdk.tls.disabledAlgorithms").
+		// Una vez se implemente una version compatible del estandar se deberia eliminar esta limitacion.
+		ssocket.setEnabledCipherSuites(ENABLED_CIPHER_SUITES);
 
-			// TODO: Restringimos las suites a utilizar a las por defecto de Java 11 (compatible con Java 8 y posteriores)
-			// omitiendo las suites de TLSv1.3 ya que la implementacion de estas no es compatible con la implementacion
-			// de Chrome v74 y anteriores (probablemente porque la version implementada en Java se basa en uno de los
-			// ultimos bocetos del estandar y no en la version final).
-			// Se hace de esta manera porque Java no responde a los mecanismos tradicionales para desactivar el protocolo
-			// (como la propiedad "jdk.tls.disabledAlgorithms").
-			// Una vez se implemente una version compatible del estandar se deberia eliminar esta limitacion.
-			ssocket.setEnabledCipherSuites(ENABLED_CIPHER_SUITES);
+		// Empieza la cuenta atras del temporizador.
 
-			// Empieza la cuenta atras del temporizador.
-
-			/** Temporizador para cerrar la aplicaci&oacute;n cuando pase un tiempo de inactividad. */
-			final Timer timer = new Timer(SOCKET_TIMEOUT, evt -> {
-				LOGGER.warning("Se ha caducado la conexion. Se deja de escuchar en el puerto..."); //$NON-NLS-1$
-				if (Platform.OS.MACOSX.equals(Platform.getOS())) {
-					MacUtils.closeMacService(channelInfo.getIdSession());
-				}
-				Runtime.getRuntime().halt(0);
-			});
-			timer.start();
-
-			while (true){
-				try {
-					new CommandProcessorThread(ssocket.accept(), timer, channelInfo.getIdSession(), protocolVersion).start();
-				}
-				catch (final SocketTimeoutException e) {
-					LOGGER.severe("Tiempo de espera del socket terminado: " + e); //$NON-NLS-1$
-				}
+		/** Temporizador para cerrar la aplicaci&oacute;n cuando pase un tiempo de inactividad. */
+		final Timer timer = new Timer(SOCKET_TIMEOUT, evt -> {
+			LOGGER.warning("Se ha caducado la conexion. Se deja de escuchar en el puerto..."); //$NON-NLS-1$
+			if (Platform.OS.MACOSX.equals(Platform.getOS())) {
+				MacUtils.closeMacService(channelInfo.getIdSession());
 			}
-		}
+			Runtime.getRuntime().halt(0);
+		});
+		timer.start();
 
-		// Con las excepciones no hacemos nada ya que no tenemos forma de transmitir el
-		// error de vuelta y no debemos mostrar dialogos graficos
-		catch (final IOException e) {
-			LOGGER.log(Level.SEVERE, "Error en la comunicacion a traves del socket", e); //$NON-NLS-1$
+		while (true){
+			try {
+				new CommandProcessorThread(ssocket.accept(), timer, channelInfo.getIdSession(), protocolVersion).start();
+			}
+			catch (final SocketTimeoutException e) {
+				LOGGER.severe("Tiempo de espera del socket terminado: " + e); //$NON-NLS-1$
+			}
 		}
 	}
 

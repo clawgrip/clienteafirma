@@ -176,20 +176,20 @@ final class ProtocolInvocationLauncherSignAndSave {
 			}
 		}
 
-		final boolean needRefresh = false;
 		final List<SignOperation> operations = processor.preProcess(operation);
 		final boolean isMassiveSign = operations.size() > 1;
 		final List<SignResult> results = new ArrayList<>(operations.size());
 		for (int i = 0; i < operations.size(); i++) {
 			final SignOperation op = operations.get(i);
 			try {
-				results.add(sign(op, options, isMassiveSign, needRefresh));
+				results.add(sign(op, options, isMassiveSign));
 			}
 			catch (final SocketOperationException e) {
 				LOGGER.log(Level.SEVERE, "Se identifico un error en una operacion de firma", e); //$NON-NLS-1$
 				// Salvo que el procesador indique que se permiten los errores, se relanza para
 				// bloquear la ejecucion
 				if (!processor.isErrorsAllowed()) {
+					ProgressInfoDialogManager.hideProgressDialog();
 					throw e;
 				}
 			}
@@ -243,7 +243,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 	}
 
 	private static SignResult sign(final SignOperation signOperation, final UrlParametersToSignAndSave options,
-			final boolean isMassiveSign, final boolean needRefresh)
+			final boolean isMassiveSign)
 					throws SocketOperationException {
 
 		byte[] data = signOperation.getData();
@@ -403,7 +403,10 @@ final class ProtocolInvocationLauncherSignAndSave {
 		// Si se ha pedido comprobar las firmas antes de agregarle la nueva firma, lo hacemos ahora
 		if (data != null &&
 				Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.CHECK_SIGNATURES))) {
-			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la validacion de firmas previas
+			if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
+			}
 			final SignValider validator = SignValiderFactory.getSignValider(signer);
 			SignValidity validity = null;
 			if (validator != null) {
@@ -482,7 +485,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 					throw new SocketOperationException(errorCode);
 				}
 			}
-			
+
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -496,8 +499,11 @@ final class ProtocolInvocationLauncherSignAndSave {
 			LOGGER.info("Se ha indicado una politica no compatible: " + e); //$NON-NLS-1$
 			throw new SocketOperationException(e);
 		}
-		
-		ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
+
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la carga de almacenes
+		if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
+		}
 
 		final CertFilterManager filterManager = new CertFilterManager(extraParams);
 
@@ -608,7 +614,7 @@ final class ProtocolInvocationLauncherSignAndSave {
 
 		if (pkeSelected == null) {
 			AOKeyStoreManager ksm;
-			
+
 			try {
 				ksm = ProtocolInvocationLauncherUtil.getAOKeyStoreManager(aoks, keyStoreLib);
 			}
@@ -682,7 +688,10 @@ final class ProtocolInvocationLauncherSignAndSave {
 
 		byte[] sign;
 		try {
-			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la firma
+			if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+			}
 			sign = executeSign(signer, cryptoOperation, data, signatureAlgorithm, pke, extraParams);
 		}
 		catch (final LockedKeyStoreException e) {
@@ -733,13 +742,13 @@ final class ProtocolInvocationLauncherSignAndSave {
 
 		byte[] signature;
 		try {
-			
+
 			try {
 				SimpleAfirma.getSSLContextConfigurationTask().join();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
 			}
-			
+
 			try {
 				switch (cryptoOperation) {
 				case SIGN:

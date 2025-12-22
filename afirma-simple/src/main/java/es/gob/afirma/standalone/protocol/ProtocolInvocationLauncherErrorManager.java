@@ -277,9 +277,9 @@ final class ProtocolInvocationLauncherErrorManager {
 	private static final ProtocolVersion PROTOCOL_VERSION_WITH_ERROR_CODES = ProtocolVersion.getInstance(ProtocolVersion.VERSION_4_1);
 
 	static void showError(final ProtocolVersion protocolVersion, final ErrorCode errorCode) {
-		
+
 		ProgressInfoDialogManager.hideProgressDialog();
-		
+
 		final String message = getText(errorCode);
 
 		if (HEADLESS) {
@@ -295,7 +295,7 @@ final class ProtocolInvocationLauncherErrorManager {
 			// Mostramos el error al usuario. Lo haremos de una forma u otra segun si el protocolo lo soporta o no
 			final String title = protocolVersion != null && protocolVersion.hasSupportTo(PROTOCOL_VERSION_WITH_ERROR_CODES)
 					? ProtocolMessages.getString("ProtocolLauncher.67") //$NON-NLS-1$
-					: ProtocolMessages.getString("ProtocolLauncher.29", AUTOFIRMA_ERROR_PREFIX + errorCode.getCode()); //$NON-NLS-1$
+					: ProtocolMessages.getString("ProtocolLauncher.29", getErrorCodeWithPrefix(errorCode)); //$NON-NLS-1$
 			AOUIFactory.showErrorMessage(
 				message,
 				title,
@@ -368,5 +368,14 @@ final class ProtocolInvocationLauncherErrorManager {
 		}
 
 		return message;
+	}
+
+	/**
+	 * Devuelve el codigo de error con el prefijo que le corresponde.
+	 * @param errorCode C&oacute;digo de error.
+	 * @return C&oacute;digo con el prefijo.
+	 */
+	public static String getErrorCodeWithPrefix(final ErrorCode errorCode) {
+		return AUTOFIRMA_ERROR_PREFIX + errorCode.getCode();
 	}
 }

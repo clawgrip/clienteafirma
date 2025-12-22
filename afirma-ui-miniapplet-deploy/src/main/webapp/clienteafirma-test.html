@@ -296,9 +296,12 @@
 		<script>
 			//AutoScript.setMinimumClientVersion("1.8");
 			//AutoScript.setLocale("ca_ES");
+			//SupportDialog.enableSupportDialog(false);
+			//SupportDialog.enableErrorDialog(false);
+			AutoScript.enableProgressDialog(false);
 			AutoScript.setServlets(window.location.origin + "/afirma-signature-storage/StorageService", window.location.origin + "/afirma-signature-retriever/RetrieveService");
 			//AutoScript.setForceWSMode(true);
-			
+			AutoScript.setServiceTimeout(10000);
 			AutoScript.cargarAppAfirma();
 			//AutoScript.setPortRange(63117);
 		</script>

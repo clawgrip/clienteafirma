@@ -37,6 +37,7 @@ import es.gob.afirma.standalone.DataAnalizerUtil;
 import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
+import es.gob.afirma.standalone.ui.tasks.LoadKeystoreTask;
 
 final class ProtocolInvocationLauncherUtil {
 
@@ -74,11 +75,11 @@ final class ProtocolInvocationLauncherUtil {
 							.append(params.getFileId());
 
 		LOGGER.info("Intentamos recuperar los datos del servidor con la URL:\n" + dataUrl.toString()); //$NON-NLS-1$
-		
+
 		//Comprobamos que ya se haya configurado el contexto SSL
 		try {
 			SimpleAfirma.getSSLContextConfigurationTask().join();
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
 		}
 
@@ -234,7 +235,7 @@ final class ProtocolInvocationLauncherUtil {
 		}
 		return urlManager;
 	}
-	
+
 	/**
 	 * Obtiene el almac&eacute;n solicitado.
 	 * @param aoks Almacen a obtener.
@@ -244,20 +245,20 @@ final class ProtocolInvocationLauncherUtil {
 	 * @throws IOException si se produce un error de entrada/salida durante la lectura o escritura de datos.
 	 * @throws InterruptedException si el hilo actual es interrumpido mientras se ejecuta la operaci&oacute;n.
 	 */
-	static AOKeyStoreManager getAOKeyStoreManager(AOKeyStore aoks, String aoksLib) throws KeystoreAlternativeException, IOException, InterruptedException {
-		
-		// Esperamos a que termine de ejecutarse el hilo
-		ProtocolInvocationLauncher.getLoadKeyStoreTask().join();
+	static AOKeyStoreManager getAOKeyStoreManager(final AOKeyStore aoks, final String aoksLib) throws KeystoreAlternativeException, IOException, InterruptedException {
 
-		// Se comprueba el almacen que ha cargado el hilo iniciado en el arranque
-		// de Autofirma, si no coincide con el solicitado, se intentara cargar este
-		if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getAOKeyStore().equals(aoks) ) {
+		// Comprobamos si se inicio la precarga de un almacen y si es el que necesitamos ahora
+		final LoadKeystoreTask loadKeystoreTask = ProtocolInvocationLauncher.getLoadKeyStoreTask();
+		if (loadKeystoreTask != null && loadKeystoreTask.getAOKeyStore().equals(aoks)) {
 
-			if (ProtocolInvocationLauncher.getLoadKeyStoreTask().getException() == null) {
-				return ProtocolInvocationLauncher.getLoadKeyStoreTask().getKeyStoreManager();
+			// Esperamos a que termine de ejecutarse el hilo de carga si no se hizo ya
+			loadKeystoreTask.join();
+
+			// Si no se produjeron errores durante la carga, lo devolvemos
+			if (loadKeystoreTask.getException() == null) {
+				return loadKeystoreTask.getKeyStoreManager();
 			}
-
-		} 
+		}
 
 		final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
 
@@ -266,7 +267,7 @@ final class ProtocolInvocationLauncherUtil {
 				null, // Description
 				pwc, // PasswordCallback
 				null // Parent
-				);		
+				);
 
 	}
 }

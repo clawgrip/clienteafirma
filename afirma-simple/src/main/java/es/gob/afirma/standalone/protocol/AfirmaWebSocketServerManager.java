@@ -13,14 +13,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
-import javax.swing.JOptionPane;
 
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 
-import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.protocol.ProtocolVersion;
-import es.gob.afirma.core.ui.AOUIFactory;
-import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 
@@ -52,24 +48,18 @@ public class AfirmaWebSocketServerManager {
 	 * @param requestedProtocolVersion Versi&oacute;n del protocolo de comunicaci&oacute;n.
 	 * @param asynchronous Si viene con valor <code>true</code> tratar&aacute; las operaciones de forma as&iacute;ncrona si viene a false las tratara como s&iacute;ncronas<code>false</code>.
 	 * @throws UnsupportedProtocolException Cuando se ha solicitado el uso de una versi&oacute;n de protocolo no soportada.
-	 * @throws SocketOperationException Cuando
+	 * @throws SocketOperationException Cuando no se pueda abrir el websocket.
+	 * @throws SllKeyStoreException Cuando no se encuentre o no se pueda cargar el almac&eacute;n SSL para la securizaci&oacute;n del websocket.
 	 */
-	public static void startService(final ChannelInfo channelInfo, final ProtocolVersion requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException {
+	public static void startService(final ChannelInfo channelInfo, final ProtocolVersion requestedProtocolVersion, final boolean asynchronous) throws UnsupportedProtocolException, SocketOperationException, SllKeyStoreException {
 
 		checkSupportProtocol(requestedProtocolVersion);
-		
+
     	// Si al intentar obtener el contexto SSL, se recibe alguna excepcion, se mostrar el error
     	try {
     		SecureSocketUtils.getSecureSSLContext();
-    	} catch (Exception e) {
-			LOGGER.severe("No se ha encontrado el almacen de claves de Autofirma"); //$NON-NLS-1$
-			AOUIFactory.showErrorMessage(
-					null,
-					SimpleAfirmaMessages.getString("TrustedKeyStoreError.0"), //$NON-NLS-1$
-					SimpleAfirmaMessages.getString("SimpleAfirma.7"), //$NON-NLS-1$
-					JOptionPane.ERROR_MESSAGE,
-					new AOException(SimpleErrorCode.Internal.TRUSTSTORE_INCORRECT_INSTALLATION));
-			ProtocolInvocationLauncher.forceCloseApplication(0);
+    	} catch (final Exception e) {
+			throw new SllKeyStoreException("No se ha podido cargar el certificado SSL para la securizacion del WebSocket", e); //$NON-NLS-1$
     	}
 
  		// Configuramos la optimizacion para VDI segun lo establecido en el dialogo de preferencias
@@ -107,7 +97,7 @@ public class AfirmaWebSocketServerManager {
 		while (instance == null && i < ports.length);
 
 		if (instance == null) {
-			throw new SocketOperationException("No se ha podido abrir ningun socket. Se aborta la comunicacion.", SimpleErrorCode.Internal.SOCKET_INITIALIZING_ERROR); //$NON-NLS-1$
+			throw new SocketOperationException("No se ha podido abrir el Websocket en ninguno de los puertos indicados. Se aborta la comunicacion.", SimpleErrorCode.Internal.SOCKET_INITIALIZING_ERROR); //$NON-NLS-1$
 		}
 	}
 

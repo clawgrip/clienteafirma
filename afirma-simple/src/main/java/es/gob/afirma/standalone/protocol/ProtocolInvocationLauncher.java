@@ -108,7 +108,7 @@ public final class ProtocolInvocationLauncher {
      * Versi&oacute;n del protocolo de comunicaci&oacute;n solicitada.
      */
     private static ProtocolVersion requestedProtocolVersion = null;
-    
+
     private static LoadKeystoreTask loadKeyStoreTask = null;
 
 	/**
@@ -265,6 +265,12 @@ public final class ProtocolInvocationLauncher {
         	requestedProtocolVersion = getVersion(urlParams);
         	reviewProtocolVersion(requestedProtocolVersion, jvc);
 
+        	// Iniciamos en segundo plano la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+            if (loadKeyStoreTask == null) {
+            	loadKeyStoreTask = new LoadKeystoreTask();
+            	loadKeyStoreTask.start();
+            }
+
         	final ChannelInfo channelInfo = getChannelInfo(urlParams);
 
         	// Si no se indica ningun puerto, es que usamos el protocolo v3, segun el cual el puerto
@@ -275,21 +281,25 @@ public final class ProtocolInvocationLauncher {
         	}
 
         	try {
-        		
+
         		// A partir de Autoscript 1.10 se admite la llamada asincrona a traves de Websockets
         		final boolean asynchronous = jvc > 3;
-        		
+
         		AfirmaWebSocketServerManager.startService(channelInfo, requestedProtocolVersion, asynchronous);
         	} catch (final UnsupportedProtocolException e) {
-        		LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
+        		LOGGER.log(Level.SEVERE, "La version del protocolo no esta soportada (" + e.getVersion() + "). Se cerrara la aplicacion" , e); //$NON-NLS-1$ //$NON-NLS-2$
         		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
         		forceCloseApplication(0);
         	}
         	catch (final SocketOperationException e) {
-        		LOGGER.log(Level.SEVERE, "No se pudo abrir ninguno de los puertos proporcionados", e); //$NON-NLS-1$
+        		LOGGER.log(Level.SEVERE, "No se pudo abrir ninguno de los puertos proporcionados. Se cerrara la aplicacion", e); //$NON-NLS-1$
         		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Internal.SOCKET_INITIALIZING_ERROR);
         		forceCloseApplication(0);
-        	}
+        	} catch (final SllKeyStoreException e) {
+        		LOGGER.log(Level.SEVERE, "No se ha encontrado o no ha podido cargarse el almacen del certificado SSL. Se cerrara la aplicacion", e); //$NON-NLS-1$
+        		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Internal.LOADING_SSL_KEYSTORE_ERROR);
+        		forceCloseApplication(0);
+			}
 
         	return OK_RESPONSE;
         }
@@ -299,6 +309,13 @@ public final class ProtocolInvocationLauncher {
 
         	requestedProtocolVersion = getVersion(urlParams);
         	reviewProtocolVersion(requestedProtocolVersion, jvc);
+
+        	// Iniciamos en segundo plano la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+            if (loadKeyStoreTask == null) {
+            	loadKeyStoreTask = new LoadKeystoreTask();
+            	loadKeyStoreTask.start();
+            }
+
         	final ChannelInfo channelInfo = getChannelInfo(urlParams);
 
         	// El listado de puertos de entre los que seleccionar uno es obligatorio
@@ -316,7 +333,15 @@ public final class ProtocolInvocationLauncher {
         		LOGGER.severe("La version del protocolo no esta soportada (" + e.getVersion() + "): " + e); //$NON-NLS-1$ //$NON-NLS-2$
         		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, e);
         		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
-        	}
+        	} catch (final SllKeyStoreException e) {
+        		LOGGER.log(Level.SEVERE, "No se ha encontrado o no ha podido cargarse el almacen del certificado SSL. Se cerrara la aplicacion", e); //$NON-NLS-1$
+        		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Internal.LOADING_SSL_KEYSTORE_ERROR);
+        		return ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
+			} catch (final IOException e) {
+        		LOGGER.log(Level.SEVERE, "No se ha podido abrir el socket o se ha cerrado durante la operacion. Se cierra la aplicacion", e); //$NON-NLS-1$
+        		ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Internal.SOCKET_INITIALIZING_ERROR);
+        		forceCloseApplication(0);
+			}
 
         	return OK_RESPONSE;
         }
@@ -327,10 +352,12 @@ public final class ProtocolInvocationLauncher {
         	try {
                 UrlParametersForBatch params =
                 		ProtocolInvocationUriParserUtil.getParametersToBatch(urlParams, !bySocket);
-                
-                // Iniciamos la tarea para cargar los almacenes de claves
-        		loadKeyStoreTask = new LoadKeystoreTask();
-        		loadKeyStoreTask.start();
+
+                // Iniciamos la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+                if (loadKeyStoreTask == null) {
+                	loadKeyStoreTask = new LoadKeystoreTask();
+                	loadKeyStoreTask.start();
+                }
 
 				// Si se indica un identificador de fichero, es que el JSON o XML de definicion de lote
 				// se tiene que
@@ -425,11 +452,13 @@ public final class ProtocolInvocationLauncher {
         	try {
         		UrlParametersToSelectCert params =
         				ProtocolInvocationUriParserUtil.getParametersToSelectCert(urlParams, !bySocket);
-        		
-        		// Iniciamos la tarea para cargar los almacenes de claves
-        		loadKeyStoreTask = new LoadKeystoreTask();
-        		loadKeyStoreTask.start();
-        	    
+
+        		// Iniciamos la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+                if (loadKeyStoreTask == null) {
+                	loadKeyStoreTask = new LoadKeystoreTask();
+                	loadKeyStoreTask.start();
+                }
+
         		// Si se indica un identificador de fichero, es que la configuracion de la
         		// operacion
         		// se tiene que descargar desde el servidor intermedio
@@ -616,10 +645,12 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSignAndSave params =
                 		ProtocolInvocationUriParserUtil.getParametersToSignAndSave(urlParams, !bySocket);
-        		
-        		// Iniciamos la tarea para cargar los almacenes de claves
-        		loadKeyStoreTask = new LoadKeystoreTask();
-        		loadKeyStoreTask.start();
+
+             // Iniciamos la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+                if (loadKeyStoreTask == null) {
+                	loadKeyStoreTask = new LoadKeystoreTask();
+                	loadKeyStoreTask.start();
+                }
 
 				LOGGER.info("Cantidad de datos a firmar y guardar: " //$NON-NLS-1$
 						+ (params.getData() == null ? 0 : params.getData().length));
@@ -724,10 +755,12 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToSign params =
                 		ProtocolInvocationUriParserUtil.getParametersToSign(urlParams, !bySocket);
-        		
-        		// Iniciamos la tarea para cargar los almacenes de claves
-        		loadKeyStoreTask = new LoadKeystoreTask();
-        		loadKeyStoreTask.start();
+
+             // Iniciamos la tarea para cargar del almacen de claves por defecto si no se habia hecho antes
+                if (loadKeyStoreTask == null) {
+                	loadKeyStoreTask = new LoadKeystoreTask();
+                	loadKeyStoreTask.start();
+                }
 
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
@@ -829,7 +862,7 @@ public final class ProtocolInvocationLauncher {
             try {
                 UrlParametersToLoad params =
                 		ProtocolInvocationUriParserUtil.getParametersToLoad(urlParams);
-        		
+
 				// Si se indica un identificador de fichero, es que la configuracion de la
 				// operacion
                 // se tiene que descargar desde el servidor intermedio
@@ -960,11 +993,11 @@ public final class ProtocolInvocationLauncher {
 		// Esperamos a que termine cualquier otro envio al servidor para que no se pisen
 		synchronized (IntermediateServerUtil.getUniqueSemaphoreInstance()) {
 			try {
-				try {
-					SimpleAfirma.getSSLContextConfigurationTask().join();
-				} catch (InterruptedException e) {
-					LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
-				}
+				SimpleAfirma.getSSLContextConfigurationTask().join();
+			} catch (final InterruptedException e) {
+				LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
+			}
+			try {
 				IntermediateServerUtil.sendData(data, serviceUrl, id);
 			} catch (final SocketTimeoutException e) {
 				LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera maximo en la llamada al servicio de guardado del servidor intermedio", e); //$NON-NLS-1$
@@ -1145,6 +1178,6 @@ public final class ProtocolInvocationLauncher {
 	public static LoadKeystoreTask getLoadKeyStoreTask() {
 		return loadKeyStoreTask;
 	}
-	
-	
+
+
 }

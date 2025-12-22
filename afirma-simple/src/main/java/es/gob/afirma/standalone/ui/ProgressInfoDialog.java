@@ -29,8 +29,8 @@ public final class ProgressInfoDialog extends JDialog {
 	private static final long serialVersionUID = -6137113502471587689L;
 
 	private final JLabel labelProgress = new JLabel();
-	
-	private boolean enabledDialog;
+
+	private final boolean enabledDialog;
 
 	/** Crea un di&aacute;logo de espera indeterminada.
 	 * @param parent Marco padre para la modalidad.
@@ -39,6 +39,10 @@ public final class ProgressInfoDialog extends JDialog {
 
 	    super(parent);
 	    setUndecorated(true);
+	    setResizable(false);
+	    setShape(new RoundRectangle2D.Double(
+	        0, 0, getWidth(), getHeight(), 20, 20
+	    ));
 
 	    final RoundedPanel panel = new RoundedPanel(20);
 	    panel.setLayout(new GridBagLayout());
@@ -59,17 +63,7 @@ public final class ProgressInfoDialog extends JDialog {
 
 	    setContentPane(panel);
 
-	    pack();
-
-	    setShape(new RoundRectangle2D.Double(
-	        0, 0, getWidth(), getHeight(), 20, 20
-	    ));
-
-	    setLocationRelativeTo(null);
-	    setResizable(false);
-	    
 	    this.enabledDialog = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_ENABLE_PROGRESS_DIALOG);
-	    setVisible(this.enabledDialog);
 	}
 
 	/** Establece el mensaje del di&aacute;logo.
@@ -77,15 +71,11 @@ public final class ProgressInfoDialog extends JDialog {
 	public void setMessage(final String message) {
 		this.labelProgress.setText(message);
 		pack();
-		
-		setShape(new RoundRectangle2D.Double(
-		        0, 0, getWidth(), getHeight(), 20, 20
-		));
-		
+
 		setLocationRelativeTo(null);
-		
 		revalidate();
-		this.repaint();
+
+		setVisible(this.enabledDialog);
 	}
 
 	/** Obtiene el mensaje del di&aacute;logo.
@@ -97,5 +87,5 @@ public final class ProgressInfoDialog extends JDialog {
 	public boolean isEnabledDialog() {
 		return this.enabledDialog;
 	}
-	
+
 }

@@ -36,6 +36,7 @@ import es.gob.afirma.keystores.CertificateFilter;
 import es.gob.afirma.keystores.KeyStoreErrorCode;
 import es.gob.afirma.keystores.filters.CertFilterManager;
 import es.gob.afirma.standalone.SimpleAfirma;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
@@ -80,6 +81,11 @@ final class ProtocolInvocationLauncherSelectCert {
         		throw new SocketOperationException(SimpleErrorCode.Functional.MINIMUM_VERSION_NON_SATISTIED);
         	}
         }
+
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la carga del almacen
+		if (!Boolean.parseBoolean(options.getExtraParams().getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
+		}
 
         final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
 		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
@@ -237,7 +243,7 @@ final class ProtocolInvocationLauncherSelectCert {
 					LOGGER.info("Enviamos el resultado de la operacion de seleccion de certificado al servidor intermedio"); //$NON-NLS-1$
 					try {
 						SimpleAfirma.getSSLContextConfigurationTask().join();
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
 					}
 					IntermediateServerUtil.sendData(dataToSend, options.getStorageServletUrl().toString(), options.getId());
