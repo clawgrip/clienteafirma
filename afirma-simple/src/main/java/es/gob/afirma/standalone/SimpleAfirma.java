@@ -46,7 +46,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -63,7 +62,6 @@ import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.BoundedBufferedReader;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.Platform.OS;
-import es.gob.afirma.core.misc.http.SslSecurityManager;
 import es.gob.afirma.core.prefs.KeyStorePreferencesManager;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.ui.AOUIFactory;
@@ -90,11 +88,14 @@ import es.gob.afirma.standalone.ui.ClosePanel;
 import es.gob.afirma.standalone.ui.DNIeWaitPanel;
 import es.gob.afirma.standalone.ui.MainMenu;
 import es.gob.afirma.standalone.ui.MainScreen;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.SignDetailPanel;
 import es.gob.afirma.standalone.ui.SignOperationConfig;
 import es.gob.afirma.standalone.ui.SignPanel;
 import es.gob.afirma.standalone.ui.SignResultListPanel;
 import es.gob.afirma.standalone.ui.SignatureResultViewer;
+import es.gob.afirma.standalone.ui.tasks.CheckTrustKeyStoreTask;
+import es.gob.afirma.standalone.ui.tasks.SSLContextConfigurationTask;
 import es.gob.afirma.standalone.updater.Updater;
 
 /**
@@ -141,7 +142,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 	 * Inicio (en min&uacute;sculas) de una ruta que invoca a la aplicaci&oacute;n
 	 * por protocolo.
 	 */
-    private static final String PROTOCOL_URL_START_LOWER_CASE = "afirma://"; //$NON-NLS-1$
+    public static final String PROTOCOL_URL_START_LOWER_CASE = "afirma://"; //$NON-NLS-1$
 
 	/**
 	 * Esquema y host de las URL de petici&oacute;n para la comunicaci&oacute;n por
@@ -203,6 +204,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     private final MainMenu mainMenu;
 
     private static final PluginsManager pluginsManager = new PluginsManager(getPluginsDir());
+
+    private static SSLContextConfigurationTask sslContextConfigurationTask = null;
 
 	/**
 	 * Construye la aplicaci&oacute;n principal y establece el <i>Look&amp;Feel</i>.
@@ -322,6 +325,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     	LOGGER.info("Cargaremos el almacen de claves por defecto"); //$NON-NLS-1$
         this.container.setCursor(new Cursor(Cursor.WAIT_CURSOR));
         try {
+
             new SimpleKeyStoreManagerWorker(this, null, false, false).execute();
 		} catch (final Exception e) {
 			LOGGER.severe("No se pudo abrir el almacen por defecto del entorno operativo: " + e); //$NON-NLS-1$
@@ -842,6 +846,9 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     	// Configuramos el log de la aplicacion
     	configureLog();
 
+    	ProgressInfoDialogManager.init(args);
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.5")); //$NON-NLS-1$
+
     	LOGGER.info("Arranque de la aplicacion"); //$NON-NLS-1$
 
         // Cargamos las preferencias establecidas
@@ -858,7 +865,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     	// Se establece la configuracion del proxy
     	LOGGER.info("Configuramos el proxy de la aplicacion"); //$NON-NLS-1$
-    	try {
+    	ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.4")); //$NON-NLS-1$
+		try {
     		ProxyUtil.setProxySettings();
     	}
     	catch (final Throwable e) {
@@ -869,50 +877,8 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     		}
 		}
 
-		// Establecemos si deben respetarse las comprobaciones de seguridad de las
-		// conexiones de red
-    	final boolean secureConnections = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_SECURE_CONNECTIONS);
-
-    	LOGGER.info("Configuramos el contexto SSL"); //$NON-NLS-1$
-    	HttpManager.setSecureConnections(secureConnections);
-
-		// Establecemos el listado de dominios seguros
-    	LOGGER.info("Configuramos el listado de dominios seguros"); //$NON-NLS-1$
-		HttpManager.setSecureDomains(
-				PreferencesManager.get(PreferencesManager.PREFERENCE_GENERAL_SECURE_DOMAINS_LIST));
-
-		// Establecemos los almacenes de claves de Java y de Autofirma como de confianza para las
-		// conexiones remotas
-		if (secureConnections) {
-
-			boolean truststoreConfigured;
-			try {
-				LOGGER.info("Configuramos el almacen de confianza de la aplicacion"); //$NON-NLS-1$
-				truststoreConfigured = SslSecurityManager.configureAfirmaTrustManagers();
-
-			} catch (final Exception e) {
-				LOGGER.warning("Error al configurar almacenes de confianza: " + e); //$NON-NLS-1$
-				truststoreConfigured = false;
-			}
-
-			LOGGER.info("El almacen de confianza de la aplicacion existe y se ha configurado: " + truststoreConfigured); //$NON-NLS-1$
-
-			// Si se ha configurado el almacen de confianza propio de Autofirma, realizamos una
-			// primera conexion, ya que hemos identificado que en algunos casos la primera conexion
-			// puede fallar, pero permitira aplicar los cambios en el contexto SSL
-			if (truststoreConfigured) {
-				LOGGER.info("Realizamos conexion de prueba"); //$NON-NLS-1$
-				try {
-					final URL url = new URI("https://test.conexion.gob.es/").toURL(); //$NON-NLS-1$
-					final HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-					conn.setConnectTimeout(100);
-					conn.connect();
-					conn.disconnect();
-				}
-				catch (final Exception e) { /* La primera vez falla para aplicar cambios en trust managers*/ }
-				LOGGER.info("Fin de la conexion de prueba"); //$NON-NLS-1$
-			}
-		}
+		sslContextConfigurationTask = new SSLContextConfigurationTask();
+        new Thread(sslContextConfigurationTask).start();
 
 		LOGGER.info("Identificamos si es una llamada por linea de comandos"); //$NON-NLS-1$
     	// Uso en modo linea de comandos
@@ -964,15 +930,17 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
     	// Comprobamos actualizaciones si estan habilitadas
         if (updatesEnabled && PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_UPDATECHECK)) {
+
         	LOGGER.info("Buscamos actualizaciones"); //$NON-NLS-1$
-			Updater.checkForUpdates(null);
+			Updater.checkForUpdates(null, sslContextConfigurationTask);
 		} else {
 			LOGGER.info("No se buscaran nuevas versiones de la aplicacion"); //$NON-NLS-1$
 		}
 
     	try {
+
     		// Invocacion por protocolo
-    		if (args != null && args.length > 0 
+    		if (args != null && args.length > 0
     		 && args[0].toLowerCase().startsWith(PROTOCOL_URL_START_LOWER_CASE)) {
 
     			LOGGER.info("Identificamos que es una invocacion por protocolo"); //$NON-NLS-1$
@@ -980,7 +948,9 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     			printSystemInfo();
 
     			LOGGER.info("Invocacion por protocolo con URL:\n" + args[0]); //$NON-NLS-1$
+    			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.3")); //$NON-NLS-1$
     			ProtocolInvocationLauncher.launch(args[0]);
+    			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.3")); //$NON-NLS-1$
 
     			// Segun sea el modo de comunicacion:
 				// - Servidor intermedio: Se llegara a este punto al completar una peticion de
@@ -1005,6 +975,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
     		else if (!isSimpleAfirmaAlreadyRunning()) {
 
     			LOGGER.info("Apertura como herramienta de escritorio"); //$NON-NLS-1$
+    			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.6")); //$NON-NLS-1$
 
 				printSystemInfo();
 
@@ -1083,6 +1054,11 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 
 				LOGGER.info("Comprobando si es una version de Java compatible"); //$NON-NLS-1$
 				checkJavaVersion(saf.getMainFrame());
+
+				// Comprobamos si el almacen de confianza con el certificado SSL esta instalado correctamente
+    			final CheckTrustKeyStoreTask checkTrustStoreTask = new CheckTrustKeyStoreTask(saf.getMainFrame());
+    			checkTrustStoreTask.execute();
+
 			} else {
 				LOGGER.log(Level.WARNING, "La aplicacion ya se encuentra activa en otra ventana. Se cerrara esta instancia"); //$NON-NLS-1$
 	    		AOUIFactory.showErrorMessage(SimpleAfirmaMessages.getString("SimpleAfirma.3"), //$NON-NLS-1$
@@ -1199,6 +1175,7 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		} catch (final Exception e) {
     		LOGGER.warning("No se ha podido verificar si se deseaba modificar el nivel de log: " + e); //$NON-NLS-1$
     	}
+
 	}
 
 	/**
@@ -1432,5 +1409,10 @@ public final class SimpleAfirma implements PropertyChangeListener, WindowListene
 		}
 		return new File(appDir, LANGUAGES_DIRNAME);
 	}
+
+	public static SSLContextConfigurationTask getSSLContextConfigurationTask() {
+		return sslContextConfigurationTask;
+	}
+
 
 }

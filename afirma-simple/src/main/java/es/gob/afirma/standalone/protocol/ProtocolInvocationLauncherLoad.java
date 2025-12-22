@@ -28,6 +28,7 @@ import es.gob.afirma.standalone.DesktopUtil;
 import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 final class ProtocolInvocationLauncherLoad {
 
@@ -58,7 +59,7 @@ final class ProtocolInvocationLauncherLoad {
 		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
 			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
 					protocolVersion.toString()));
-			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
+			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORTED_PROTOCOL_VERSION);
 		}
 
         // Comprobamos si se exige una version minima del Cliente
@@ -78,7 +79,7 @@ final class ProtocolInvocationLauncherLoad {
 			if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 				MacUtils.focusApplication();
 			}
-
+			ProgressInfoDialogManager.hideProgressDialog();
 			selectedDataFiles = AOUIFactory.getLoadFiles(options.getTitle(),
 					options.getFilepath(),
 					null,

@@ -46,6 +46,8 @@ var AutoScript = ( function ( window, undefined ) {
 		var appName = null;
 		
 		var serviceTimeout = null;
+		
+		var showDialog = true;
 				
 		var DOMAIN_NAME;
 		try {
@@ -677,6 +679,11 @@ var AutoScript = ( function ( window, undefined ) {
 		/** Establece el tiempo de espera en milisegundos para la lectura de llamadas a servicios. */
 		var setServiceTimeout = function (timeoutMs) {
 			serviceTimeout = timeoutMs;
+		}
+		
+		/** Indica si Autofirma debe de mostrar su dialogo de carga o no. */
+		var enableProgressDialog = function (showDlg) {
+			showDialog = showDlg;
 		}
 		
 		var selectCertificate = function (params, successCallback, errorCallback) {
@@ -1436,7 +1443,7 @@ var AutoScript = ( function ( window, undefined ) {
 	      "'>" +
 	      currentLocale.warning +
 	      "</span> ";
-	
+
 	    //Setters
 	    function enableSupportDialog(isEnabled) {
 	      enabled = isEnabled;
@@ -2268,7 +2275,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}				
+				}
 				
 				return data;
 			}
@@ -2301,7 +2308,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.dat = createKeyValuePair ("dat", dataB64 == "" ? null : dataB64, true);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
+				}
 				
 				return data;
 			}
@@ -2332,7 +2339,7 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
+				}
 				
 				return data;
 			}
@@ -2463,6 +2470,10 @@ var AutoScript = ( function ( window, undefined ) {
 					+ "&v=" + PROTOCOL_VERSION
 					+ "&jvc=" + VERSION_CODE
 					+ "&idsession=" + idSession;
+				if (!showDialog) {
+					url += "&dlgload=" + showDialog;
+				}
+
 				openUrl(url);
 			}
 
@@ -3300,7 +3311,10 @@ var AutoScript = ( function ( window, undefined ) {
 					+ "&v=" + PROTOCOL_VERSION
 					+ "&jvc=" + VERSION_CODE
 					+ "&idsession=" + idSession;
-				
+				if (!showDialog) {
+					url += "&dlgload=" + showDialog;
+				}
+					
 				openUrl(url);
 			}
 
@@ -3324,7 +3338,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
+				}
 
 				return data;
 			}
@@ -3351,7 +3365,7 @@ var AutoScript = ( function ( window, undefined ) {
 				data.appname = generateDataKeyValue ("appname", !appName ? appName : DOMAIN_NAME);
 				if (serviceTimeout != null && serviceTimeout >= 0) {
 					data.servicetimeout = createKeyValuePair ("servicetimeout", serviceTimeout, true);
-				}	
+				}
 
 				return data;
 			}
@@ -4298,6 +4312,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (storageServletAddress != null &&
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, extraParams);
 				
@@ -4438,6 +4453,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }				
 
 				configureExtraParams(params, extraParams);
 
@@ -4562,7 +4578,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, extraParams);
 				
@@ -4673,6 +4689,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				params[params.length] = {key:"needcert", value:"true"}; 
 
@@ -4777,6 +4794,7 @@ var AutoScript = ( function ( window, undefined ) {
 					&& serviceTimeout != undefined
 					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 
 				configureExtraParams(params, certFilters);
 								
@@ -4873,6 +4891,7 @@ var AutoScript = ( function ( window, undefined ) {
 				if (extension != null && extension != undefined) {		params[params.length] = {key:"extension", value:extension}; }
 				if (description != null && description != undefined) {	params[params.length] = {key:"description", value:description}; }
 				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
+				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
 				if (dataB64 != null && dataB64 != undefined && dataB64 != "") {			params[params.length] = {key:"dat", value:dataB64}; }
 				
 				
@@ -5928,6 +5947,7 @@ var AutoScript = ( function ( window, undefined ) {
 			setMinimumClientVersion : setMinimumClientVersion,
 			setAppName : setAppName,
 			setServiceTimeout : setServiceTimeout,
+			enableProgressDialog : enableProgressDialog,
 
 			/* Gestion de errores */
 			getErrorMessage : getErrorMessage,

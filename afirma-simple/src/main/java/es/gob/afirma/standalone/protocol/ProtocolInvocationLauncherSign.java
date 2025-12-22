@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.security.auth.callback.PasswordCallback;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
@@ -68,7 +67,6 @@ import es.gob.afirma.keystores.AOCertificatesNotFoundException;
 import es.gob.afirma.keystores.AOKeyStore;
 import es.gob.afirma.keystores.AOKeyStoreDialog;
 import es.gob.afirma.keystores.AOKeyStoreManager;
-import es.gob.afirma.keystores.AOKeyStoreManagerFactory;
 import es.gob.afirma.keystores.CertificateFilter;
 import es.gob.afirma.keystores.KeyStoreErrorCode;
 import es.gob.afirma.keystores.filters.CertFilterManager;
@@ -107,6 +105,7 @@ import es.gob.afirma.standalone.plugins.manager.PermissionChecker;
 import es.gob.afirma.standalone.plugins.manager.PluginException;
 import es.gob.afirma.standalone.so.macos.MacUtils;
 import es.gob.afirma.standalone.ui.DataDebugDialog;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog;
 import es.gob.afirma.standalone.ui.pdf.SignPdfDialog.SignPdfDialogListener;
 
@@ -141,7 +140,7 @@ final class ProtocolInvocationLauncherSign {
 		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
 			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
 					protocolVersion.toString()));
-			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
+			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORTED_PROTOCOL_VERSION);
 		}
 
 		// Comprobamos si se exige una version minima del Cliente
@@ -194,6 +193,7 @@ final class ProtocolInvocationLauncherSign {
 				// Salvo que el procesador indique que se permiten los errores, se relanza para
 				// bloquear la ejecucion
 				if (!processor.isErrorsAllowed()) {
+					ProgressInfoDialogManager.hideProgressDialog();
 					throw e;
 				}
 			}
@@ -291,32 +291,6 @@ final class ProtocolInvocationLauncherSign {
 			((AOTriphaseSigner) signer).setHttpConnection(httpConnection);
 		}
 
-		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
-		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
-
-		// Si hay marcado un almacen como el ultimo seleccionado, lo usamos (este es el caso en el que se llaman
-		// varias operaciones de firma dentro de la misma invocacion a la aplicacion)
-		AOKeyStore aoks = null;
-		if (lastSelectedKeyStore != null && !lastSelectedKeyStore.isEmpty()) {
-			aoks = SimpleKeyStoreManager.getLastSelectedKeystore();
-		}
-		// Si no, si el usuario definio un almacen por defecto para usarlo en las llamadas a la aplicacion, lo usamos
-		else if (useDefaultStore) {
-			final String defaultStore = PreferencesManager.get(PreferencesManager.PREFERENCE_KEYSTORE_DEFAULT_STORE);
-			if (!PreferencesManager.VALUE_KEYSTORE_DEFAULT.equals(defaultStore)) {
-				aoks = SimpleKeyStoreManager.getKeyStore(defaultStore, true);
-			}
-		}
-		// Si no, si en la llamada se definio el almacen que se debia usar, lo usamos
-		else {
-			aoks = SimpleKeyStoreManager.getKeyStore(options.getDefaultKeyStore(), true);
-		}
-
-		// Si aun no se ha definido el almacen, se usara el por defecto para el sistema operativo
-		if (aoks == null) {
-			aoks = AOKeyStore.getDefaultKeyStoreTypeByOs(Platform.getOS());
-		}
-
 		// Comprobamos si es necesario pedir datos de entrada al usuario
 		boolean needRequestData = false;
 		if (data == null) {
@@ -360,6 +334,9 @@ final class ProtocolInvocationLauncherSign {
 						if (Platform.OS.MACOSX.equals(Platform.getOS())) {
 							MacUtils.focusApplication();
 						}
+
+						ProgressInfoDialogManager.hideProgressDialog();
+
 						selectedDataFile = AOUIFactory.getLoadFiles(
 								dialogTitle,
 								extraParams.getProperty(AfirmaExtraParams.LOAD_FILE_CURRENT_DIR), // currentDir
@@ -393,6 +370,7 @@ final class ProtocolInvocationLauncherSign {
 						final ErrorCode errorCode = ErrorCode.Internal.LOADING_DATA_ERROR;
 						throw new SocketOperationException(e, errorCode);
 					}
+
 		}
 
 		// No haber fijado aun el firmador significa que se selecciono el formato AUTO y
@@ -426,6 +404,11 @@ final class ProtocolInvocationLauncherSign {
 		// Si se ha pedido comprobar las firmas antes de agregarle la nueva firma, lo hacemos ahora
 		if (data != null &&
 				Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.CHECK_SIGNATURES))) {
+
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la comprobacion de firmas
+			if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.0")); //$NON-NLS-1$
+			}
 			final SignValider validator = SignValiderFactory.getSignValider(signer);
 			SignValidity validity = null;
 			if (validator != null) {
@@ -500,6 +483,7 @@ final class ProtocolInvocationLauncherSign {
 					throw new SocketOperationException(validity.getErrorException(), errorCode);
 				}
 			}
+
 		}
 
 		// Una vez se tienen todos los parametros necesarios expandimos los extraParams
@@ -527,6 +511,37 @@ final class ProtocolInvocationLauncherSign {
 			LOGGER.info("El usuario ha cancelado el dialogo de firma visible"); //$NON-NLS-1$
 			throw new SocketOperationException(new VisibleSignatureMandatoryException(
 					"Es obligatorio mostrar la firma en el documento PDF")); //$NON-NLS-1$
+		}
+
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de la carga del almacen
+		if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.2")); //$NON-NLS-1$
+		}
+
+		final String lastSelectedKeyStore = KeyStorePreferencesManager.getLastSelectedKeystore();
+		final boolean useDefaultStore = PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_USE_DEFAULT_STORE_IN_BROWSER_CALLS);
+
+		// Si hay marcado un almacen como el ultimo seleccionado, lo usamos (este es el caso en el que se llaman
+		// varias operaciones de firma dentro de la misma invocacion a la aplicacion)
+		AOKeyStore aoks = null;
+		if (lastSelectedKeyStore != null && !lastSelectedKeyStore.isEmpty()) {
+			aoks = SimpleKeyStoreManager.getLastSelectedKeystore();
+		}
+		// Si no, si el usuario definio un almacen por defecto para usarlo en las llamadas a la aplicacion, lo usamos
+		else if (useDefaultStore) {
+			final String defaultStore = PreferencesManager.get(PreferencesManager.PREFERENCE_KEYSTORE_DEFAULT_STORE);
+			if (!PreferencesManager.VALUE_KEYSTORE_DEFAULT.equals(defaultStore)) {
+				aoks = SimpleKeyStoreManager.getKeyStore(defaultStore, true);
+			}
+		}
+		// Si no, si en la llamada se definio el almacen que se debia usar, lo usamos
+		else {
+			aoks = SimpleKeyStoreManager.getKeyStore(options.getDefaultKeyStore(), true);
+		}
+
+		// Si aun no se ha definido el almacen, se usara el por defecto para el sistema operativo
+		if (aoks == null) {
+			aoks = AOKeyStore.getDefaultKeyStoreTypeByOs(Platform.getOS());
 		}
 
 		PrivateKeyEntry pke = null;
@@ -585,17 +600,10 @@ final class ProtocolInvocationLauncherSign {
 		PrivateKeyEntry pke = pkeSelected;
 
 		if (pkeSelected == null) {
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+			AOKeyStoreManager ksm;
 
-			LOGGER.info("Cargamos el almacen de claves: " + aoks); //$NON-NLS-1$
-			final AOKeyStoreManager ksm;
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
-						keyStoreLib, // Lib
-						null, // Description
-						pwc, // PasswordCallback
-						null // Parent
-						);
+				ksm = ProtocolInvocationLauncherUtil.getAOKeyStoreManager(aoks, keyStoreLib);
 			}
 			catch (final AOCancelledOperationException e) {
 				LOGGER.info("Operacion cancelada por el usuario: " + e); //$NON-NLS-1$
@@ -617,6 +625,7 @@ final class ProtocolInvocationLauncherSign {
 					final File file = new File(keyStoreLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 						ksm,
 						null,
@@ -671,6 +680,11 @@ final class ProtocolInvocationLauncherSign {
 		// Si se pidio cachear la referencia a clave, se hace. Si no, se libera la que hubiese
 		ProtocolInvocationLauncher.setStickyKeyEntry(stickySignatory ? pke : null);
 
+		// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de firma
+		if (!Boolean.parseBoolean(extraParams.getProperty(AfirmaExtraParams.HEADLESS))) {
+			ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+		}
+
 		// Ejecutamos la firma
 		byte[] sign;
 		try {
@@ -699,6 +713,8 @@ final class ProtocolInvocationLauncherSign {
 					filters, filters != null, true);
 			return selectCertAndSign(null, aoks, keyStoreLib, newFilterManager, stickySignatory,
 					data, signatureAlgorithm, signer, cryptoOperation, extraParams);
+		} finally {
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		return new SignOperationResult(sign, pke);
@@ -721,7 +737,15 @@ final class ProtocolInvocationLauncherSign {
 			final PrivateKeyEntry pke, final Properties extraParams) throws SocketOperationException, PinException, LockedKeyStoreException {
 
 		byte[] signature;
+
 		try {
+
+			try {
+				SimpleAfirma.getSSLContextConfigurationTask().join();
+			} catch (final InterruptedException e) {
+				LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
+			}
+
 			try {
 				switch (cryptoOperation) {
 				case SIGN:

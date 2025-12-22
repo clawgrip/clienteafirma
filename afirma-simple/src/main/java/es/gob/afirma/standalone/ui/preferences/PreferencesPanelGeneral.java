@@ -72,6 +72,8 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 	private final JCheckBox optimizedForVdi = new JCheckBox(SimpleAfirmaMessages.getString("PreferencesPanel.190")); //$NON-NLS-1$
 
+	private final JCheckBox enableProgressDialog = new JCheckBox(SimpleAfirmaMessages.getString("PreferencesPanel.211")); //$NON-NLS-1$
+	
 	private final JCheckBox confirmToSign = new JCheckBox(SimpleAfirmaMessages.getString("PreferencesPanel.179")); //$NON-NLS-1$
 
 	private final JCheckBox allowSignInvalidSignatures = new JCheckBox(SimpleAfirmaMessages.getString("PreferencesPanel.178")); //$NON-NLS-1$
@@ -98,13 +100,13 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 		this.blocked = blocked;
 
-		createUI(keyListener, modificationListener);
+		this.createUI(keyListener, modificationListener);
 	}
 
 	private void createUI(final KeyListener keyListener,
 				  final ItemListener modificationListener) {
 
-		getVerticalScrollBar().setUnitIncrement(16);
+		this.getVerticalScrollBar().setUnitIncrement(16);
 
 		final JPanel mainPanel = new JPanel(new GridBagLayout());
 
@@ -136,7 +138,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 			ae -> {
 				if ((ae.getModifiers() & ActionEvent.ALT_MASK) != 0) {
 					final String url = (String) AOUIFactory.showInputDialog(
-						getParent(),
+						this.getParent(),
 						SimpleAfirmaMessages.getString("PreferencesPanel.109"), //$NON-NLS-1$
 						SimpleAfirmaMessages.getString("PreferencesPanel.110"), //$NON-NLS-1$
 						JOptionPane.QUESTION_MESSAGE,
@@ -149,7 +151,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 					}
 					try {
 						final byte[] xmlData = DataDownloader.downloadData(url);
-						PreferencesPlistHandler.importUserPreferencesFromXml(new String(xmlData, StandardCharsets.UTF_8), isBlocked());
+						PreferencesPlistHandler.importUserPreferencesFromXml(new String(xmlData, StandardCharsets.UTF_8), this.isBlocked());
 					}
 					catch(final Exception e) {
 						LOGGER.log(
@@ -185,15 +187,15 @@ final class PreferencesPanelGeneral extends JScrollPane {
 						// Operacion cancelada por el usuario
 						return;
 					}
-					PreferencesPlistHandler.importPreferences(configFilePath, getParent(), isBlocked());
+					PreferencesPlistHandler.importPreferences(configFilePath, this.getParent(), this.isBlocked());
 				}
 				AOUIFactory.showMessageDialog(
-						getParent(),
+						this.getParent(),
 						SimpleAfirmaMessages.getString("PreferencesPanel.142"), //$NON-NLS-1$
 						SimpleAfirmaMessages.getString("PreferencesPanel.143"), //$NON-NLS-1$
 						JOptionPane.INFORMATION_MESSAGE
 					);
-				getDisposableInterface().disposeInterface();
+				this.getDisposableInterface().disposeInterface();
 			}
 		);
 		importConfigFromFileButton.getAccessibleContext().setAccessibleDescription(
@@ -227,7 +229,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 				    						),
 									PreferencesPanelGeneral.this);
 							AOUIFactory.showMessageDialog(
-									getParent(),
+									this.getParent(),
 									SimpleAfirmaMessages.getString("PreferencesPanel.199"), //$NON-NLS-1$
 									SimpleAfirmaMessages.getString("PreferencesPanel.200"), //$NON-NLS-1$
 									JOptionPane.INFORMATION_MESSAGE
@@ -253,11 +255,11 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 		restoreConfigFromFileButton.setMnemonic('R');
 		restoreConfigFromFileButton.addActionListener(ae -> {
-			if (AOUIFactory.showConfirmDialog(getParent(), SimpleAfirmaMessages.getString("PreferencesPanel.140"), //$NON-NLS-1$
+			if (AOUIFactory.showConfirmDialog(this.getParent(), SimpleAfirmaMessages.getString("PreferencesPanel.140"), //$NON-NLS-1$
 					SimpleAfirmaMessages.getString("PreferencesPanel.139"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
 
-				loadDefaultPreferences();
+				this.loadDefaultPreferences();
 			}
 		});
 		restoreConfigFromFileButton.getAccessibleContext().setAccessibleDescription(
@@ -341,6 +343,14 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 			signConstraint.gridy++;
 		}
+		
+		this.enableProgressDialog.getAccessibleContext().setAccessibleDescription(
+				SimpleAfirmaMessages.getString("PreferencesPanel.211")); //$NON-NLS-1$
+		this.enableProgressDialog.addItemListener(modificationListener);
+		this.enableProgressDialog.addKeyListener(keyListener);
+		signConfigPanel.add(this.enableProgressDialog, signConstraint);
+
+		signConstraint.gridy++;
 
 		mainPanel.add(signConfigPanel, gbc);
 
@@ -377,7 +387,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 			)
 		);
 		signatureAlgorithmsLabel.setLabelFor(this.signatureAlgorithms);
-		this.signatureAlgorithms.setEnabled(!isBlocked());
+		this.signatureAlgorithms.setEnabled(!this.isBlocked());
 
 		final JPanel innerPanel = new JPanel(new GridBagLayout());
 		signGeneralPanel.add(innerPanel);
@@ -394,7 +404,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 				SimpleAfirmaMessages.getString("PreferencesPanel.163") //$NON-NLS-1$
 		);
 		configureFormatsButton.addActionListener(
-				ae -> openFormatsDlg(getParent(), isBlocked())
+				ae -> openFormatsDlg(this.getParent(), this.isBlocked())
 			);
 		configureFormatsLabel.setLabelFor(configureFormatsButton);
 
@@ -471,7 +481,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 		secureDomainsBtn.setMnemonic('D');
 		secureDomainsBtn.addActionListener(
-				ae -> changeSecureDomainsDlg(getParent())
+				ae -> changeSecureDomainsDlg(this.getParent())
 			);
 		secureDomainsBtn.getAccessibleContext().setAccessibleDescription(
 				SimpleAfirmaMessages.getString("PreferencesPanel.186") //$NON-NLS-1$
@@ -483,7 +493,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 		proxyConfigButton.setMnemonic('y');
 		proxyConfigButton.addActionListener(
-			ae -> changeProxyDlg(getParent())
+			ae -> changeProxyDlg(this.getParent())
 		);
 		proxyConfigButton.getAccessibleContext().setAccessibleDescription(
 			SimpleAfirmaMessages.getString("PreferencesPanel.127") //$NON-NLS-1$
@@ -535,9 +545,9 @@ final class PreferencesPanelGeneral extends JScrollPane {
 		gbc.gridy++;
 		mainPanel.add(new JPanel(), gbc);
 
-		loadPreferences();
+		this.loadPreferences();
 
-		setViewportView(mainPanel);
+		this.setViewportView(mainPanel);
 	}
 
 	/** Di&aacute;logo para cambiar la configuraci&oacute;n del <i>proxy</i>.
@@ -695,6 +705,7 @@ final class PreferencesPanelGeneral extends JScrollPane {
 		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_ALLOW_INVALID_SIGNATURES, this.allowSignInvalidSignatures.isSelected());
 		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_ENABLED_JMULTICARD, this.enableJMulticard.isSelected());
 		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_VDI_OPTIMIZATION, this.optimizedForVdi.isSelected());
+		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_ENABLE_PROGRESS_DIALOG, this.enableProgressDialog.isSelected());
 		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_MASSIVE_OVERWRITE, this.massiveOverwrite.isSelected());
 		PreferencesManager.putBoolean(PreferencesManager.PREFERENCE_GENERAL_SECURE_CONNECTIONS, this.secureConnections.isSelected());
 
@@ -735,6 +746,8 @@ final class PreferencesPanelGeneral extends JScrollPane {
 
 		this.optimizedForVdi.setSelected(PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_VDI_OPTIMIZATION));
 
+		this.enableProgressDialog.setSelected(PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_ENABLE_PROGRESS_DIALOG));
+		
 		this.massiveOverwrite.setSelected(PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_MASSIVE_OVERWRITE));
 
 		this.secureConnections.setSelected(PreferencesManager.getBoolean(PreferencesManager.PREFERENCE_GENERAL_SECURE_CONNECTIONS));
@@ -756,8 +769,8 @@ final class PreferencesPanelGeneral extends JScrollPane {
 		catch (final Exception e) {
 			LOGGER.warning("No se pudo restaurar la configuracion de almacenes de la aplicacion: " + e); //$NON-NLS-1$
 		}
-		loadPreferences();
-		getDisposableInterface().disposeInterface();
+		this.loadPreferences();
+		this.getDisposableInterface().disposeInterface();
 	}
 
 }

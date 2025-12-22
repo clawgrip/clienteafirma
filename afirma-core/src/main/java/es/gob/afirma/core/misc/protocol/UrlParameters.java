@@ -80,7 +80,7 @@ public abstract class UrlParameters {
 	/** Nombre de aplicaci&oacute;n o dominio desde el que se realiza la llamada. */
 	protected static final String APP_NAME_PARAM = "appname"; //$NON-NLS-1$
 
-	/** Tiempo de espera para la lectura d epeticiones. */
+	/** Tiempo de espera para la lectura de peticiones. */
 	protected static final String SERVICE_TIMEOUT_PARAM = "servicetimeout"; //$NON-NLS-1$
 
 	/** Codificaci&oacute;n por defecto. */

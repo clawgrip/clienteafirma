@@ -93,7 +93,8 @@ public final class ProxyUtil {
 			// No debe pasar
 			throw new IllegalStateException("La URI de pruebas del proxy es invalida: " + e, e); //$NON-NLS-1$
 		}
-    }
+		
+	}
 
     private static ProxyConfig.ConfigType getProxyType() {
 

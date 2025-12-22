@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.security.auth.callback.PasswordCallback;
+
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOException;
@@ -27,9 +29,15 @@ import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOTriphaseException;
+import es.gob.afirma.keystores.AOKeyStore;
+import es.gob.afirma.keystores.AOKeyStoreManager;
+import es.gob.afirma.keystores.AOKeyStoreManagerFactory;
+import es.gob.afirma.keystores.KeystoreAlternativeException;
 import es.gob.afirma.standalone.DataAnalizerUtil;
+import es.gob.afirma.standalone.SimpleAfirma;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.plugins.SignOperation.Operation;
+import es.gob.afirma.standalone.ui.tasks.LoadKeystoreTask;
 
 final class ProtocolInvocationLauncherUtil {
 
@@ -58,6 +66,13 @@ final class ProtocolInvocationLauncherUtil {
 							.append(params.getFileId());
 
 		LOGGER.info("Intentamos recuperar los datos del servidor con la URL:\n" + dataUrl.toString()); //$NON-NLS-1$
+
+		//Comprobamos que ya se haya configurado el contexto SSL
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (final InterruptedException e) {
+			LOGGER.severe("Ha ocurrido un error durante la ejecucion del hilo que configura el contexto SSL: " + e); //$NON-NLS-1$
+		}
 
 		// Leemos los datos
 		final byte[] recoveredData = IntermediateServerUtil.retrieveData(params.getRetrieveServletUrl().toString(), params.getFileId());
@@ -210,5 +225,40 @@ final class ProtocolInvocationLauncherUtil {
 			connConfig.apply(urlManager);
 		}
 		return urlManager;
+	}
+
+	/**
+	 * Obtiene el almac&eacute;n solicitado.
+	 * @param aoks Almacen a obtener.
+	 * @param aoksLib Libreria en caso de que se necesite.
+	 * @return Almac&eacute;n a usar.
+	 * @throws KeystoreAlternativeException si ocurre un error al acceder o validar el keystore alternativo.
+	 * @throws IOException si se produce un error de entrada/salida durante la lectura o escritura de datos.
+	 * @throws InterruptedException si el hilo actual es interrumpido mientras se ejecuta la operaci&oacute;n.
+	 */
+	static AOKeyStoreManager getAOKeyStoreManager(final AOKeyStore aoks, final String aoksLib) throws KeystoreAlternativeException, IOException, InterruptedException {
+
+		// Comprobamos si se inicio la precarga de un almacen y si es el que necesitamos ahora
+		final LoadKeystoreTask loadKeystoreTask = ProtocolInvocationLauncher.getLoadKeyStoreTask();
+		if (loadKeystoreTask != null && loadKeystoreTask.getAOKeyStore().equals(aoks)) {
+
+			// Esperamos a que termine de ejecutarse el hilo de carga si no se hizo ya
+			loadKeystoreTask.join();
+
+			// Si no se produjeron errores durante la carga, lo devolvemos
+			if (loadKeystoreTask.getException() == null) {
+				return loadKeystoreTask.getKeyStoreManager();
+			}
+		}
+
+		final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
+
+		return AOKeyStoreManagerFactory.getAOKeyStoreManager(aoks, // Store
+				aoksLib, // Lib
+				null, // Description
+				pwc, // PasswordCallback
+				null // Parent
+				);
+
 	}
 }

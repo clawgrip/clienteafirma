@@ -14,7 +14,7 @@ import javax.net.ssl.SSLContext;
 
 import es.gob.afirma.standalone.DesktopUtil;
 
-class SecureSocketUtils {
+public class SecureSocketUtils {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -31,7 +31,7 @@ class SecureSocketUtils {
 	 * @throws GeneralSecurityException Cuando no se ha podido cargar el almac&eacute;n de claves SSL.
 	 * @throws IOException Cuando no se ha encontrado el almacen de claves SSL o este no es v&aacute;lido.
 	 */
-	static SSLContext getSecureSSLContext() throws GeneralSecurityException, IOException {
+	public static SSLContext getSecureSSLContext() throws GeneralSecurityException, IOException {
 
 		// Ruta del almacen para el cifrado SSL
 		final File sslKeyStoreFile = getKeyStoreFile();

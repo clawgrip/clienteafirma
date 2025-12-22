@@ -15,10 +15,11 @@
    <li><b> General options: </b><ul>
      <li><b> Import general application settings: </b> Option to import a file from the configuration provided by an administrator.</li>
      <li><b> Restore general application settings: </b> Option to restore default settings to the application.</li>
-     <li>Do not <b> ask for confirmation when closing the application: </b> Allows you to leave the application without user confirmation.</li>
+     <li>Do not ask for confirmation when closing the application: </b> Allows you to leave the application without user confirmation.</li>
      <li><b> Search for updates at home: </b> It allows you to set up if you need to search for updates available when you start the application.</li>
      <li><b> Enable JMulticard for use of FNMT and DNIe cards: </b> Just in Windows and Linux. Configure whether the Autofirma integrated driver should be used for the use of FNMT and DNIe cards. In case of deactivation, the drivers found in the system will be used. The use of this feature allows the use of compatible cards when the user does not have their driver installed or there is any incompatibility with it. This feature may result in the user being asked multiple times to insert the card PIN into mass signing processes. This setting will not take effect until the next time the application is opened.</li>
      <li><b> Optimized operation for VDI: </b> Just in Windows. Configure WebScokets communication with your browser in such a way that blocks will be avoided when using Autofirma in a VDI environment. However, this setting slows down communication when the amount of data to be transmitted is large, so it is not recommended in other settings.</li>
+     <li><b>Enable loading dialog for calls from the browser:</b> If enabled, a dialog is displayed indicating the task Autofirma is performing at that time when an operation is performed from the browser.</li>
     </ul>
    </li>
    <li><b> Signature options: </b><ul>
@@ -75,7 +76,7 @@
        </ul>
       </li>
       <li>Make visible signatures by default PDF: By enabling this option and signing a document in PAdES format, the user will be presented with a window for selecting the PDF area in which the visible signature will be added. See the <a href="VentanaPdfVisible.html"> Visible Signatures PDF </a> section for more detail.</li>
-      <li>Ofuscar user identifiers for visible signatures certificates: By enabling this option, the user identifiers introduced into the visible PDF texts will be offended when taking the data from a certificate. The offending shall not take place when the certificate of signature is a certificate of pseudonym.</li>
+      <li>Obfuscate user identifiers for visible signatures certificates: By enabling this option, the user identifiers introduced into the visible PDF texts will be offended when taking the data from a certificate. The offending shall not take place when the certificate of signature is a certificate of pseudonym.</li>
       <li>Apply a visible mark to PDF documents: By enabling this option and signing a document in PAdES format, the user will be presented with a window for selecting the area and PDF pages in which a visible mark will be added. See the <a href="VentanaPdfVisible.html"> Visible Marks PDF </a> section for more detail.</li>
       <li>Generate certified PDF: By enabling this option, the user will be allowed to generate a certified PDF, with the level of certification chosen in the list below.</li>
        <ul>
@@ -176,12 +177,12 @@
    <ul>
     <li><b> Default store: </b><ul>
       <li>It allows you to select the key store that will be charged by default in the desktop interface.</li>
-      <li>View <b> Content: </b> It allows you to view the certificates contained in the selected warehouse.</li>
-      <li>Also <b> use in Autofirma calls from your browser: </b> Indicates whether you want the configured store to be the one that is charged by default also when you call Autofirma from your browser.</li>
+      <li>View content: </b> It allows you to view the certificates contained in the selected warehouse.</li>
+      <li>Also use in Autofirma calls from your browser: </b> Indicates whether you want the configured store to be the one that is charged by default also when you call Autofirma from your browser.</li>
 	 </ul>
 	</li>
     <li><b> Certificate filters: </b><ul>
-      <li>Do <b> not display the initial screen of DNIe and always work with the default store: </b> Skip the initial screen when a DNIe is detected and the configured default store will be used.</li>
+      <li><b>Do not display the initial screen of DNIe and always work with the default store: </b> Skip the initial screen when a DNIe is detected and the configured default store will be used.</li>
 	  <li><b> Allow the use of expired certificates: </b> As this option is enabled, expired certificates will appear in the signature certificate selection dialogue, enabling them to sign with them.</li>
 	  <li><b> Use only signature specific certificates in electronic signatures (non-repudiation attribute): </b> If this option is marked, only certificates specifically declaring signature shall be shown.</li>
 	  <li><b> Use pseudonym certificates only when available: </b> It restricts that pseudonym certificates can only be used when they are available.</li>
@@ -191,7 +192,7 @@
     <li><b> Smart cards: </b><ul>
       <li>It allows you to release smart cards from your PKCS#11 driver so you can use them directly as a key store accessible from the certificate select dialog. The smart cards added here can be set up as default stores in the drop-down in the first paragraph.</li>
       <li><b> Connect: </b> Perform a connection test with the key store of the selected smart card.</li>
-      <li>Add <b> Card: </b> Add a new smart card. It will open a dialogue where you can enter a name for the smart card and the route where your PKCS#11 driver is located.</li>
+      <li><b>Add card: </b> Add a new smart card. It will open a dialogue where you can enter a name for the smart card and the route where your PKCS#11 driver is located.</li>
       <li><b> Amend: </b> It allows you to modify the name and route of the selected smart card driver.</li>
 	  <li><b> Remove: </b> Removes the selected smart card from the drop-down.</li>
      </ul>

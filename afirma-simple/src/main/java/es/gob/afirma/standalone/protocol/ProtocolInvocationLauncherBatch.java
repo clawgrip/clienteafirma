@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.security.auth.callback.PasswordCallback;
-
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOCancelledOperationException;
@@ -44,17 +42,18 @@ import es.gob.afirma.keystores.AOCertificatesNotFoundException;
 import es.gob.afirma.keystores.AOKeyStore;
 import es.gob.afirma.keystores.AOKeyStoreDialog;
 import es.gob.afirma.keystores.AOKeyStoreManager;
-import es.gob.afirma.keystores.AOKeyStoreManagerFactory;
 import es.gob.afirma.keystores.CertificateFilter;
 import es.gob.afirma.keystores.KeyStoreErrorCode;
 import es.gob.afirma.keystores.filters.CertFilterManager;
 import es.gob.afirma.keystores.filters.EncodedCertificateFilter;
 import es.gob.afirma.signers.batch.client.BatchSigner;
 import es.gob.afirma.standalone.SimpleAfirma;
+import es.gob.afirma.standalone.SimpleAfirmaMessages;
 import es.gob.afirma.standalone.SimpleErrorCode;
 import es.gob.afirma.standalone.SimpleKeyStoreManager;
 import es.gob.afirma.standalone.configurator.common.PreferencesManager;
 import es.gob.afirma.standalone.so.macos.MacUtils;
+import es.gob.afirma.standalone.ui.ProgressInfoDialogManager;
 
 final class ProtocolInvocationLauncherBatch {
 
@@ -81,7 +80,7 @@ final class ProtocolInvocationLauncherBatch {
 		if (!ProtocolInvocationLauncher.isCompatibleWith(protocolVersion)) {
 			LOGGER.severe(String.format("Version de protocolo no soportada (%1s). Hay que actualizar la aplicacion.", //$NON-NLS-1$
 					protocolVersion.toString()));
-			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORED_PROTOCOL_VERSION);
+			throw new SocketOperationException(SimpleErrorCode.Request.UNSUPPORTED_PROTOCOL_VERSION);
 		}
 
 		// Comprobamos si se exige una version minima del Cliente
@@ -126,9 +125,11 @@ final class ProtocolInvocationLauncherBatch {
 			operationResult = sign(options, aoks, useDefaultStore, filterManager, protocolVersion);
 		}
 		catch (final AOCancelledOperationException e) {
+			ProgressInfoDialogManager.hideProgressDialog();
 			throw e;
 		}
 		catch (final SocketOperationException e) {
+			ProgressInfoDialogManager.hideProgressDialog();
 			throw e;
 		}
 
@@ -243,16 +244,9 @@ final class ProtocolInvocationLauncherBatch {
 				aoksLib = options.getDefaultKeyStoreLib();
 			}
 
-			final PasswordCallback pwc = aoks.getStorePasswordCallback(null);
 			final AOKeyStoreManager ksm;
 			try {
-				ksm = AOKeyStoreManagerFactory.getAOKeyStoreManager(
-					aoks, // Store
-					aoksLib, // Lib
-					null, // Description
-					pwc,  // PasswordCallback
-					null  // Parent
-				);
+				ksm = ProtocolInvocationLauncherUtil.getAOKeyStoreManager(aoks, aoksLib);
 			}
 			catch (final AOCancelledOperationException e) {
 				LOGGER.info("Operacion cancelada por el usuario: " + e); //$NON-NLS-1$
@@ -274,6 +268,7 @@ final class ProtocolInvocationLauncherBatch {
 					final File file = new File(aoksLib);
 					libName = file.getName();
 				}
+				ProgressInfoDialogManager.hideProgressDialog();
 				final AOKeyStoreDialog dialog = new AOKeyStoreDialog(
 					ksm,
 					null,
@@ -321,6 +316,10 @@ final class ProtocolInvocationLauncherBatch {
 
 		final byte[] batchResult;
 		try {
+			// Si debe ser una operacion sin interfaz grafica, omitimos el dialogo de espera de firma
+			if (!Boolean.parseBoolean(options.getExtraParams().getProperty(AfirmaExtraParams.HEADLESS))) {
+				ProgressInfoDialogManager.showProgressDialog(SimpleAfirmaMessages.getString("ProgressInfoDialog.1")); //$NON-NLS-1$
+			}
 			batchResult = signBatch(options, pke);
 		}
 		catch (final PinException e) {
@@ -372,6 +371,8 @@ final class ProtocolInvocationLauncherBatch {
 						: SimpleErrorCode.Internal.INTERNAL_XML_BATCH_ERROR;
 			ProtocolInvocationLauncherErrorManager.showError(protocolVersion, errorCode);
 			throw new SocketOperationException(e, errorCode);
+		} finally {
+			ProgressInfoDialogManager.hideProgressDialog();
 		}
 
 		return new SignOperationResult(batchResult, pke);
@@ -389,6 +390,12 @@ final class ProtocolInvocationLauncherBatch {
 		if (serviceTimeout >= 0) {
 			connectionConfig = new ConnectionConfig();
 			connectionConfig.setReadTimeout(serviceTimeout);
+		}
+
+		try {
+			SimpleAfirma.getSSLContextConfigurationTask().join();
+		} catch (final InterruptedException e) {
+			LOGGER.log(Level.SEVERE, "No se ha podido configurar el contexto SSL correctamente: ", e); //$NON-NLS-1$
 		}
 
 		final UrlHttpManager urlHttpManager = ProtocolInvocationLauncherUtil.getConfiguredHttpConnection(connectionConfig);
