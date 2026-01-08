@@ -24,7 +24,7 @@ public class SllKeyStoreException extends AOException {
 	 * Construye una excepci&oacute;n.
 	 *
 	 * @param msg Mensaje de la excepci&oacute;n.
-	 * @param e
+	 * @param e Excepci&oacute;n de la que proviene.
 	 */
 	public SllKeyStoreException(final String msg, final Exception e) {
 		super(msg, e, SimpleErrorCode.Internal.LOADING_SSL_KEYSTORE_ERROR);
