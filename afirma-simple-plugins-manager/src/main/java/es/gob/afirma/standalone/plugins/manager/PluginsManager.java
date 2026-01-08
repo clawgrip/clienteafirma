@@ -178,7 +178,7 @@ public class PluginsManager {
 	 * Comprueba que un fichero se corresponda con un plugin compatible.
 	 * @param files Ficheros del plugin a evaluar.
 	 * @return Plugins cargados desde los archivos indicados.
-	 * @throws PluginException Cuando no se ha podido cargar el plugin.
+	 * @throws AOPluginException Cuando no se ha podido cargar el plugin.
 	 */
 	public static AfirmaPlugin loadPluginFromFiles(final File[] files) throws AOPluginException {
 

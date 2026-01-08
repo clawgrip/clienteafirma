@@ -9,7 +9,7 @@ public abstract class AOTriphaseSigner implements AOSigner {
 	/**
 	 * Establece la conexi&oacute;n que debe usar para conectar
 	 * con el servicio de firma trif&aacute;sica.
-	 * @param conn Conexi&oacute;n.
+	 * @param httpConnection Conexi&oacute;n.
 	 */
 	public void setHttpConnection(final UrlHttpManager httpConnection) {
 		this.httpConnection = httpConnection;

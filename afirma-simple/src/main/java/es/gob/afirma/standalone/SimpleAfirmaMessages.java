@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
@@ -113,7 +112,6 @@ public final class SimpleAfirmaMessages {
 
     /**
      * Cambia la localizaci&oacute;n a la establecida por defecto.
-     * @throws MalformedURLException
      */
     public static void changeLocale() {
         final Locale current = Locale.getDefault();

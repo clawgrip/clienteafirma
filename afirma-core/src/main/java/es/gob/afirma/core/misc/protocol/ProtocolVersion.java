@@ -15,6 +15,7 @@ package es.gob.afirma.core.misc.protocol;
  * <li><b>Versi&oacute;n 4:</b> seguridad adicional en la comunicacion por WebSockets.</li>
  * <li><b>Versi&oacute;n 4.1:</b> evoluci&oacute;n de los c&oacute;digos de error devueltos por la
  * 		aplicaci&oacute;n y ejecuci&oacute;n as&iacute;ncrona de las tareas por websocket.</li>
+ * </ul>
  */
 public class ProtocolVersion {
 
@@ -87,7 +88,7 @@ public class ProtocolVersion {
 
 	/**
 	 * Comprueba si esta versi&oacute;n es compatible con otra. Dos versiones de protocolo son
-	 * compatibles cuando tienen la misma versi&oacute;n mayor. Este m&eeacute;todo se utiliza
+	 * compatibles cuando tienen la misma versi&oacute;n mayor. Este m&eacute;todo se utiliza
 	 * para saber si esta versi&oacute;n de la aplicaci&oacute;n es compatible con la
 	 * aplicaci&oacute;n que solicita la operaci&oacute;n. Si la aplicaci&oacute;n no soporta esta
 	 * versi&oacute;n, no podr&aacute; realizar la operaci&oacute;n.

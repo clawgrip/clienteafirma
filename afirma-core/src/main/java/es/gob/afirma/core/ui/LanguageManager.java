@@ -60,7 +60,7 @@ public class LanguageManager {
 	/**
 	 * Importa y agrega un nuevo idioma.
 	 * @param langFile Fichero de idioma.
-	 * @throws Exception Error al importar idioma.
+	 * @throws AOException Error al importar idioma.
 	 * @return Propiedades del idioma.
 	 */
 	public static Map<String, String> addLanguage(final File langFile) throws AOException {

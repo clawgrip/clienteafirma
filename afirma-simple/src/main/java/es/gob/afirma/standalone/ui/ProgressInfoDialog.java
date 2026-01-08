@@ -33,8 +33,7 @@ public final class ProgressInfoDialog extends JDialog {
 	private final boolean enabledDialog;
 
 	/** Crea un di&aacute;logo de espera indeterminada.
-	 * @param parent Marco padre para la modalidad.
-	 * @param message Mesaje del di&aacute;logo. */
+	 * @param parent Marco padre para la modalidad. */
 	public ProgressInfoDialog(final Frame parent) {
 
 	    super(parent);

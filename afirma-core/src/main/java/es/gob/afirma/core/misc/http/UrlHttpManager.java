@@ -177,6 +177,7 @@ public interface UrlHttpManager {
 	 * {@code DEFAULT_TIMEOUT} para respetar el valor por defecto y 0 para establecer una
 	 * espera ilimitada.
 	 * @see UrlHttpManager#DEFAULT_TIMEOUT
+	 * @return Timeout de lectura para la conexi&oacute;n.
 	 */
 	int getReadTimeout();
 }
