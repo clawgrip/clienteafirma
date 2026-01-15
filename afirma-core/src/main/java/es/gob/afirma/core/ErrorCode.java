@@ -158,6 +158,7 @@ public class ErrorCode {
 	}
 
 	public static class Communication {
+		public static final ErrorCode INVALID_DOMAIN_SSL_CERTIFICATE_ERROR		= new ErrorCode("400004", "El certificado SSL no esta expedido para el dominio al que pertenece el servidor"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode PRESIGN_SERVICE_CONNECTION_ERROR			= new ErrorCode("401300", "Error de conexion con el servidor trifasico al hacer la prefirma"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode PRESIGN_SERVICE_COMMUNICATION_ERROR		= new ErrorCode("401301", "Error de comunicacion con el servidor trifasico al hacer la prefirma"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode PRESIGN_SERVICE_TIMEOUT					= new ErrorCode("401302", "Se excedio el tiempo maximo de espera en la llamada a la prefirma del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -165,7 +166,7 @@ public class ErrorCode {
 		public static final ErrorCode POSTSIGN_SERVICE_COMMUNICATION_ERROR		= new ErrorCode("401401", "Error de comunicacion con el servidor trifasico al hacer la posfirma"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode POSTSIGN_SERVICE_TIMEOUT					= new ErrorCode("401402", "Se excedio el tiempo maximo de espera en la llamada a la postfirma del servidor trifasico"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		public static final ErrorCode TSA_CONNECTION_ERROR						= new ErrorCode("410001", "Error en la comuicacion con la autoridad de sellado de tiempo"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode TSA_CONNECTION_ERROR						= new ErrorCode("410001", "Error en la comunicacion con la autoridad de sellado de tiempo"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
