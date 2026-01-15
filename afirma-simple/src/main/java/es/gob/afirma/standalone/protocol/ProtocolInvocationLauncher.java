@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 
 import es.gob.afirma.core.AOCancelledOperationException;
 import es.gob.afirma.core.ErrorCode;
+import es.gob.afirma.core.InvalidDomainSSLCertificateException;
 import es.gob.afirma.core.misc.LoggerUtil;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.protocol.ParameterException;
@@ -1005,7 +1006,11 @@ public final class ProtocolInvocationLauncher {
 			} catch (final SocketTimeoutException e) {
 				LOGGER.log(Level.SEVERE, "Se excedio el tiempo de espera maximo en la llamada al servicio de guardado del servidor intermedio", e); //$NON-NLS-1$
 				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Communication.SENDING_RESULT_TIMEOUT);
-			} catch (final Exception e) {
+			} 
+			catch (final InvalidDomainSSLCertificateException e) {
+				LOGGER.log(Level.SEVERE, "El certificado SSL no esta expedido para el dominio al que pertenece el servidor: " + e, e); //$NON-NLS-1$
+				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, ErrorCode.Communication.INVALID_DOMAIN_SSL_CERTIFICATE_ERROR, e.getHost());
+			}catch (final Exception e) {
 				LOGGER.log(Level.SEVERE, "Error al enviar los datos al servidor intermedio: " + e, e); //$NON-NLS-1$
 				ProtocolInvocationLauncherErrorManager.showError(requestedProtocolVersion, SimpleErrorCode.Communication.SENDING_RESULT_OPERATION);
 			}

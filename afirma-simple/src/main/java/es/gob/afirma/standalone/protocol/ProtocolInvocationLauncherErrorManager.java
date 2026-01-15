@@ -275,12 +275,24 @@ final class ProtocolInvocationLauncherErrorManager {
 	}
 
 	private static final ProtocolVersion PROTOCOL_VERSION_WITH_ERROR_CODES = ProtocolVersion.getInstance(ProtocolVersion.VERSION_4_1);
-
+	
 	static void showError(final ProtocolVersion protocolVersion, final ErrorCode errorCode) {
+		showError(protocolVersion, errorCode, null);
+	}
+
+	static void showError(final ProtocolVersion protocolVersion, final ErrorCode errorCode, String ... params) {
 
 		ProgressInfoDialogManager.hideProgressDialog();
 
-		final String message = getText(errorCode);
+		 String message = getText(errorCode);
+		
+		 if (params != null) {
+	            for (int i = 0; i < params.length; i++) {
+	                if (params[i] != null) {
+	                    message = message.replace("%" + i, params[i]); //$NON-NLS-1$
+	                }
+	            }
+	        }
 
 		if (HEADLESS) {
 			LOGGER.warning("No se ha encontrado interfaz grafica para mostrar el error " //$NON-NLS-1$

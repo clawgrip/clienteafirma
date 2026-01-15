@@ -2,9 +2,13 @@ package es.gob.afirma.core.misc.http;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -12,6 +16,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 
 import es.gob.afirma.core.AOCancelledOperationException;
+import es.gob.afirma.core.InvalidDomainSSLCertificateException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.ui.AOUIFactory;
 import es.gob.afirma.core.ui.CoreMessages;
@@ -34,6 +39,7 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 
 	private boolean initialized = false;
 	private boolean cancelled = false;
+	private static boolean previouslyCancelled = false;
 	private boolean headless;
 
 	public SSLErrorProcessor() {
@@ -136,10 +142,33 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 			LOGGER.info("Ya se esta mostrando un dialogo de consulta para la importacion del certificado de confianza. Se omitira este."); //$NON-NLS-1$
 			throw cause;
 		}
+		
+		//Comprobamos que el certificado este expedido realmente para el dominio correcto
+		final Certificate[] trustedServerCerts;
+		try {
+			trustedServerCerts = downloadFromRemoteServer(url);
+			boolean correctIssuer = checkCorrectIssuer(url, (X509Certificate) trustedServerCerts[0]);
+			if (!correctIssuer) {
+				throw new InvalidDomainSSLCertificateException(cause, url);
+			}
+		} 
+		catch (InvalidDomainSSLCertificateException e) {
+			LOGGER.severe("Se ha interrumpido la operacion al detectar una conexion con un entorno no seguro: " + e); //$NON-NLS-1$
+			throw e;
+		}
+		catch (Exception e) {
+			LOGGER.severe("Error al descargar certificados SSL del servidor: " + e); //$NON-NLS-1$
+			throw new IOException(e);
+		}
+		
 
 		int userResponse;
 		synchronized (LOGGER) {
 			try {
+				// Comprobamos si anteriormente ya se cancelo la importacion del certificado, para no solicitar de nuevo que se importe
+				if (previouslyCancelled) {
+					throw new AOCancelledOperationException();
+				}
 				showingConfirmDialog = true;
 				userResponse = AOUIFactory.showConfirmDialog(null,
 						CoreMessages.getString("SSLRequestPermissionDialog.2", new URL(url).getHost()), //$NON-NLS-1$
@@ -149,6 +178,7 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 			}
 			catch (final AOCancelledOperationException ex) {
 				this.cancelled = true;
+				previouslyCancelled = true;
 				throw cause;
 			}
 			catch (final Exception ex) {
@@ -162,13 +192,14 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		if (userResponse != AOUIFactory.YES_OPTION) {
 			LOGGER.info("El usuario no importo el certificado en el almacen de confianza"); //$NON-NLS-1$
 			this.cancelled = true;
+			previouslyCancelled = true;
 			throw cause;
 		}
 
 		// Descargamos los certificados SSL del servidor
 		X509Certificate[] serverCerts;
 		try {
-			serverCerts = downloadFromRemoteServer(url);
+			serverCerts = getCertsToImport(trustedServerCerts);
 		} catch (final Exception e) {
 			LOGGER.severe("Error al descargar certificados SSL del servidor: " + e); //$NON-NLS-1$
 			throw new IOException(e);
@@ -200,14 +231,7 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		return urlManager.readUrl(url, timeout, method, requestProperties);
 	}
 
-	private static X509Certificate[] downloadFromRemoteServer(final String domainName) throws Exception {
-
-		final URL url = new URL(domainName);
-		final HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-		SslSecurityManager.disableSslChecks(conn);
-		conn.connect();
-		final Certificate[] trustedServerCerts = conn.getServerCertificates();
-		conn.disconnect();
+	private static X509Certificate[] getCertsToImport(Certificate[] trustedServerCerts) throws Exception {
 
 		X509Certificate[] certsToImport;
 		if (trustedServerCerts.length > 1) {
@@ -223,6 +247,70 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		}
 
 		return certsToImport;
+	}
+	
+	private boolean checkCorrectIssuer(String urlStr, X509Certificate serverCert)
+	        throws MalformedURLException, CertificateParsingException {
+
+	    final URL url = new URL(urlStr);
+	    String host = url.getHost().toLowerCase();
+	    
+	    String subjectName = serverCert.getSubjectX500Principal().getName();
+	    
+	    if (matchesHost(host, subjectName)) {
+	    	return true;
+	    }
+
+	    Collection<List<?>> certList = serverCert.getSubjectAlternativeNames();
+	    if (certList == null) {
+	        return false;
+	    }
+
+	    for (List<?> san : certList) {
+	        Integer type = (Integer) san.get(0);
+
+	        if (type == 2) {
+	            String sanName = ((String) san.get(1)).toLowerCase();
+
+	            if (matchesHost(host, sanName)) {
+	                return true;
+	            }
+	        }
+	    }
+
+	    return false;
+	}
+	
+	private boolean matchesHost(String host, String san) {
+
+	    if (san.equals(host)) {
+	        return true;
+	    }
+
+	    if (san.startsWith("*.")) { //$NON-NLS-1$
+	        String sanDomain = san.substring(2);
+
+	        if (!host.endsWith("." + sanDomain)) { //$NON-NLS-1$
+	            return false;
+	        }
+
+	        String hostPrefix = host.substring(0, host.length() - sanDomain.length() - 1);
+	        return !hostPrefix.contains("."); //$NON-NLS-1$
+	    }
+
+	    return false;
+	}
+	
+	private static Certificate[] downloadFromRemoteServer(final String domainName) throws Exception {
+
+		final URL url = new URL(domainName);
+		final HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		SslSecurityManager.disableSslChecks(conn);
+		conn.connect();
+		final Certificate[] trustedServerCerts = conn.getServerCertificates();
+		conn.disconnect();
+
+		return trustedServerCerts;
 	}
 
 	public boolean isCancelled() {

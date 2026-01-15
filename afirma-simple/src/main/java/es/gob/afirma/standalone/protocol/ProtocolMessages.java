@@ -143,7 +143,7 @@ final class ProtocolMessages {
         } catch (final FileNotFoundException e) {
 			LOGGER.severe("Recurso para protocolmessages no encontrado: "+ e); //$NON-NLS-1$
 		} catch (final IOException e) {
-			LOGGER.severe("Error al leer el recuso para protocolmessages: "+ e); //$NON-NLS-1$
+			LOGGER.severe("Error al leer el recurso para protocolmessages: "+ e); //$NON-NLS-1$
 		}
         return null;
     }
