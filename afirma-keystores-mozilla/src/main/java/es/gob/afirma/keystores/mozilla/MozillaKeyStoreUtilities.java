@@ -525,9 +525,18 @@ public final class MozillaKeyStoreUtilities {
 			return Platform.getUserHome() + "/Library/Application Support/Firefox/profiles.ini"; //$NON-NLS-1$
 		}
 		// Linux / UNIX
+
+		// Directorio en sistemas Ubuntu
 		if (new File(Platform.getUserHome() + "/snap/firefox/common/.mozilla/firefox/profiles.ini").isFile()) { //$NON-NLS-1$
 			return Platform.getUserHome() + "/snap/firefox/common/.mozilla/firefox/profiles.ini"; //$NON-NLS-1$
 		}
+
+		// Directorio de Firefox 147 y superiores
+		if (new File(Platform.getUserHome() + "/.config/mozilla/firefox/profiles.ini").isFile()) { //$NON-NLS-1$
+			return Platform.getUserHome() + "/.config/mozilla/firefox/profiles.ini"; //$NON-NLS-1$
+		}
+
+		// Directorio por defecto
 		return Platform.getUserHome() + "/.mozilla/firefox/profiles.ini"; //$NON-NLS-1$
 	}
 
