@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 
 import javax.security.auth.callback.PasswordCallback;
 
+import org.json.JSONException;
+
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOException;
@@ -93,9 +95,13 @@ final class ProtocolInvocationLauncherUtil {
 				}
 			}
 		}
+		catch (final JSONException e) {
+			LOGGER.log(Level.SEVERE, "Error al instanciar el cifrador de datos. CipherConfig: " + LoggerUtil.getTrimBytes(params.getCipherConfig()), e); //$NON-NLS-1$
+			throw new IOException("Error al instanciar el cifrador de datos", e); //$NON-NLS-1$
+		}
 		catch (final Exception e) {
-			LOGGER.log(Level.SEVERE, "Error en el descifrado de los datos: " + e, e); //$NON-NLS-1$
-			throw new DecryptionException("Error en el descifrado de los datos: " + e, e); //$NON-NLS-1$
+			LOGGER.log(Level.SEVERE, "Error en el descifrado de los datos: " + LoggerUtil.getTrimBytes(recoveredData), e); //$NON-NLS-1$
+			throw new DecryptionException("Error en el descifrado de los datos", e); //$NON-NLS-1$
 		}
 		return data;
 	}

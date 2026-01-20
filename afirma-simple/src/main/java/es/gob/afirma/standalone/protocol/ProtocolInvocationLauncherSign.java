@@ -175,7 +175,7 @@ final class ProtocolInvocationLauncherSign {
 				final ServerCipher serverCipher = ServerCipherFactory.newServerCipher(options.getCipherConfig());
 				processor.setServerCipher(serverCipher);
 			} catch (final Exception e) {
-				LOGGER.log(Level.SEVERE, "Error al instanciar el cifrador de datos", e); //$NON-NLS-1$
+				LOGGER.log(Level.SEVERE, "Error al instanciar el cifrador de datos. CipherConfig: " + LoggerUtil.getTrimBytes(options.getCipherConfig()), e); //$NON-NLS-1$
 				throw new SocketOperationException(SimpleErrorCode.Internal.POSTPROCESING_SIGNATURE);
 			}
 		}

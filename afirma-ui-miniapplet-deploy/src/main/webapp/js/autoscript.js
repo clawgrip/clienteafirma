@@ -1663,7 +1663,7 @@ var AutoScript = ( function ( window, undefined ) {
 	        actionButton.textContent = actionButtonText;
 	        actionButton.addEventListener("click", function () {
 	          disposeSupportDialog();
-	          if (actionButtonCallback) actionButtonCallback();
+			  if (actionButtonCallback) actionButtonCallback();
 	        });
 	        buttonsPanel.appendChild(actionButton);
 	        isLoadingDialog = false;
@@ -4299,13 +4299,15 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				var opId = "selectcert";
 				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4434,13 +4436,15 @@ var AutoScript = ( function ( window, undefined ) {
 				if (!appName) {
 					appName = DOMAIN_NAME;
 				}
+				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
 												
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				if (signId != null && signId != undefined) {			params[params.length] = {key:"op", value:signId}; }
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4556,14 +4560,17 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 
 				var opId = "signandsave";
-				var params = new Array();
 				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				
+				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
+				
 				if (signId != null && signId != undefined) {			params[params.length] = {key:"cop", value:signId}; }
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4669,12 +4676,14 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var opId = "batch";
 				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4773,12 +4782,14 @@ var AutoScript = ( function ( window, undefined ) {
 
 				var opId = "batch";
 				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (defaultKeyStore != null &&
 						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
 																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
@@ -4878,12 +4889,16 @@ var AutoScript = ( function ( window, undefined ) {
 				var desKey = generateDESCipherKey();
 
 				var opId = "save";
+				
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				
 				var params = new Array();
 				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
 				params[params.length] = {key:"op", value:opId};
+	
 				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
 				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfig != null && cipherConfig != undefined) {params[params.length] = {key:"cipher", value:cipherConfig}; }
+				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
 				if (storageServletAddress != null &&
 						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
 				if (title != null && title != undefined) {				params[params.length] = {key:"title", value:title}; }
@@ -5071,13 +5086,16 @@ var AutoScript = ( function ( window, undefined ) {
 					  iv: 	ivB64
 					};
 
-					var cipherConfig = JSON.stringify(cipherJSON);
-					var cipherConfigB64 = Base64.encode(cipherConfig);
-					
-					operationMethod(cipherConfigB64, operationParameters, successCallback, errorCallback);
+					operationMethod(cipherJSON, operationParameters, successCallback, errorCallback);
 				});
 			}
 
+			/** Codifica la configuracion de cifrado para el envio. */
+			function encodeCipherConfig(config) {
+				var plainConfig = JSON.stringify(config);				
+				return Base64.encode(plainConfig);
+			}
+			
 			/**
 			 * Envia los datos al servidor intermedio y luego invoca a la
 			 * aplicacion nativa para que los descargue y opere con ellos.
@@ -5125,19 +5143,22 @@ var AutoScript = ( function ( window, undefined ) {
 								errorCallback("java.lang.IllegalArgumentException",ErrorCode.Request.TOO_LONG_URL.message, errorCode);
 								return;
 							}
+														
+							alert("Configuracion en el exec: " + JSON.stringify(cipherConfig));
+							
 							execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
 						}
-					else {
-						errorOcurred = true;
-						console.log("Error al enviar los datos al servidor intermedio. HTTP Status: " + httpRequest.status);
-						errorCode = ErrorCode.Request.UPLOADING_TO_APP.code;
-						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-								 function() { sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
-								 function() { errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);});
-						if (!enabled) {
-							errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);
+						else {
+							errorOcurred = true;
+							console.log("Error al enviar los datos al servidor intermedio. HTTP Status: " + httpRequest.status);
+							errorCode = ErrorCode.Request.UPLOADING_TO_APP.code;
+							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
+									 function() { sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, op, params, successCallback, errorCallback) },
+									 function() { errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);});
+							if (!enabled) {
+								errorCallback("java.lang.IOException", ErrorCode.Request.UPLOADING_TO_APP.message, errorCode);
+							}
 						}
-					}
 					}
 				}
 				try {
@@ -5172,9 +5193,8 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			function cipherAndSendData(dataB64, cipherConfig, fileId, httpRequest, errorCallback) {
 				
-				var jsonStr = Cipher.base64ToString(fromBase64UrlSaveToBase64(cipherConfig));
-				var jsonObject = JSON.parse(jsonStr);
-				var rawKey = base64ToBytes(jsonObject.key);
+				var cipherConfigJson = cipherConfig;
+				var rawKey = base64ToBytes(cipherConfigJson.key);
 							
 			    window.crypto.subtle.importKey(
 			        "raw",                // formato de la clave
@@ -5183,7 +5203,7 @@ var AutoScript = ( function ( window, undefined ) {
 			        false,                // no exportable
 			        ["encrypt"]           // usos permitidos
 			    ).then(function (cryptoKey) {
-					var iv = base64ToBytes(jsonObject.iv);
+					var iv = base64ToBytes(cipherConfigJson.iv);
 				    var encoded = base64ToBytes(dataB64);
 				
 				    return window.crypto.subtle.encrypt(
@@ -5318,12 +5338,13 @@ var AutoScript = ( function ( window, undefined ) {
 				if (stServlet != null || stServlet != undefined) {
 					newParams[j++] = {key:"stservlet", value:stServlet};
 				}
+				
 				if (decipherConfig != null || decipherConfig != undefined) {
 					if (decipherConfig.desKey) {
 						newParams[j++] = {key:"key", value:decipherConfig.desKey};
 					}
 					if (decipherConfig.cipherConfig) {
-						newParams[j++] = {key:"cipher", value:decipherConfig.cipherConfig};
+						newParams[j++] = {key:"cipher", value:encodeCipherConfig(decipherConfig.cipherConfig)};
 					}
 				}
 				return buildUrl(op, newParams);
@@ -5433,9 +5454,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado
 				// de forma asincrona y finalizamos
-				if (isSecureEnvironment() && decipherConfig) {
+				if (isSecureEnvironment() && !!decipherConfig && !!decipherConfig.cipherConfig) {
 					try {
-						advDecipherDatasAndProcessResultAsync(datas, decipherConfig, successCallback, errorCallback);
+						advDecipherDatasAndProcessResultAsync(datas, decipherConfig.cipherConfig, successCallback, errorCallback);
 						return;					
 					} catch (e) {
 						console.log("El cliente de firma no uso el cifrado avanzado, se usara el corriente");
@@ -5540,10 +5561,10 @@ var AutoScript = ( function ( window, undefined ) {
 			
 			function advDecipherDatasAndProcessResultAsync(cipheredDatas, decipherConfig, successCallback, errorCallback) {
 
-				var keyStringDecoded = Cipher.base64ToString(fromBase64UrlSaveToBase64(decipherConfig.cipherConfig));
-				var keyObj = JSON.parse(keyStringDecoded);				
-				var key = base64ToBytes(keyObj.key);
-				var iv = base64ToBytes(keyObj.iv);
+				var config = decipherConfig;
+				
+				var key = base64ToBytes(config.key);
+				var iv = base64ToBytes(config.iv);
 				
 				var decipheredDatas = new Array();
 				
@@ -5709,11 +5730,13 @@ var AutoScript = ( function ( window, undefined ) {
 					return;
 				}
 			
+				var cipherConfig = !!decipherConfig ? decipherConfig.cipherConfig : null;
+				
 				// Contamos la nueva llamada al servidor
 				if (iterations > NUM_MAX_ITERATIONS) {
 					if(!!afirmaConnected) {
 						var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																		function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
+																		function() {operationFunction(cipherConfig, operationParams, successCallback, errorCallback)},
 																		function() {errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if (!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5726,7 +5749,7 @@ var AutoScript = ( function ( window, undefined ) {
 							errorType = ERROR_CONNECTING_SERVICE;
 						}
 						var enabled = Dialog.showErrorDialog(errorType,
-																	function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
+																	function() {operationFunction(cipherConfig, operationParams, successCallback, errorCallback)},
 																	function (){errorCallback("java.lang.IOException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);});
 						if(!enabled) {
 							errorResponseFunction("java.util.concurrent.TimeoutException", ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP_TIMEOUT.code);
@@ -5759,7 +5782,7 @@ var AutoScript = ( function ( window, undefined ) {
 						}
 						else {
 							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
-																			function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback)},
+																			function() {operationFunction(cipherConfig, operationParams, successCallback, errorCallback)},
 																			function() {errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);});
 							if (!enabled) {
 								errorResponseFunction("java.lang.IOException", ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.message + " (Status: " + httpRequest.status + ")", errorCallback, ErrorCode.Request.WEBSERVER_ERROR_CONNECTING_SERVICE.code);
@@ -5781,7 +5804,7 @@ var AutoScript = ( function ( window, undefined ) {
 					return;
 				}
 			}
-						
+							
 			/**
 			 * Realiza un descifrado DES compatible con Java (Algoritmo DES, modo CBC, sin Padding).
 			 * Recibe en base 64 la cadena de texto cifrado antecedido por el padding anadido manualmente
