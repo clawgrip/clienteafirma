@@ -9,7 +9,10 @@
 
 package es.gob.afirma.core.misc.protocol;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -196,14 +199,21 @@ public final class UrlParametersToSign extends UrlParameters {
 		return this.resetSticky;
 	}
 
+	/**
+	 * Establece el nombre con el que se identifica la aplicaci&oacute;n.
+	 * @param appName Nombre de la aplicaci&oacute;n.
+	 */
 	public void setAppName(final String appName) {
 		this.appName = appName;
 	}
 
+	/**
+	 * Obtiene el nombre con el que se identifica la aplicaci&oacute;n.
+	 * @return Nombre de la aplicaci&oacute;n o {@code null} si no lo ha informado.
+	 */
 	public String getAppName() {
 		return this.appName;
 	}
-
 
 	public void setSignParameters(final Map<String, String> params) throws ParameterException {
 
@@ -240,7 +250,11 @@ public final class UrlParametersToSign extends UrlParameters {
 		}
 
 		if (params.containsKey(APP_NAME_PARAM)) {
-			this.appName = params.get(APP_NAME_PARAM);
+			try {
+				this.appName = URLDecoder.decode(params.get(APP_NAME_PARAM), StandardCharsets.UTF_8.name());
+			} catch (final UnsupportedEncodingException e) {
+				this.appName = params.get(APP_NAME_PARAM);
+			}
 		}
 
 		// Tomamos el tipo de operacion

@@ -9,7 +9,10 @@
 
 package es.gob.afirma.core.misc.protocol;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -183,12 +186,20 @@ public final class UrlParametersForBatch extends UrlParameters {
 		this.batchPostSignerUrl = url;
 	}
 
-	public String getAppName() {
-		return this.appName;
+	/**
+	 * Establece el nombre con el que se identifica la aplicaci&oacute;n.
+	 * @param appName Nombre de la aplicaci&oacute;n.
+	 */
+	public void setAppName(final String appName) {
+		this.appName = appName;
 	}
 
-	void setAppName(final String appName) {
-		this.appName = appName;
+	/**
+	 * Obtiene el nombre con el que se identifica la aplicaci&oacute;n.
+	 * @return Nombre de la aplicaci&oacute;n o {@code null} si no lo ha informado.
+	 */
+	public String getAppName() {
+		return this.appName;
 	}
 
 	public void setBatchParameters(final Map<String, String> params) throws ParameterException {
@@ -220,7 +231,11 @@ public final class UrlParametersForBatch extends UrlParameters {
 		}
 
 		if (params.containsKey(APP_NAME_PARAM)) {
-			this.appName = params.get(APP_NAME_PARAM);
+			try {
+				this.appName = URLDecoder.decode(params.get(APP_NAME_PARAM), StandardCharsets.UTF_8.name());
+			} catch (final UnsupportedEncodingException e) {
+				this.appName = params.get(APP_NAME_PARAM);
+			}
 		}
 
 		// Si hemos recibido el identificador para la descarga de la configuracion,
