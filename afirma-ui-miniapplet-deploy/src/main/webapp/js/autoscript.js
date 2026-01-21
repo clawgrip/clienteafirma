@@ -673,7 +673,7 @@ var AutoScript = ( function ( window, undefined ) {
 		
 		/** Establece el nombre de aplicacion o dominio desde el que se realiza la llamada. */
 		var setAppName = function (name) {
-			appName = name;
+			appName = encodeURIComponent(name);
 		}
 		
 		/** Establece el tiempo de espera en milisegundos para la lectura de llamadas a servicios. */
@@ -690,7 +690,7 @@ var AutoScript = ( function ( window, undefined ) {
 			clienteFirma.selectCertificate(params, successCallback, errorCallback);
 			resetStickySignatory = false;
 		}
-			
+
 		var sign = function (dataB64, algorithm, format, params, successCallback, errorCallback) {
 			clienteFirma.sign(dataB64, algorithm, format, params, successCallback, errorCallback);
 			resetStickySignatory = false;
@@ -4262,86 +4262,27 @@ var AutoScript = ( function ( window, undefined ) {
 				var parameters = {
 					extraParams : extraParams
 				};
-
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSelectCertificate, parameters, successCallback, errorCallback);
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta.
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSelectCertificate(null, parameters, successCallback, errorCallback) })) {
-						innerSelectCertificate(null, parameters, successCallback, errorCallback);
-					}
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSelectCertificate(null, parameters, successCallback, errorCallback);
-				}
-			}
-						
-			function innerSelectCertificate(cipherConfig, parameters, successCallback, errorCallback) {
 				
+				// Ejecutamos la operacion de seleccion de certificado
+				processInnerOperation(innerSelectCertificate, parameters, successCallback, errorCallback);
+			}
+			
+			function innerSelectCertificate(cipherConfig, parameters, successCallback, errorCallback) {
+							
 				// Registramos los datos de la operacion actual para gestionar la respuesta y
 				// los reintentos
 				currentOperation = OPERATION_SELECT_CERTIFICATE;
 				innerOperationFunction = innerSelectCertificate;
 				innerOperationParams = parameters;
-								
-				var idSession = AfirmaUtils.generateNewIdSession();
-				
-				var desKey = generateDESCipherKey();
 
-				var extraParams = parameters.extraParams;
-				
 				var opId = "selectcert";
 				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-				
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				params[params.length] = {key:"op", value:opId};
+				if (!!defaultKeyStore) {		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
 				
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (defaultKeyStore != null &&
-						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
-																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
+				configureExtraParams(params, parameters.extraParams);
 
-				configureExtraParams(params, extraParams);
-				
-				var url = buildUrl(opId, params);
-
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
-				
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", ErrorCode.Request.STORAGE_URL_NOT_FOUND);
-						return;
-					}
-					else if (retrieverServletAddress == null || retrieverServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", ErrorCode.Request.RETRIEVE_URL_NOT_FOUND);
-						return;
-					}
-
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 			
 			/**
@@ -4385,25 +4326,8 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSignOperation, parameters, successCallback, errorCallback);
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSignOperation(null, parameters, successCallback, errorCallback) })) {
-						innerSignOperation(null, parameters, successCallback, errorCallback)
-					}
-					
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSignOperation(null, parameters, successCallback, errorCallback);
-				}
+				// Ejecutamos la operacion de firma/multifirma
+				processInnerOperation(innerSignOperation, parameters, successCallback, errorCallback);
 			}
 			
 			function innerSignOperation(cipherConfig, parameters, successCallback, errorCallback) {
@@ -4414,75 +4338,33 @@ var AutoScript = ( function ( window, undefined ) {
 				innerOperationFunction = innerSignOperation;
 				innerOperationParams = parameters;
 				
-				var signId = parameters.signId;
 				var dataB64 = parameters.dataB64;
 				var algorithm = parameters.algorithm;
 				var format = parameters.format;
 				var extraParams = parameters.extraParams;
-				
-				if (dataB64 == undefined || dataB64 == "") {
-					dataB64 = null;
-				}
 
-				if (dataB64 != null && !isValidUrl(dataB64)) {
-					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_");
-					dataB64 = dataB64.replace(/\n/g, "").replace(/\r/g, ""); //eliminamos saltos de carro para que no generen espacios 0x20 al parsear los atributos del XML enviado/recibido (storageServletAddress y retrieverServletAddress) que impiden la firma en Autofirma
+				if (!!dataB64 && !isValidUrl(dataB64)) {
+					// Pasamos a URL SAFE y eliminamos saltos de carro para que no generen espacios codificados como 0x20
+					// al codificarlos como XML si se tienen que enviar al servidor intermedio
+					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_").replace(/\n/g, "").replace(/\r/g, "");
 				}
 				
-				var idSession = AfirmaUtils.generateNewIdSession();
+				var opId = parameters.signId;
 				
-				var desKey = generateDESCipherKey();
-
-				if (!appName) {
-					appName = DOMAIN_NAME;
-				}
-				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-												
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				if (signId != null && signId != undefined) {			params[params.length] = {key:"op", value:signId}; }
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (defaultKeyStore != null &&
-						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
-																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (format != null && format != undefined) {			params[params.length] = {key:"format", value:format}; }
-				if (algorithm != null && algorithm != undefined) {		params[params.length] = {key:"algorithm", value:algorithm}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
-				if (serviceTimeout != null 
+				if (!!defaultKeyStore) {				params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
+				if (!!format) {							params[params.length] = {key:"format", value:format}; }
+				if (!!algorithm) {						params[params.length] = {key:"algorithm", value:algorithm}; }
+				
+				if (!!serviceTimeout != null 
 					&& serviceTimeout != undefined
-					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }				
+					&& serviceTimeout >= 0) {			params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 
 				configureExtraParams(params, extraParams);
 
-				if (dataB64 != null) {									params[params.length] = {key:"dat", value:dataB64}; }
+				if (!!dataB64) {						params[params.length] = {key:"dat", value:dataB64}; }
 			
-				var url = buildUrl(signId, params);
-
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
-				
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos", ErrorCode.Request.STORAGE_URL_NOT_FOUND);
-						return;
-					}
-
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, signId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 			
 			/**
@@ -4507,24 +4389,8 @@ var AutoScript = ( function ( window, undefined ) {
 					outputFileName : outputFileName
 				};
 
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSignAndSaveFile, parameters, successCallback, errorCallback);
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSignAndSaveFile(null, parameters, successCallback, errorCallback) })) {
-						innerSignAndSaveFile(null, parameters, successCallback, errorCallback);		
-					}
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSignAndSaveFile(null, parameters, successCallback, errorCallback);
-				}
+				// Ejecutamos la operacion de firma/multifirma y guardado
+				processInnerOperation(innerSignAndSaveFile, parameters, successCallback, errorCallback);
 			}
 			
 			function innerSignAndSaveFile(cipherConfig, parameters, successCallback, errorCallback) {
@@ -4542,75 +4408,30 @@ var AutoScript = ( function ( window, undefined ) {
 				var extraParams = parameters.extraParams;
 				var outputFileName = parameters.outputFileName;
 				
-				if (dataB64 == undefined || dataB64 == "") {
-					dataB64 = null;
-				}
-
-				if (dataB64 != null && !isValidUrl(dataB64)) {
-					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_");
-					dataB64 = dataB64.replace(/\n/g, "").replace(/\r/g, ""); //eliminamos saltos de carro para que no generen espacios 0x20 al parsear los atributos del XML enviado/recibido (storageServletAddress y retrieverServletAddress) que impiden la firma en Autofirma
+				if (!!dataB64 && !isValidUrl(dataB64)) {
+					// Pasamos a URL SAFE y eliminamos saltos de carro para que no generen espacios codificados como 0x20
+					// al codificarlos como XML si se tienen que enviar al servidor intermedio
+					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_").replace(/\n/g, "").replace(/\r/g, "");
 				}
 				
-				var idSession = AfirmaUtils.generateNewIdSession();
-				
-				var desKey = generateDESCipherKey();
-
-				if (!appName) {
-					appName = DOMAIN_NAME;
-				}
-
 				var opId = "signandsave";
 				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-				
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				params[params.length] = {key:"op", value:opId};
+				if (!!signId) {						params[params.length] = {key:"cop", value:signId}; }
+				if (!!defaultKeyStore) {			params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
+				if (!!format) {						params[params.length] = {key:"format", value:format}; }
+				if (!!algorithm) {					params[params.length] = {key:"algorithm", value:algorithm}; }
+				if (!!outputFileName) {				params[params.length] = {key:"filename", value:outputFileName}; }
 				
-				if (signId != null && signId != undefined) {			params[params.length] = {key:"cop", value:signId}; }
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (defaultKeyStore != null &&
-						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
-																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (format != null && format != undefined) {			params[params.length] = {key:"format", value:format}; }
-				if (algorithm != null && algorithm != undefined) {		params[params.length] = {key:"algorithm", value:algorithm}; }
-				if (outputFileName != null &&
-						outputFileName != undefined) {					params[params.length] = {key:"filename", value:outputFileName}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
-					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
-
+					&& serviceTimeout >= 0) {		params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
+				
 				configureExtraParams(params, extraParams);
 				
-				if (dataB64 != null) {									params[params.length] = {key:"dat", value:dataB64}; }
+				if (!!dataB64) {					params[params.length] = {key:"dat", value:dataB64}; }
 			
-				var url = buildUrl(opId, params);
-
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
-				
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos", ErrorCode.Request.STORAGE_URL_NOT_FOUND);
-						return;
-					}
-
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 			
 			/**
@@ -4624,24 +4445,8 @@ var AutoScript = ( function ( window, undefined ) {
 					extraParams : extraParams
 				};
 
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSignBatchXML, parameters, successCallback, errorCallback);
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSignBatchXML(null, parameters, successCallback, errorCallback) })) {
-						innerSignBatchXML(null, parameters, successCallback, errorCallback);
-					}
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSignBatchXML(null, parameters, successCallback, errorCallback);
-				}
+				// Ejecutamos la operacion de firma de lote XML
+				processInnerOperation(innerSignBatchXML, parameters, successCallback, errorCallback);
 			}
 
 			function innerSignBatchXML(cipherConfig, parameters, successCallback, errorCallback) {
@@ -4657,75 +4462,30 @@ var AutoScript = ( function ( window, undefined ) {
 				var batchPostSignerUrl = parameters.batchPostSignerUrl;
 				var extraParams = parameters.extraParams;
 				
-				if (batchB64 == undefined || batchB64 == "") {
-					batchB64 = null;
-				}
-
-				if (batchB64 != null && !isValidUrl(batchB64)) {
-					batchB64 = batchB64.replace(/\+/g, "-").replace(/\//g, "_");
-					batchB64 = batchB64.replace(/\n/g, "").replace(/\r/g, ""); //eliminamos saltos de carro para que no generen espacios 0x20 al parsear los atributos del XML enviado/recibido (storageServletAddress y retrieverServletAddress) que impiden la firma en Autofirma
-				}
-
-				var idSession = AfirmaUtils.generateNewIdSession();
-				
-				var desKey = generateDESCipherKey();
-
-				if (!appName) {
-					appName = DOMAIN_NAME;
+				if (!!dataB64 && !isValidUrl(dataB64)) {
+					// Pasamos a URL SAFE y eliminamos saltos de carro para que no generen espacios codificados como 0x20
+					// al codificarlos como XML si se tienen que enviar al servidor intermedio
+					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_").replace(/\n/g, "").replace(/\r/g, "");
 				}
 
 				var opId = "batch";
-				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-				
+
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				params[params.length] = {key:"op", value:opId};
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (defaultKeyStore != null &&
-						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
-																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (batchPreSignerUrl != null &&
-						batchPreSignerUrl != undefined) {				params[params.length] = {key:"batchpresignerurl", value:batchPreSignerUrl}; }				
-				if (batchPostSignerUrl != null &&
-						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (!!defaultKeyStore) {				params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
+				if (!!batchPreSignerUrl) {				params[params.length] = {key:"batchpresignerurl", value:batchPreSignerUrl}; }				
+				if (!!batchPostSignerUrl) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
+				
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
-					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
-
-				params[params.length] = {key:"needcert", value:"true"}; 
+					&& serviceTimeout >= 0) {			params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 
 				configureExtraParams(params, extraParams);
+					
+				params[params.length] = {key:"needcert", value:"true"}; 
 				
-				if (batchB64 != null) {									params[params.length] = {key:"dat", value:batchB64}; }
+				if (!!batchB64) {						params[params.length] = {key:"dat", value:batchB64}; }
 
-				var url = buildUrl(opId, params);
-
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
-				
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos");
-						return;
-					}
-
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 			
 			/**
@@ -4739,24 +4499,8 @@ var AutoScript = ( function ( window, undefined ) {
 					certFilters : certFilters
 				};
 
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSignBatchJSON, parameters, successCallback, errorCallback);	
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSignBatchJSON(null, parameters, successCallback, errorCallback) })) {
-						innerSignBatchJSON(null, parameters, successCallback, errorCallback);
-					}
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSignBatchJSON(null, parameters, successCallback, errorCallback);
-				}
+				// Ejecutamos la operacion de firma de lote JSON
+				processInnerOperation(innerSignBatchJSON, parameters, successCallback, errorCallback);
 			}
 
 			function innerSignBatchJSON(cipherConfig, parameters, successCallback, errorCallback) {
@@ -4771,68 +4515,27 @@ var AutoScript = ( function ( window, undefined ) {
 				var batchPreSignerUrl = parameters.batchPreSignerUrl;
 				var batchPostSignerUrl = parameters.batchPostSignerUrl;
 				var certFilters = parameters.certFilters;
-				
-				var idSession = AfirmaUtils.generateNewIdSession();
-				
-				var desKey = generateDESCipherKey();
-
-				if (!appName) {
-					appName = DOMAIN_NAME;
-				}
 
 				var opId = "batch";
-				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-				
+
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				params[params.length] = {key:"op", value:opId};
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (defaultKeyStore != null &&
-						defaultKeyStore != undefined) {					params[params.length] = {key:"keystore", value:defaultKeyStore};
-																		params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (batchPreSignerUrl != null &&
-						batchPreSignerUrl != undefined) {				params[params.length] = {key:"batchpresignerurl", value:batchPreSignerUrl}; }				
-				if (batchPostSignerUrl != null &&
-						batchPostSignerUrl != undefined) {				params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:true}; } // Espera activa
-				if (appName != null && appName != undefined) {			params[params.length] = {key:"appname", value:appName}; }
+				if (!!defaultKeyStore) {					params[params.length] = {key:"ksb64", value:Base64.encode(defaultKeyStore)}; }
+				if (!!batchPreSignerUrl) {					params[params.length] = {key:"batchpresignerurl", value:batchPreSignerUrl}; }				
+				if (!!batchPostSignerUrl) {					params[params.length] = {key:"batchpostsignerurl", value:batchPostSignerUrl}; }
+				if (!!localBatchProcess) {					params[params.length] = {key:"localBatchProcess", value:true}; }
+				
 				if (serviceTimeout != null 
 					&& serviceTimeout != undefined
-					&& serviceTimeout >= 0) {							params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
-				if (localBatchProcess) {								params[params.length] = {key:"localBatchProcess", value:true}; }
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
-
-				configureExtraParams(params, certFilters);
-								
-				params[params.length] = {key:"needcert", value:true};
-				params[params.length] = {key:"jsonbatch", value:true}; 
-				params[params.length] = {key:"dat", value:jsonRequestB64}; 
-				 
-				var url = buildUrl(opId, params);
-
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
+					&& serviceTimeout >= 0) {				params[params.length] = {key:"servicetimeout", value:serviceTimeout}; }
 				
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos");
-						return;
-					}
+				configureExtraParams(params, certFilters);
 
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				params[params.length] = {key:"needcert", value:true};
+				params[params.length] = {key:"jsonbatch", value:true};
+				
+				if (!!jsonRequestB64) {						params[params.length] = {key:"dat", value:jsonRequestB64}; }
+
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 			
 			/**
@@ -4847,24 +4550,8 @@ var AutoScript = ( function ( window, undefined ) {
 					description : description
 				};
 
-				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
-				if (isSecureEnvironment()) {
-					executeWithAdvancedCipher(innerSaveDataToFile, parameters, successCallback, errorCallback);
-				}
-				// Si la direccion no es HTTPS sera ese por lo que no se tiene acceso a la CryptoAPI
-				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
-				// tengan en cuenta
-				else if (!isHttpsAddress()) {
-					// Si el dialogo estaba desactivado ejecutamos directamente
-					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
-							function() { innerSaveDataToFile(null, parameters, successCallback, errorCallback) }) ) {
-						innerSaveDataToFile(null, parameters, successCallback, errorCallback);
-					}
-				}
-				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
-				else {
-					innerSaveDataToFile(null, parameters, successCallback, errorCallback);
-				}
+				// Ejecutamos la operacion de guardado
+				processInnerOperation(innerSaveDataToFile, parameters, successCallback, errorCallback);
 			}
 
 			function innerSaveDataToFile(cipherConfig, parameters, successCallback, errorCallback) {
@@ -4880,60 +4567,20 @@ var AutoScript = ( function ( window, undefined ) {
 				var extension = parameters.extension;
 				var description = parameters.description;
 				
-				if (dataB64 != undefined && dataB64 != null && dataB64 != "") {
-					dataB64 = dataB64.replace(/\+/g, "-").replace(/\//g, "_");
-				}
-
-				var idSession = AfirmaUtils.generateNewIdSession();
-				
-				var desKey = generateDESCipherKey();
-
 				var opId = "save";
 				
-				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
-				
 				var params = new Array();
-				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
-				params[params.length] = {key:"op", value:opId};
-	
-				if (idSession != null && idSession != undefined) {		params[params.length] = {key:"id", value:idSession}; }
-				if (desKey != null && desKey != undefined) {			params[params.length] = {key:"key", value:desKey}; }
-				if (cipherConfigEncoded != null && cipherConfigEncoded != undefined) {params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
-				if (storageServletAddress != null &&
-						storageServletAddress != undefined) {			params[params.length] = {key:"stservlet", value:storageServletAddress}; }
-				if (title != null && title != undefined) {				params[params.length] = {key:"title", value:title}; }
-				if (filename != null && filename != undefined) {		params[params.length] = {key:"filename", value:filename}; }
-				if (extension != null && extension != undefined) {		params[params.length] = {key:"extension", value:extension}; }
-				if (description != null && description != undefined) {	params[params.length] = {key:"description", value:description}; }
-				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
-				if (!showDialog) {										params[params.length] = {key:"dlgload", showDialog}; }	
-				if (dataB64 != null && dataB64 != undefined && dataB64 != "") {			params[params.length] = {key:"dat", value:dataB64}; }
-				
-				
-				var url = buildUrl(opId, params);
+				if (!!title) {				params[params.length] = {key:"title", value:title}; }
+				if (!!filename) {			params[params.length] = {key:"filename", value:filename}; }
+				if (!!extension) {			params[params.length] = {key:"extension", value:extension}; }
+				if (!!description) {		params[params.length] = {key:"description", value:description}; }
+				if (!!dataB64) {			params[params.length] = {key:"dat", value:dataB64.replace(/\+/g, "-").replace(/\//g, "_")}; }
 
-				var decipherConfig = {
-					 cipherConfig: cipherConfig,
-					 desKey: desKey
-				};
-
-				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
-				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
-				if (isURLTooLong(url)) {
-					if (storageServletAddress == null || storageServletAddress == undefined) {
-						throwException("java.lang.IllegalArgumentException", "No se ha indicado la direccion del servlet para el guardado de datos");
-						return;
-					}
-					
-					sendDataAndExecAppIntent(idSession, decipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
-				}
-				else {
-					execAppIntent(url, idSession, decipherConfig, successCallback, errorCallback);
-				}
+				initProcess(opId, cipherConfig, params, successCallback, errorCallback);
 			}
 
 			/**
-			 * Carga de fichero de datos. Se realiza mediante la invocacion de una app nativa. 
+			 * Carga de fichero de datos. No se encuentra implementada en este modo de comunicacion. 
 			 */
 			function getFileNameContentBase64 (title, extensions, description, filePath, successCallback, errorCallback) {
 				errorType = "java.lang.UnsupportedOperationException";
@@ -4948,14 +4595,14 @@ var AutoScript = ( function ( window, undefined ) {
 			}
 
 			/**
-			 * Carga de multiples ficheros de datos. Se realiza mediante la invocacion de una app nativa. 
+			 * Carga de multiples ficheros de datos. No se encuentra implementada en este modo de comunicacion.
 			 */
 			function getMultiFileNameContentBase64  (title, extensions, description, filePath, successCallback, errorCallback) {
 				errorType = "java.lang.UnsupportedOperationException";
 				errorMessage = ErrorCode.Functional.UPLOAD_MULTIPLE_FILE_SERVER.message;
 				errorCode = ErrorCode.Functional.UPLOAD_MULTIPLE_FILE_SERVER.code;
 				if (!errorCallback) {
-					throwException(errorType, errorMessage, ErrorCode.Functional.UPLOAD_MULTIPLE_FILE_SERVER);
+					throwException(errorType, ErrorCode.Functional.UPLOAD_MULTIPLE_FILE_SERVER);
 				}
 				else {
 					errorCallback(errorType, errorMessage, errorCode);
@@ -5052,6 +4699,42 @@ var AutoScript = ( function ( window, undefined ) {
 				return number + "";
 			}
 			
+
+			/**
+			 * Ejecuta una de las operaciones del cliente a traves de servidor intermedio.
+			 */
+			function processInnerOperation(innerOperation, parameters, successCallback, errorCallback) {
+				
+				// Si no tenemos la URL de guardado o recuperacion, abortamos la operacion
+				if (storageServletAddress == null || storageServletAddress == undefined) {
+					throwException("java.lang.IllegalArgumentException", ErrorCode.Request.STORAGE_URL_NOT_FOUND);
+					return;
+				}
+				if (retrieverServletAddress == null || retrieverServletAddress == undefined) {
+					throwException("java.lang.IllegalArgumentException", ErrorCode.Request.RETRIEVE_URL_NOT_FOUND);
+					return;
+				}
+				
+				// Comprobamos si estamos en un entorno seguro desde el que podamos usar el cifrado avanzado
+				if (isSecureEnvironment()) {
+					executeWithAdvancedCipher(innerOperation, parameters, successCallback, errorCallback);
+				}
+				// Si la direccion no es HTTPS, sera eso por lo que no se tiene acceso a la CryptoAPI
+				// y, antes de ejecutar la operacion, deberemos avisarlo para que los integradores lo
+				// tengan en cuenta
+				else if (!isHttpsAddress()) {
+					// Si el dialogo estaba desactivado ejecutamos directamente
+					if (!Dialog.showWarningDialog(WARNING_INSECURE_CONTEXT,
+							function() { innerOperation(null, parameters, successCallback, errorCallback) })) {
+						innerOperation(null, parameters, successCallback, errorCallback)
+					}
+				}
+				// Si no se tiene acceso a la CryptoAPI por otro motivo, simplemente se usa el mecanismo antiguo
+				else {
+					innerOperation(null, parameters, successCallback, errorCallback);
+				}
+			}
+
 			/**
 			 * Ejecuta un metodo de operacion enviando los datos por servidor intermedio
 			 * @param operationMethod Metodo de la operacion que debe ejecutar.
@@ -5083,7 +4766,8 @@ var AutoScript = ( function ( window, undefined ) {
 					var cipherJSON = {
 					  algo: "AES",
 					  key: 	keyB64,
-					  iv: 	ivB64
+					  iv: 	ivB64,
+					  legDes:	generateDESCipherKey()
 					};
 
 					operationMethod(cipherJSON, operationParameters, successCallback, errorCallback);
@@ -5094,6 +4778,37 @@ var AutoScript = ( function ( window, undefined ) {
 			function encodeCipherConfig(config) {
 				var plainConfig = JSON.stringify(config);				
 				return Base64.encode(plainConfig);
+			}
+			
+			/** Completa la configuracion basica de la operacion y la inicia. */
+			function initProcess(opId, cipherConfig, params, successCallback, errorCallback) {
+				
+				var idSession = AfirmaUtils.generateNewIdSession();
+				var desKey = !!cipherConfig ? cipherConfig.legDes : generateDESCipherKey();
+				var cipherConfigEncoded = !!cipherConfig ? encodeCipherConfig(cipherConfig) : null;
+				var sourceName = !!appName ? appName : DOMAIN_NAME;
+								
+				params[params.length] = {key:"ver", value:PROTOCOL_VERSION};
+				params[params.length] = {key:"op", value:opId};
+				params[params.length] = {key:"id", value:idSession};
+				params[params.length] = {key:"appname", value:sourceName};
+				
+				if (!!desKey) {					params[params.length] = {key:"key", value:desKey}; }
+				if (!!cipherConfigEncoded) {	params[params.length] = {key:"cipher", value:cipherConfigEncoded}; }
+				if (!!storageServletAddress) {	params[params.length] = {key:"stservlet", value:storageServletAddress}; }
+				if (!showDialog) {				params[params.length] = {key:"dlgload", showDialog}; }	// Si no debemos mostrar el dialogo de carga, lo indicamos
+				if (!Platform.isAndroid() && !Platform.isIOS()) {		params[params.length] = {key:"aw", value:"true"}; } // Espera activa
+
+				var url = buildUrl(opId, params);
+
+				// Si la URL es muy larga, realizamos un preproceso para que los datos se suban al
+				// servidor y la aplicacion nativa los descargue, en lugar de pasarlos directamente 
+				if (isURLTooLong(url)) {
+					sendDataAndExecAppIntent(idSession, cipherConfig, storageServletAddress, retrieverServletAddress, opId, params, successCallback, errorCallback)
+				}
+				else {
+					execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
+				}
 			}
 			
 			/**
@@ -5143,9 +4858,6 @@ var AutoScript = ( function ( window, undefined ) {
 								errorCallback("java.lang.IllegalArgumentException",ErrorCode.Request.TOO_LONG_URL.message, errorCode);
 								return;
 							}
-														
-							alert("Configuracion en el exec: " + JSON.stringify(cipherConfig));
-							
 							execAppIntent(url, idSession, cipherConfig, successCallback, errorCallback);
 						}
 						else {
@@ -5183,10 +4895,10 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				// Si sabemos que se puede usar el cifrado avanzado, lo usamos. Si no, usamos el antiguo
 				if (newCiphersSupported) {
-					dataB64 = cipherAndSendData(dataB64, cipherConfig.cipherConfig, fileId, httpRequest, errorCallback);
+					dataB64 = cipherAndSendData(dataB64, cipherConfig, fileId, httpRequest, errorCallback);
 					
 				} else {
-					dataB64 = cipherDES(dataB64, cipherConfig.desKey);
+					dataB64 = cipherDES(dataB64, cipherConfig.legDes);
 					sendData(dataB64, fileId, httpRequest, errorCallback);
 				}
 			}
@@ -5323,11 +5035,11 @@ var AutoScript = ( function ( window, undefined ) {
 			 * @param responseId Identificador de la respuesta.
 			 * @param rtServlet Servlet para la descarga de la configuraci&oacute;n.
 			 * @param stServlet Servlet para la subida de la configuraci&oacute;n.
-			 * @param decipherConfig Configuracion para el descifrado. Si no se indica, no se descifra.
+			 * @param cipherConfig Configuracion para el descifrado. Si no se indica, no se descifra.
 			 * @returns URL para la llamada a la app con los datos necesarios para que descargue
 			 * la configuraci&oacute;n de la operaci&oacute;n a realizar.
 			 */
-			function buildUrlWithoutData (op, fileId, responseId, rtServlet, stServlet, decipherConfig) {
+			function buildUrlWithoutData (op, fileId, responseId, rtServlet, stServlet, cipherConfig) {
 				var j = 0;
 				var newParams = new Array();
 				newParams[j++] = {key:"fileid", value:fileId};
@@ -5339,13 +5051,11 @@ var AutoScript = ( function ( window, undefined ) {
 					newParams[j++] = {key:"stservlet", value:stServlet};
 				}
 				
-				if (decipherConfig != null || decipherConfig != undefined) {
-					if (decipherConfig.desKey) {
-						newParams[j++] = {key:"key", value:decipherConfig.desKey};
+				if (!!cipherConfig) {
+					if (!!cipherConfig.legDes) {
+						newParams[j++] = {key:"key", value:cipherConfig.legDes};
 					}
-					if (decipherConfig.cipherConfig) {
-						newParams[j++] = {key:"cipher", value:encodeCipherConfig(decipherConfig.cipherConfig)};
-					}
+					newParams[j++] = {key:"cipher", value:encodeCipherConfig(cipherConfig)};
 				}
 				return buildUrl(op, newParams);
 			};
@@ -5357,13 +5067,13 @@ var AutoScript = ( function ( window, undefined ) {
 			 * de indicar false, no se esperara mas; en caso de true, se seguira con la espera; y si se
 			 * de vuelve "reset" se debera reiniciar la espera.
 			 * @param html Resultado obtenido.
-			 * @param decipherConfig Configuracion para el descifrado del resultado si no es un error.
+			 * @param cipherConfig Configuracion para el descifrado del resultado si no es un error.
 			 * @param successCallback Metodo a ejecutar en caso de exito.
 			 * @param errorCallback Metodo a ejecutar en caso de error.
 			 * @returns Devuelve true si se ha fallado pero se puede volver a reintentar, false en caso de
 			 * error determinante o exito.
 			 */
-			function successResponseFunction (html, decipherConfig, successCallback, errorCallback) {
+			function successResponseFunction (html, cipherConfig, successCallback, errorCallback) {
 				
 				// Si se obtiene el mensaje de  error de que el identificador no existe, seguimos intentandolo
 				if (html.substring(0, 6).toLowerCase() == "err-06") {
@@ -5454,9 +5164,9 @@ var AutoScript = ( function ( window, undefined ) {
 				
 				// Si tenemos disponible los mecanismos de los entornos seguros, usamos el descifrado avanzado
 				// de forma asincrona y finalizamos
-				if (isSecureEnvironment() && !!decipherConfig && !!decipherConfig.cipherConfig) {
+				if (isSecureEnvironment() && !!cipherConfig) {
 					try {
-						advDecipherDatasAndProcessResultAsync(datas, decipherConfig.cipherConfig, successCallback, errorCallback);
+						advDecipherDatasAndProcessResultAsync(datas, cipherConfig, successCallback, errorCallback);
 						return;					
 					} catch (e) {
 						console.log("El cliente de firma no uso el cifrado avanzado, se usara el corriente");
@@ -5464,8 +5174,8 @@ var AutoScript = ( function ( window, undefined ) {
 				}
 				
 				// Si el cifrado avanzado no estaba disponible o fallo, usamos el descifrado corriente
-				if (decipherConfig) {
-				 	datas = decipherDES(datas, decipherConfig.desKey);
+				if (!!cipherConfig) {
+				 	datas = decipherDES(datas, cipherConfig.legDes);
 				}
 				processSuccessResult(datas, successCallback);
 			}
@@ -5718,20 +5428,18 @@ var AutoScript = ( function ( window, undefined ) {
 				setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, servletAddress, "op=get&v=1_0&id=" + idDocument + "&it=0", decipherConfig, operationFunction, operationParams, false, successCallback, errorCallback);
 			}
 
-			function retrieveRequest(httpRequest, url, params, decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback) {
+			function retrieveRequest(httpRequest, url, params, cipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback) {
 
 				if (wrongInstallation) {
 					var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_AFIRMA,
-																	function() {operationFunction(decipherConfig, operationParams, successCallback, errorCallback) },
+																	function() {operationFunction(cipherConfig, operationParams, successCallback, errorCallback) },
 																	function (){errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);});
 					if (!enabled) {
 						errorResponseFunction("es.gob.afirma.standalone.ApplicationNotFoundException", ErrorCode.Request.WEBSERVER_INVOICE_APP.message, errorCallback, ErrorCode.Request.WEBSERVER_INVOICE_APP.code);
 					}
 					return;
 				}
-			
-				var cipherConfig = !!decipherConfig ? decipherConfig.cipherConfig : null;
-				
+							
 				// Contamos la nueva llamada al servidor
 				if (iterations > NUM_MAX_ITERATIONS) {
 					if(!!afirmaConnected) {
@@ -5762,7 +5470,7 @@ var AutoScript = ( function ( window, undefined ) {
 				httpRequest.onreadystatechange = function() {
 					if (httpRequest.readyState == 4) {
 						if (httpRequest.status == 200) {
-							var needContinue = successResponseFunction(httpRequest.responseText, decipherConfig, successCallback, errorCallback);
+							var needContinue = successResponseFunction(httpRequest.responseText, cipherConfig, successCallback, errorCallback);
 							if (needContinue) {
 								// En caso de que la respuesta sea "reset", se reinicia la espera
 								var oldIterations = iterations-1;
@@ -5770,7 +5478,7 @@ var AutoScript = ( function ( window, undefined ) {
 									iterations = 0;
 									afirmaConnected = true;
 								}
-								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
+								setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), cipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
 							}
 						}
 						// En iOS, a veces, despues de abrirse Autofirma, la primera llamada al metodo de recuperacion
@@ -5778,7 +5486,7 @@ var AutoScript = ( function ( window, undefined ) {
 						// proseguimos intentandolo hasta obtener un respuesta correcta o agotar los intentos 
 						else if (httpRequest.status == 0) {
 							var oldIterations = iterations-1;
-							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), decipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
+							setTimeout(retrieveRequest, WAITING_CYCLE_MILLIS, httpRequest, url, params.replace("&it=" + oldIterations, "&it=" + iterations), cipherConfig, operationFunction, operationParams, afirmaConnected, successCallback, errorCallback);
 						}
 						else {
 							var enabled = Dialog.showErrorDialog(ERROR_CONNECTING_SERVICE,
