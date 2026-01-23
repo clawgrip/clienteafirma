@@ -43,9 +43,9 @@ public class SimpleErrorCode {
 		public static final ErrorCode ENCRYPTING_PARAMS_ERROR			= new ErrorCode("220004", "Error encriptando los datos del servidor"); //$NON-NLS-1$ //$NON-NLS-2$
 		public static final ErrorCode LOADING_SSL_KEYSTORE_ERROR		= new ErrorCode("220008", "No se ha podido cargar el almacen de claves SSL"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		public static final ErrorCode GENERIC_LANGUAGE_IMPORT_ERROR		= new ErrorCode("230000", "Error importando el idioma"); //$NON-NLS-1$ //$NON-NLS-2$
-		public static final ErrorCode CANT_READ_FILE					= new ErrorCode("230001", "No se ha podido leer correctamente el archivo ZIP"); //$NON-NLS-1$ //$NON-NLS-2$
-		public static final ErrorCode CANT_CREATE_DIRECTORY				= new ErrorCode("230002", "Se ha producido un error al crear el directorio del idioma"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode GENERIC_LANGUAGE_IMPORT_ERROR		= new ErrorCode("230100", "Error importando el idioma"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode CANT_READ_FILE					= new ErrorCode("230101", "No se ha podido leer correctamente el archivo ZIP"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode CANT_CREATE_DIRECTORY				= new ErrorCode("230102", "Se ha producido un error al crear el directorio del idioma"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static class Communication {

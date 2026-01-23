@@ -182,7 +182,7 @@ public final class PreferencesManager {
 	 * cuando se use el cliente sobre VDI para evitar un mal mayor.
 	 */
 	public static final String PREFERENCE_GENERAL_VDI_OPTIMIZATION = "vdiOptimization"; //$NON-NLS-1$
-	
+
 	/**
 	 * Configura una propiedad para habilitar un di&aacute;logo de espera que indica la tarea que este ejecutando
 	 * Autofirma en ese mismo instante.
@@ -591,7 +591,7 @@ public final class PreferencesManager {
 	//**************************************************************************************************************************
 
 	//**************************************************************************************************************************
-	//**************** PREFERENCIAS UNICAMENTE DE SISTEMA ********************************************************************
+	//**************** PREFERENCIAS UNICAMENTE DE SISTEMA **********************************************************************
 
 	private static final String SYSTEM_PREFERENCE_CONFIG_FILE_URL = "configFileUrl"; //$NON-NLS-1$
 	private static final String SYSTEM_PREFERENCE_CONFIG_FILE_SHA256 = "configFileSHA256"; //$NON-NLS-1$
@@ -603,7 +603,20 @@ public final class PreferencesManager {
 			SYSTEM_PREFERENCE_ALLOW_UPDATE_CONFIG,
 	};
 
-	//**************** FIN PREFERENCIAS UNICAMENTE DE SISTEMA ***************************************************************
+	//**************** FIN PREFERENCIAS UNICAMENTE DE SISTEMA ******************************************************************
+	//**************************************************************************************************************************
+
+	//**************************************************************************************************************************
+	//**************** PREFERENCIAS PARA ADMINISTRADORES ***********************************************************************
+
+	/** Indica si se permite la importaci&oacute;n de ficheros de preferencias sin firmar. */
+	public static final String ADMIN_PREFERENCE_REQUIRE_SIGNED_PREFERENCES = "requireSignedPrerefences"; //$NON-NLS-1$
+
+	/** Indica si hash en base 64 del certificado de firma de los fichers de preferencias. */
+	public static final String ADMIN_PREFERENCE_CERT_HASH_TO_SIGNED_PREFERENCES = "certHashToSignedPrerefences"; //$NON-NLS-1$
+
+
+	//**************** FIN PREFERENCIAS PARA ADMINISTRADORES *******************************************************************
 	//**************************************************************************************************************************
 
 	private static void init() {

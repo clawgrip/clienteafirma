@@ -362,7 +362,7 @@ public final class MainMenu extends JMenuBar {
 						SimpleAfirmaMessages.getString("MainMenu.52"), //$NON-NLS-1$
 						SimpleAfirmaMessages.getString("MainMenu.45"), //$NON-NLS-1$
 						JOptionPane.INFORMATION_MESSAGE);
-				
+
                 showRestartWarning();
 			} catch (final AOException e1) {
 				AOUIFactory.showErrorMessage(
@@ -637,7 +637,7 @@ public final class MainMenu extends JMenuBar {
 		final String localeProp = langProps.get(LanguageManager.LOCALE_PROP);
 		final String[] parts = localeProp.split("_"); //$NON-NLS-1$
 		final Locale locale = new Locale(parts[0], parts[1]);
-		
+
 		// Comprobamos si existia otra version del idioma para evitar que se duplique
 		boolean existsLang = false;
         final Enumeration<AbstractButton> buttons = langGroup.getElements();
@@ -647,7 +647,7 @@ public final class MainMenu extends JMenuBar {
             if (locale.equals(localeOption.getLocale())) {
             	existsLang = true;
             	button.setSelected(true);
-            }         
+            }
         }
 
 		// Si no se encuentra entre los idiomas de Autofirma lo anadimos al menu
@@ -671,7 +671,7 @@ public final class MainMenu extends JMenuBar {
 			langGroup.add(newImportedLangItem);
 			languageMenu.insert(newImportedLangItem, languageMenu.getItemCount() - 2);
 		}
-		
+
 		Locale.setDefault(locale);
         PreferencesManager.put(PreferencesManager.PREFERENCES_LOCALE, localeProp);
         SimpleAfirmaMessages.changeLocale();
@@ -682,14 +682,15 @@ public final class MainMenu extends JMenuBar {
 		String message = null;
 
 		if (t instanceof AOException) {
-			message = obtainSimpleErrorCodeFromPluginException((AOException) t);
+			message = recoverMessage((AOException) t);
 		} else {
-			message = SimpleAfirmaMessages.getString("PluginManagementError.0"); //$NON-NLS-1$
+			// Mensaje generico sin identificar el error
+			message = SimpleAfirmaMessages.getString("LanguageManagementError.230000"); //$NON-NLS-1$
 		}
 		return message;
 	}
 
-	private static String obtainSimpleErrorCodeFromPluginException(final AOException exception) {
+	private static String recoverMessage(final AOException exception) {
 
 		//Check again the code received in the AOException
 		ErrorCode errorCode = null;

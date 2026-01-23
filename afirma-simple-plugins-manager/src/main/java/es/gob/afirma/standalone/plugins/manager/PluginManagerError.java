@@ -6,13 +6,13 @@ public class PluginManagerError {
 
 	public static class Internal {
 
-		public static final ErrorCode PLUGIN_ERROR						= new ErrorCode("240000", "Error desconocido con el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
-		public static final ErrorCode UNINSTALL_PLUGIN_ERROR   			= new ErrorCode("240001", "Ocurrio un error al desinstalar el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
-        public static final ErrorCode ERROR_IN_PLUGIN   				= new ErrorCode("240002", "El propio plugin devolvio un error durante su instalacion"); //$NON-NLS-1$ //$NON-NLS-2$
-        public static final ErrorCode CANT_REMOVE_LOADED_PLUGIN   		= new ErrorCode("240003", "Ha ocurrido un error al eliminar el plugin anterior"); //$NON-NLS-1$ //$NON-NLS-2$
-        public static final ErrorCode PLUGIN_DIRECTORY_ERROR   			= new ErrorCode("240004", "El plugin seleccionado ya se encuentra instalado"); //$NON-NLS-1$ //$NON-NLS-2$
-        public static final ErrorCode PLUGIN_LOAD_ERROR   				= new ErrorCode("240005", "Ha ocurrido un error al intentar cargar el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
-        public static final ErrorCode INSTALLED_PLUGIN_NOT_FOUND		= new ErrorCode("240006", "No se encontraron los ficheros de un plugin previamente instalado"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode PLUGIN_ERROR						= new ErrorCode("230200", "Error desconocido con el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
+		public static final ErrorCode UNINSTALL_PLUGIN_ERROR   			= new ErrorCode("230201", "Ocurrio un error al desinstalar el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode ERROR_IN_PLUGIN   				= new ErrorCode("230202", "El propio plugin devolvio un error durante su instalacion"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode CANT_REMOVE_LOADED_PLUGIN   		= new ErrorCode("230203", "Ha ocurrido un error al eliminar el plugin anterior"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode PLUGIN_DIRECTORY_ERROR   			= new ErrorCode("230204", "El plugin seleccionado ya se encuentra instalado"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode PLUGIN_LOAD_ERROR   				= new ErrorCode("230205", "Ha ocurrido un error al intentar cargar el plugin"); //$NON-NLS-1$ //$NON-NLS-2$
+        public static final ErrorCode INSTALLED_PLUGIN_NOT_FOUND		= new ErrorCode("230206", "No se encontraron los ficheros de un plugin previamente instalado"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static class Functional {
