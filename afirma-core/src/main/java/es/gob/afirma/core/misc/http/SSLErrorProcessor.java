@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -161,41 +162,6 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 			throw new IOException(e);
 		}
 		
-
-		int userResponse;
-		synchronized (LOGGER) {
-			try {
-				// Comprobamos si anteriormente ya se cancelo la importacion del certificado, para no solicitar de nuevo que se importe
-				if (previouslyCancelled) {
-					throw new AOCancelledOperationException();
-				}
-				showingConfirmDialog = true;
-				userResponse = AOUIFactory.showConfirmDialog(null,
-						CoreMessages.getString("SSLRequestPermissionDialog.2", new URL(url).getHost()), //$NON-NLS-1$
-						CoreMessages.getString("SSLRequestPermissionDialog.1"), //$NON-NLS-1$
-						AOUIFactory.YES_NO_OPTION,
-						AOUIFactory.WARNING_MESSAGE);
-			}
-			catch (final AOCancelledOperationException ex) {
-				this.cancelled = true;
-				previouslyCancelled = true;
-				throw cause;
-			}
-			catch (final Exception ex) {
-				throw cause;
-			}
-			finally {
-				showingConfirmDialog = false;
-			}
-		}
-
-		if (userResponse != AOUIFactory.YES_OPTION) {
-			LOGGER.info("El usuario no importo el certificado en el almacen de confianza"); //$NON-NLS-1$
-			this.cancelled = true;
-			previouslyCancelled = true;
-			throw cause;
-		}
-
 		// Descargamos los certificados SSL del servidor
 		X509Certificate[] serverCerts;
 		try {
@@ -203,28 +169,80 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		} catch (final Exception e) {
 			LOGGER.severe("Error al descargar certificados SSL del servidor: " + e); //$NON-NLS-1$
 			throw new IOException(e);
-		}
+		}	
+		
+		boolean allCertsAlreadyTrusted = true;
 
-		// Mostramos en el log los certificado que se van a importar
-		for (final X509Certificate cert : serverCerts) {
-			LOGGER.info("Se importa en caliente en el almacen de confianza el certificado con el numero de serie: " //$NON-NLS-1$
-					+ AOUtil.hexify(cert.getSerialNumber().toByteArray(), false));
+		for (X509Certificate cert : serverCerts) {
+		    try {
+				if (!TrustStoreManager.getInstance().containsCert(cert)) {
+				    allCertsAlreadyTrusted = false;
+				    break;
+				}
+			} catch (KeyStoreException e) {
+				LOGGER.severe("Error al comprobar certificados SSL del servidor: " + e); //$NON-NLS-1$
+				throw new IOException(e);
+			}
 		}
+		
+		if (!allCertsAlreadyTrusted) {
 
-		// Configuramos los certificados SSL en el almacen de confianza
-		try {
-			TrustStoreManager.getInstance().importCerts(serverCerts);
-		} catch (final Exception e) {
-			LOGGER.severe("Error al importar los certificados SSL en el almacen de confianza: " + e); //$NON-NLS-1$
-			throw new IOException(e);
-		}
+			int userResponse;
+			synchronized (LOGGER) {
+				try {
+					// Comprobamos si anteriormente ya se cancelo la importacion del certificado, para no solicitar de nuevo que se importe
+					if (previouslyCancelled) {
+						throw new AOCancelledOperationException();
+					}
+					showingConfirmDialog = true;
+					userResponse = AOUIFactory.showConfirmDialog(null,
+							CoreMessages.getString("SSLRequestPermissionDialog.2", new URL(url).getHost()), //$NON-NLS-1$
+							CoreMessages.getString("SSLRequestPermissionDialog.1"), //$NON-NLS-1$
+							AOUIFactory.YES_NO_OPTION,
+							AOUIFactory.WARNING_MESSAGE);
+				}
+				catch (final AOCancelledOperationException ex) {
+					this.cancelled = true;
+					previouslyCancelled = true;
+					throw cause;
+				}
+				catch (final Exception ex) {
+					throw cause;
+				}
+				finally {
+					showingConfirmDialog = false;
+				}
+			}
 
-		// Reconfiguramos el contexto SSL para que tenga en cuenta los nuevos certificados
-		try {
-			SslSecurityManager.configureAfirmaTrustManagers();
-		} catch (final Exception e) {
-			LOGGER.severe("Error reconfigurando el contexto SSL con los nuevos certificados: " + e); //$NON-NLS-1$
-			throw new IOException(e);
+			if (userResponse != AOUIFactory.YES_OPTION) {
+				LOGGER.info("El usuario no importo el certificado en el almacen de confianza"); //$NON-NLS-1$
+				this.cancelled = true;
+				previouslyCancelled = true;
+				throw cause;
+			}
+
+			// Mostramos en el log los certificado que se van a importar
+			for (final X509Certificate cert : serverCerts) {
+				LOGGER.info("Se importa en caliente en el almacen de confianza el certificado con el numero de serie: " //$NON-NLS-1$
+						+ AOUtil.hexify(cert.getSerialNumber().toByteArray(), false));
+			}
+
+			// Configuramos los certificados SSL en el almacen de confianza
+			try {
+				TrustStoreManager.getInstance().importCerts(serverCerts);
+			} catch (final Exception e) {
+				LOGGER.severe("Error al importar los certificados SSL en el almacen de confianza: " + e); //$NON-NLS-1$
+				throw new IOException(e);
+			}
+
+			// Reconfiguramos el contexto SSL para que tenga en cuenta los nuevos certificados
+			try {
+				SslSecurityManager.configureAfirmaTrustManagers();
+			} catch (final Exception e) {
+				LOGGER.severe("Error reconfigurando el contexto SSL con los nuevos certificados: " + e); //$NON-NLS-1$
+				throw new IOException(e);
+			}
+
 		}
 
 		// Reintentamos la conexion
