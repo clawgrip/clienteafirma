@@ -49,6 +49,9 @@ final class ConfiguratorWindows implements Configurator {
 	private static final String KS_PASSWORD = "654321"; //$NON-NLS-1$
 	private static final String CA_CERT_FILENAME = "Autofirma_ROOT.cer"; //$NON-NLS-1$
 
+	/** M&aacute;ximo n&uacute;mero de segundos que se esperar&aacute; a que finalicen los scripts. */
+	private static final long WAITING_TIME_IN_SECONDS = 10;
+
 	/**
 	 * N&uacute;mero de veces que se intentar&aacute; desinstalar el certificado del almac&eacute;n
 	 * de Firefox cuando sea necesario hacerlo.
@@ -164,10 +167,10 @@ final class ConfiguratorWindows implements Configurator {
 
 		try {
 			window.print(Messages.getString("ConfiguratorWindows.27")); //$NON-NLS-1$
-			Path cmd = CmdExecutor.copyCmdFromResources("windows/autofirma-addpath.cmd"); //$NON-NLS-1$
-			CmdExecutor.executePathCmd(cmd, appDir.toPath());
+			final Path cmd = WindowsCmdExecutor.copyCmdFromResources("windows/autofirma-addpath.cmd"); //$NON-NLS-1$
+			WindowsCmdExecutor.executePathCmd(cmd, WAITING_TIME_IN_SECONDS, appDir.getAbsolutePath());
 			window.print(Messages.getString("ConfiguratorWindows.29")); //$NON-NLS-1$
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			LOGGER.log(Level.WARNING, "No se pudo agregar correctamente la ruta de instalacion de la variable PATH", e); //$NON-NLS-1$
 			window.print(Messages.getString("ConfiguratorWindows.28")); //$NON-NLS-1$
 		}
@@ -250,6 +253,7 @@ final class ConfiguratorWindows implements Configurator {
 
 		// Eliminamos el directorio alternativo en el que se instalan los certificados SSL
 		// durante el proceso de restauracion de la instalacion
+		LOGGER.info("Eliminamos el directorio alternativo de instalacion de certificados"); //$NON-NLS-1$
 		final File alternativeDir = getAlternativeApplicationDirectory();
 		if (alternativeDir.isDirectory()) {
 			try {
@@ -283,11 +287,13 @@ final class ConfiguratorWindows implements Configurator {
 				LOGGER.log(Level.WARNING, "No se ha podido eliminar por completo el directorio alternativo para el certificado SSL", e); //$NON-NLS-1$
 			}
 		}
-		
+
+		// Ejecutamos el script para el borrado de la ruta de la aplicacion en el PATH
+		LOGGER.info("Eliminamos la entrada de Autofirma en el PATH"); //$NON-NLS-1$
 		try {
-			Path cmd = CmdExecutor.copyCmdFromResources("windows/autofirma-removepath.cmd"); //$NON-NLS-1$
-			CmdExecutor.executePathCmd(cmd, getApplicationDirectory(false).toPath());
-		} catch (Exception e) {
+			final Path cmd = WindowsCmdExecutor.copyCmdFromResources("windows/autofirma-removepath.cmd"); //$NON-NLS-1$
+			WindowsCmdExecutor.executePathCmd(cmd, WAITING_TIME_IN_SECONDS, getApplicationDirectory(false).getAbsolutePath());
+		} catch (final Exception e) {
 			LOGGER.log(Level.WARNING, "No se pudo eliminar correctamente la ruta de instalacion de la variable PATH", e); //$NON-NLS-1$
 		}
 

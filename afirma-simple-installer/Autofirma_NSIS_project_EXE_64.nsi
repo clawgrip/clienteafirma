@@ -364,7 +364,8 @@ Section "Autofirma" sPrograma
 		StrCpy $R1 "-default_language es_ES"
 	${EndIf}
 	
-	ExecWait '"$INSTDIR\$PATH\AutofirmaConfigurador.exe" $R0 $R1 /passive'
+	IfFileExists "$INSTDIR\$PATH\AutofirmaConfigurador.exe" 0 +2
+		ExecWait '"$INSTDIR\$PATH\AutofirmaConfigurador.exe" $R0 $R1 /passive'
 	
 	; Eliminamos los certificados de versiones previas del sistema
 	Call DeleteCertificateOnInstall
@@ -919,7 +920,8 @@ Section "uninstall"
 	Call un.DeleteCertificate
 	
 	; Ejecutamos el proceso de desinstalacion del Configurador java
-	ExecWait '"$INSTDIR\$PATH\AutofirmaConfigurador.exe" -uninstall /passive'
+	IfFileExists "$INSTDIR\$PATH\AutofirmaConfigurador.exe" 0 +2
+		ExecWait '"$INSTDIR\$PATH\AutofirmaConfigurador.exe" -uninstall /passive'
 
 	;Borramos el subdirectorio con todos los recursos salvo el desinstalador
 	;y bloqueamos la ejecucion hasta que este listo
