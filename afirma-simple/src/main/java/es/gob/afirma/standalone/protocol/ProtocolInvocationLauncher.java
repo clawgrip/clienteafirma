@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.JOptionPane;
 
 import es.gob.afirma.core.AOCancelledOperationException;
@@ -502,9 +503,17 @@ public final class ProtocolInvocationLauncher {
         				+ requestedProtocolVersion);
 
         		String msg;
+        		boolean errorConnectingServer = false;
         		try {
         			msg = ProtocolInvocationLauncherSelectCert.processSelectCert(params, requestedProtocolVersion);
         		}
+        		catch (final SSLHandshakeException e) {
+					LOGGER.log(Level.SEVERE, "Error al realizar una conexion segura con el servidor", e); //$NON-NLS-1$
+					final ErrorCode errorCode = SimpleErrorCode.Communication.SENDING_RESULT_OPERATION;
+					ProtocolInvocationLauncherErrorManager.showError(protocolVersion, errorCode);
+					msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(protocolVersion, errorCode);
+					errorConnectingServer = true;
+				}
         		catch(final AOCancelledOperationException e) {
         			LOGGER.severe("Operacion de seleccion de certificado cancelada por el usuario"); //$NON-NLS-1$
         			msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
@@ -516,9 +525,10 @@ public final class ProtocolInvocationLauncher {
         			msg = ProtocolInvocationLauncherErrorManager.getErrorMessage(requestedProtocolVersion, e.getErrorCode());
         		}
 
-        		// Si no es por sockets, se devuelve el resultado al servidor y detenemos la
+        		// Si no es por sockets, y si no hay errores de conexion con el servidor, 
+        		// se devuelve el resultado al servidor y detenemos la
         		// espera activa si se encontraba vigente
-        		if (!bySocket) {
+        		if (!bySocket && !errorConnectingServer) {
         			LOGGER.info("Enviamos el resultado de la operacion de seleccion de certificado al servidor intermedio"); //$NON-NLS-1$
         			sendDataToServer(msg, params.getStorageServletUrl().toString(), params.getId());
         		}

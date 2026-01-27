@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import es.gob.afirma.ciphers.ServerCipher;
 import es.gob.afirma.ciphers.ServerCipherFactory;
 import es.gob.afirma.core.AOCancelledOperationException;
@@ -57,9 +59,10 @@ final class ProtocolInvocationLauncherSelectCert {
 	 * @param protocolVersion Versi&oacute;n del protocolo de comunicaci&oacute;n.
 	 * @return Certificado en base 64 o mensaje de error.
 	 * @throws SocketOperationException Si hay errores en la
-	 *                                  comunicaci&oacute;n por <i>socket</i> local. */
+	 *                                  comunicaci&oacute;n por <i>socket</i> local. 
+	 * @throws SSLHandshakeException Error al realizar conexi&oacute;n segura con el servidor */
 	static String processSelectCert(final UrlParametersToSelectCert options,
-			final ProtocolVersion protocolVersion) throws SocketOperationException {
+			final ProtocolVersion protocolVersion) throws SocketOperationException, SSLHandshakeException {
 
 		if (options == null) {
 			LOGGER.severe("Las opciones de seleccion de certificado son nulas"); //$NON-NLS-1$
@@ -247,6 +250,10 @@ final class ProtocolInvocationLauncherSelectCert {
 						LOGGER.warning("No se ha podido configurar correctamente el contexto SSL: " + e); //$NON-NLS-1$
 					}
 					IntermediateServerUtil.sendData(dataToSend, options.getStorageServletUrl().toString(), options.getId());
+				}
+				catch (final SSLHandshakeException e) {
+					LOGGER.log(Level.SEVERE, "Error al realizar una conexion segura con el servidor", e); //$NON-NLS-1$
+					throw e;
 				}
 				catch (final Exception e) {
 					LOGGER.log(Level.SEVERE, "Error al enviar los datos al servidor", e); //$NON-NLS-1$
