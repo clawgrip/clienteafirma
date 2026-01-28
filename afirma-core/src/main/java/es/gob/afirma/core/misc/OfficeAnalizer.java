@@ -90,7 +90,7 @@ public final class OfficeAnalizer {
         ODF_MIMETYPES.add("application/vnd.openofficeorg.extension"); //$NON-NLS-1$
 
         // Extensiones de fichero
-        FILE_EXTENSIONS.put("application/zip", "zip"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_EXTENSIONS.put(ZIP_MIMETYPE, "zip"); //$NON-NLS-1$
 
         FILE_EXTENSIONS.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx"); //$NON-NLS-1$ //$NON-NLS-2$
         FILE_EXTENSIONS.put("application/vnd.openxmlformats-officedocument.presentationml.presentation", "pptx"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -112,7 +112,7 @@ public final class OfficeAnalizer {
         FILE_EXTENSIONS.put("application/vnd.ms-project", "mpp"); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Descripciones de fichero
-        FILE_DESCRIPTIONS.put("application/zip", "Archivo zip"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put(ZIP_MIMETYPE, "Archivo zip"); //$NON-NLS-1$
 
         FILE_DESCRIPTIONS.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Documento de texto"); //$NON-NLS-1$ //$NON-NLS-2$
         FILE_DESCRIPTIONS.put("application/vnd.openxmlformats-officedocument.presentationml.presentation", "Presentaci\u00F3n"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -294,9 +294,8 @@ public final class OfficeAnalizer {
     /** Indica si un fichero Zip tiene la estructura de un documento OOXML
      * soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
-     * @return Devuelve <code>true</code> si el fichero era un OOXML soportado, <code>false</code> en caso contrario.
-     * @throws IOException Error en el tama&ntilde;o permitido del archivo */
-    private static boolean isOOXMLFile(final ZipFile zipFile) throws IOException {
+     * @return Devuelve <code>true</code> si el fichero era un OOXML soportado, <code>false</code> en caso contrario. */
+    private static boolean isOOXMLFile(final ZipFile zipFile) {
         // Comprobamos si estan todos los ficheros principales del documento
         return zipFile.getEntry("[Content_Types].xml") != null && zipFile.getEntry("_rels/.rels") != null //$NON-NLS-1$ //$NON-NLS-2$
                && zipFile.getEntry("docProps/app.xml") != null //$NON-NLS-1$
@@ -387,31 +386,16 @@ public final class OfficeAnalizer {
     /** Indica si un fichero Zip tiene la estructura de un documento ODF
      * soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
-     * @return Devuelve <code>true</code> si el fichero era un ODF soportado, <code>false</code> en caso contrario.
-     * @throws IOException Error en el tama&ntilde;o permitido del archivo */
-    private static boolean isODFFile(final ZipFile zipFile) throws IOException {
+     * @return Devuelve <code>true</code> si el fichero era un ODF soportado, <code>false</code> en caso contrario. */
+    private static boolean isODFFile(final ZipFile zipFile) {
         // Comprobamos si estan todos los ficheros principales del documento
-    	// Se separan las comprobaciones en varios if para no tener una sola
-    	// sentencia condicional muy larga
-    	if (zipFile.getEntry("mimetype") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	if (zipFile.getEntry("content.xml") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	if (zipFile.getEntry("meta.xml") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	if (zipFile.getEntry("settings.xml") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	if (zipFile.getEntry("styles.xml") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	if (zipFile.getEntry("META-INF/manifest.xml") == null) { //$NON-NLS-1$
-    		return false;
-    	}
-    	return true;
+    	return
+			zipFile.getEntry("mimetype") != null && //$NON-NLS-1$
+			zipFile.getEntry("content.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("meta.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("settings.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("styles.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("META-INF/manifest.xml") != null; //$NON-NLS-1$
     }
 
     /** Recupera la extensi&oacute;n apropiada para un documento ODF. Si el

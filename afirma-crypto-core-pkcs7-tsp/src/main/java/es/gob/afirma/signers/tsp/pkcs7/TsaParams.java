@@ -125,7 +125,7 @@ public final class TsaParams {
     	}
     	catch(final Exception e) {
     		throw new IllegalArgumentException(
-				"Se ha indicado una URL de TSA invalida (" + tsa + "): " + e, e //$NON-NLS-1$ //$NON-NLS-2$
+				"Se ha indicado una URL de TSA invalida: " + tsa, e //$NON-NLS-1$
 			);
     	}
         this.tsaPolicy = extraParams.containsKey("tsaPolicy") ? //$NON-NLS-1$
@@ -146,7 +146,7 @@ public final class TsaParams {
 			}
 			catch(final Exception e) {
 				throw new IllegalArgumentException(
-					"No se ha proporcionado en el parametro 'tsaSslKeyStore' el almacen de claves del SSL de la TSA en base 64: " + e, e  //$NON-NLS-1$
+					"No se ha proporcionado en el parametro 'tsaSslKeyStore' el almacen de claves del SSL de la TSA en base 64", e  //$NON-NLS-1$
 				);
 			}
         }
@@ -164,8 +164,8 @@ public final class TsaParams {
 			}
 			catch(final Exception e) {
 				throw new IllegalArgumentException(
-						"No se ha proporcionado en el parametro 'tsaSslTrustStore' el almacen de confianza del SSL de la TSA en base 64: " + e, e  //$NON-NLS-1$
-					);
+					"No se ha proporcionado en el parametro 'tsaSslTrustStore' el almacen de confianza del SSL de la TSA en base 64", e  //$NON-NLS-1$
+				);
 			}
         }
         else {
@@ -178,7 +178,7 @@ public final class TsaParams {
 	        this.extensions = getExtensions(extraParams);
         }
         catch(final IOException e) {
-        	throw new IllegalArgumentException("Las extensiones del sello de tiempo no estan adecuadamente codificadas: " + e, e); //$NON-NLS-1$
+        	throw new IllegalArgumentException("Las extensiones del sello de tiempo no estan adecuadamente codificadas", e); //$NON-NLS-1$
         }
 
         this.verifyHostname = Boolean.parseBoolean(
@@ -225,11 +225,11 @@ public final class TsaParams {
 		if (extensionOid == null && extensionValueBase64 == null) {
 			return null;
 		}
-		else if (extensionOid != null && extensionValueBase64 == null) {
+		if (extensionOid != null && extensionValueBase64 == null) {
 			LOGGER.warning("Se ignorara el parametro 'tsaExtensionOid' ya que no se configuro el parametro 'tsaExtensionValueBase64'"); //$NON-NLS-1$
 			return null;
 		}
-		else if (extensionOid == null && extensionValueBase64 != null) {
+		if (extensionOid == null && extensionValueBase64 != null) {
 			LOGGER.warning("Se ignorara el parametro 'tsaExtensionValueBase64' ya que no se configuro el parametro 'tsaExtensionOid'"); //$NON-NLS-1$
 			return null;
 		}

@@ -21,8 +21,7 @@ import org.spongycastle.asn1.BERSequence;
 import org.spongycastle.asn1.DERTaggedObject;
 import org.spongycastle.asn1.cms.EncryptedContentInfo;
 
-/** M&eacute;todo base para la generaci&oacute;n deun tipo Signed and Enveloped
- * Data del estandar pkcs#7 basado en la RFC-2315.
+/** Base para la generaci&oacute;n de un tipo <i>Signed and Enveloped Data</i> del estandar pkcs#7 basado en la RFC-2315.
  * La implementaci&oacute;n del c&oacute;digo ha seguido los pasos necesarios
  * para crear un SignedAndEnvelopedData desarrollado en SpongyCastle.
  * <pre>

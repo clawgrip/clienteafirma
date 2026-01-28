@@ -18,6 +18,7 @@ import java.security.cert.Certificate;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
+import com.aowagie.text.DocumentException;
 import com.aowagie.text.pdf.PdfDictionary;
 import com.aowagie.text.pdf.PdfName;
 import com.aowagie.text.pdf.PdfSignatureAppearance;
@@ -25,10 +26,8 @@ import com.aowagie.text.pdf.PdfString;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.signers.SignEnhancer;
 import es.gob.afirma.signers.cades.CAdESParameters;
 import es.gob.afirma.signers.cades.CAdESTriPhaseSigner;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
 /** Clase para la firma electr&oacute;nica en tres fases de ficheros Adobe PDF en formato PAdES.
  * <p>No firma PDF cifrados.</p>
@@ -112,7 +111,7 @@ import es.gob.afirma.signers.pades.common.PdfExtraParams;
  * </ul>
  * <p>
  *  Es conveniente tener en cuenta al usar firmas trif&aacute;sicas que es necesario disponer de un mecanismo
- *  para que el usuario pueda ver en todo momento los documentos que est&aacute; firmando (una copia que refleje
+ *  para que el usuario pueda ver siempre los documentos que est&aacute; firmando (una copia que refleje
  *  con fidelidad el contenido firmado puede ser suficiente) para evitar situaciones de repudio.
  * </p>
  * <p>
@@ -125,7 +124,7 @@ import es.gob.afirma.signers.pades.common.PdfExtraParams;
  * </p>
  *  Notas sobre documentos <i>certificados</i>:<br>
  *  Si un PDF firmado se ha certificado (por ejemplo, a&ntilde;adiendo una firma electr&oacute;nica usando Adobe Reader), cualquier
- *  modificaci&oacute;n posterior del fichero (como la adici&oacute;n de nuevas firmas con este m&eacute;todo) invalidar&aacute;
+ *  modificaci&oacute;n posterior del fichero (como la adici&oacute;n de nuevas firmas) invalidar&aacute;
  *  las firmas previamente existentes.<br>
  *  Consulte la documentaci&oacute;n de la opci&oacute;n <code>allowSigningCertifiedPdfs</code> para establecer un comportamiento por
  *  defecto respecto a los PDF certificados.
@@ -166,8 +165,7 @@ public final class PAdESTriPhaseSigner {
                                         final GregorianCalendar signTime,
                                         final Properties xParams,
                                         final boolean secureMode) throws IOException,
-                                                                         AOException,
-                                                                         InvalidPdfException {
+                                                                         AOException {
 
         final Properties extraParams = xParams != null ? xParams : new Properties();
 
@@ -187,7 +185,7 @@ public final class PAdESTriPhaseSigner {
             md = MessageDigest.getInstance(parameters.getDigestAlgorithm()).digest(pdfRangeBytes);
         }
         catch (final NoSuchAlgorithmException e) {
-            throw new AOException("El algoritmo de huella digital no es valido: " + e, e); //$NON-NLS-1$
+            throw new AOException("El algoritmo de huella digital no es valido", e); //$NON-NLS-1$
         }
         parameters.setDataDigest(md);
 
@@ -205,9 +203,8 @@ public final class PAdESTriPhaseSigner {
 
         // Pre-firma CAdES
         final byte[] cadesPresign = CAdESTriPhaseSigner.preSign(
-        		signerCertificateChain, // Cadena de certificados del firmante
-        		signTime.getTime(), // Fecha de la firma (debe establecerse externamente para evitar desincronismos en la firma trifasica)
-        		parameters
+    		signerCertificateChain, // Cadena de certificados del firmante
+    		parameters
         );
 
         return new PdfSignResult(
@@ -225,25 +222,16 @@ public final class PAdESTriPhaseSigner {
      * @param signerCertificateChain Cadena de certificados del firmante (debe ser la misma que la usado en la pre-firma).
      * @param pkcs1Signature Resultado de la firma PKCS#1 v1.5 de los datos de la pre-firma.
      * @param preSign Resultado de la pre-firma
-     * @param enhancer Manejador para la generaci&oacute;n de nuevos modos de firma (con
-     *                 sello de tiempo, archivo longevo, etc.)
-     * @param enhancerConfig Configuraci&oacute;n para generar el nuevo modo de firma.
      * @param secureMode Modo seguro.
      * @return PDF firmado.
      * @throws AOException en caso de cualquier tipo de error.
-     * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n
-     *                     de estructuras.
-     * @throws NoSuchAlgorithmException Si hay problemas con el algoritmo durante el sello de tiempo. */
+     * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n de estructuras. */
     public static byte[] postSign(final String signatureAlgorithm,
                                   final byte[] inPdf,
                                   final Certificate[] signerCertificateChain,
                                   final byte[] pkcs1Signature,
                                   final PdfSignResult preSign,
-                                  final SignEnhancer enhancer,
-                                  final Properties enhancerConfig,
-                                  final boolean secureMode) throws AOException,
-                                                                          IOException,
-                                                                          NoSuchAlgorithmException {
+                                  final boolean secureMode) throws AOException, IOException {
     	// Obtenemos la firma
     	final PdfSignResult completePdfSSignature = generatePdfSignature(
     		signatureAlgorithm,
@@ -253,9 +241,7 @@ public final class PAdESTriPhaseSigner {
     		preSign.getSign(),
     		preSign.getFileID(),
     		preSign.getTimestamp(),
-    		preSign.getSignTime(),
-    		enhancer,
-    		enhancerConfig
+    		preSign.getSignTime()
 		);
 
         // Insertamos la firma en el PDF
@@ -274,10 +260,7 @@ public final class PAdESTriPhaseSigner {
                                                       final byte[] signedAttributes,
                                                       final String pdfFileId,
                                                       final byte[] timestamp,
-                                                      final GregorianCalendar signingTime,
-                                                      final SignEnhancer enhancer,
-                                                      final Properties enhancerConfig) throws AOException,
-                                                                                              IOException {
+                                                      final GregorianCalendar signingTime) throws AOException {
         byte[] cadesSignature = CAdESTriPhaseSigner.postSign(
     		signatureAlgorithm,
     		null,
@@ -297,18 +280,10 @@ public final class PAdESTriPhaseSigner {
         		&& extraParams.getProperty(PdfExtraParams.TSA_URL) != null) {
 
         	cadesSignature = PdfTimestamper.addCmsTimeStamp(cadesSignature, extraParams, signingTime);
-
         }
 
         //************** FIN SELLO DE TIEMPO ****************
         //***************************************************
-
-        if (enhancer != null) {
-        	cadesSignature = enhancer.enhance(
-    			cadesSignature,
-    			enhancerConfig != null ? enhancerConfig : extraParams
-			);
-        }
 
         return new PdfSignResult(
     		pdfFileId,
@@ -336,30 +311,20 @@ public final class PAdESTriPhaseSigner {
         System.arraycopy(signature.getSign(), 0, outc, 0, signature.getSign().length);
         dic2.put(PdfName.CONTENTS, new PdfString(outc).setHexWriting(true));
 
-        final PdfTriPhaseSession pts;
-		try {
-			pts = PdfSessionManager.getSessionData(inPdf, signerCertificateChain, signature.getSignTime(), signature.getExtraParams(), secureMode);
-		}
-		catch (final InvalidPdfException e) {
-			throw new IOException(e);
-		}
+        final PdfTriPhaseSession pts = PdfSessionManager.getSessionData(inPdf, signerCertificateChain, signature.getSignTime(), signature.getExtraParams(), secureMode);
         final PdfSignatureAppearance sap = pts.getSAP();
 
         final byte[] ret;
-        try (
-    		final ByteArrayOutputStream baos = pts.getBAOS();
-		) {
+        try (ByteArrayOutputStream baos = pts.getBAOS()) {
 		    final String badFileID = pts.getFileID();
 		    try {
 		       sap.close(dic2);
 		    }
-		    catch (final Exception e) {
-		    	baos.close();
+		    catch (final IOException | DocumentException e) {
 		        throw new AOException("Error al cerrar el PDF para finalizar el proceso de firma", e); //$NON-NLS-1$
 		    }
 		    ret = new String(baos.toByteArray(), StandardCharsets.ISO_8859_1).replace(badFileID, signature.getFileID()).getBytes(StandardCharsets.ISO_8859_1);
         }
 	    return ret;
     }
-
 }

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,6 +41,7 @@ import org.spongycastle.cms.CMSProcessable;
 import org.spongycastle.cms.CMSProcessableByteArray;
 
 import es.gob.afirma.core.AOException;
+import es.gob.afirma.core.AOUnsupportedSignAlgorithmException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
@@ -131,7 +131,7 @@ import es.gob.afirma.signers.pkcs7.SigUtils;
  * </p>
  * <p>
  *  Es conveniente tener en cuenta al usar firmas trif&aacute;sicas que es necesario disponer de un mecanismo
- *  para que el usuario pueda ver en todo momento los documentos que est&aacute; firmando (una copia que refleje
+ *  para que el usuario pueda ver siempre los documentos que est&aacute; firmando (una copia que refleje
  *  con fidelidad el contenido firmado puede ser suficiente) para evitar situaciones de repudio.
  * </p>
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -143,15 +143,10 @@ public final class CAdESTriPhaseSigner {
 
     /** Genera los atributos firmados CAdES (prefirma).
      * @param signerCertificateChain Cadena de certificados del firmante
-     * @param signDate Fecha de la firma (debe establecerse externamente para evitar desincronismos en la firma trif&aacute;sica)
      * @param config Configuraci&oacute;n con el detalle de la firma a montar.
      * @return Atributos CAdES a firmar (prefirma) codificados en ASN.1.
      * @throws AOException Cuando se produce cualquier error durante el proceso. */
-    public static byte[] preSign(
-    		final Certificate[] signerCertificateChain,
-    		final Date signDate,
-    		final CAdESParameters config
-                          ) throws AOException {
+    public static byte[] preSign(final Certificate[] signerCertificateChain, final CAdESParameters config) throws AOException {
 
         if (signerCertificateChain == null || signerCertificateChain.length == 0) {
             throw new IllegalArgumentException("La cadena de certificados debe contener al menos una entrada"); //$NON-NLS-1$
@@ -160,19 +155,16 @@ public final class CAdESTriPhaseSigner {
         // Atributos firmados
         final ASN1Set signedAttributes;
         try {
-        	final ASN1EncodableVector signedAttributesVector =
-        			CAdESUtils.generateSignedAttributes(
-        					signerCertificateChain[0],
-        					config,
-        					false  // No es contrafirma
-        					);
+        	final ASN1EncodableVector signedAttributesVector = CAdESUtils.generateSignedAttributes(
+				signerCertificateChain[0],
+				config,
+				false  // No es contrafirma
+			);
 
-        	signedAttributes = SigUtils.getAttributeSet(
-                    new AttributeTable(signedAttributesVector)
-                 );
+        	signedAttributes = SigUtils.getAttributeSet(new AttributeTable(signedAttributesVector));
         }
         catch(final Exception e) {
-            throw new AOException("Error obteniendo los atributos a firmar: " + e, e); //$NON-NLS-1$
+            throw new AOException("Error obteniendo los atributos a firmar", e); //$NON-NLS-1$
         }
 
         // Codificamos y devolvemos la prefirma
@@ -182,7 +174,6 @@ public final class CAdESTriPhaseSigner {
         catch (final Exception ex) {
             throw new AOException("Error al codificar los datos ASN.1 a firmar finalmente", ex); //$NON-NLS-1$
         }
-
     }
 
     /** Realiza una firma CAdES completa.
@@ -232,7 +223,7 @@ public final class CAdESTriPhaseSigner {
             digestAlgorithmOID = SigUtils.makeAlgId(AOAlgorithmID.getOID(digestAlgorithmName));
         }
         catch (final Exception e) {
-            throw new AOException("Error obteniendo el OID en ASN.1 del algoritmo de huella digital: " + e, e); //$NON-NLS-1$
+            throw new AOUnsupportedSignAlgorithmException("Error obteniendo el OID en ASN.1 del algoritmo de huella digital", e); //$NON-NLS-1$
         }
 
         // EncryptionAlgorithm
@@ -246,7 +237,7 @@ public final class CAdESTriPhaseSigner {
     		);
         }
         catch (final Exception e) {
-            throw new AOException("Error al codificar el algoritmo de cifrado: " + e, e); //$NON-NLS-1$
+            throw new AOUnsupportedSignAlgorithmException("Error al codificar el algoritmo de cifrado a partir del algoritmo de firma", e); //$NON-NLS-1$
         }
 
         // Firma PKCS#1 codificada
@@ -338,9 +329,7 @@ public final class CAdESTriPhaseSigner {
 			).getEncoded(ASN1Encoding.DER);
 		}
         catch (final IOException e) {
-			throw new AOException("Error creando el ContentInfo de CAdES: " + e, e); //$NON-NLS-1$
+			throw new AOException("Error creando el ContentInfo de CAdES", e); //$NON-NLS-1$
 		}
-
     }
-
 }

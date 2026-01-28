@@ -39,7 +39,7 @@ public class TestCreateSignFields {
 
 	private static final String SIGNATURE_FIELD_WITH_SYMBOLS = "Campo[Firm#]"; //$NON-NLS-1$
 
-	private final static String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
+	private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
 
     private static final String CERT_PATH = "PFActivoFirSHA256.pfx"; //$NON-NLS-1$
     private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
@@ -92,7 +92,6 @@ public class TestCreateSignFields {
 	 * del documento y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignFieldsOnMultiPages() throws Exception {
 
@@ -161,7 +160,6 @@ public class TestCreateSignFields {
 	 * Crea un campo de firma invisible y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignInvisibleSignatureField() throws Exception {
 
@@ -233,7 +231,6 @@ public class TestCreateSignFields {
 	 * documento PDF y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignSignatureFieldWithSymbols() throws Exception {
 
@@ -310,7 +307,7 @@ public class TestCreateSignFields {
 	 */
 	private static void createSignatureField(final byte[] pdf, final File outFile,
 			final String fieldName, final int[] pages)
-			throws FileNotFoundException, IOException, DocumentException {
+			throws IOException, DocumentException {
 
 		final Rectangle visibleArea = pages != null ?
 				new Rectangle(100, 500, 300, 600) : new Rectangle(0, 0, 0, 0);
@@ -332,7 +329,7 @@ public class TestCreateSignFields {
 	 */
 	private static void createSignatureField(final byte[] pdf, final File outFile, final String fieldName,
 			final int[] pages, final Rectangle rectangle)
-			throws FileNotFoundException, IOException, DocumentException {
+			throws IOException, DocumentException {
 
 		final PdfReader reader = new PdfReader(pdf);
 		try (OutputStream os = new FileOutputStream(outFile)) {

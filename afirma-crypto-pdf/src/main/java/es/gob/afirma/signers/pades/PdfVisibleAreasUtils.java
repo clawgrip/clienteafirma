@@ -38,7 +38,6 @@ import com.aowagie.text.pdf.PdfWriter;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Platform;
 import es.gob.afirma.core.misc.Platform.OS;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
 final class PdfVisibleAreasUtils {
 
@@ -280,11 +279,11 @@ final class PdfVisibleAreasUtils {
 			final String [] ous = AOUtil.getOUS(subjectPrincipal);
 			if (ous.length > 0) {
 				ret = ret.replace(LAYERTEXT_TAG_OU, ous[0]);
-				String ousResult = ous[0];
+				final StringBuilder ousResult = new StringBuilder().append(ous[0]);
 				for (int i = 1 ; i < ous.length ; i++) {
-					ousResult += ", " + ous[i]; //$NON-NLS-1$
+					ousResult.append(", ").append(ous[i]); //$NON-NLS-1$
 				}
-				ret = ret.replace(LAYERTEXT_TAG_OUS, ousResult);
+				ret = ret.replace(LAYERTEXT_TAG_OUS, ousResult.toString());
 			}
 			else {
 				ret = ret.replace(LAYERTEXT_TAG_OU, ""); //$NON-NLS-1$
@@ -410,7 +409,6 @@ final class PdfVisibleAreasUtils {
 	 * @param appearance Apariencia de la firma PDF. De esta se obtiene el texto de la firma y su
 	 * fuente de letra.
 	 * @param rubricRect Rect&aacute;ngulo de firma.
-	 * @param pageRotation Rotaci&oacute;n de la propia p&aacute;gina.
 	 * @param degrees Grados de rotaci&oacute;n del campo de firma.
 	 * @param rubricImg imagen a estampar
 	 * @throws DocumentException Si hay problemas tratando el PDF.
@@ -419,8 +417,7 @@ final class PdfVisibleAreasUtils {
     		                               final PdfSignatureAppearance appearance,
     		                               final Rectangle rubricRect,
     		                               final int degrees,
-    		                               final Image rubricImg) throws DocumentException,
-                                                                     IOException {
+    		                               final Image rubricImg) throws DocumentException, IOException {
 
     	// Anchura y altura del espacio en el que se mostrara la firma
     	final float rubricWidth = rubricRect.getWidth();
@@ -545,7 +542,7 @@ final class PdfVisibleAreasUtils {
     }
 
     /**
-     * Fits the text to some rectangle adjusting the font size as needed. M&eacute;todo copiado de iText.
+     * Fits the text to some rectangle adjusting the font size as needed. Copiado de iText.
      * @param font the font to use
      * @param text the text
      * @param rect the rectangle where the text must fit
@@ -558,15 +555,15 @@ final class PdfVisibleAreasUtils {
         float maxSize = maxFontSize;
     	try {
             ColumnText ct = null;
-            int status = 0;
             if (maxSize <= 0) {
                 int cr = 0;
                 int lf = 0;
-                final char t[] = text.toCharArray();
-                for (int k = 0; k < t.length; ++k) {
-                    if (t[k] == '\n') {
+                final char[] t = text.toCharArray();
+                for (final char element : t) {
+                    if (element == '\n') {
 						++lf;
-					} else if (t[k] == '\r') {
+					}
+                    else if (element == '\r') {
 						++cr;
 					}
                 }
@@ -578,7 +575,7 @@ final class PdfVisibleAreasUtils {
             ct = new ColumnText(null);
             ct.setSimpleColumn(ph, rect.getLeft(), rect.getBottom(), rect.getRight(), rect.getTop(), maxFontSize, Element.ALIGN_LEFT);
             ct.setRunDirection(runDirection);
-            status = ct.go(true);
+            int status = ct.go(true);
             if ((status & ColumnText.NO_MORE_TEXT) != 0) {
 				return maxSize;
 			}
@@ -598,7 +595,8 @@ final class PdfVisibleAreasUtils {
 						return size;
 					}
                     min = size;
-                } else {
+                }
+                else {
 					max = size;
 				}
             }
@@ -611,8 +609,7 @@ final class PdfVisibleAreasUtils {
 
     /** Devuelve la posici&oacute;n de la p&aacute;gina en donde debe agregarse
      * la firma. La medida de posicionamiento es el p&iacute;xel y se cuenta en
-     * el eje horizontal de izquierda a derecha y en el vertical de abajo a
-     * arriba.
+     * el eje horizontal de izquierda a derecha y en el vertical de abajo a arriba.
      * @param extraParams Conjunto de propiedades con las coordenadas del rect&aacute;ngulo
      * @return  Rect&aacute;ngulo que define la posici&oacute;n de la p&aacute;gina en donde
      *          debe agregarse la firma*/
@@ -623,10 +620,8 @@ final class PdfVisibleAreasUtils {
     /**
      * Indica si se ha establecido una configuraci&oacute;n que d&eacute; pie
      * a realizar una firma visible PDF. Se considerar&aacute; que ser&aacute;
-     * una firma visible aquella que defina un &aacute;rea de firma o un campo
-     * de firma.
-     * @param extraParams Conjunto de propiedades con la cofiguraci&oacute;n de
-     * la firma.
+     * una firma visible aquella que defina un &aacute;rea de firma o un campo de firma.
+     * @param extraParams Conjunto de propiedades con la cofiguraci&oacute;n de la firma.
      * @return  {@code true} si la firma es visible, {@code false} si no lo es.
      */
     static boolean isVisibleSignature(final Properties extraParams) {
@@ -641,13 +636,9 @@ final class PdfVisibleAreasUtils {
     	}
 
     	final Rectangle signatureRect = PdfUtil.getPositionOnPage(extraParams, "signature"); //$NON-NLS-1$
-    	if (signatureRect != null
+    	return signatureRect != null
     			&& Math.signum(signatureRect.getWidth()) != 0
-    			&& Math.signum(signatureRect.getHeight()) != 0) {
-    		return true;
-    	}
-
-    	return false;
+    			&& Math.signum(signatureRect.getHeight()) != 0;
     }
 
     /**
@@ -686,7 +677,6 @@ final class PdfVisibleAreasUtils {
     	}
     	if (found) {
 			obfuscate(chars, pos, chars.length - pos, mask);
-			found = false;
 		}
 
     	return new String(chars);
@@ -702,7 +692,7 @@ final class PdfVisibleAreasUtils {
      * ofuscaci&oacute;n.
      * @param mask Configuraci&oacute;n con la m&aacute;scara a aplicar.
      */
-    private static void obfuscate (final char[] text, final int pos, final int length, final PdfTextMask mask) {
+    private static void obfuscate(final char[] text, final int pos, final int length, final PdfTextMask mask) {
 
     	final int numDigits = countDigits(text);
     	final int plainDigits = countPlainPositions(mask.getPositions());

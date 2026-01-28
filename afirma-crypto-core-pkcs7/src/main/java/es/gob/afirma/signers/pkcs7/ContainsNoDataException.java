@@ -9,14 +9,14 @@
 
 package es.gob.afirma.signers.pkcs7;
 
-import es.gob.afirma.core.AOInvalidFormatException;
+import es.gob.afirma.core.AOInvalidSignatureFormatException;
 
 /**
  * Excepci&oacute;n para indicar que no se puede realizar una multifirma porque la firma original
  * no contiene los datos necesarios.
  * @author Carlos Gamuci Mill&aacute;n
  */
-public class ContainsNoDataException extends AOInvalidFormatException {
+public class ContainsNoDataException extends AOInvalidSignatureFormatException {
 
 	/** Serial version id */
 	private static final long serialVersionUID = -114813694395801268L;

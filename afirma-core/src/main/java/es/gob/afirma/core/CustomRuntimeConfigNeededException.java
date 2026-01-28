@@ -20,10 +20,9 @@ public abstract class CustomRuntimeConfigNeededException extends RuntimeConfigNe
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
-	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n.
-	 * proporcionada.
+	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n proporcionada.
 	 */
-	public CustomRuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param) {
+	protected CustomRuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param) {
 		super(msg, requestType, requestorText, param);
 	}
 
@@ -33,11 +32,10 @@ public abstract class CustomRuntimeConfigNeededException extends RuntimeConfigNe
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
-	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n.
-	 * proporcionada.
+	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n proporcionada.
 	 * @param cause Origen del problema.
 	 */
-	public CustomRuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final Throwable cause) {
+	protected CustomRuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final Throwable cause) {
 		super(msg, requestType, requestorText, param, cause);
 	}
 

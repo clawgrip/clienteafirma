@@ -58,7 +58,7 @@ public final class CAdESSignerMetadata {
 			}
 			this.countryName = country;
 			this.localityName = locality;
-			this.postalAddress = address != null ? new ArrayList<String>(address) : null;
+			this.postalAddress = address != null ? new ArrayList<>(address) : null;
 		}
 
 		/** Obtiene el nombre del pa&iacute;s donde se encuentra el firmante.
@@ -79,7 +79,7 @@ public final class CAdESSignerMetadata {
 		 * </pre>
 		 * @return Direcci&oacute;n postal donde se encuentra el firmante. */
 		public List<String> getPostalAddress() {
-			return this.postalAddress != null ? new ArrayList<String>(this.postalAddress) : null;
+			return this.postalAddress != null ? new ArrayList<>(this.postalAddress) : null;
 		}
 
 	}

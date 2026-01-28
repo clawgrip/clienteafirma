@@ -19,8 +19,8 @@ public class SigningLTSException extends RuntimeConfigNeededException {
 	/** Serial Id. */
 	private static final long serialVersionUID = 995443738935981665L;
 
-	public static final String REQUESTOR_MSG_CODE = "signingLts"; //$NON-NLS-1$
-	public static final String REQUESTOR_POSSIBLE_MSG_CODE = "signingLtsPossible"; //$NON-NLS-1$
+	private static final String REQUESTOR_MSG_CODE = "signingLts"; //$NON-NLS-1$
+	private static final String REQUESTOR_POSSIBLE_MSG_CODE = "signingLtsPossible"; //$NON-NLS-1$
 
 	private static final String EXTRA_PARAM_NEEDED = "allowSignLTSignature"; //$NON-NLS-1$
 

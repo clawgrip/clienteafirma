@@ -28,6 +28,7 @@ public final class AdESPolicy {
     private String policyIdentifierHash = null;
     private String policyIdentifierHashAlgorithm = null;
     private URL policyQualifier = null;
+    private boolean predefined = false;
 
     /** Crea una pol&iacute;tica para firma AdES.
      * @param identifier Identificador de la pol&iacute;tica de firma (URL u OID, directo o como URN)
@@ -43,9 +44,17 @@ public final class AdESPolicy {
                       final String identifierHash,
                       final String identifierHashAlgorithm,
                       final String qualifier) {
-        setValues(identifier, identifierHash, identifierHashAlgorithm, qualifier);
+        this(false, identifier, identifierHash, identifierHashAlgorithm, qualifier);
     }
 
+    private AdESPolicy(final boolean predefined,
+    		           final String identifier,
+    		           final String identifierHash,
+    		           final String identifierHashAlgorithm,
+    		           final String qualifier) {
+    	this.predefined = predefined;
+    	setValues(identifier, identifierHash, identifierHashAlgorithm, qualifier);
+	}
 
     private void setValues(final String identifier,
                            final String identifierHash,
@@ -73,7 +82,7 @@ public final class AdESPolicy {
         		);
             }
             catch(final Exception e) {
-                throw new IllegalArgumentException("Si no se especifica la huella digital de la politica es necesario que el identificador sea una URL accesible universalmente: " + e, e); //$NON-NLS-1$
+                throw new IllegalArgumentException("Si no se especifica la huella digital de la politica es necesario que el identificador sea una URL accesible universalmente", e); //$NON-NLS-1$
             }
         }
         else {
@@ -126,6 +135,13 @@ public final class AdESPolicy {
      */
     public URL getPolicyQualifier() {
         return this.policyQualifier;
+    }
+
+    /** Obtiene el valor de predefined de la pol&iacute;tica de firma.
+     * @return predefined de la pol&iacute;tica de firma
+     */
+    public boolean isPredefined() {
+        return this.predefined;
     }
 
     /** Crea una pol&iacute;tica AdES a partir de un fichero de propiedades.

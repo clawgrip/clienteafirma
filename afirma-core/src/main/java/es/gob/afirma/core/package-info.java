@@ -8,23 +8,8 @@
  */
 
 /** M&oacute;dulo N&uacute;cleo del Cliente @firma.
- *  <p>
- *   Este m&oacute;dulo proporciona los servicios comunes requeridos por el resto del m&oacute;dulos
- *   del Cliente @firma, incoporando igualmente los interfaces base que pueden ser implementados
- *   de forma concreta por distintos m&oacute;dulos.
- *  </p>
- *  <p style="text-align: center;"><br><img src="doc-files/package-info-1.png" alt="Dependencias de subsistemas"></p>
- *  <p>Este m&oacute;dulo presenta las siguientes dependencias din&aacute;micas de primer nivel:</p>
- *  <ul>
- *   <li>
- *    Dependencia din&aacute;mica con el m&oacute;dulo N&uacute;cleo UI JSE (<i>afirma-ui-core-jse</i>) del Cliente.
- *   </li>
- *   <li>
- *    Dependencia din&aacute;mica con la biblioteca JMIMEMagic.
- *   </li>
- *  </ul>
- *  <p>
- *   Este m&oacute;dulo es compatible con cualquier entorno JSE 1.5 o superior y con Android 3 o superior.<br>
- *  </p>
+ *  Proporciona los servicios comunes requeridos por el resto del m&oacute;dulos
+ *  del Cliente @firma, incoporando igualmente los interfaces base que pueden ser implementados
+ *  de forma concreta por distintos m&oacute;dulos.
  */
 package es.gob.afirma.core;

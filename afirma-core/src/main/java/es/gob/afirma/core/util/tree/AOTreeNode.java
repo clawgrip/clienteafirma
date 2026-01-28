@@ -22,7 +22,7 @@ public final class AOTreeNode {
     private List<AOTreeNode> children;
 
     /** optional user object */
-    private transient Object userObject;
+    private final Object userObject;
 
     /** Creates a tree node with no parent, no children, but which allows
      * children, and initializes it with the specified user object.
@@ -30,14 +30,9 @@ public final class AOTreeNode {
      *        an Object provided by the user that constitutes the node's
      *        data */
     public AOTreeNode(final Object userObject) {
-        super();
         this.parent = null;
         this.userObject = userObject;
     }
-
-    //
-    // Primitives
-    //
 
     /** Removes <code>newChild</code> from its present parent (if it has a
      * parent), sets the child's parent to this node, and then adds the child to
@@ -60,7 +55,7 @@ public final class AOTreeNode {
         if (newChild == null) {
             throw new IllegalArgumentException("EL nuevo hijo es nulo"); //$NON-NLS-1$
         }
-        else if (isNodeAncestor(newChild)) {
+		if (isNodeAncestor(newChild)) {
             throw new IllegalArgumentException("El nuevo hijo es ya un ancestro"); //$NON-NLS-1$
         }
 
@@ -153,10 +148,6 @@ public final class AOTreeNode {
         return this.userObject;
     }
 
-    //
-    // Derived methods
-    //
-
     /** Removes <code>aChild</code> from this node's child array, giving it a
      * null parent.
      * @param aChild
@@ -193,10 +184,6 @@ public final class AOTreeNode {
         }
     }
 
-    //
-    // TREE Queries
-    //
-
     /** Returns true if <code>anotherNode</code> is an ancestor of this node --
      * if it is this node, this node's parent, or an ancestor of this node's
      * parent. (Note that a node is considered an ancestor of itself.) If <code>anotherNode</code> is null, this method returns false. This
@@ -222,31 +209,17 @@ public final class AOTreeNode {
         return false;
     }
 
-    //
-    // Child Queries
-    //
-
     private boolean isNodeChild(final AOTreeNode aNode) {
         boolean retval;
 
-        if (aNode == null) {
+        if (aNode == null || getChildCount() == 0) {
             retval = false;
-        }
-        else {
-            if (getChildCount() == 0) {
-                retval = false;
-            }
-            else {
-                retval = aNode.getParent() == this;
-            }
-        }
+        } else {
+		    retval = aNode.getParent() == this;
+		}
 
         return retval;
     }
-
-    //
-    // Leaf Queries
-    //
 
     /** Returns true if this node has no children. To distinguish between nodes
      * that have no children and nodes that <i>cannot</i> have children (e.g. to
@@ -256,10 +229,6 @@ public final class AOTreeNode {
     public boolean isLeaf() {
         return getChildCount() == 0;
     }
-
-    //
-    // Overrides
-    //
 
     /** Returns the result of sending <code>toString()</code> to this node's user
      * object, or null if this node has no user object.

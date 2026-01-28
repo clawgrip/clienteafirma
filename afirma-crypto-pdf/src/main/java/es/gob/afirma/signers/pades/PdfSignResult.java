@@ -28,7 +28,6 @@ import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.SecureXmlBuilder;
 
-
 /** Resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
  * Es un <i>JavaBean</i> que encapsula los resultados de la pre-firma o firma completa PDF. */
 public final class PdfSignResult implements Serializable {
@@ -77,7 +76,7 @@ public final class PdfSignResult implements Serializable {
 
 
 	/** Establece los par&aacute;metros adicionales de la firma.
-	 * Este m&eacute;todo es &uacute;til cuando se desean a&ntilde;adir par&aacute;metros en la post-firma que
+	 * &Uacute;til cuando se desean a&ntilde;adir par&aacute;metros en la post-firma que
 	 * no alteran la huella digital del rango procesable del PDF (por ejemplo, la imagen de la r&uacute;brica)
 	 * @param xParams Par&aacute;metros adicionales de la firma, se sobrescriben los existentes si los hubiera */
 	public void setExtraParams(final Properties xParams) {
@@ -114,7 +113,7 @@ public final class PdfSignResult implements Serializable {
     	return this.signTime;
     }
 
-	/** M&eacute;todo necesario para la serializaci&oacute;n de un objeto.
+	/** Serializaci&oacute;n del objeto.
 	 * @param out Datos de salida.
 	 * @throws IOException Cuando no se puede serializar. */
     private void writeObject(final ObjectOutputStream out) throws IOException {
@@ -149,7 +148,7 @@ public final class PdfSignResult implements Serializable {
     	out.write(sb.toString().getBytes());
     }
 
-	/** M&eacute;todo necesario para la deserializaci&oacute;n de un objeto.
+	/** Deserializaci&oacute;n del objeto.
 	 * @param in Datos de entrada (en formato XML).
 	 * @throws IOException Cuando no se puede deserializar. */
 	private void readObject(final ObjectInputStream in) throws IOException {
@@ -157,10 +156,7 @@ public final class PdfSignResult implements Serializable {
     	try {
     		xmlSign = SecureXmlBuilder.getSecureDocumentBuilder().parse(in);
 		}
-    	catch (final SAXException e) {
-			throw new IOException(e);
-		}
-    	catch (final ParserConfigurationException e) {
+    	catch (final SAXException | ParserConfigurationException e) {
     		throw new IOException(e);
 		}
 

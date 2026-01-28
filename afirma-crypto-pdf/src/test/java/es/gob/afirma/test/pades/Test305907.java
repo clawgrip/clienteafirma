@@ -15,14 +15,14 @@ import es.gob.afirma.signers.pades.common.PdfHasUnregisteredSignaturesException;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 public final class Test305907 {
 
-	private final static String TEST_FILE = "CONVENIO.pdf"; //$NON-NLS-1$
-	private final static String TEST_FILE_2 = "CONVENIO_firmado_CF.pdf"; //$NON-NLS-1$
+	private static final String TEST_FILE = "CONVENIO.pdf"; //$NON-NLS-1$
+	private static final String TEST_FILE_2 = "CONVENIO_firmado_CF.pdf"; //$NON-NLS-1$
 
-	private final static String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
+	private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
 
-	private final static String CERT_PATH = "PFActivoFirSHA256.pfx"; //$NON-NLS-1$
-	private final static String CERT_PASS = "12341234"; //$NON-NLS-1$
-	private final static String CERT_ALIAS = "fisico activo prueba"; //$NON-NLS-1$
+	private static final String CERT_PATH = "PFActivoFirSHA256.pfx"; //$NON-NLS-1$
+	private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
+	private static final String CERT_ALIAS = "fisico activo prueba"; //$NON-NLS-1$
 
 	/** Prueba de detecci&oacute;n de firmas no registradas.
 	 * @throws Exception En cualquier error. */

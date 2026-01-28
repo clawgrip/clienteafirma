@@ -17,21 +17,18 @@ public class AOCancelledOperationException extends RuntimeException {
 
     /** Crea una excepci&oacute;n sin informaci&oacute;n adicional. */
     public AOCancelledOperationException() {
-        super();
+    	// Vacio
     }
 
     /** Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n. */
+     * @param msg Mensaje descriptivo de la excepci&oacute;n. */
     public AOCancelledOperationException(final String msg) {
         super(msg);
     }
 
     /** Crea la excepci&oacute;n con un mensaje determinado y la causa que la origin&oacute;.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param e
-     * 		  Causa de la excepci&oacute;n.
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
+     * @param e Causa de la excepci&oacute;n.
      */
     public AOCancelledOperationException(final String msg, final Exception e) {
         super(msg, e);

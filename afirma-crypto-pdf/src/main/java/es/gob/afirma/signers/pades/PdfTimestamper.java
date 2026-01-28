@@ -32,9 +32,8 @@ import com.aowagie.text.pdf.PdfStamper;
 import com.aowagie.text.pdf.PdfString;
 
 import es.gob.afirma.core.AOException;
+import es.gob.afirma.core.InvalidLibraryException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
-import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
 /** Sellador de tiempo para documentos PDF.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -123,11 +122,7 @@ public final class PdfTimestamper {
             if (tsa != null && (TS_LEVEL_DOC.equals(tsType) || TS_LEVEL_SIGN_DOC.equals(tsType))) {
 
                 // Y procesamos normalmente el PDF
-                final PdfReader pdfReader = PdfUtil.getPdfReader(
-            		inPDF,
-            		extraParams,
-            		Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.HEADLESS))
-        		);
+                final PdfReader pdfReader = PdfUtil.getPdfReader(inPDF, extraParams);
 
             	// Comprobamos el nivel de certificacion del PDF
                 PdfUtil.checkPdfCertification(pdfReader.getCertificationLevel(), extraParams);
@@ -148,9 +143,7 @@ public final class PdfTimestamper {
         			pdfVersion = UNDEFINED;
         		}
 
-        		try (
-    				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				) {
+        		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 	        		final PdfStamper stp;
 	        		try {
 	        			stp = PdfStamper.createSignature(
@@ -166,7 +159,10 @@ public final class PdfTimestamper {
 	        			throw new PdfIsPasswordProtectedException(e);
 	        		}
 	        		catch (final DocumentException e) {
-						throw new AOException("Error de formato en el PDF de entrada: " + e, e); //$NON-NLS-1$
+						throw new AOException("El estado del PDF de entrada es inconsistente", e); //$NON-NLS-1$
+					}
+	        		catch (final IOException e) {
+	        			throw new AOException("Error en la composicion del documento firmado", e); //$NON-NLS-1$
 					}
 
 	        		// Aplicamos todos los atributos de firma
@@ -200,14 +196,12 @@ public final class PdfTimestamper {
 						sap.preClose(exc, signTime, null);
 					}
 	        		catch (final DocumentException e) {
-						throw new AOException("Error en el procesado del PDF: " + e, e); //$NON-NLS-1$
+						throw new AOException("Error en el procesado del PDF", e); //$NON-NLS-1$
 					}
 
 	        		// Obtenemos el rango procesable
 	        		final byte[] original;
-	        		try (
-        				final InputStream is = sap.getRangeStream();
-    				) {
+	        		try (InputStream is = sap.getRangeStream()) {
 	        			original = AOUtil.getDataFromInputStream(is);
 	        		}
 
@@ -231,7 +225,6 @@ public final class PdfTimestamper {
 	    		       sap.close(dic2);
 	    		    }
 	    		    catch (final Exception e) {
-	    		    	baos.close();
 	    		        throw new AOException("Error al cerrar el PDF para finalizar el proceso de firma", e); //$NON-NLS-1$
 	    		    }
 
@@ -266,21 +259,21 @@ public final class PdfTimestamper {
 
 			// Obtenemos el token TSP
 			return (byte[]) getTimeStampTokenMethod.invoke(
-					timestamperObject,
-					tsDigest,
-					tsaHashAlgorithm,
-					signTime
-					);
+				timestamperObject,
+				tsDigest,
+				tsaHashAlgorithm,
+				signTime
+			);
 		}
 		catch (final InvocationTargetException e) {
 			throw new AOException("Error al generar los sellos de tiempo", e); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
-			throw new AOException("No se ha podido generar el sello de tiempo", e); //$NON-NLS-1$
+			throw new InvalidLibraryException("Error con las bibliotecas de composicion del sello de tiempo para firmas PDF", e); //$NON-NLS-1$
 		}
 	}
 
-	public static boolean isAvailable() {
+	static boolean isAvailable() {
 
 		// Cargamos las clases de sellado de tiempo
 		initialize();
@@ -323,16 +316,14 @@ public final class PdfTimestamper {
         				"addTimestamp", byte[].class, String.class, Calendar.class); //$NON-NLS-1$
 
         		timeStampedSignature = (byte[]) addTimestampMethod.invoke(
-        				timestamperObject,
-        				cmsSignature,
-        				tsaHashAlgorithm,
-        				signingTime);
+    				timestamperObject,
+    				cmsSignature,
+    				tsaHashAlgorithm,
+    				signingTime
+				);
         	}
         	catch (final Exception e) {
-        		LOGGER.warning(
-            			"No se ha podido actualizar la firma: " + e //$NON-NLS-1$
-        			);
-        		timeStampedSignature = cmsSignature;
+        		LOGGER.warning("No se ha podido actualizar la firma: " + e); //$NON-NLS-1$
         	}
         }
 
