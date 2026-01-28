@@ -36,24 +36,5 @@
  *   del Cliente (<i>afirma-crypto-core-pkcs7-tsp</i>), para lo cual se necesita conexi&oacute;n
  *   con una autoridad de sellado de tiempo (TSA).
  *  </p>
- *  <p style="text-align: center;"><img src="doc-files/package-info-1.png" alt="Dependencias de subsistemas"></p>
- *  <p>Este m&oacute;dulo presenta las siguientes dependencias directas de primer nivel:</p>
- *  <ul>
- *   <li>Dependencia con el m&oacute;dulo N&uacute;cleo (<i>afirma-core</i>) del Cliente.</li>
- *   <li>Dependencia con el m&oacute;dulo PKCS#7 (<i>afirma-crypto-core-pkcs7</i>) del Cliente.</li>
- *   <li>Dependencia con SpongyCastle 1.54 o superior (Proveedor + TSP + <i>Mail</i>).</li>
- *  </ul>
- *  <p>Adicionalmente, se presentan las siguientes dependencias din&aacute;micas de primer nivel:</p>
- *  <ul>
- *   <li>
- *    Dependencia din&aacute;mica con el m&oacute;dulo CAdES Multifirmas (<i>afirma-crypto-cades-multi</i>) del Cliente.
- *    La presencia de este m&oacute;dulo es opcional, &uacute;nicamente siendo necesaria
- *    su presencia para la realizaci&oacute;n de contrafirmas o cofirmas CAdES.
- *   </li>
- *  </ul>
- *  <p>
- *   Este m&oacute;dulo es compatible con cualquier entorno JSE 1.6 o superior y con Android 4 o superior.<br>
- *  </p>
- *  <p>Desde este m&oacute;dulo no se realizan llamadas a interfaces gr&aacute;ficas.</p>
  */
 package es.gob.afirma.signers.cades;

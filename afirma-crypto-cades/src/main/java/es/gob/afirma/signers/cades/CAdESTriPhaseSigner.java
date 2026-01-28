@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -133,7 +132,7 @@ import es.gob.afirma.signers.pkcs7.SigUtils;
  * </p>
  * <p>
  *  Es conveniente tener en cuenta al usar firmas trif&aacute;sicas que es necesario disponer de un mecanismo
- *  para que el usuario pueda ver en todo momento los documentos que est&aacute; firmando (una copia que refleje
+ *  para que el usuario pueda ver siempre los documentos que est&aacute; firmando (una copia que refleje
  *  con fidelidad el contenido firmado puede ser suficiente) para evitar situaciones de repudio.
  * </p>
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -149,11 +148,7 @@ public final class CAdESTriPhaseSigner {
      * @param config Configuraci&oacute;n con el detalle de la firma a montar.
      * @return Atributos CAdES a firmar (prefirma) codificados en ASN.1.
      * @throws AOException Cuando se produce cualquier error durante el proceso. */
-    public static byte[] preSign(
-    		final Certificate[] signerCertificateChain,
-    		final Date signDate,
-    		final CAdESParameters config
-                          ) throws AOException {
+    public static byte[] preSign(final Certificate[] signerCertificateChain, final CAdESParameters config) throws AOException {
 
         if (signerCertificateChain == null || signerCertificateChain.length == 0) {
             throw new IllegalArgumentException("La cadena de certificados debe contener al menos una entrada"); //$NON-NLS-1$
@@ -162,16 +157,13 @@ public final class CAdESTriPhaseSigner {
         // Atributos firmados
         final ASN1Set signedAttributes;
         try {
-        	final ASN1EncodableVector signedAttributesVector =
-    			CAdESUtils.generateSignedAttributes(
-					signerCertificateChain[0],
-					config,
-					false  // No es contrafirma
-				);
+        	final ASN1EncodableVector signedAttributesVector = CAdESUtils.generateSignedAttributes(
+				signerCertificateChain[0],
+				config,
+				false  // No es contrafirma
+			);
 
-        	signedAttributes = SigUtils.getAttributeSet(
-                new AttributeTable(signedAttributesVector)
-             );
+        	signedAttributes = SigUtils.getAttributeSet(new AttributeTable(signedAttributesVector));
         }
         catch(final Exception e) {
             throw new AOException("Error obteniendo los atributos a firmar: " + e, e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$

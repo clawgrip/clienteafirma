@@ -216,7 +216,7 @@ public final class TestCosign {
 			);
 		}
 		catch (final RuntimeConfigNeededException e) {
-			Assert.fail("La firma se tuvo que haber cofirmado al incluir el parametro " + CAdESExtraParams.ALLOW_SIGN_LTS_SIGNATURES); //$NON-NLS-1$
+			Assert.fail("La firma se tuvo que haber cofirmado al incluir el parametro '" + CAdESExtraParams.ALLOW_SIGN_LTS_SIGNATURES + "': " + e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		catch(final Exception e) {
 			System.out.println("La firma no puede ser cofirmada: " + e); //$NON-NLS-1$

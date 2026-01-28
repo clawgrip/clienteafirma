@@ -4,6 +4,10 @@ import es.gob.afirma.core.ErrorCode;
 
 public class BinaryErrorCode {
 
+	private BinaryErrorCode() {
+		// No instanciable
+	}
+
 	public static class Internal {
 
 		public static final ErrorCode UNKWNON_BINARY_SIGNING_ERROR			= new ErrorCode("211001", "Error desconocido en la generacion de la firma binaria"); //$NON-NLS-1$ //$NON-NLS-2$

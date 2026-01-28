@@ -12,9 +12,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 /**
- * Constructor de objetos para la carga de docuemntos XML.
+ * Constructor de objetos para la carga de documentos XML.
  */
-public class SecureXmlBuilder {
+public final class SecureXmlBuilder {
 
 	private static DocumentBuilderFactory SECURE_BUILDER_FACTORY = null;
 
@@ -38,7 +38,7 @@ public class SecureXmlBuilder {
 			// Los siguientes atributos deberia establececerlos automaticamente la implementacion de
 			// la biblioteca al habilitar la caracteristica anterior. Por si acaso, los establecemos
 			// expresamente
-			final String[] securityProperties = new String[] {
+			final String[] securityProperties = {
 					SecureXmlConstants.ACCESS_EXTERNAL_DTD,
 					SecureXmlConstants.ACCESS_EXTERNAL_SCHEMA,
 					SecureXmlConstants.ACCESS_EXTERNAL_STYLESHEET
@@ -50,7 +50,7 @@ public class SecureXmlBuilder {
 				catch (final Exception e) {
 					// Podemos las trazas en debug ya que estas propiedades son adicionales
 					// a la activacion de el procesado seguro
-					Logger.getLogger("es.gob.afirma").log(Level.FINE, "No se ha podido establecer una propiedad de seguridad '" + securityProperty + "' en la factoria XML"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					Logger.getLogger("es.gob.afirma").log(Level.FINE, "No se ha podido establecer una propiedad de seguridad '" + securityProperty + "' en la factoria XML: " + e); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}
 

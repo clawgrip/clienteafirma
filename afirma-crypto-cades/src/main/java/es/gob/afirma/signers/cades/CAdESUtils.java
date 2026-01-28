@@ -390,23 +390,21 @@ public final class CAdESUtils {
         }
 
         // MessageDigest (https://tools.ietf.org/html/rfc3852#section-11.2)
-        if (config.getDataDigest() != null || config.getContentData() != null) {
-        	contextSpecific.add(
-       			new Attribute(
-     				CMSAttributes.messageDigest,
-    				new DERSet(
-    					new DEROctetString(
-    						config.getDataDigest() != null ?
-    							config.getDataDigest() :
-    							MessageDigest.getInstance(config.getDigestAlgorithm()).digest(config.getContentData())
-    					)
-    				)
-    			)
-    		);
-        }
-        else {
+        if (config.getDataDigest() == null && config.getContentData() == null) {
         	throw new IllegalArgumentException("Ni los datos a firmar ni la huella de los mismos se han configurado o encontrado "); //$NON-NLS-1$
         }
+		contextSpecific.add(
+			new Attribute(
+				CMSAttributes.messageDigest,
+				new DERSet(
+					new DEROctetString(
+						config.getDataDigest() != null ?
+							config.getDataDigest() :
+							MessageDigest.getInstance(config.getDigestAlgorithm()).digest(config.getContentData())
+					)
+				)
+			)
+		);
 
         // Informacion del certificado de firma  (en la forma original o la V2 segun sea necesario)
         if (config.isSigningCertificateV2()) {
@@ -442,34 +440,32 @@ public final class CAdESUtils {
 
         // ContentHints, que se crea en base al ContentType.
         // Este atributo no se creara en las contrafirmas cuando se use un perfil baseline
-        if (!isCountersign || !AOSignConstants.SIGN_PROFILE_BASELINE.equals(config.getProfileSet()) ) {
-        	// Tampoco se incluira si se ha definio externamente que no se haga (el contentTypeOid sera nulo)
-        	if (config.getContentTypeOid() != null) {
-        		final ContentHints contentHints;
-        		if (config.getContentDescription() != null) {
-        			contentHints = new ContentHints(
-        					new ASN1ObjectIdentifier(config.getContentTypeOid()),
-        					new DERUTF8String(config.getContentDescription())
-        					);
-        		}
-        		else {
-        			contentHints = new ContentHints(
-        					new ASN1ObjectIdentifier(config.getContentTypeOid())
-        					);
-        		}
-        		contextSpecific.add(
-        				new Attribute(
-        						PKCSObjectIdentifiers.id_aa_contentHint,
-        						new DERSet(contentHints.toASN1Primitive())
-        						)
-        				);
-        	}
-        }
+        // Tampoco se incluira si se ha definio externamente que no se haga (el contentTypeOid sera nulo)
+		if ((!isCountersign || !AOSignConstants.SIGN_PROFILE_BASELINE.equals(config.getProfileSet())) && config.getContentTypeOid() != null) {
+			final ContentHints contentHints;
+			if (config.getContentDescription() != null) {
+				contentHints = new ContentHints(
+						new ASN1ObjectIdentifier(config.getContentTypeOid()),
+						new DERUTF8String(config.getContentDescription())
+						);
+			}
+			else {
+				contentHints = new ContentHints(
+						new ASN1ObjectIdentifier(config.getContentTypeOid())
+						);
+			}
+			contextSpecific.add(
+					new Attribute(
+							PKCSObjectIdentifiers.id_aa_contentHint,
+							new DERSet(contentHints.toASN1Primitive())
+							)
+					);
+		}
 
         // Atributos adicionales segun seccion 5.11 de RFC 5126
 
         // commitment-type-indication
-        if (config.getCommitmentTypeIndications() != null && config.getCommitmentTypeIndications().size() > 0) {
+        if (config.getCommitmentTypeIndications() != null) {
         	for (final CommitmentTypeIndicationBean ctib : config.getCommitmentTypeIndications()) {
         		contextSpecific.add(
     				new Attribute(

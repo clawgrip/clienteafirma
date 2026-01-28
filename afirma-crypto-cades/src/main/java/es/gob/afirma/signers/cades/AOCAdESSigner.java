@@ -27,14 +27,11 @@ import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
 import es.gob.afirma.core.signers.AOSigner;
-import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.signers.multi.cades.AOCAdESCoSigner;
-import es.gob.afirma.signers.multi.cades.AOCAdESCounterSigner;
 import es.gob.afirma.signers.pkcs7.BinaryErrorCode;
 import es.gob.afirma.signers.pkcs7.ObtainContentSignedData;
 import es.gob.afirma.signers.pkcs7.ReadNodesTree;
-import es.gob.afirma.signers.pkcs7.SCChecker;
 
 /**
  * Manejador de firmas binarias CADES.
@@ -94,8 +91,6 @@ public final class AOCAdESSigner implements AOSigner {
         final Properties extraParams = getExtraParams(xParams);
 
     	checkAlgorithm(algorithm, extraParams);
-
-    	new SCChecker().checkSpongyCastle();
 
     	noticeIncompatibleConfig(algorithm, extraParams);
 
@@ -161,8 +156,6 @@ public final class AOCAdESSigner implements AOSigner {
     	final Properties extraParams = getExtraParams(xParams);
     	checkAlgorithm(algorithm, extraParams);
 
-    	new SCChecker().checkSpongyCastle();
-
         return new AOCAdESCoSigner().cosign(
 			data,
 			sign,
@@ -210,57 +203,15 @@ public final class AOCAdESSigner implements AOSigner {
 
     	checkAlgorithm(algorithm, extraParams);
 
-    	new SCChecker().checkSpongyCastle();
-
         return new AOCAdESCoSigner().cosign(
 			sign, algorithm, key, certChain, extraParams
-		);
-    }
-
-    /**
-     * Contrafirma nodos de firma concretos de una firma electr&oacute;nica.
-     * Los nodos que se deben firmar se indican en <code>targetType</code> y
-     * pueden ser:
-     * <ul>
-     *  <li>Todos los nodos del &aacute;rbol de firma (<code>CounterSignTarget.TREE</code>)</li>
-     *  <li>Los nodos hoja del &aacute;rbol de firma (<code>CounterSignTarget.LEAFS</code>)</li>
-     *  <li>Los nodos de firma cuyas posiciones se especifican en <code>target</code> (<code>CounterSignTarget.NODES</code>)</li>
-     *  <li>Los nodos de firma realizados por los firmantes cuyo <i>Common Name</i> (CN X.500) se indica en <code>target</code> (<code>CounterSignTarget.SIGNERS</code>)</li>
-     * </ul>
-     * @param sign Firma CAdES o CMS con los nodos a contrafirmar
-     * @param algorithm Algoritmo a usar para la firma.
-     * @param targetType Tipo de objetivo de la contrafirma
-     * @param targets Informaci&oacute;n complementario seg&uacute;n el tipo de objetivo de la contrafirma
-     * @param key Clave privada a usar para firmar.
-     * @param certChain Cadena de certificaci&oacute;n del certificado de firma.
-     * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>)
-     * @return Contrafirma CAdES
-     * @throws AOException Cuando ocurre cualquier problema durante el proceso
-     */
-    @Override
-	public byte[] countersign(final byte[] sign,
-                              final String algorithm,
-                              final CounterSignTarget targetType,
-                              final Object[] targets,
-                              final PrivateKey key,
-                              final Certificate[] certChain,
-                              final Properties xParams) throws AOException {
-
-    	final Properties extraParams = getExtraParams(xParams);
-
-    	checkAlgorithm(algorithm, extraParams);
-
-    	new SCChecker().checkSpongyCastle();
-
-        return new AOCAdESCounterSigner().countersign(
-			sign, algorithm, targetType, targets, key, certChain, extraParams
 		);
     }
 
 	@Override
 	public AOTreeModel getSignersStructure(final byte[] sign, final Properties params, final boolean asSimpleSignInfo)
 			throws AOInvalidSignatureFormatException, IOException {
-    	new SCChecker().checkSpongyCastle();
+
     	if (!CAdESValidator.isCAdESValid(sign, false)) {
     		throw new AOInvalidSignatureFormatException("Los datos introducidos no se corresponden con un objeto de firma CAdES"); //$NON-NLS-1$
     	}
@@ -307,7 +258,6 @@ public final class AOCAdESSigner implements AOSigner {
             LOGGER.warning("Se han introducido datos nulos para su comprobacion"); //$NON-NLS-1$
             return false;
         }
-        new SCChecker().checkSpongyCastle();
 		return CAdESValidator.isCAdESSignedData(data, true);
     }
 
@@ -352,7 +302,6 @@ public final class AOCAdESSigner implements AOSigner {
         if (sign == null) {
             throw new IllegalArgumentException("Se han introducido datos nulos para su comprobacion"); //$NON-NLS-1$
         }
-        new SCChecker().checkSpongyCastle();
         if (!CAdESValidator.isCAdESValid(sign, false)) {
             throw new AOInvalidSignatureFormatException("Los datos introducidos no se corresponden con un objeto de firma"); //$NON-NLS-1$
         }

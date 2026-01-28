@@ -194,7 +194,7 @@ public final class PdfUtil {
 	 * autorizaci&oacute;n del usuario para firmarlo.
 	 * @throws AOException Cuando el PDF est&aacute; certificado y no se permite su firma.
 	 */
-	static void checkPdfCertification(final int pdfCertificationLevel, final Properties extraParams) throws PdfIsCertifiedException, AOException {
+	static void checkPdfCertification(final int pdfCertificationLevel, final Properties extraParams) throws AOException {
 
 		// Si se ha configurado que se firme en cualquier caso, no hacemos mas comprobaciones
 		final String forceSignature = extraParams.getProperty(PdfExtraParams.ALLOW_SIGNING_CERTIFIED_PDFS);
@@ -234,7 +234,7 @@ public final class PdfUtil {
 				extraParams.getProperty(PdfExtraParams.USER_PASSWORD_STRING) != null) {
 			return true;
 		}
-		return Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.ALWAYS_CREATE_REVISION)) || pdfReader.getAcroFields().getSignatureNames().size() > 0;
+		return Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.ALWAYS_CREATE_REVISION)) || !pdfReader.getAcroFields().getSignatureNames().isEmpty();
 	}
 
 	static boolean pdfHasUnregisteredSignatures(final byte[] pdf, final Properties xParams)
@@ -256,8 +256,7 @@ public final class PdfUtil {
 	 * @throws IOException Cuando ocurre un error al leer el PDF.
 	 * @throws InvalidPdfException Cuando los datos proporcionados no son un PDF.
 	 * @throws BadPdfPasswordException Cuando se ha insertado una contrase&ntilde;a err&oacute;nea en el PDF. */
-	static String getFirstSupportedSignSubFilter(final byte[] pdf, final Properties xParams) throws IOException,
-	                                                                                                InvalidPdfException,
+	static String getFirstSupportedSignSubFilter(final byte[] pdf, final Properties xParams) throws InvalidPdfException,
 	                                                                                                PdfIsPasswordProtectedException,
 	                                                                                                BadPdfPasswordException {
 		if (pdf == null) {
@@ -321,7 +320,7 @@ public final class PdfUtil {
 									data
 								)
 							);
-							LOGGER.info(
+							LOGGER.info(()->
 								"Encontrada firma no registrada, hecha con certificado emitido por: " + cert.getIssuerX500Principal().toString() //$NON-NLS-1$
 							);
 						}
@@ -638,47 +637,45 @@ public final class PdfUtil {
      * @return Devuelve true en caso de que el formato sea correcto y false en caso contrario.
      */
     public static boolean checkPagesRangeInputFormat(final String rangeInput) {
-    	if (!rangeInput.isEmpty()) {
-
-	    	final String rangeChars = "0123456789-,"; //$NON-NLS-1$
-
-    		if (RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(rangeInput.length() -1)))
-    				|| rangeInput.length() == 1 && RANGE_SEPARATOR.equals(rangeInput)) {
-    			return false;
-    		}
-
-	    	for (int i = 0; i < rangeInput.length(); i++) {
-	    		// Comprobamos que sea un caracter correcto
-	    		if (!rangeChars.contains(String.valueOf(rangeInput.charAt(i)))
-	    			// Comprobamos que no se hayan introducido tres guiones seguidos
-	    			|| i+2 < rangeInput.length()
-		    				&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i)))
-		    				&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i +1)))
-		    				&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i +2)))
-	    			// Comprobamos que no se hayan introducido dos comas seguidas
-	    			|| i+1 < rangeInput.length()
-		    				&& RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(i)))
-		    				&& RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(i +1)))) {
-	    			return false;
-	            }
-	    	}
-
-	    	final String[] rangesArray = rangeInput.split(RANGE_SEPARATOR);
-	    	for (final String range : rangesArray) {
-
-	    		if (RANGE_INDICATOR.equals(String.valueOf(range.charAt(range.length() -1)))
-	    			// Comprobamos que el rango no termine con un guion
-	    			|| range.length() >= 2
-		    				&& RANGE_INDICATOR.equals(String.valueOf(range.charAt(0)))
-		    				&& RANGE_INDICATOR.equals(String.valueOf(range.charAt(1)))
-		    		// Comprobamos que se haya introducido un numero en caso de que la longitud sea 1
-		    		|| range.length() == 1 && RANGE_INDICATOR.equals(range)) {
-	    			return false;
-	    		}
-	    	}
-    	} else {
+    	if (rangeInput.isEmpty()) {
     		return false;
     	}
+		final String rangeChars = "0123456789-,"; //$NON-NLS-1$
+
+		if (RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(rangeInput.length() -1)))
+				|| rangeInput.length() == 1 && RANGE_SEPARATOR.equals(rangeInput)) {
+			return false;
+		}
+
+		for (int i = 0; i < rangeInput.length(); i++) {
+			// Comprobamos que sea un caracter correcto
+			if (!rangeChars.contains(String.valueOf(rangeInput.charAt(i)))
+				// Comprobamos que no se hayan introducido tres guiones seguidos
+				|| i+2 < rangeInput.length()
+						&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i)))
+						&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i +1)))
+						&& RANGE_INDICATOR.equals(String.valueOf(rangeInput.charAt(i +2)))
+				// Comprobamos que no se hayan introducido dos comas seguidas
+				|| i+1 < rangeInput.length()
+						&& RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(i)))
+						&& RANGE_SEPARATOR.equals(String.valueOf(rangeInput.charAt(i +1)))) {
+				return false;
+		    }
+		}
+
+		final String[] rangesArray = rangeInput.split(RANGE_SEPARATOR);
+		for (final String range : rangesArray) {
+
+			if (RANGE_INDICATOR.equals(String.valueOf(range.charAt(range.length() -1)))
+				// Comprobamos que el rango no termine con un guion
+				|| range.length() >= 2
+						&& RANGE_INDICATOR.equals(String.valueOf(range.charAt(0)))
+						&& RANGE_INDICATOR.equals(String.valueOf(range.charAt(1)))
+				// Comprobamos que se haya introducido un numero en caso de que la longitud sea 1
+				|| range.length() == 1 && RANGE_INDICATOR.equals(range)) {
+				return false;
+			}
+		}
     	return true;
     }
 
@@ -718,11 +715,13 @@ public final class PdfUtil {
 			}
 		// Rellenamos con las paginas y rangos indicados, evitando que se indiquen
 		// paginas posteriores a la ultima
-		} else {
+		}
+		else {
 			for (final String pageStr : pagesStr) {
 				try {
 					getPagesRange(pageStr, totalPages, pages);
-				} catch (final IncorrectPageException e) {
+				}
+				catch (final IncorrectPageException e) {
 					LOGGER.log(Level.WARNING, "Se ha indicado un numero o rango de paginas invalido. Se ignorara.", e); //$NON-NLS-1$
 				}
 			}

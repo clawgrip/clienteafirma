@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
-import java.util.Iterator;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -21,7 +20,6 @@ import org.spongycastle.cms.SignerInformationStore;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
-import es.gob.afirma.core.signers.CounterSignTarget;
 import es.gob.afirma.signers.cades.AOCAdESSigner;
 import es.gob.afirma.signers.cades.CAdESExtraParams;
 
@@ -57,7 +55,6 @@ public class TestCosignMimeType {
 	private byte[] unknownData;
 
 	private byte[] signatureImplicitWithMimeTypePng;
-	private byte[] signatureImplicitWithoutMimeType;
 	private byte[] signatureExplicitWithoutMimeType;
 	private byte[] signatureExplicitWithContentTypePng;
 	private byte[] signatureExplicitWithContentTypeAndMimeTypePng;
@@ -120,7 +117,6 @@ public class TestCosignMimeType {
 
 		extraParams.clear();
 		extraParams.setProperty(CAdESExtraParams.MODE, AOSignConstants.SIGN_MODE_IMPLICIT);
-		this.signatureImplicitWithoutMimeType = sign(this.jpegData, extraParams);
 
 		extraParams.clear();
 		extraParams.setProperty(CAdESExtraParams.MODE, AOSignConstants.SIGN_MODE_EXPLICIT);
@@ -294,24 +290,6 @@ public class TestCosignMimeType {
 	}
 
 	/**
-	 * Comprueba que una firma CAdES en la que se indica que se incluya el
-	 * MimeType y no se indica ni el MimeType ni el OID de los datos ni se
-	 * puede determinar el tipo a trav&eacute;s de los propios datos,
-	 * incluye el MimeType gen&eacute;rico.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
-	@Test
-	public void contrafirmaConMimeType() throws Exception {
-		final Properties extraParams = new Properties();
-		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
-		extraParams.setProperty(CAdESExtraParams.CONTENT_MIME_TYPE, MIMETYPE_JPEG);
-		final byte[] signature = countersign(this.signatureImplicitWithMimeTypePng, extraParams);
-		final String mimeType = getMimeType(signature);
-
-		Assert.assertNull("Se ha agregado un MimeType a la contrafirma", mimeType); //$NON-NLS-1$
-	}
-
-	/**
 	 * Genera una firma CAdES de los datos con la configuraci&oacute;n de firma indicada.
 	 * @param data Datos a firmar.
 	 * @param extraParams Configuraci&oacute;n de firma.
@@ -321,14 +299,12 @@ public class TestCosignMimeType {
 	private byte[] sign(final byte[] data, final Properties extraParams) throws Exception {
 
 		final AOSigner signer = new AOCAdESSigner();
-		final byte[] signature = signer.sign(
+		return signer.sign(
 				data,
 				"SHA512withRSA", //$NON-NLS-1$
 				this.signPke.getPrivateKey(),
 				this.signPke.getCertificateChain(),
 				extraParams);
-
-		return signature;
 	}
 
 	/**
@@ -341,36 +317,12 @@ public class TestCosignMimeType {
 	private byte[] cosign(final byte[] signature, final Properties extraParams) throws Exception {
 
 		final AOSigner signer = new AOCAdESSigner();
-		final byte[] cosignature = signer.cosign(
+		return signer.cosign(
 				signature,
 				"SHA512withRSA", //$NON-NLS-1$
 				this.cosignPke.getPrivateKey(),
 				this.cosignPke.getCertificateChain(),
 				extraParams);
-
-		return cosignature;
-	}
-
-	/**
-	 * Genera una cofirma CAdES con la configuraci&oacute;n de firma indicada.
-	 * @param signature Firma a cofirmar.
-	 * @param extraParams Configuraci&oacute;n para la cofirma.
-	 * @return Cofirma CAdES.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
-	private byte[] countersign(final byte[] signature, final Properties extraParams) throws Exception {
-
-		final AOSigner signer = new AOCAdESSigner();
-		final byte[] cosignature = signer.countersign(
-				signature,
-				"SHA512withRSA", //$NON-NLS-1$
-				CounterSignTarget.LEAFS,
-				null,
-				this.cosignPke.getPrivateKey(),
-				this.cosignPke.getCertificateChain(),
-				extraParams);
-
-		return cosignature;
 	}
 
 	/**
@@ -384,10 +336,7 @@ public class TestCosignMimeType {
 
 		final CMSSignedData s = new CMSSignedData(signature);
 		final SignerInformationStore signersInfo = s.getSignerInfos();
-		final Iterator<SignerInformation> signersIt = signersInfo.iterator();
-
-		while (signersIt.hasNext()) {
-			final SignerInformation signerInfo = signersIt.next();
+		for (final SignerInformation signerInfo : signersInfo) {
 			if (!signerInfo.getSID().getSerialNumber().toString().equals(this.signatureSignerSid)) {
 				final AttributeTable signedAttributes = signerInfo.getSignedAttributes();
 				final Attribute mimetypeAttr = signedAttributes.get(new ASN1ObjectIdentifier(ATTR_MIMETYPE_OID));

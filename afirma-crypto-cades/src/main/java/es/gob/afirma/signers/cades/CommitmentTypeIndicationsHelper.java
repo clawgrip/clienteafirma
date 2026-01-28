@@ -10,6 +10,7 @@
 package es.gob.afirma.signers.cades;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,9 +120,7 @@ public final class CommitmentTypeIndicationsHelper {
 			else {
 				commitmentTypeQualifiers = new ArrayList<>();
 				final String[] ctqs = tmpStr.split(Pattern.quote("|")); //$NON-NLS-1$
-				for (final String ctq : ctqs) {
-					commitmentTypeQualifiers.add(ctq);
-				}
+				Collections.addAll(commitmentTypeQualifiers, ctqs);
 			}
 
 			ret.add(new CommitmentTypeIndicationBean(identifier, commitmentTypeQualifiers));
@@ -150,7 +149,7 @@ public final class CommitmentTypeIndicationsHelper {
 			);
     	}
 
-    	if (ctib.getQualifiers() == null || ctib.getQualifiers().size() < 1) {
+    	if (ctib.getQualifiers() == null || ctib.getQualifiers().isEmpty()) {
     		return new CommitmentTypeIndication(id);
     	}
 

@@ -68,16 +68,13 @@ public class ErrorCode {
 
 	@Override
 	public boolean equals(final Object obj) {
-		return obj instanceof ErrorCode ? this.code.equals(((ErrorCode) obj).code) : false;
+		return obj instanceof ErrorCode && this.code.equals(((ErrorCode) obj).code);
 	}
 
 	@Override
 	public int hashCode() {
 		return this.code.hashCode();
 	}
-
-//	public static class Hardware {
-//	}
 
 	public static class Internal {
 

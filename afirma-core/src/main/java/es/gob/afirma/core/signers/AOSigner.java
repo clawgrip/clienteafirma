@@ -20,7 +20,7 @@ import es.gob.afirma.core.util.tree.AOTreeModel;
  * Define los requerimientos de las clases capaces de efectuar firmas digitales.
  * @version 1.0
  */
-public interface AOSigner extends AOCoSigner, AOCounterSigner, AOSimpleSigner {
+public interface AOSigner extends AOCoSigner, AOSimpleSigner {
 
     /**
      * Recupera el &aacute;rbol de nodos de firma de una firma electr&oacute;nica.
@@ -131,12 +131,12 @@ public interface AOSigner extends AOCoSigner, AOCounterSigner, AOSimpleSigner {
 	 * @throws IOException si no se puede leer la firma
 	 * @throws AOException En caso de cualquier error durante la recuperaci&oacute;n de los datos
 	 */
-	byte[] getData(byte[] sign, Properties params) throws AOInvalidSignatureFormatException, IOException, AOException;
+	byte[] getData(byte[] sign, Properties params) throws IOException, AOException;
 
     /**
      * Obtiene la informaci&oacute;n general de un objeto de firma. Ya que un objeto de
      * firma puede contener muchas firmas, se considera informaci&oacute;n
-     * general la com&uacute;n que aplique a todo el objeto.
+     * general la com&uacute;n que aplique a el objeto entero.
      * @param signData
      *        Firma que se desea analizar.
      * @return Informaci&oacute;n sobre la firma electr&oacute;nica

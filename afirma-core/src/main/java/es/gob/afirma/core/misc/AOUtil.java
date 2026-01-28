@@ -45,7 +45,7 @@ public final class AOUtil {
 
     private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
-    private static final String[] SUPPORTED_URI_SCHEMES = new String[] {
+    private static final String[] SUPPORTED_URI_SCHEMES = {
             "http", "https", "file", "urn" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     };
 
@@ -99,15 +99,10 @@ public final class AOUtil {
 
         // Si el esquema es nulo, aun puede ser un nombre de fichero valido
         // El caracter '#' debe protegerse en rutas locales
-        if (scheme == null) {
-            filename = filename.replace("#", "%23"); //$NON-NLS-1$ //$NON-NLS-2$
-            return createURI("file://" + filename); //$NON-NLS-1$
-        }
-
         // Miramos si el esquema es una letra, en cuyo caso seguro que es una
         // unidad de Windows ("C:", "D:", etc.), y le anado el file://
         // El caracter '#' debe protegerse en rutas locales
-        if (scheme.length() == 1 && Character.isLetter((char) scheme.getBytes()[0])) {
+        if (scheme == null || scheme.length() == 1 && Character.isLetter((char) scheme.getBytes()[0])) {
             filename = filename.replace("#", "%23"); //$NON-NLS-1$ //$NON-NLS-2$
             return createURI("file://" + filename); //$NON-NLS-1$
         }
@@ -281,30 +276,27 @@ public final class AOUtil {
             if (principal.charAt(offset1) == ',') {
                 return ""; //$NON-NLS-1$
             }
-            else if (principal.charAt(offset1) == '"') {
-                offset1++;
-                if (offset1 >= principal.length()) {
-                    return ""; //$NON-NLS-1$
-                }
+			if (principal.charAt(offset1) != '"') {
+			    offset2 = principal.indexOf(',', offset1);
+			    if (offset2 != -1) {
+			        return principal.substring(offset1, offset2).trim();
+			    }
+			    return principal.substring(offset1).trim();
+			}
+			offset1++;
+			if (offset1 >= principal.length()) {
+			    return ""; //$NON-NLS-1$
+			}
 
-                offset2 = principal.indexOf('"', offset1);
-                if (offset2 == offset1) {
-                    return ""; //$NON-NLS-1$
-                }
-                else if (offset2 != -1) {
-                    return principal.substring(offset1, offset2);
-                }
-                else {
-                    return principal.substring(offset1);
-                }
-            }
-            else {
-                offset2 = principal.indexOf(',', offset1);
-                if (offset2 != -1) {
-                    return principal.substring(offset1, offset2).trim();
-                }
-                return principal.substring(offset1).trim();
-            }
+			offset2 = principal.indexOf('"', offset1);
+			if (offset2 == offset1) {
+			    return ""; //$NON-NLS-1$
+			}
+			if (offset2 != -1) {
+			    return principal.substring(offset1, offset2);
+			}
+			return principal.substring(offset1);
+
         }
 
         return null;
@@ -339,7 +331,7 @@ public final class AOUtil {
             return "null"; //$NON-NLS-1$
         }
 
-        final StringBuffer stringbuffer = new StringBuffer(256);
+        final StringBuilder stringbuffer = new StringBuilder(256);
         int i = 0;
         for (int j = 0; j < abyte0.length; j++) {
             if (separator && i > 0) {
@@ -372,7 +364,7 @@ public final class AOUtil {
             return "null"; //$NON-NLS-1$
         }
 
-        final StringBuffer stringbuffer = new StringBuffer(256);
+        final StringBuilder stringbuffer = new StringBuilder(256);
         for (int j = 0; j < abyte0.length; j++) {
             if (separator != null && j > 0) {
                 stringbuffer.append(separator);
@@ -381,30 +373,6 @@ public final class AOUtil {
             stringbuffer.append(HEX_CHARS[abyte0[j] & 0xf]);
         }
         return stringbuffer.toString();
-    }
-
-    /** Carga una librer&iacute;a nativa del sistema.
-     * @param path Ruta a la libreria de sistema.
-     * @throws IOException Si ocurre alg&uacute;n problema durante la carga */
-    public static void loadNativeLibrary(final String path) throws IOException {
-        if (path == null) {
-            LOGGER.warning("No se puede cargar una biblioteca nula"); //$NON-NLS-1$
-            return;
-        }
-        final int pos = path.lastIndexOf('.');
-        final File file = new File(path);
-        final File tempLibrary =
-            File.createTempFile(pos < 1 ? file.getName() : file.getName().substring(0, file.getName().indexOf('.')),
-                pos < 1 || pos == path.length() - 1 ? null : path.substring(pos));
-
-        // Copiamos el fichero
-        copyFile(file, tempLibrary);
-
-        // Pedimos borrar los temporales cuando se cierre la JVM
-        tempLibrary.deleteOnExit();
-
-        LOGGER.info("Cargamos " + LoggerUtil.getCleanUserHomePath(tempLibrary.getAbsolutePath())); //$NON-NLS-1$
-        System.load(tempLibrary.getAbsolutePath());
     }
 
     /** Copia un fichero.
@@ -419,7 +387,7 @@ public final class AOUtil {
 	        final FileInputStream is = new FileInputStream(source);
 	        final FileOutputStream os = new FileOutputStream(dest);
 	        final FileChannel in = is.getChannel();
-	        final FileChannel out = os.getChannel();
+	        final FileChannel out = os.getChannel()
     	) {
         	final MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());
         	out.write(buf);
@@ -510,39 +478,6 @@ public final class AOUtil {
 		return buffer.toString();
 	}
 
-    /** Indica si el JRE actual es Java 9 o superior.
-     * @return <code>true</code> si el JRE actual es Java 9 o superior,
-     *         <code>false</code> si es Java 8 o inferior. */
-	public static boolean isJava9orNewer() {
-		final String ver = System.getProperty("java.version");  //$NON-NLS-1$
-		if (ver == null || ver.isEmpty()) {
-			LOGGER.warning("No se ha podido determinar la version de Java"); //$NON-NLS-1$
-			return false;
-		}
-		try {
-			// Valoramos si la version tiene el patron antiguo (1.X)
-			if (ver.startsWith("1.")) { //$NON-NLS-1$
-				return Integer.parseInt(ver.substring(2, 3)) > 8;
-			}
-
-			// En el nuevo esquema de versionado de Java se sigue el patron [1-9][0-9]*((\.0)*\.[1-9][0-9]*)*,
-			// en el que tenemos $MAJOR.$MINOR.$SECURITY (http://openjdk.java.net/jeps/223)
-			String majorVer = ver;
-			if (majorVer.indexOf(".") > -1) { //$NON-NLS-1$
-				majorVer = majorVer.substring(0, majorVer.indexOf(".")); //$NON-NLS-1$
-			}
-
-			if (isOnlyNumber(majorVer)) {
-				return Integer.parseInt(majorVer) > 8;
-			}
-		}
-		catch(final Exception e) {
-			LOGGER.warning("No se ha podido determinar la version de Java (" + ver + "):" + e); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return false;
-	}
-
-
 	/** Comprueba si el texto es un n&uacute;mero.
 	 * @param value Texto a comprobar.
 	 * @return <code>true</code> si el texto es un n&uacute;mero, <code>false</code>
@@ -553,6 +488,5 @@ public final class AOUtil {
 		}
 	    return value.matches("^[0-9]+$"); //$NON-NLS-1$
 	}
-
 }
 
