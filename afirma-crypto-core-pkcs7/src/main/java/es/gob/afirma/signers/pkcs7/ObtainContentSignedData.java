@@ -66,7 +66,7 @@ public final class ObtainContentSignedData {
 			doj = (ASN1TaggedObject) e.nextElement();
 		}
 		catch (final Exception e) {
-			throw new AOInvalidSignatureFormatException("Error al parsear la firma ASN.1: " + e, e); //$NON-NLS-1$
+			throw new AOInvalidSignatureFormatException("Error al parsear la firma ASN.1", e); //$NON-NLS-1$
 		}
 
 		// buscamos si es signedData

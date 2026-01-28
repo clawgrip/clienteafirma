@@ -28,7 +28,6 @@ import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.signers.cades.CAdESParameters;
 import es.gob.afirma.signers.cades.CAdESTriPhaseSigner;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
 /** Clase para la firma electr&oacute;nica en tres fases de ficheros Adobe PDF en formato PAdES.
  * <p>No firma PDF cifrados.</p>
@@ -226,9 +225,7 @@ public final class PAdESTriPhaseSigner {
      * @param secureMode Modo seguro.
      * @return PDF firmado.
      * @throws AOException en caso de cualquier tipo de error.
-     * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n
-     *                     de estructuras.
-     * @throws NoSuchAlgorithmException Si hay problemas con el algoritmo durante el sello de tiempo. */
+     * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n de estructuras. */
     public static byte[] postSign(final String signatureAlgorithm,
                                   final byte[] inPdf,
                                   final Certificate[] signerCertificateChain,
@@ -283,7 +280,6 @@ public final class PAdESTriPhaseSigner {
         		&& extraParams.getProperty(PdfExtraParams.TSA_URL) != null) {
 
         	cadesSignature = PdfTimestamper.addCmsTimeStamp(cadesSignature, extraParams, signingTime);
-
         }
 
         //************** FIN SELLO DE TIEMPO ****************

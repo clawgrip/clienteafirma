@@ -34,8 +34,6 @@ import com.aowagie.text.pdf.PdfString;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.InvalidLibraryException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
-import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
 /** Sellador de tiempo para documentos PDF.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -275,7 +273,7 @@ public final class PdfTimestamper {
 		}
 	}
 
-	public static boolean isAvailable() {
+	static boolean isAvailable() {
 
 		// Cargamos las clases de sellado de tiempo
 		initialize();

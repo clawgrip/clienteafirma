@@ -40,10 +40,6 @@ import com.aowagie.text.pdf.PdfString;
 import com.aowagie.text.pdf.PdfWriter;
 
 import es.gob.afirma.core.AOException;
-import es.gob.afirma.signers.pades.common.BadPdfPasswordException;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
-import es.gob.afirma.signers.pades.common.PdfIsCertifiedException;
-import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
 /** Utilidades variadas para el tratamiento de PDF.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -246,7 +242,6 @@ public final class PdfUtil {
 	 * @param pdf PDF que analizar.
 	 * @param xParams Par&aacute;metros extra con la configuraci&oacute;n de la operaci&oacute;n.
 	 * @return Filtro de firma o {@code null} si no se encuentra.
-	 * @throws IOException Cuando ocurre un error al leer el PDF.
 	 * @throws InvalidPdfException Cuando los datos proporcionados no son un PDF.
 	 * @throws BadPdfPasswordException Cuando se ha insertado una contrase&ntilde;a err&oacute;nea en el PDF. */
 	static String getFirstSupportedSignSubFilter(final byte[] pdf, final Properties xParams) throws InvalidPdfException,
@@ -571,7 +566,7 @@ public final class PdfUtil {
 		}
 		catch (final Exception e) {
 			final String cleanedText = range.length() > 12 ? range.substring(0, 12) + "..." : range; //$NON-NLS-1$
-			throw new IncorrectPageException("La cadena introducida no se corresponde con un rango de paginas: " + cleanedText); //$NON-NLS-1$
+			throw new IncorrectPageException("La cadena introducida no se corresponde con un rango de paginas ('" + cleanedText + "': " + e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		if (limitNumber < firstNumber) {

@@ -37,10 +37,6 @@ import com.aowagie.text.pdf.PdfStamper;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
-import es.gob.afirma.signers.pades.common.BadPdfPasswordException;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
-import es.gob.afirma.signers.pades.common.PdfHasUnregisteredSignaturesException;
-import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
 /** Gestor del n&uacute;cleo de firma PDF. Esta clase realiza las operaciones necesarias tanto para
  * la firma monof&aacute;sica PAdES como para las trif&aacute;sicas de una forma unificada, pero
@@ -446,10 +442,10 @@ public final class PdfSessionManager {
 		sap.setSignDate(signTime);
 
 		sap.setCrypto(
-				null,
-				doNotUseCertChainOnPostSign ? null : certChain,
-				null,
-				null
+			null,
+			doNotUseCertChainOnPostSign ? null : certChain,
+			null,
+			null
 		);
 
 		// Localizacion en donde se produce la firma
@@ -462,8 +458,7 @@ public final class PdfSessionManager {
 			sap.setContact(signerContact);
 		}
 
-		// Si se ha establecido una imagen de firma, se
-		// elimina el texto por defecto
+		// Si se ha establecido una imagen de firma, se elimina el texto por defecto
 		if (rubric != null) {
 			sap.setLayer2Text(""); //$NON-NLS-1$
 			sap.setLayer4Text(""); //$NON-NLS-1$
@@ -531,7 +526,7 @@ public final class PdfSessionManager {
 					LOGGER.warning("Numero de pagina incorrecto. La firma no sera visible: " + e); //$NON-NLS-1$
 				}
 				catch (final DocumentException e) {
-					throw new IOException("Error en la insercion de la firma rotada: " + e, e); //$NON-NLS-1$
+					throw new IOException("Error en la insercion de la firma rotada", e); //$NON-NLS-1$
 				}
 			}
 			// Firma en un campo preexistente (visile o invisible)

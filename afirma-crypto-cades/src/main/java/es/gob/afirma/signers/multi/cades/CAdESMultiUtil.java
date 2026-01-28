@@ -93,7 +93,7 @@ final class CAdESMultiUtil {
 		}
 		catch (final CMSException e) {
 			throw new AOInvalidSignatureFormatException(
-				"La firma proporcionada no es un SignedData compatible CMS: " + e, e //$NON-NLS-1$
+				"La firma proporcionada no es un SignedData compatible CMS", e //$NON-NLS-1$
 			);
 		}
 		checkLongTermAttributes(signedData);

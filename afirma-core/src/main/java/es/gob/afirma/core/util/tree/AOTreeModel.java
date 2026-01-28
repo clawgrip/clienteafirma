@@ -50,5 +50,4 @@ public final class AOTreeModel {
     public static int getChildCount(final Object parent) {
         return ((AOTreeNode) parent).getChildCount();
     }
-
 }

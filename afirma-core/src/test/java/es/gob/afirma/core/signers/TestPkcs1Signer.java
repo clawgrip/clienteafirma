@@ -10,7 +10,7 @@ import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class Pkcs1SignerTest {
+public class TestPkcs1Signer {
 
     private static final String CERT_RSA_PATH = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
     private static final char[] CERT_RSA_PASS = "1234".toCharArray(); //$NON-NLS-1$

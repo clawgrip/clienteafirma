@@ -25,8 +25,7 @@ public final class AOTreeUtil {
      * @param tree &Aacute;rbol que se desea representar.
      * @param linePrefx Prefijo de cada l&iacute;nea de firma (por defecto, cadena
      *                  vac&iacute;a).
-     * @param identationString Cadena para la identaci&oacute;n de los nodos de firma (por
-     *                         defecto, tabulador).
+     * @param identationString Cadena para la identaci&oacute;n de los nodos de firma (por defecto, tabulador).
      * @return Cadena de texto. */
     public static String showTreeAsString(final AOTreeModel tree, final String linePrefx, final String identationString) {
 
@@ -77,6 +76,4 @@ public final class AOTreeUtil {
             archiveTreeNode(node.getChildAt(i), depth + 1, linePrefx, identationString, buffer);
         }
     }
-
-
 }

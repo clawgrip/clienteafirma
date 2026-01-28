@@ -535,7 +535,7 @@ public class CAdESParameters {
 
 	/**
 	 * Establece el texto descriptivo del tipo de contenido.
-	 * @param contentDescription Descripci&oacute;n del tipo de contenido o {@code null} si no se estableci&oacute;.
+	 * @param mimeType Tipo de contenido o {@code null} si no se estableci&oacute;.
 	 */
 	private void setMimeType(final String mimeType) {
 		this.mimetype = mimeType;

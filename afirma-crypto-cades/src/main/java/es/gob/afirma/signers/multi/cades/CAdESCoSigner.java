@@ -112,6 +112,10 @@ import es.gob.afirma.signers.pkcs7.SigUtils;
  * </pre> */
 final class CAdESCoSigner {
 
+	private CAdESCoSigner() {
+		// No instanciable
+	}
+
 	/** Se crea una cofirma a partir de los datos del firmante, el archivo
 	 * que se firma y el archivo que contiene las firmas.
 	 * @param signature Archivo que contiene las firmas.

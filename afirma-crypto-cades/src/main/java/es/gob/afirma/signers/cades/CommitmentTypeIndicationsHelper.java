@@ -145,7 +145,7 @@ public final class CommitmentTypeIndicationsHelper {
     	}
     	catch(final Exception e) {
     		throw new IllegalArgumentException(
-				"El identificador del CommitmentTypeIndication debe ser un OID valido: " + e, e //$NON-NLS-1$
+				"El identificador del CommitmentTypeIndication debe ser un OID valido", e //$NON-NLS-1$
 			);
     	}
 
@@ -161,7 +161,7 @@ public final class CommitmentTypeIndicationsHelper {
     		}
     		catch(final Exception e) {
     			throw new IllegalArgumentException(
-					"El calificador proporcionado no es un OID (" + strQuals[i] + "): " + e, e //$NON-NLS-1$ //$NON-NLS-2$
+					"El calificador proporcionado no es un OID: " + strQuals[i], e //$NON-NLS-1$
 				);
     		}
     	}

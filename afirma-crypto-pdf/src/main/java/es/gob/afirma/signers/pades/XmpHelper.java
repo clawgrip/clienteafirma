@@ -46,7 +46,6 @@ import com.aowagie.text.pdf.PdfReader;
 import com.aowagie.text.pdf.PdfStamper;
 
 import es.gob.afirma.core.misc.SecureXmlBuilder;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
 final class XmpHelper {
 
@@ -70,6 +69,10 @@ final class XmpHelper {
 			"  <stEvt:softwareAgent>Cliente @firma</stEvt:softwareAgent>\n" + //$NON-NLS-1$
 			"  <stEvt:when>" + TAG_DATE + "</stEvt:when>\n" + //$NON-NLS-1$ //$NON-NLS-2$
 			"</rdf:li>"; //$NON-NLS-1$
+
+	private XmpHelper() {
+		// No instanciable
+	}
 
 	private static String getOriginalCreationDateAsW3C(final PdfReader pdfReader) {
 		final HashMap<String, String> info = pdfReader.getInfo();
@@ -113,7 +116,6 @@ final class XmpHelper {
 	                                                                    SAXException,
 	                                                                    IOException,
 	                                                                    ParserConfigurationException {
-
 		final byte[] pdfPassword = getPdfPassword(extraParams);
 
 		final PdfReader reader = pdfPassword != null
@@ -272,7 +274,6 @@ final class XmpHelper {
 		);
 
 		return baos.toByteArray();
-
 	}
 
 	/**
@@ -290,14 +291,14 @@ final class XmpHelper {
 		// Contrasena del usuario del PDF
 		final String userPassword =  extraParams.getProperty(PdfExtraParams.USER_PASSWORD_STRING);
 
-		byte[] pwdBytes = null;
 		if (ownerPassword != null) {
-			pwdBytes = ownerPassword.getBytes(DEFAULT_ENCODING);
-		} else if (userPassword != null) {
-			pwdBytes = userPassword.getBytes(DEFAULT_ENCODING);
+			return ownerPassword.getBytes(DEFAULT_ENCODING);
+		}
+		if (userPassword != null) {
+			return userPassword.getBytes(DEFAULT_ENCODING);
 		}
 
-		return pwdBytes;
+		return null;
 	}
 
     /** Escribe un XML como texto.

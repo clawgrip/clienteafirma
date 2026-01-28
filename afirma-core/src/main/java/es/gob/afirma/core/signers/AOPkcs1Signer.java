@@ -198,5 +198,4 @@ public final class AOPkcs1Signer implements AOSigner {
 	public AOSignInfo getSignInfo(final byte[] data, final Properties params) throws AOException {
 		throw new UnsupportedOperationException("No se puede obtener informacion de las firmas PKCS#1"); //$NON-NLS-1$
 	}
-
 }

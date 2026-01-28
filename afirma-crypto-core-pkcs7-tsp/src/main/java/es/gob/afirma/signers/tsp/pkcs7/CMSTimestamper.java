@@ -10,34 +10,20 @@
 package es.gob.afirma.signers.tsp.pkcs7;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URLConnection;
-import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import org.spongycastle.asn1.ASN1InputStream;
 import org.spongycastle.asn1.ASN1ObjectIdentifier;
@@ -72,47 +58,12 @@ public final class CMSTimestamper {
 
     private static final String SIGNATURE_TIMESTAMP_TOKEN_OID = "1.2.840.113549.1.9.16.2.14"; //$NON-NLS-1$
 
-	private static final int SOCKET_TIMEOUT = 500000;
-
-	private static final String STORE_TYPE_PKCS12 = "PKCS12"; //$NON-NLS-1$
-
 	static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
     private final TimeStampRequestGenerator tsqGenerator;
     private final URI tsaURL;
     private final String tsaUsername;
     private final String tsaPassword;
-
-    private byte[] sslKeyStoreFile = null;
-    private String sslKeyStorePassword = null;
-    private String sslKeyStoreType = null;
-
-    private byte[] sslTrustStoreFile = null;
-    private String sslTrustStorePassword = null;
-    private String sslTrustStoreType = null;
-
-    private boolean verifyHostname = true;
-
-    /** Construye un estampador de sellos de tiempo para estructuras CMS y CAdES.
-     * @param requireCert <code>true</code> si la TSA requiere certificado, <code>false</code> en caso contrario.
-     * @param policy OID de la pol&iacute;tica de sellado de tiempo.
-     * @param tsa URL de la autoridad de sellado de tiempo.
-     * @param tsaUsr Nombre de usuario si la TSA requiere autenticaci&oacute;n (puede ser <code>null</code> si no se necesita autenticaci&oacute;n).
-     * @param tsaPwd Contrase&ntilde;a del usuario de la TSA (puede ser <code>null</code> si no se necesita autenticaci&oacute;n).
-     * @param extensions Extensiones a a&ntilde;adir a la petici&oacute;n de sello de tiempo.
-     * @param p12KeyStoreFile Fichero PKCS#12 / PFX de almac&eacute;n (formato PKCS#12) del certificado cliente a usar en conexiones SSL.
-     * @param p12KeyStoreFilePassword Contrase&ntilde;a del ichero PKCS#12 / PFX de almac&eacute;n (formato PKCS#12) del certificado.
-     *                                cliente a usar en conexiones SSL */
-    public CMSTimestamper(final boolean requireCert,
-                     final String policy,
-                     final URI tsa,
-                     final String tsaUsr,
-                     final String tsaPwd,
-                     final TsaRequestExtension[] extensions,
-                     final byte[] p12KeyStoreFile,
-                     final String p12KeyStoreFilePassword) {
-        this(requireCert, policy, tsa, tsaUsr, tsaPwd, extensions, p12KeyStoreFile, p12KeyStoreFilePassword, STORE_TYPE_PKCS12, null, null, null, false);
-    }
 
     /** Construye un estampador de sellos de tiempo para estructuras CMS y CAdES.
      * @param requireCert <code>true</code> si la TSA requiere certificado, <code>false</code> en caso contrario.
@@ -130,18 +81,11 @@ public final class CMSTimestamper {
      * @param verifyHostname Si se especifica <code>true</code>, se verifica el nombre de <i>host</i> en las comprobaciones SSL, si por el contrario
      *                       se especifica <code>false</code> se omite esta comprobaci&oacute;n. */
     public CMSTimestamper(final boolean requireCert,
-                     final String policy,
-                     final URI tsa,
-                     final String tsaUsr,
-                     final String tsaPwd,
-                     final TsaRequestExtension[] extensions,
-                     final byte[] keyStoreFile,
-                     final String keyStorePassword,
-                     final String keyStoreType,
-                     final byte[] trustStoreFile,
-                     final String trustStorePassword,
-                     final String trustStoreType,
-                     final boolean verifyHostname) {
+                     	  final String policy,
+                     	  final URI tsa,
+                     	  final String tsaUsr,
+                     	  final String tsaPwd,
+                     	  final TsaRequestExtension[] extensions) {
         this.tsqGenerator = new TimeStampRequestGenerator();
         if (extensions != null) {
         	for (final TsaRequestExtension ext : extensions) {
@@ -158,13 +102,6 @@ public final class CMSTimestamper {
         this.tsaURL = tsa;
         this.tsaPassword = tsaPwd;
         this.tsaUsername = tsaUsr;
-		this.sslKeyStoreFile = keyStoreFile != null ? keyStoreFile.clone() : null;
-		this.sslKeyStorePassword = keyStorePassword;
-		this.sslKeyStoreType = keyStoreType;
-		this.sslTrustStoreFile = trustStoreFile != null ? trustStoreFile.clone() : null;
-		this.sslTrustStorePassword = trustStorePassword;
-		this.sslTrustStoreType = trustStoreType;
-		this.verifyHostname = verifyHostname;
     }
 
     /** Construye un estampador de sellos de tiempo para estructuras CMS y CAdES.
@@ -176,14 +113,7 @@ public final class CMSTimestamper {
 			params.getTsaUrl(),
 			params.getTsaUsr(),
 			params.getTsaPwd(),
-			params.getExtensions(),
-			params.getSslKeyStore(),
-			params.getSslKeyStorePassword(),
-			params.getSslKeyStoreType(),
-			params.getSslTrustStore(),
-			params.getSslTrustStorePassword(),
-			params.getSslTrustStoreType(),
-			params.isVerifyHostname()
+			params.getExtensions()
 		);
     }
 
@@ -247,70 +177,18 @@ public final class CMSTimestamper {
     }
 
     private byte[] getTSAResponse(final byte[] request) throws IOException {
-    	if (this.tsaURL.getScheme().equals("socket")) { //$NON-NLS-1$
-			return getTSAResponseSocket(request);
-    	}
-    	if (this.tsaURL.getScheme().equals("http")) { //$NON-NLS-1$
-    		return getTSAResponseHttp(request);
-    	}
     	if (this.tsaURL.getScheme().equals("https")) { //$NON-NLS-1$
     		return getTSAResponseHttps(request);
     	}
     	throw new UnsupportedOperationException("Protocolo de conexion con TSA no soportado: " + this.tsaURL.getScheme()); //$NON-NLS-1$
     }
 
-    private byte[] getTSAResponseSocket(final byte[] request) throws IOException {
-    	try (
-			final Socket socket = new Socket(this.tsaURL.getHost(), this.tsaURL.getPort());
-		) {
-    		socket.setSoTimeout(SOCKET_TIMEOUT);
-    		return getTSAResponseExternalSocket(request, socket);
-    	}
-    }
-
-    private static byte[] getTSAResponseExternalSocket(final byte[] request, final Socket socket) throws IOException {
-
-    	// Envio de datos...
-    	try (
-			final OutputStream os = socket.getOutputStream();
-			final DataOutputStream dataoutputstream = new DataOutputStream(os);
-		) {
-	    	dataoutputstream.writeInt(request.length + 1);
-	    	dataoutputstream.writeByte(0);
-	    	dataoutputstream.write(request);
-	    	dataoutputstream.flush();
-	    	os.flush();
-    	}
-
-    	// Y recogida de la respuesta
-    	final DataInputStream datainputstream = new DataInputStream(socket.getInputStream());
-    	final int size = datainputstream.readInt();
-    	final byte byte0 = datainputstream.readByte();
-    	final byte[] resp = new byte[size - 1];
-    	datainputstream.readFully(resp);
-    	if (byte0 != 5 && byte0 != 6) {
-			throw new IOException("Obtenida resuesta incorrecta del servidor TSA: " + new String(resp)); //$NON-NLS-1$
-    	}
-    	socket.close();
-
-    	return resp;
-    }
-
-    /** Obtiene el <i>token</i> de sello de tiempo por HTTP.
-     * @param requestBytes Petici&oacute;n a TSA en ASN.1 binario
-     * @return Respuesta de la TSA (array de bytes seg&uacute;n RFC 3161)
-     * @throws IOException Si hay problemas de dentrada / salida */
-    private byte[] getTSAResponseHttp(final byte[] requestBytes) throws IOException {
-    	return getTSAResponseHttp(requestBytes, prepareConnection(false));
-     }
-
-
     /** Obtiene el <i>token</i> de sello de tiempo por HTTPS (SSL).
      * @param requestBytes Petici&oacute;n a TSA en ASN.1 binario
      * @return Respuesta de la TSA (array de bytes seg&uacute;n RFC 3161)
      * @throws IOException Si hay problemas de dentrada / salida */
     private byte[] getTSAResponseHttps(final byte[] requestBytes) throws IOException {
-		return getTSAResponseHttp(requestBytes, prepareConnection(true));
+		return getTSAResponseHttp(requestBytes, prepareConnection());
     }
 
     /** Obtiene el <i>token</i> de sello de tiempo por HTTP.
@@ -341,12 +219,10 @@ public final class CMSTimestamper {
     /**
      * Crea una conexi&oacute;n contra la TSA. Esta se realizar&aacute; sobre HTTPS o HTTP
      * seg&uacute;n se indique en el par&aacute;metro {@code secureConnection}.
-     * @param secureConnection {@code true} para que la conexi&oacute;n se realice sobre HTTPS,
-     * {@code false} para HTTP.
      * @return Conex&iacute;n contra la TSA.
      * @throws IOException Cuando ocurre un error al abrir la conexi&oacute;n o si la URL no es v&aacute;lida.
      */
-    private URLConnection prepareConnection(final boolean secureConnection) throws IOException {
+    private URLConnection prepareConnection() throws IOException {
 
     	final URLConnection tsaConnection = this.tsaURL.toURL().openConnection();
         tsaConnection.setDoInput(true);
@@ -355,120 +231,12 @@ public final class CMSTimestamper {
         tsaConnection.setRequestProperty("Content-Type", "application/timestamp-query"); //$NON-NLS-1$ //$NON-NLS-2$
         tsaConnection.setRequestProperty("Content-Transfer-Encoding", "binary"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (secureConnection) {
-        	configureHttpsConnection(tsaConnection);
-        }
-
         if (this.tsaUsername != null && !this.tsaUsername.isEmpty()) {
             final String userPassword = this.tsaUsername + ":" + this.tsaPassword; //$NON-NLS-1$
             tsaConnection.setRequestProperty("Authorization", "Basic " + Base64.encode(userPassword.getBytes())); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         return tsaConnection;
-    }
-
-    /** Configura la conexi&oacute;n con los datos necesarios para realizarse sobre HTTPS.
-     * @param conn Conexi&oacute;n SSL.
-     * @throws IOException Cuando el entorno no permite la configuraci&oacute;n. */
-	private void configureHttpsConnection(final URLConnection conn) throws IOException {
-
-    	if (conn == null) {
-    		throw new IllegalArgumentException("La conexion no puede ser nula"); //$NON-NLS-1$
-    	}
-
-    	if (!this.verifyHostname) {
-
-    		LOGGER.warning("No se comprobaran los nombres de host en la conexion SSL del sello de tiempo"); //$NON-NLS-1$
-
-    		// Podrian encontrarse varios tipos de conexion HTTPS
-
-	    	if (conn instanceof javax.net.ssl.HttpsURLConnection) {
-	    		((javax.net.ssl.HttpsURLConnection)conn).setHostnameVerifier(
-					(hostname, session) -> true
-				);
-	    	}
-	    	else {
-	    		LOGGER.warning(
-    				"No se ha podido deshabilitar la comprobacion de nombre de host, tipo desconocido de conexion: " + conn.getClass().getName() //$NON-NLS-1$
-    			);
-	    	}
-    	}
-
-    	final SSLContext sc;
-    	try {
-    		sc = SSLContext.getInstance("TLS"); //$NON-NLS-1$
-    	}
-    	catch(final Exception e) {
-    		throw new IOException("No se ha podido obtener el contexto de seguridad SSL: " + e, e); //$NON-NLS-1$
-    	}
-
-    	// Configuramos el almacen con el certificado cliente
-    	KeyManager[] keyManagers = null;
-    	if (this.sslKeyStoreFile != null && this.sslKeyStorePassword != null) {
-    		try {
-    			final KeyStore keystore = KeyStore.getInstance(this.sslKeyStoreType == null ? "JKS" : this.sslKeyStoreType); //$NON-NLS-1$
-				keystore.load(new ByteArrayInputStream(this.sslKeyStoreFile), this.sslKeyStorePassword.toCharArray());
-				final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	    		keyManagerFactory.init(keystore, this.sslKeyStorePassword.toCharArray());
-	    		keyManagers = keyManagerFactory.getKeyManagers();
-			}
-    		catch (final Exception e) {
-    			throw new IOException("Error obteniendo el almacen de certificados cliente para el SSL: " + e, e); //$NON-NLS-1$
-			}
-    	}
-
-    	// Configuramos el almacen con las autoridades de confianza
-    	TrustManager[] trustManagers = null;
-    	if (this.sslTrustStoreFile != null && this.sslTrustStorePassword != null) {
-    		try {
-    			final KeyStore keystore = KeyStore.getInstance(this.sslTrustStoreType == null ? "JKS" : this.sslTrustStoreType); //$NON-NLS-1$
-				keystore.load(new ByteArrayInputStream(this.sslTrustStoreFile), this.sslTrustStorePassword.toCharArray());
-				final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-				trustManagerFactory.init(keystore);
-
-				trustManagers = trustManagerFactory.getTrustManagers();
-			}
-    		catch (final Exception e) {
-    			throw new IOException("Error obteniendo el almacen de confianza con los certificados de CA con los que se configuro la SSL: " + e, e); //$NON-NLS-1$
-			}
-    	}
-    	else {
-    		trustManagers = new TrustManager[] {
-    			new X509TrustManager() {
-					@Override
-					public void checkClientTrusted(final X509Certificate[] arg0, final String arg1) { /* No hacemos nada. */ }
-
-					@Override
-					public void checkServerTrusted(final X509Certificate[] arg0, final String arg1) { /* No hacemos nada. */ }
-
-					@Override
-					public X509Certificate[] getAcceptedIssuers() {
-						return new X509Certificate[0];
-					}
-				}
-    		};
-    	}
-
-    	// Se configura el contexto SSL
-    	try {
-    		sc.init(
-				keyManagers,
-				trustManagers,
-				null // Dejamos que use el generador de aleatorios por defecto
-			);
-    	}
-    	catch(final Exception e) {
-    		throw new IOException("Error creando el gestor de seguridad SSL: " + e, e); //$NON-NLS-1$
-    	}
-
-    	try {
-    		final Method setSSLSocketFactoryMethod = conn.getClass().getMethod("setSSLSocketFactory", SSLSocketFactory.class); //$NON-NLS-1$
-    		setSSLSocketFactoryMethod.invoke(conn, sc.getSocketFactory());
-    	}
-    	catch (final Exception e) {
-    		LOGGER.severe("Error en la configuracion del acceso a la URL sobre SSL"); //$NON-NLS-1$
-    		throw new IOException("Error en la configuracion del acceso a la URL sobre SSL", e); //$NON-NLS-1$
-    	}
     }
 
     /** Obtiene directamente el <i>token</i> de sello de tiempo seg&uacute;n RFC3161.

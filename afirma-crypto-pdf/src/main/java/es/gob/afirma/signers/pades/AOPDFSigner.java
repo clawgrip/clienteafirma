@@ -39,9 +39,6 @@ import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.signers.AOSimpleSignInfo;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
-import es.gob.afirma.signers.pades.common.BadPdfPasswordException;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
-import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
 /** Manejador de firmas binarias de ficheros Adobe PDF en formato PAdES.
  * <p>Para compatibilidad estricta con PAdES-BES/EPES se utiliza <i>ETSI.CAdES.detached</i> como nombre del subfiltro.</p>
@@ -566,7 +563,6 @@ public final class AOPDFSigner implements AOSigner {
      * @throws AOException Si los datos de entrada no son un documento PDF. */
     @Override
 	public AOSignInfo getSignInfo(final byte[] data) throws AOException {
-
     	return getSignInfo(data, null);
     }
 

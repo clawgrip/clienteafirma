@@ -140,9 +140,8 @@ public final class AOUtil {
         return new java.io.ByteArrayInputStream(tmpBuffer);
     }
 
-    /** Lee un flujo de datos de entrada y los recupera en forma de array de
-     * bytes. Este m&eacute;todo consume, pero no cierra el flujo de datos de
-     * entrada.
+    /** Lee un flujo de datos de entrada y los recupera en forma de array de bytes.
+     * Se consume, pero no se cierra el flujo de datos de entrada.
      * @param input Flujo de donde se toman los datos.
      * @return Los datos obtenidos del flujo.
      * @throws IOException Cuando ocurre un problema durante la lectura. */

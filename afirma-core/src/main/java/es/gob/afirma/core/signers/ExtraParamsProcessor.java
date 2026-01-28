@@ -288,7 +288,7 @@ public final class ExtraParamsProcessor {
 	 * @param policyName Nombre de la pol&iacute;tica de firma.
 	 * @param params Conjunto de propiedades en donde hay que establecer los atributos
 	 * de la pol&iacute;tica de firma.
-	 * @throws IncompatiblePolicyException Cuando se ha declarado utilizar un subfiltro
+	 * @throws SignaturePolicyIncompatibilityException Cuando se ha declarado utilizar un subfiltro
 	 * no permitido por la pol&iacute;tica de firma de la AGE.
 	 */
 	private static void setPAdESPolicyAGEAttributes(final String policyName, final Properties params)
@@ -348,7 +348,7 @@ public final class ExtraParamsProcessor {
 		}
 
 		byte[] content;
-		if (!secureMode && value.length() > 0 && value.length() < MAX_PATH_SIZE && !Base64.isBase64(value)) {
+		if (!secureMode && !value.isEmpty() && value.length() < MAX_PATH_SIZE && !Base64.isBase64(value)) {
 			try {
 				final URI uri = AOUtil.createURI(value);
 				try (InputStream is = AOUtil.loadFile(uri)) {

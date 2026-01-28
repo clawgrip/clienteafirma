@@ -178,7 +178,6 @@
 				<module>afirma-crypto-core-pkcs7</module>
 				<module>afirma-crypto-cades</module>
 				<module>afirma-crypto-core-pkcs7-tsp</module>
-				<module>afirma-crypto-pdf-common</module>
 				<module>afirma-crypto-pdf</module>
 			</modules>
 			

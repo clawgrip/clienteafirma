@@ -11,11 +11,9 @@ package es.gob.afirma.signers.pades;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.aowagie.text.Annotation;
@@ -29,7 +27,6 @@ import com.aowagie.text.pdf.PdfStamper;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Base64;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
 /** Utilidades para el manejo y modificaci&oacute;n de PDF antes de firmarlo.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -50,7 +47,7 @@ public final class PdfPreProcessor {
 
 	/** A&ntilde;ade campos adicionales al diccionario PDF.
 	 * @param moreInfo Campos a a&ntilde;adir al diccionario PDF
-	 * @param stp Estampador de PDF, debe abrirse y cerrarse fuera de este m&eacute;todo */
+	 * @param stp Estampador de PDF, debe abrirse y cerrarse por el invocante. */
 	public static void addMoreInfo(final Map<String, String> moreInfo, final PdfStamper stp) {
 		if (moreInfo == null || moreInfo.isEmpty()) {
 			return;
@@ -81,19 +78,17 @@ public final class PdfPreProcessor {
 
 			// Si no tenemos habilitado el modo seguro, permitiriamos que el recurso se cargue desde una
 			// ruta externa
-			if (!secureMode) {
-				// Permitimos un tamano maximo de ruta para no interpretar como ruta
-				// un base 64 grande
-				if (b64Attachment.length() < MAX_PATH_SIZE) {
-					try {
-						final URI uri = AOUtil.createURI(b64Attachment);
-						try (InputStream is = AOUtil.loadFile(uri)) {
-							attachment = AOUtil.getDataFromInputStream(is);
-						}
-					} catch (final Exception e) {
-						LOGGER.info("El parametro de adjunto no contiene una ruta valida a un recurso: " + e); //$NON-NLS-1$
-						attachment = null;
+			// Permitimos un tamano maximo de ruta para no interpretar como ruta
+			// un base 64 grande
+			if (!secureMode && b64Attachment.length() < MAX_PATH_SIZE) {
+				try {
+					final URI uri = AOUtil.createURI(b64Attachment);
+					try (InputStream is = AOUtil.loadFile(uri)) {
+						attachment = AOUtil.getDataFromInputStream(is);
 					}
+				} catch (final Exception e) {
+					LOGGER.info("El parametro de adjunto no contiene una ruta valida a un recurso: " + e); //$NON-NLS-1$
+					attachment = null;
 				}
 			}
 
@@ -133,7 +128,7 @@ public final class PdfPreProcessor {
 			                     final int pageNum,
 			                     final String url,
 			                     final PdfStamper stp) throws IOException {
-		Image image;
+		final Image image;
 		try {
 			image = new Jpeg(jpegImage);
 		}
@@ -180,7 +175,7 @@ public final class PdfPreProcessor {
 			);
 		}
 		catch (final DocumentException e) {
-			throw new IOException("Error durante la insercion de la imagen en el PDF: " + e, e); //$NON-NLS-1$
+			throw new IOException("Error durante la insercion de la imagen en el PDF", e); //$NON-NLS-1$
 		}
 	}
 
@@ -188,7 +183,7 @@ public final class PdfPreProcessor {
 	 * Sobreimpone una imagen en un documento PDF.
 	 * @param extraParams Datos de la imagen a a&ntilde;adir como <a href="doc-files/extraparams.html">par&aacute;metros
 	 *                    adicionales</a>.
-	 * @param stp Estampador de PDF, debe abrirse y cerrarse fuera de este m&eacute;todo.
+	 * @param stp Estampador de PDF, debe abrirse y cerrarse por el invocante.
 	 * @param pdfReader Lector PDF, para obtener el n&uacute;mero de p&aacute;ginas del documento.
 	 * @param secureMode Con {@code true} se habilita el modo seguro, con {@code false} se deshabilita. Al deshabilitar el
 	 * modo seguro se permite la carga de imagenes a partir de una ruta local indicada a trav&eacute;s del par&aacute;metro
@@ -202,7 +197,7 @@ public final class PdfPreProcessor {
 		}
 
 		final String imageDataBase64 = extraParams.getProperty(PdfExtraParams.IMAGE);
-		if (imageDataBase64 == null || imageDataBase64.length() < 1) {
+		if (imageDataBase64 == null || imageDataBase64.isEmpty()) {
 			return;
 		}
 
@@ -213,7 +208,6 @@ public final class PdfPreProcessor {
 
 
 		final Rectangle rect = PdfUtil.getPositionOnPage(extraParams, PdfExtraParams.IMAGE);
-
 		if (rect == null) {
 			return;
 		}
@@ -229,10 +223,9 @@ public final class PdfPreProcessor {
 		}
 		catch(final NumberFormatException e) {
 			throw new IOException(
-				"Se ha indicado un numero de pagina con formato invalido para insertar la imagen (" + imagePage + "): " + e, e //$NON-NLS-1$ //$NON-NLS-2$
+				"Se ha indicado un numero de pagina con formato invalido para insertar la imagen: " + imagePage, e //$NON-NLS-1$
 			);
 		}
-
 		if (pageNum == LAST_PAGE) {
 			pageNum = pdfReader.getNumberOfPages();
 		}
@@ -244,7 +237,6 @@ public final class PdfPreProcessor {
 		else {
 			pageLimit = pageNum;
 		}
-
 		for (int i= pageNum; i<=pageLimit; i++) {
 			addImage(
 				image,
@@ -258,11 +250,10 @@ public final class PdfPreProcessor {
 			);
 		}
 
-		LOGGER.info("Anadida imagen al PDF antes de la firma"); //$NON-NLS-1$
+		LOGGER.info("Agregada imagen al PDF antes de la firma"); //$NON-NLS-1$
 	}
 
-    static com.aowagie.text.Image getImage(final String imageReference, final boolean secureMode)
-    		throws IOException {
+    static com.aowagie.text.Image getImage(final String imageReference, final boolean secureMode) throws IOException {
     	if (imageReference == null || imageReference.isEmpty()) {
     		return null;
     	}
@@ -271,25 +262,23 @@ public final class PdfPreProcessor {
 
     	// Si no tenemos habilitado el modo seguro, permitiriamos que la imagen se cargue desde una
     	// ruta externa
-    	if (!secureMode) {
-    		// Permitimos un tamano maximo de ruta para no interpretar como ruta
-    		// un base 64 grande
-    		if (imageReference.length() < MAX_PATH_SIZE) {
-    			try {
-    				final URI uri = AOUtil.createURI(imageReference);
-    				try (InputStream is = AOUtil.loadFile(uri)) {
-    					image = AOUtil.getDataFromInputStream(is);
-    				}
-    			} catch (final Exception e) {
-    				throw new IOException("El parametro de imagen no contiene una ruta valida a un recurso", e); //$NON-NLS-1$
-    			}
-    		}
-    	}
+    	// Permitimos un tamano maximo de ruta para no interpretar como ruta
+		// un base 64 grande
+		if (!secureMode && imageReference.length() < MAX_PATH_SIZE) {
+			try {
+				final URI uri = AOUtil.createURI(imageReference);
+				try (InputStream is = AOUtil.loadFile(uri)) {
+					image = AOUtil.getDataFromInputStream(is);
+				}
+			}
+			catch (final Exception e) {
+				throw new IOException("El parametro de imagen no contiene una ruta valida a un recurso", e); //$NON-NLS-1$
+			}
+		}
 
     	// Si estaba configurado el modo seguro o el parametro de imagen no era una ruta,
     	// interpretamos que es un Base 64 con la propia imagen
     	if (image == null) {
-
     		try {
     			image = Base64.decode(imageReference);
     		}
@@ -298,22 +287,9 @@ public final class PdfPreProcessor {
     		}
     	}
 
-    	// Si es posible en este entorno la imagen para hacerla asegurar su compatibilidad con PDF
-    	byte[] normalizedImage;
-    	try {
-    		final Class<?> ImageUtilsClass = Class.forName("es.gob.afirma.ui.utils.ImageUtils"); //$NON-NLS-1$
-    		final Method normalizeImageToPdfMethod = ImageUtilsClass.getMethod("normalizeImageToPdf", byte[].class); //$NON-NLS-1$
-    		final Object normalizedImageObject = normalizeImageToPdfMethod.invoke(null, image);
-    		normalizedImage = (byte[]) normalizedImageObject;
-    	}
-    	catch (final Throwable e) {
-    		LOGGER.log(Level.WARNING, "No se pudo normalizar la imagen de rubrica. Se agregara tal cual: " + e); //$NON-NLS-1$
-    		normalizedImage = image;
-    	}
-
     	final Image jpgImage;
     	try {
-			jpgImage = new Jpeg(normalizedImage);
+			jpgImage = new Jpeg(image);
 		}
     	catch (final Exception e) {
     		throw new IOException("Se ha proporcionado una imagen de rubrica que no esta codificada en JPEG", e); //$NON-NLS-1$

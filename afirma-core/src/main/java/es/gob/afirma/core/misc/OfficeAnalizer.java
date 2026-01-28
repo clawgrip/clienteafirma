@@ -294,8 +294,7 @@ public final class OfficeAnalizer {
     /** Indica si un fichero Zip tiene la estructura de un documento OOXML
      * soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
-     * @return Devuelve <code>true</code> si el fichero era un OOXML soportado, <code>false</code> en caso contrario.
-     * @throws IOException Error en el tama&ntilde;o permitido del archivo */
+     * @return Devuelve <code>true</code> si el fichero era un OOXML soportado, <code>false</code> en caso contrario. */
     private static boolean isOOXMLFile(final ZipFile zipFile) {
         // Comprobamos si estan todos los ficheros principales del documento
         return zipFile.getEntry("[Content_Types].xml") != null && zipFile.getEntry("_rels/.rels") != null //$NON-NLS-1$ //$NON-NLS-2$
@@ -387,21 +386,16 @@ public final class OfficeAnalizer {
     /** Indica si un fichero Zip tiene la estructura de un documento ODF
      * soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
-     * @return Devuelve <code>true</code> si el fichero era un ODF soportado, <code>false</code> en caso contrario.
-     * @throws IOException Error en el tama&ntilde;o permitido del archivo */
+     * @return Devuelve <code>true</code> si el fichero era un ODF soportado, <code>false</code> en caso contrario. */
     private static boolean isODFFile(final ZipFile zipFile) {
         // Comprobamos si estan todos los ficheros principales del documento
-    	if (
-			zipFile.getEntry("mimetype") == null     ||       //$NON-NLS-1$
-			zipFile.getEntry("content.xml") == null  ||       //$NON-NLS-1$
-			zipFile.getEntry("meta.xml") == null     ||       //$NON-NLS-1$
-			zipFile.getEntry("settings.xml") == null ||       //$NON-NLS-1$
-			zipFile.getEntry("styles.xml") == null   ||       //$NON-NLS-1$
-			zipFile.getEntry("META-INF/manifest.xml") == null //$NON-NLS-1$
-		) {
-    		return false;
-    	}
-    	return true;
+    	return
+			zipFile.getEntry("mimetype") != null && //$NON-NLS-1$
+			zipFile.getEntry("content.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("meta.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("settings.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("styles.xml") != null && //$NON-NLS-1$
+			zipFile.getEntry("META-INF/manifest.xml") != null; //$NON-NLS-1$
     }
 
     /** Recupera la extensi&oacute;n apropiada para un documento ODF. Si el
