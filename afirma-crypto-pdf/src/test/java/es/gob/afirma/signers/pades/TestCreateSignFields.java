@@ -92,7 +92,6 @@ public class TestCreateSignFields {
 	 * del documento y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignFieldsOnMultiPages() throws Exception {
 
@@ -161,7 +160,6 @@ public class TestCreateSignFields {
 	 * Crea un campo de firma invisible y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignInvisibleSignatureField() throws Exception {
 
@@ -233,7 +231,6 @@ public class TestCreateSignFields {
 	 * documento PDF y lo firma.
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
-	@SuppressWarnings("static-method")
 	@Test
 	public void testSignSignatureFieldWithSymbols() throws Exception {
 

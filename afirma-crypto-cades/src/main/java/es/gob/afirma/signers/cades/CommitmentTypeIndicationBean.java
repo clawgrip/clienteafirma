@@ -39,7 +39,7 @@ public final class CommitmentTypeIndicationBean {
 			);
 		}
 		this.identifier = id;
-		this.qualifiers = quals != null ? new ArrayList<String>(quals) : null;
+		this.qualifiers = quals != null ? new ArrayList<>(quals) : null;
 	}
 
 	String getIdentifier() {
@@ -50,7 +50,7 @@ public final class CommitmentTypeIndicationBean {
 		if (this.qualifiers == null) {
 			return new ArrayList<>(0);
 		}
-		return new ArrayList<String>(this.qualifiers);
+		return new ArrayList<>(this.qualifiers);
 	}
 
 }

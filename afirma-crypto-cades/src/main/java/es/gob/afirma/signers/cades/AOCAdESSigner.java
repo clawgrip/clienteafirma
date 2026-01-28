@@ -113,20 +113,14 @@ public final class AOCAdESSigner implements AOSigner {
 					certChain,
 					cadesConfig);
         }
-        catch (final AOCancelledOperationException e) {
-        	throw e;
-        }
-        catch (final AOException e) {
+        catch (final AOCancelledOperationException | AOException e) {
             throw e;
         }
         catch (final Exception e) {
             throw new AOException("Error al generar la firma CAdES: " + e, e, BinaryErrorCode.Internal.UNKWNON_BINARY_SIGNING_ERROR); //$NON-NLS-1$
         }
 
-        // Si corresponde, aplicamos un sello de tiempo
-        cadesSignedData = applyTimeStamp(cadesSignedData, extraParams);
-
-        return cadesSignedData;
+        return applyTimeStamp(cadesSignedData, extraParams);
     }
 
 	/**
@@ -184,16 +178,13 @@ public final class AOCAdESSigner implements AOSigner {
 				extraParams
 			);
 		}
-        catch (final InstantiationException e) {
-        	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
-		}
         catch (final IllegalAccessException e) {
         	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES por acceso ilegal: " + e, e); //$NON-NLS-1$
 		}
         catch (final ClassNotFoundException e) {
         	throw new InvalidLibraryException("No se ha encontrado la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
 		}
-        catch (final IllegalArgumentException e) {
+        catch (final InstantiationException | IllegalArgumentException e) {
         	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
 		}
         catch (final InvocationTargetException e) {
@@ -258,16 +249,13 @@ public final class AOCAdESSigner implements AOSigner {
 				sign, algorithm, key, certChain, extraParams
 			);
 		}
-        catch (final InstantiationException e) {
-        	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
-		}
         catch (final IllegalAccessException e) {
         	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES por acceso ilegal: " + e, e); //$NON-NLS-1$
 		}
         catch (final ClassNotFoundException e) {
         	throw new InvalidLibraryException("No se ha encontrado la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
 		}
-        catch (final IllegalArgumentException e) {
+        catch (final InstantiationException | IllegalArgumentException e) {
         	throw new InvalidLibraryException("No se ha podido instanciar la clase de cofirmas CAdES: " + e, e); //$NON-NLS-1$
 		}
         catch (final InvocationTargetException e) {
@@ -337,10 +325,7 @@ public final class AOCAdESSigner implements AOSigner {
         catch (final ClassNotFoundException e) {
 			throw new InvalidLibraryException("No se ha encontrado el contrafirmador: " + e, e); //$NON-NLS-1$
 		}
-        catch (final IllegalArgumentException e) {
-        	throw new InvalidLibraryException("No se ha podido instanciar el contrafirmador: " + e, e); //$NON-NLS-1$
-		}
-        catch (final InvocationTargetException e) {
+        catch (final IllegalArgumentException | InvocationTargetException e) {
         	throw new InvalidLibraryException("No se ha podido instanciar el contrafirmador: " + e, e); //$NON-NLS-1$
 		}
         catch (final NoSuchMethodException e) {
@@ -510,19 +495,15 @@ public final class AOCAdESSigner implements AOSigner {
     	final String profile = extraParams.getProperty(CAdESExtraParams.PROFILE);
 
 		// Comprobacion del perfil de firma con la configuracion establecida
-		if (AOSignConstants.SIGN_PROFILE_BASELINE.equalsIgnoreCase(profile)) {
-			if (AOSignConstants.isSHA1SignatureAlgorithm(algorithm)) {
-				LOGGER.warning("El algoritmo '" + algorithm + "' no esta recomendado para su uso " //$NON-NLS-1$ //$NON-NLS-2$
-						+ "en las firmas baseline por no cumplir los requisitos de seguridad actuales"); //$NON-NLS-1$
-			}
+		if (AOSignConstants.SIGN_PROFILE_BASELINE.equalsIgnoreCase(profile) && AOSignConstants.isSHA1SignatureAlgorithm(algorithm)) {
+			LOGGER.warning("El algoritmo '" + algorithm + "' no esta recomendado para su uso " //$NON-NLS-1$ //$NON-NLS-2$
+					+ "en las firmas baseline por no cumplir los requisitos de seguridad actuales"); //$NON-NLS-1$
 		}
     }
 
     private static Properties getExtraParams(final Properties extraParams) {
-    	final Properties newExtraParams = extraParams != null ?
+    	return extraParams != null ?
     			(Properties) extraParams.clone() : new Properties();
-
-    	return newExtraParams;
     }
 
     /**
@@ -570,7 +551,7 @@ public final class AOCAdESSigner implements AOSigner {
         	tsaParams = tsaParamsConstructor.newInstance(extraParams);
         }
         catch(final ClassNotFoundException e) {
-        	LOGGER.info("No se han encontrado las bibliotecas de sello de tiempo, por lo que no se comprobara si se requeria agregar"); //$NON-NLS-1$
+        	LOGGER.info("No se han encontrado las bibliotecas de sello de tiempo, por lo que no se comprobara si se requeria agregar: " + e); //$NON-NLS-1$
         	return signature;
         }
         catch(final Exception e) {

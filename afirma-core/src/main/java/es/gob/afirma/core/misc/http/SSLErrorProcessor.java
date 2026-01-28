@@ -143,25 +143,25 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 			LOGGER.info("Ya se esta mostrando un dialogo de consulta para la importacion del certificado de confianza. Se omitira este."); //$NON-NLS-1$
 			throw cause;
 		}
-		
+
 		//Comprobamos que el certificado este expedido realmente para el dominio correcto
 		final Certificate[] trustedServerCerts;
 		try {
 			trustedServerCerts = downloadFromRemoteServer(url);
-			boolean correctIssuer = checkCorrectIssuer(url, (X509Certificate) trustedServerCerts[0]);
+			final boolean correctIssuer = checkCorrectIssuer(url, (X509Certificate) trustedServerCerts[0]);
 			if (!correctIssuer) {
 				throw new InvalidDomainSSLCertificateException(cause, url);
 			}
-		} 
-		catch (InvalidDomainSSLCertificateException e) {
+		}
+		catch (final InvalidDomainSSLCertificateException e) {
 			LOGGER.severe("Se ha interrumpido la operacion al detectar una conexion con un entorno no seguro: " + e); //$NON-NLS-1$
 			throw e;
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			LOGGER.severe("Error al descargar certificados SSL del servidor: " + e); //$NON-NLS-1$
 			throw new IOException(e);
 		}
-		
+
 		// Descargamos los certificados SSL del servidor
 		X509Certificate[] serverCerts;
 		try {
@@ -169,22 +169,22 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		} catch (final Exception e) {
 			LOGGER.severe("Error al descargar certificados SSL del servidor: " + e); //$NON-NLS-1$
 			throw new IOException(e);
-		}	
-		
+		}
+
 		boolean allCertsAlreadyTrusted = true;
 
-		for (X509Certificate cert : serverCerts) {
+		for (final X509Certificate cert : serverCerts) {
 		    try {
 				if (!TrustStoreManager.getInstance().containsCert(cert)) {
 				    allCertsAlreadyTrusted = false;
 				    break;
 				}
-			} catch (KeyStoreException e) {
+			} catch (final KeyStoreException e) {
 				LOGGER.severe("Error al comprobar certificados SSL del servidor: " + e); //$NON-NLS-1$
 				throw new IOException(e);
 			}
 		}
-		
+
 		if (!allCertsAlreadyTrusted) {
 
 			int userResponse;
@@ -223,7 +223,7 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 
 			// Mostramos en el log los certificado que se van a importar
 			for (final X509Certificate cert : serverCerts) {
-				LOGGER.info("Se importa en caliente en el almacen de confianza el certificado con el numero de serie: " //$NON-NLS-1$
+				LOGGER.info(()->"Se importa en caliente en el almacen de confianza el certificado con el numero de serie: " //$NON-NLS-1$
 						+ AOUtil.hexify(cert.getSerialNumber().toByteArray(), false));
 			}
 
@@ -231,16 +231,14 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 			try {
 				TrustStoreManager.getInstance().importCerts(serverCerts);
 			} catch (final Exception e) {
-				LOGGER.severe("Error al importar los certificados SSL en el almacen de confianza: " + e); //$NON-NLS-1$
-				throw new IOException(e);
+				throw new IOException("Error al importar los certificados SSL en el almacen de confianza", e); //$NON-NLS-1$
 			}
 
 			// Reconfiguramos el contexto SSL para que tenga en cuenta los nuevos certificados
 			try {
 				SslSecurityManager.configureAfirmaTrustManagers();
 			} catch (final Exception e) {
-				LOGGER.severe("Error reconfigurando el contexto SSL con los nuevos certificados: " + e); //$NON-NLS-1$
-				throw new IOException(e);
+				throw new IOException("Error reconfigurando el contexto SSL con los nuevos certificados", e); //$NON-NLS-1$
 			}
 
 		}
@@ -249,7 +247,7 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 		return urlManager.readUrl(url, timeout, method, requestProperties);
 	}
 
-	private static X509Certificate[] getCertsToImport(Certificate[] trustedServerCerts) throws Exception {
+	private static X509Certificate[] getCertsToImport(final Certificate[] trustedServerCerts) throws Exception {
 
 		X509Certificate[] certsToImport;
 		if (trustedServerCerts.length > 1) {
@@ -266,29 +264,29 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 
 		return certsToImport;
 	}
-	
-	private boolean checkCorrectIssuer(String urlStr, X509Certificate serverCert)
+
+	private boolean checkCorrectIssuer(final String urlStr, final X509Certificate serverCert)
 	        throws MalformedURLException, CertificateParsingException {
 
 	    final URL url = new URL(urlStr);
-	    String host = url.getHost().toLowerCase();
-	    
-	    String subjectName = serverCert.getSubjectX500Principal().getName();
-	    
+	    final String host = url.getHost().toLowerCase();
+
+	    final String subjectName = serverCert.getSubjectX500Principal().getName();
+
 	    if (matchesHost(host, subjectName)) {
 	    	return true;
 	    }
 
-	    Collection<List<?>> certList = serverCert.getSubjectAlternativeNames();
+	    final Collection<List<?>> certList = serverCert.getSubjectAlternativeNames();
 	    if (certList == null) {
 	        return false;
 	    }
 
-	    for (List<?> san : certList) {
-	        Integer type = (Integer) san.get(0);
+	    for (final List<?> san : certList) {
+	        final Integer type = (Integer) san.get(0);
 
 	        if (type == 2) {
-	            String sanName = ((String) san.get(1)).toLowerCase();
+	            final String sanName = ((String) san.get(1)).toLowerCase();
 
 	            if (matchesHost(host, sanName)) {
 	                return true;
@@ -298,27 +296,27 @@ public class SSLErrorProcessor implements HttpErrorProcessor {
 
 	    return false;
 	}
-	
-	private boolean matchesHost(String host, String san) {
+
+	private static boolean matchesHost(final String host, final String san) {
 
 	    if (san.equals(host)) {
 	        return true;
 	    }
 
 	    if (san.startsWith("*.")) { //$NON-NLS-1$
-	        String sanDomain = san.substring(2);
+	        final String sanDomain = san.substring(2);
 
 	        if (!host.endsWith("." + sanDomain)) { //$NON-NLS-1$
 	            return false;
 	        }
 
-	        String hostPrefix = host.substring(0, host.length() - sanDomain.length() - 1);
+	        final String hostPrefix = host.substring(0, host.length() - sanDomain.length() - 1);
 	        return !hostPrefix.contains("."); //$NON-NLS-1$
 	    }
 
 	    return false;
 	}
-	
+
 	private static Certificate[] downloadFromRemoteServer(final String domainName) throws Exception {
 
 		final URL url = new URL(domainName);

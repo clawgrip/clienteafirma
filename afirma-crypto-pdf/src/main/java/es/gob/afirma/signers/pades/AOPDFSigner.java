@@ -76,8 +76,8 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 
     private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
 
-	public static final PdfName PDFNAME_ETSI_RFC3161 = new PdfName("ETSI.RFC3161"); //$NON-NLS-1$
-	public static final PdfName PDFNAME_DOCTIMESTAMP = new PdfName("DocTimeStamp"); //$NON-NLS-1$
+	private static final PdfName PDFNAME_ETSI_RFC3161 = new PdfName("ETSI.RFC3161"); //$NON-NLS-1$
+	private static final PdfName PDFNAME_DOCTIMESTAMP = new PdfName("DocTimeStamp"); //$NON-NLS-1$
 
 	/** Tama&ntilde;o m&iacute;nimo de un PDF.
 	 * <a href="https://stackoverflow.com/questions/17279712/what-is-the-smallest-possible-valid-pdf">
@@ -118,7 +118,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 	// iText tiene ciertos problemas reconociendo ECDSA y a veces usa su OID, por lo que declaramos alias de los
 	// algoritmos de firma en los proveedores mas comunes
 	static {
-		final String[] providers = new String[] { "SunEC", "BC", "SC" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final String[] providers = { "SunEC", "BC", "SC" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		for (final String providerName : providers) {
 		    final Provider p = Security.getProvider(providerName);
 		    if (p != null) {
@@ -147,7 +147,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
      * <p>
      *  Notas sobre documentos <i>certificados</i>:<br>
      *  Si un PDF firmado se ha certificado (por ejemplo, a&ntilde;adiendo una firma electr&oacute;nica usando Adobe Acrobat), cualquier
-     *  modificaci&oacute;n posterior del fichero (como la adici&oacute;n de nuevas firmas con este m&eacute;todo) invalidar&aacute;
+     *  modificaci&oacute;n posterior del fichero (como la adici&oacute;n de nuevas firmas) invalidar&aacute;
      *  las firmas previamente existentes.<br>
      *  Si se detecta un documento PDF certificado, se mostrar&aacute; un di&aacute;logo gr&aacute;fico advirtiendo al usuario de esta
      *  situaci&oacute;n y pidiendo confirmaci&oacute;n para continuar.<br>Si desea evitar interacciones directas con los usuarios
@@ -227,10 +227,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 	    		extraParams
 			);
         }
-        catch (final AOCancelledOperationException e) {
-        	throw e;
-        }
-        catch (final AOException e) {
+        catch (final AOCancelledOperationException | AOException e) {
         	throw e;
         }
 
@@ -421,13 +418,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
     		}
 			pdfReader = PdfUtil.getPdfReader(sign, params, headLessProp);
     	}
-    	catch (final BadPdfPasswordException e) {
-    		LOGGER.info(
-				"El PDF necesita contrasena. Se devolvera el arbol vacio: " + e //$NON-NLS-1$
-			);
-    		return new AOTreeModel(root);
-    	}
-    	catch (final PdfIsPasswordProtectedException e) {
+    	catch (final BadPdfPasswordException | PdfIsPasswordProtectedException e) {
     		LOGGER.info(
 				"El PDF necesita contrasena. Se devolvera el arbol vacio: " + e //$NON-NLS-1$
 			);
@@ -577,7 +568,6 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
         }
         catch (final BadPasswordException e) {
             LOGGER.warning("El PDF esta protegido con contrasena, se toma como PDF valido: " + e); //$NON-NLS-1$
-            return true;
         }
         catch (final Exception e) {
             return false;
@@ -707,10 +697,8 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
     }
 
     private static Properties getExtraParams(final Properties extraParams) {
-    	final Properties newExtraParams = extraParams != null ?
+    	return extraParams != null ?
     			(Properties) extraParams.clone() : new Properties();
-
-    	return newExtraParams;
     }
 
     private static void checkParams(final String algorithm, final Properties extraParams) {
