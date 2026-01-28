@@ -33,7 +33,7 @@
 			<artifactId>afirma-crypto-core-pkcs7-tsp</artifactId>
 			<version>${clienteafirma.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.madgag.spongycastle</groupId>
 			<artifactId>core</artifactId>
@@ -43,6 +43,6 @@
 			<groupId>com.madgag.spongycastle</groupId>
 			<artifactId>prov</artifactId>
 		</dependency>
-		
+
 	</dependencies>
 </project>

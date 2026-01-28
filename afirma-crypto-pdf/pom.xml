@@ -36,12 +36,6 @@
 
 		<dependency>
 			<groupId>es.gob.afirma</groupId>
-			<artifactId>afirma-crypto-core-pkcs7</artifactId>
-			<version>${clienteafirma.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>es.gob.afirma</groupId>
 			<artifactId>afirma-crypto-core-pkcs7-tsp</artifactId>
 			<version>${clienteafirma.version}</version>
 		</dependency>

@@ -9,11 +9,13 @@
 
 package es.gob.afirma.core.signers;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.util.Locale;
 import java.util.Properties;
@@ -21,10 +23,6 @@ import java.util.logging.Logger;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.ErrorCode;
-import es.gob.afirma.core.keystores.AOCancelledSMOperationException;
-import es.gob.afirma.core.keystores.AuthenticationException;
-import es.gob.afirma.core.keystores.LockedKeyStoreException;
-import es.gob.afirma.core.keystores.PinException;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 
 /** Firmador simple en formato PKCS#1.
@@ -87,46 +85,29 @@ public final class AOPkcs1Signer implements AOSigner {
 			sig = p != null ? Signature.getInstance(algorithmName, p) : Signature.getInstance(algorithmName);
 		}
 		catch (final NoSuchAlgorithmException e) {
-			throw new AOException("No se soporta el algoritmo de firma (" + algorithm + "): " + e, e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new AOException("No se soporta el algoritmo de firma (" + algorithm + ")", e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		try {
 			sig.initSign(key);
 		}
-		catch (final Exception e) {
-			throw new AOException("Error al inicializar la firma con la clave privada para el algoritmo '" + algorithm + "': " + e, e, ErrorCode.Internal.INVALID_SIGNING_KEY); //$NON-NLS-1$ //$NON-NLS-2$
+		catch (final InvalidKeyException e) {
+			throw new AOException("Error al inicializar la firma con la clave privada para el algoritmo '" + algorithm + "'", e, ErrorCode.Internal.INVALID_SIGNING_KEY); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		try {
 			sig.update(data);
 		}
-		catch (final Exception e) {
+		catch (final SignatureException e) {
 			throw new AOException("Error al configurar los datos a firmar: " + e, e, ErrorCode.Internal.SIGNING_PKCS1_ERROR); //$NON-NLS-1$
 		}
 
-		byte[] signature;
+		final byte[] signature;
 		try {
 			signature = sig.sign();
 		}
-		catch (final Exception e) {
-
-			if ("es.gob.jmulticard.CancelledOperationException".equals(e.getClass().getName())) { //$NON-NLS-1$
-        		throw new AOCancelledSMOperationException("Cancelacion del dialogo de JMulticard"); //$NON-NLS-1$
-        	}
-			// Si JMulticard informa de un problema de autenticacion durante la firma
-			if ("es.gob.jmulticard.jse.provider.SignatureAuthException".equals(e.getClass().getName())) { //$NON-NLS-1$
-				// Si la tarjeta esta bloqueada
-				if ("es.gob.jmulticard.card.AuthenticationModeLockedException".equals(e.getCause().getClass().getName())) { //$NON-NLS-1$
-					throw new LockedKeyStoreException("El almacen de claves esta bloqueado", e, ErrorCode.Functional.SMARTCARD_LOCKED); //$NON-NLS-1$
-				}
-				// Si se ha insertado un PIN incorrecto
-				if ("es.gob.jmulticard.card.BadPinException".equals(e.getCause().getClass().getName())) { //$NON-NLS-1$
-					throw new PinException("La contrasena del almacen o certificado es incorrecta", e, ErrorCode.Functional.INVALID_SMARTCARD_PIN); //$NON-NLS-1$
-				}
-				throw new AuthenticationException("Ocurrio un error de autenticacion al utilizar la clave de firma", e); //$NON-NLS-1$
-        	}
-
-			throw new AOException("Error durante el proceso de firma PKCS#1: " + e, e, ErrorCode.Internal.SIGNING_PKCS1_ERROR); //$NON-NLS-1$
+		catch (final SignatureException e) {
+			throw new AOException("Error durante el proceso de firma PKCS#1", e, ErrorCode.Internal.SIGNING_PKCS1_ERROR); //$NON-NLS-1$
 		}
 
 		// Siguiendo la recomendacion de la ETSI TS 119 102-1, verificamos que el dispositivo de
@@ -141,10 +122,7 @@ public final class AOPkcs1Signer implements AOSigner {
 					throw new AOException("El PKCS#1 de firma obtenido no se genero con el certificado indicado", ErrorCode.Internal.INVALID_PKCS1_VALUE); //$NON-NLS-1$
 				}
 			}
-			catch (final AOException e) {
-				throw e;
-			}
-			catch (final Exception e) {
+			catch (final NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
 				throw new AOException("Error al verificar el PKCS#1 de la firma", e, ErrorCode.Internal.VERIFING_PKCS1_ERROR); //$NON-NLS-1$
 			}
 		}

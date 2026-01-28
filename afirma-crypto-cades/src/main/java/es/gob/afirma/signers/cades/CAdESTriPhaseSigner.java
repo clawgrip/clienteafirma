@@ -163,15 +163,15 @@ public final class CAdESTriPhaseSigner {
         final ASN1Set signedAttributes;
         try {
         	final ASN1EncodableVector signedAttributesVector =
-        			CAdESUtils.generateSignedAttributes(
-        					signerCertificateChain[0],
-        					config,
-        					false  // No es contrafirma
-        					);
+    			CAdESUtils.generateSignedAttributes(
+					signerCertificateChain[0],
+					config,
+					false  // No es contrafirma
+				);
 
         	signedAttributes = SigUtils.getAttributeSet(
-                    new AttributeTable(signedAttributesVector)
-                 );
+                new AttributeTable(signedAttributesVector)
+             );
         }
         catch(final Exception e) {
             throw new AOException("Error obteniendo los atributos a firmar: " + e, e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
@@ -184,7 +184,6 @@ public final class CAdESTriPhaseSigner {
         catch (final Exception ex) {
             throw new AOException("Error al codificar los datos ASN.1 a firmar finalmente", ex, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
         }
-
     }
 
     /** Realiza una firma CAdES completa.
