@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 
 import org.spongycastle.asn1.ASN1Encodable;
@@ -38,7 +37,7 @@ import es.gob.afirma.core.AOInvalidSignatureFormatException;
 import es.gob.afirma.core.SigningLTSException;
 
 /** Utilidades para las multifirmas CAdES. */
-public final class CAdESMultiUtil {
+final class CAdESMultiUtil {
 
 	private static final ASN1ObjectIdentifier ARCHIVE_TIMESTAMP_V2_OID = new ASN1ObjectIdentifier(
 		"1.2.840.113549.1.9.16.2.48"); //$NON-NLS-1$
@@ -61,7 +60,7 @@ public final class CAdESMultiUtil {
 		// No instanciable
 	}
 
-	public static ASN1Set addCertificates(final SignedData sd,
+	static ASN1Set addCertificates(final SignedData sd,
 			                       final java.security.cert.Certificate[] certChain) throws CertificateEncodingException,
 			                                                                                IOException {
 		final ASN1Set certificatesSigned = sd.getCertificates();
@@ -87,7 +86,7 @@ public final class CAdESMultiUtil {
 	 * @throws SigningLTSException Si hay atributos no soportados en el <code>SignedData</code> proporcionado.
 	 * @throws AOInvalidSignatureFormatException Cuando los datos proporcionados no tengan un formato de firma v&aacute;lido.
 	 */
-	public static void checkLongTermAttributes(final byte[] signedDataBytes) throws SigningLTSException, AOInvalidSignatureFormatException {
+	static void checkLongTermAttributes(final byte[] signedDataBytes) throws SigningLTSException, AOInvalidSignatureFormatException {
 		final CMSSignedData signedData;
 		try {
 			signedData = new CMSSignedData(signedDataBytes);
@@ -102,9 +101,8 @@ public final class CAdESMultiUtil {
 
 	private static void checkLongTermAttributes(final CMSSignedData signedData) throws SigningLTSException {
 		final SignerInformationStore signerInfos = signedData.getSignerInfos();
-		final Iterator<SignerInformation> signerInfoIt = signerInfos.iterator();
-		while (signerInfoIt.hasNext()) {
-			checkLongTermAttributes(signerInfoIt.next());
+		for (final SignerInformation element : signerInfos) {
+			checkLongTermAttributes(element);
 		}
 	}
 
@@ -137,11 +135,6 @@ public final class CAdESMultiUtil {
     		}
     	}
     }
-
-    public static boolean isCounterSignature(final ASN1ObjectIdentifier oid) {
-    	return PKCSObjectIdentifiers.pkcs_9_at_counterSignature.equals(oid);
-    }
-
 
     /**
      * Carga datos firmados.

@@ -10,7 +10,6 @@
 package es.gob.afirma.signers.pades;
 
 import es.gob.afirma.core.InvalidLibraryException;
-import es.gob.afirma.signers.pades.common.PdfErrorCode;
 
 /**
  * Indica que hay un iText inv&aacute;lido en el CLASSPATH o en el BOOTCLASSPATH, a menudo
@@ -26,7 +25,7 @@ public final class InvalidITextException extends InvalidLibraryException {
 	 * @param e Error por el cual se ha identificado que el iText es inv&aacute;lido
 	 */
 	public InvalidITextException(final Throwable e) {
-		super("Se necesita una version propia de iText", e, PdfErrorCode.ThirdParty.ITEXT_VERSION_NOT_SUPPORTED); //$NON-NLS-1$
+		super("Se necesita una version propia de iText", e); //$NON-NLS-1$
 	}
 
 }

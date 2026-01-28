@@ -20,10 +20,9 @@ public class AOFormatFileException extends AOException {
     /**
      * Crea una excepci&oacute;n relacionada con un formato de fichero con un mensaje determinado.
      * @param msg Mensaje descriptivo de la excepci&oacute;n.
-     * @param errorCode C&oacute;digo de error que proporciona detalles del problema encontrado.
      */
-    public AOFormatFileException(final String msg, final ErrorCode errorCode) {
-        super(msg, errorCode);
+    public AOFormatFileException(final String msg) {
+        super(msg);
     }
 
     /**
@@ -31,10 +30,8 @@ public class AOFormatFileException extends AOException {
      * y preservando la pila de exceptiones.
      * @param msg Mensaje descriptivo de la excepci&oacute;n.
      * @param e Excepci&oacute;n que a su vez origin&oacute; esta.
-     * @param errorCode C&oacute;digo de error que proporciona detalles del problema encontrado.
      */
-    public AOFormatFileException(final String msg, final Throwable e, final ErrorCode errorCode) {
-        super(msg, e, errorCode);
+    public AOFormatFileException(final String msg, final Throwable e) {
+        super(msg, e);
     }
-
 }

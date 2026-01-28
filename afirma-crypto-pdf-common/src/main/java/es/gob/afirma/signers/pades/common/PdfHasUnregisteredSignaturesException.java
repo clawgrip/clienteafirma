@@ -21,7 +21,7 @@ public final class PdfHasUnregisteredSignaturesException extends RuntimeConfigNe
 	/** Serial Id. */
 	private static final long serialVersionUID = 8047929185538217109L;
 
-	public static final String REQUESTOR_MSG_CODE = "signingPdfWithUnregisteredSigns"; //$NON-NLS-1$
+	private static final String REQUESTOR_MSG_CODE = "signingPdfWithUnregisteredSigns"; //$NON-NLS-1$
 
 	/**
 	 * Crea una excepci&oacute;n que indica que el PDF no ha podido firmarse por contener firmas previas
@@ -29,7 +29,6 @@ public final class PdfHasUnregisteredSignaturesException extends RuntimeConfigNe
 	 * @param msg Mensaje de error.
 	 */
 	public PdfHasUnregisteredSignaturesException(final String msg) {
-		super(msg, RequestType.CONFIRM, REQUESTOR_MSG_CODE, PdfExtraParams.ALLOW_COSIGNING_UNREGISTERED_SIGNATURES, PdfErrorCode.Internal.SIGNING_PDF_WITH_UNREGISTER_SIGNATURES);
+		super(msg, RequestType.CONFIRM, REQUESTOR_MSG_CODE, PdfExtraParams.ALLOW_COSIGNING_UNREGISTERED_SIGNATURES);
 	}
-
 }

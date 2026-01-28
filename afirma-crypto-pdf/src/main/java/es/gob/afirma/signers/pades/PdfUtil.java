@@ -62,7 +62,7 @@ public final class PdfUtil {
     private static final String APPEND_PAGE = "append"; //$NON-NLS-1$
 
     /** N&uacute;mero que indica una p&aacute;gina nueva. */
-    private static final int NEW_PAGE = 0;
+    private static final Integer NEW_PAGE = Integer.valueOf(0);
 
     /** Valor en el par&aacute;metro signaturePage o signaturePages que
      * indica que se estampar&aacute; la firma visible en todas las paginas*/
@@ -137,8 +137,6 @@ public final class PdfUtil {
 	 * Obtiene el lector iText de PDF.
 	 * @param inPDF PDF de entrada.
 	 * @param xParams Par&aacute;metros adicionales.
-	 * @param headless Si se establece a <code>true</code> se evita cualquier di&aacute;logo
-	 *                 gr&aacute;fico.
 	 * @return Lector iText de PDF.
 	 * @throws PdfIsPasswordProtectedException Si el PDF estaba protegido con contrase&ntilde;a y
 	 *                                 esta no se proporcion&oacute;
@@ -147,10 +145,9 @@ public final class PdfUtil {
 	 * @throws InvalidPdfException Si el PDF era inv&aacute;lido o estaba corrupto.
 	 */
 	public static PdfReader getPdfReader(final byte[] inPDF,
-			                             final Properties xParams,
-			                             final boolean headless) throws PdfIsPasswordProtectedException,
-																		BadPdfPasswordException,
-			                                                            InvalidPdfException {
+			                             final Properties xParams) throws PdfIsPasswordProtectedException,
+																		  BadPdfPasswordException,
+			                                                              InvalidPdfException {
 
 		final Properties extraParams = xParams != null ? xParams : new Properties();
 
@@ -240,11 +237,7 @@ public final class PdfUtil {
 	static boolean pdfHasUnregisteredSignatures(final byte[] pdf, final Properties xParams)
 			throws InvalidPdfException, PdfIsPasswordProtectedException, BadPdfPasswordException {
 		final Properties extraParams = xParams != null ? xParams : new Properties();
-		final PdfReader pdfReader = PdfUtil.getPdfReader(
-			pdf,
-			extraParams,
-			Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.HEADLESS))
-		);
+		final PdfReader pdfReader = PdfUtil.getPdfReader(pdf, extraParams);
 		return pdfHasUnregisteredSignatures(pdfReader);
 	}
 
@@ -265,11 +258,7 @@ public final class PdfUtil {
 
 		final Properties extraParams = xParams != null ? xParams : new Properties();
 
-		final PdfReader pdfReader = PdfUtil.getPdfReader(
-			pdf,
-			extraParams,
-			Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.HEADLESS))
-		);
+		final PdfReader pdfReader = PdfUtil.getPdfReader(pdf, extraParams);
 
     	for (int i = 0; i < pdfReader.getXrefSize(); i++) {
     		final PdfObject pdfobj = pdfReader.getPdfObject(i);
@@ -694,24 +683,25 @@ public final class PdfUtil {
 
 		// Comprobamos si se han indicado los parametros Si se encuentra el parametro signaturePages, prevalecera sobre el antiguo signaturePage
 		final String[] pagesStr = extraParams.containsKey(PdfExtraParams.SIGNATURE_PAGES)
-				? extraParams.getProperty(PdfExtraParams.SIGNATURE_PAGES).split(RANGE_SEPARATOR)
+			? extraParams.getProperty(PdfExtraParams.SIGNATURE_PAGES).split(RANGE_SEPARATOR)
 				: extraParams.containsKey(PdfExtraParams.SIGNATURE_PAGE)
 					? extraParams.getProperty(PdfExtraParams.SIGNATURE_PAGE).split(RANGE_SEPARATOR)
-					: new String[0];
+						: new String[0];
 
 		final List<Integer> pages = new ArrayList<>();
 
 		// Si no se ha indicado ninguna pagina, se firmara en la ultima
 		if (pagesStr.length == 0) {
-			pages.add(totalPages);
+			pages.add(Integer.valueOf(totalPages));
 		}
 		// El valor APPEND_PAGE pide que se firme en una pagina posterior a la primera
 		else if (APPEND_PAGE.equalsIgnoreCase(pagesStr[0].trim())) {
 			pages.add(NEW_PAGE);
 		// El valor ALL_PAGES pide que se firme en todas las paginas
-		} else if (ALL_PAGES.equalsIgnoreCase(pagesStr[0].trim())) {
+		}
+		else if (ALL_PAGES.equalsIgnoreCase(pagesStr[0].trim())) {
 			for (int page = 1; page <= totalPages; page++) {
-				pages.add(page);
+				pages.add(Integer.valueOf(page));
 			}
 		// Rellenamos con las paginas y rangos indicados, evitando que se indiquen
 		// paginas posteriores a la ultima
@@ -733,7 +723,7 @@ public final class PdfUtil {
 		// Si nada de lo que se configuro definio un numero de pagina valido para el documento,
 		// se usara la ultima pagina para la firma visible PDF
 		if (pages.isEmpty()) {
-			pages.add(totalPages);
+			pages.add(Integer.valueOf(totalPages));
 		}
 
 		return pages;

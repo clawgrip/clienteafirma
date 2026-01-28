@@ -32,7 +32,6 @@ import com.aowagie.text.pdf.PdfReader;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.AOInvalidSignatureFormatException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.signers.AOConfigurableContext;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
@@ -41,7 +40,6 @@ import es.gob.afirma.core.signers.AOSimpleSignInfo;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
 import es.gob.afirma.signers.pades.common.BadPdfPasswordException;
-import es.gob.afirma.signers.pades.common.PdfErrorCode;
 import es.gob.afirma.signers.pades.common.PdfExtraParams;
 import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
 
@@ -63,7 +61,7 @@ import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
  * <p>
  *  La clase necesita espec&iacute;ficamente la versi&oacute;n de iText 2.1.7 modificada para el Cliente &#64;firma.
  * </p> */
-public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
+public final class AOPDFSigner implements AOSigner {
 
     private static final String PDF_FILE_SUFFIX = ".pdf"; //$NON-NLS-1$
     private static final String PDF_FILE_HEADER = "%PDF-"; //$NON-NLS-1$
@@ -83,7 +81,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 	 * Modo seguro. Si no esta activado se permiten algunas operaciones, como el uso de rutas a los
 	 * datos en algunos extraParams en lugar de proporcionar estos datos en Base64.
 	 */
-	private boolean secureMode = true;
+	private static final boolean SECURE_MODE = true;
 
 	// iText tiene ciertos problemas reconociendo ECDSA y a veces usa su OID, por lo que declaramos alias de los
 	// algoritmos de firma en los proveedores mas comunes
@@ -154,7 +152,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
         		data = PdfTimestamper.timestampPdf(data, extraParams, signTime);
         	}
         	catch (final IOException e) {
-				throw new AOException("Error en la composicion del sello de tiempo de la firma", e, PdfErrorCode.Internal.INTERNAL_PADES_SIGNING_ERROR); //$NON-NLS-1$
+				throw new AOException("Error en la composicion del sello de tiempo de la firma", e); //$NON-NLS-1$
 			}
         }
 
@@ -165,7 +163,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 			certificateChain,
 			signTime,
 			extraParams,
-			this.secureMode
+			SECURE_MODE
 		);
 
         // Firma PKCS#1
@@ -184,7 +182,7 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 			certificateChain,
 			interSign,
 			pre,
-			this.secureMode
+			SECURE_MODE
 		);
     }
 
@@ -336,13 +334,9 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
     		return new AOTreeModel(root);
     	}
 
-    	PdfReader pdfReader;
-    	boolean headLessProp = false;
+    	final PdfReader pdfReader;
     	try {
-    		if (params != null && params.containsKey(PdfExtraParams.HEADLESS)) {
-    			headLessProp = Boolean.parseBoolean(params.getProperty(PdfExtraParams.HEADLESS));
-    		}
-			pdfReader = PdfUtil.getPdfReader(sign, params, headLessProp);
+			pdfReader = PdfUtil.getPdfReader(sign, params);
     	}
     	catch (final BadPdfPasswordException | PdfIsPasswordProtectedException e) {
     		LOGGER.info(
@@ -673,15 +667,5 @@ public final class AOPDFSigner implements AOSigner, AOConfigurableContext {
 				LOGGER.warning("Se ignoraran los commitment type indications establecidos por haberse indicado una razon de firma"); //$NON-NLS-1$
 				extraParams.remove(PdfExtraParams.COMMITMENT_TYPE_INDICATIONS);
 		}
-    }
-
-    @Override
-    public void setSecureMode(final boolean secure) {
-    	this.secureMode = secure;
-    }
-
-    @Override
-    public boolean isSecureMode() {
-    	return this.secureMode;
     }
 }

@@ -112,7 +112,7 @@ public final class OfficeAnalizer {
         FILE_EXTENSIONS.put("application/vnd.ms-project", "mpp"); //$NON-NLS-1$ //$NON-NLS-2$
 
         // Descripciones de fichero
-        FILE_DESCRIPTIONS.put("application/zip", "Archivo zip"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put(ZIP_MIMETYPE, "Archivo zip"); //$NON-NLS-1$
 
         FILE_DESCRIPTIONS.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Documento de texto"); //$NON-NLS-1$ //$NON-NLS-2$
         FILE_DESCRIPTIONS.put("application/vnd.openxmlformats-officedocument.presentationml.presentation", "Presentaci\u00F3n"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -391,12 +391,14 @@ public final class OfficeAnalizer {
      * @throws IOException Error en el tama&ntilde;o permitido del archivo */
     private static boolean isODFFile(final ZipFile zipFile) {
         // Comprobamos si estan todos los ficheros principales del documento
-    	// Se separan las comprobaciones en varios if para no tener una sola
-    	// sentencia condicional muy larga
-    	if (zipFile.getEntry("mimetype") == null || zipFile.getEntry("content.xml") == null || zipFile.getEntry("meta.xml") == null || zipFile.getEntry("settings.xml") == null) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-    		return false;
-    	}
-    	if (zipFile.getEntry("styles.xml") == null || zipFile.getEntry("META-INF/manifest.xml") == null) { //$NON-NLS-1$ //$NON-NLS-2$
+    	if (
+			zipFile.getEntry("mimetype") == null     ||       //$NON-NLS-1$
+			zipFile.getEntry("content.xml") == null  ||       //$NON-NLS-1$
+			zipFile.getEntry("meta.xml") == null     ||       //$NON-NLS-1$
+			zipFile.getEntry("settings.xml") == null ||       //$NON-NLS-1$
+			zipFile.getEntry("styles.xml") == null   ||       //$NON-NLS-1$
+			zipFile.getEntry("META-INF/manifest.xml") == null //$NON-NLS-1$
+		) {
     		return false;
     	}
     	return true;

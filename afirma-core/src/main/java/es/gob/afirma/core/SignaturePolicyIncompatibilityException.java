@@ -20,9 +20,9 @@ public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfig
 	/** Serial Id. */
 	private static final long serialVersionUID = 8278487852684799319L;
 
-	public static final String REQUESTOR_SIGN_MSG_CODE = "agePolicyIncompatibilitySign"; //$NON-NLS-1$
-	public static final String REQUESTOR_COSIGN_MSG_CODE = "agePolicyIncompatibilityCosign"; //$NON-NLS-1$
-	public static final String REQUESTOR_COUNTERSIGN_MSG_CODE = "agePolicyIncompatibilityCounterSign"; //$NON-NLS-1$
+	private static final String REQUESTOR_SIGN_MSG_CODE = "agePolicyIncompatibilitySign"; //$NON-NLS-1$
+	private static final String REQUESTOR_COSIGN_MSG_CODE = "agePolicyIncompatibilityCosign"; //$NON-NLS-1$
+	private static final String REQUESTOR_COUNTERSIGN_MSG_CODE = "agePolicyIncompatibilityCounterSign"; //$NON-NLS-1$
 
 	private static final String EXTRA_PARAM_NEEDED = "avoidAGEPolicyIncompatibilities"; //$NON-NLS-1$
 
@@ -48,7 +48,7 @@ public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfig
 	 * de confirmaci&oacute;n al usuario.
 	 */
 	public SignaturePolicyIncompatibilityException(final String message, final int operation) {
-		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED, ErrorCode.Functional.SIGNING_WITH_POLICY_INCOMPATIBILITY);
+		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfig
 	 * @param cause Origen del problema.
 	 */
 	public SignaturePolicyIncompatibilityException(final String message, final int operation, final Throwable cause) {
-		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED, ErrorCode.Functional.SIGNING_WITH_POLICY_INCOMPATIBILITY, cause);
+		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED, cause);
 	}
 
 	@Override

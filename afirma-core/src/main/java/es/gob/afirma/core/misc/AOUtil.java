@@ -14,15 +14,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
@@ -50,7 +47,6 @@ public final class AOUtil {
     };
 
     private static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
-
 
     /** Crea una URI a partir de un nombre de fichero local o una URL.
      * @param file Nombre del fichero local o URL
@@ -311,128 +307,6 @@ public final class AOUtil {
     			cert.getSubjectX500Principal().getName(X500Principal.RFC2253)) != null;
     }
 
-    /** Equivalencias de hexadecimal a texto por la posici&oacute;n del vector.
-     * Para ser usado en <code>hexify()</code> */
-    private static final char[] HEX_CHARS = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
-
-    /** Convierte un vector de octetos en una cadena de caracteres que contiene
-     * la representaci&oacute;n hexadecimal. Copiado directamente de
-     * opencard.core.util.HexString
-     * @param abyte0
-     *        Vector de octetos que deseamos representar textualmente
-     * @param separator
-     *        Indica si han o no de separarse los octetos con un
-     *        gui&oacute;n y en l&iacute;neas de 16
-     * @return Representaci&oacute;n textual del vector de octetos de entrada */
-    public static String hexify(final byte abyte0[], final boolean separator) {
-        if (abyte0 == null) {
-            return "null"; //$NON-NLS-1$
-        }
-
-        final StringBuilder stringbuffer = new StringBuilder(256);
-        int i = 0;
-        for (int j = 0; j < abyte0.length; j++) {
-            if (separator && i > 0) {
-                stringbuffer.append('-');
-            }
-            stringbuffer.append(HEX_CHARS[abyte0[j] >> 4 & 0xf]);
-            stringbuffer.append(HEX_CHARS[abyte0[j] & 0xf]);
-            ++i;
-            if (i == 16) {
-                if (separator && j < abyte0.length - 1) {
-                    stringbuffer.append('\n');
-                }
-                i = 0;
-            }
-        }
-        return stringbuffer.toString();
-    }
-
-    /** Convierte un vector de octetos en una cadena de caracteres que contiene
-     * la representaci&oacute;n hexadecimal. Copiado directamente de
-     * opencard.core.util.HexString
-     * @param abyte0
-     *        Vector de octetos que deseamos representar textualmente
-     * @param separator
-     *        Indica si han o no de separarse los octetos con un
-     *        gui&oacute;n y en l&iacute;neas de 16
-     * @return Representaci&oacute;n textual del vector de octetos de entrada */
-    public static String hexify(final byte abyte0[], final String separator) {
-        if (abyte0 == null) {
-            return "null"; //$NON-NLS-1$
-        }
-
-        final StringBuilder stringbuffer = new StringBuilder(256);
-        for (int j = 0; j < abyte0.length; j++) {
-            if (separator != null && j > 0) {
-                stringbuffer.append(separator);
-            }
-            stringbuffer.append(HEX_CHARS[abyte0[j] >> 4 & 0xf]);
-            stringbuffer.append(HEX_CHARS[abyte0[j] & 0xf]);
-        }
-        return stringbuffer.toString();
-    }
-
-    /** Copia un fichero.
-     * @param source Fichero origen con el contenido que queremos copiar.
-     * @param dest Fichero destino de los datos.
-     * @throws IOException SI ocurre algun problema durante la copia */
-    public static void copyFile(final File source, final File dest) throws IOException {
-        if (source == null || dest == null) {
-            throw new IllegalArgumentException("Ni origen ni destino de la copia pueden ser nulos"); //$NON-NLS-1$
-        }
-        try (
-	        final FileInputStream is = new FileInputStream(source);
-	        final FileOutputStream os = new FileOutputStream(dest);
-	        final FileChannel in = is.getChannel();
-	        final FileChannel out = os.getChannel()
-    	) {
-        	final MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());
-        	out.write(buf);
-        }
-    }
-
-    /** Genera una lista de cadenas compuesta por los fragmentos de texto
-     * separados por la cadena de separaci&oacute;n indicada. No soporta
-     * expresiones regulares. Por ejemplo:<br>
-     * <ul>
-     * <li><b>Texto:</b> foo$bar$foo$$bar$</li>
-     * <li><b>Separado:</b> $</li>
-     * <li><b>Resultado:</b> "foo", "bar", "foo", "", "bar", ""</li>
-     * </ul>
-     * @param text
-     *        Texto que deseamos dividir.
-     * @param sp
-     *        Separador entre los fragmentos de texto.
-     * @return Listado de fragmentos de texto entre separadores.
-     * @throws NullPointerException
-     *         Cuando alguno de los par&aacute;metros de entrada es {@code null}. */
-    public static String[] split(final String text, final String sp) {
-
-        final ArrayList<String> parts = new ArrayList<>();
-        int i = 0;
-        int j = 0;
-        while (i != text.length() && (j = text.indexOf(sp, i)) != -1) {
-            if (i == j) {
-                parts.add(""); //$NON-NLS-1$
-            }
-            else {
-                parts.add(text.substring(i, j));
-            }
-            i = j + sp.length();
-        }
-        if (i == text.length()) {
-            parts.add(""); //$NON-NLS-1$
-        }
-        else {
-            parts.add(text.substring(i));
-        }
-
-        return parts.toArray(new String[0]);
-    }
-
 	/** Convierte un objeto de propiedades en una cadena Base64 URL SAFE.
 	 * @param p Objeto de propiedades a convertir.
 	 * @return Base64 URL SAFE que descodificado es un fichero de propiedades en texto plano.
@@ -462,31 +336,5 @@ public final class AOUtil {
 
     	return p;
     }
-
-    /** Convierte un objeto de propiedades en una cadena Base64 URL SAFE.
-	 * @param p Objeto de propiedades a convertir.
-	 * @return Base64 URL SAFE que descodificado es un fichero de propiedades en texto plano.
-	 * @throws IOException Si hay problemas en la conversi&oacute;n a Base64. */
-	public static String propertiesAsString(final Properties p) throws IOException {
-		if (p == null) {
-			return ""; //$NON-NLS-1$
-		}
-		final StringBuilder buffer = new StringBuilder();
-    	for (final String k : p.keySet().toArray(new String[0])) {
-    		buffer.append(k).append("=").append(p.getProperty(k)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-    	}
-		return buffer.toString();
-	}
-
-	/** Comprueba si el texto es un n&uacute;mero.
-	 * @param value Texto a comprobar.
-	 * @return <code>true</code> si el texto es un n&uacute;mero, <code>false</code>
-	 *         en caso contrario. */
-	public static boolean isOnlyNumber(final String value) {
-		if (value == null || value.isEmpty()) {
-			return false;
-		}
-	    return value.matches("^[0-9]+$"); //$NON-NLS-1$
-	}
 }
 

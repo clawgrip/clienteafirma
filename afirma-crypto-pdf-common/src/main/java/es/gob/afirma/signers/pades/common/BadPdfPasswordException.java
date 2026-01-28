@@ -23,7 +23,7 @@ public final class BadPdfPasswordException extends RuntimePasswordNeededExceptio
 	/** Serial Id. */
 	private static final long serialVersionUID = 8271382878128711677L;
 
-	public static final String REQUESTOR_MSG_CODE = "pdfbadpassword"; //$NON-NLS-1$
+	private static final String REQUESTOR_MSG_CODE = "pdfbadpassword"; //$NON-NLS-1$
 
 	/**
 	 * Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse
@@ -31,7 +31,7 @@ public final class BadPdfPasswordException extends RuntimePasswordNeededExceptio
 	 * @param msg Mesaje de error.
 	 */
 	public BadPdfPasswordException(final String msg) {
-		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITH_BAD_PASSWORD);
+		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public final class BadPdfPasswordException extends RuntimePasswordNeededExceptio
 	 * @param e Causa inicial de la excepci&oacute;n
 	 */
 	public BadPdfPasswordException(final Throwable e) {
-		super("La contrasena del PDF no es correcta", REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITH_BAD_PASSWORD, e); //$NON-NLS-1$
+		super("La contrasena del PDF no es correcta", REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, e); //$NON-NLS-1$
 	}
 
 	/**
@@ -50,7 +50,7 @@ public final class BadPdfPasswordException extends RuntimePasswordNeededExceptio
 	 * @param e Causa inicial de la excepci&oacute;n
 	 */
 	public BadPdfPasswordException(final String msg, final Throwable e) {
-		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITH_BAD_PASSWORD, e);
+		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, e);
 	}
 
 	@Override

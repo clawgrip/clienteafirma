@@ -525,7 +525,7 @@ public final class CAdESUtils {
         			signerAttrOid = PKCSObjectIdentifiers.id_aa_ets_signerAttr;
         		}
         		else if (AOSignConstants.SIGN_PROFILE_BASELINE.equals(config.getProfileSet()) ) {
-        			signerAttrOid = new ASN1ObjectIdentifier(CAdESAttributes.OID_id_aa_ets_signerAttrV2);
+        			signerAttrOid = new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsSignerAttrV2);
         		}
         		// Agregamos los roles
         		if (signerAttrOid != null) {
@@ -562,7 +562,7 @@ public final class CAdESUtils {
         if (!isCountersign && config.getMimeType() != null) {
         	contextSpecific.add(
         			new Attribute(
-        					new ASN1ObjectIdentifier(CAdESAttributes.OID_id_aa_ets_mimeType),
+        					new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsMimeType),
         					new DERSet(new DERUTF8String(config.getMimeType())))
 			);
         }

@@ -18,18 +18,15 @@ public final class AOUnsupportedSignFormatException extends AOException {
     private static final long serialVersionUID = -1;
 
     /** Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n. */
+     * @param msg Mensaje descriptivo de la excepci&oacute;n. */
     public AOUnsupportedSignFormatException(final String msg) {
-        super(msg, ErrorCode.Request.UNSUPPORTED_SIGNATURE_FORMAT);
+        super(msg);
     }
 
     /** Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param e
-     *        Excepci&oacute;n que ha causado el lanzamiento de esta. */
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta. */
     public AOUnsupportedSignFormatException(final String msg, final Exception e) {
-        super(msg, e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_FORMAT);
+        super(msg, e);
     }
 }

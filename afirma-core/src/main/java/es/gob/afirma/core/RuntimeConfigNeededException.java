@@ -25,13 +25,11 @@ public class RuntimeConfigNeededException extends AOException {
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
-	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n.
-	 * proporcionada.
-	 * @param errorCode C&oacute;digo de error.
+	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n proporcionada.
 	 * @throws NullPointerException Si el par&aacute;metro {@code #requestType} es nulo.
 	 */
-	protected RuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final ErrorCode errorCode) {
-		super(msg, errorCode);
+	protected RuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param) {
+		super(msg);
 
 		if (requestType == null) {
 			throw new NullPointerException("El tipo de datos solicitados no puede ser nulo"); //$NON-NLS-1$
@@ -48,14 +46,12 @@ public class RuntimeConfigNeededException extends AOException {
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
-	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n.
-	 * proporcionada.
-	 * @param errorCode C&oacute;digo de error.
+	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n proporcionada.
 	 * @param e Error que origin&oacute; la excepci&oacute;n.
 	 * @throws NullPointerException Si el par&aacute;metro {@code #requestType} es nulo.
 	 */
-	protected RuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final ErrorCode errorCode, final Throwable e) {
-		super(msg, e, errorCode);
+	protected RuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final Throwable e) {
+		super(msg, e);
 
 		if (requestType == null) {
 			throw new NullPointerException("El tipo de datos solicitados no puede ser nulo"); //$NON-NLS-1$

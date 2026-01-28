@@ -22,7 +22,6 @@ import org.spongycastle.cms.SignerInformation;
 import org.spongycastle.cms.SignerInformationStore;
 
 import es.gob.afirma.core.AOException;
-import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.misc.MimeHelper;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AdESPolicy;
@@ -143,7 +142,7 @@ public class CAdESParameters {
 					dataDigest = MessageDigest.getInstance(digestAlgorithmName).digest(data);
 				}
 				catch (final NoSuchAlgorithmException e) {
-					throw new AOException("No se ha podido extraer un algoritmo de huella soportado del algoritmo de firma: " + e, e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM); //$NON-NLS-1$
+					throw new AOException("No se ha podido extraer un algoritmo de huella soportado del algoritmo de firma", e); //$NON-NLS-1$
 				}
 			}
 			else {
@@ -235,7 +234,7 @@ public class CAdESParameters {
 					final AttributeTable signedAttributes = signerInfo.getSignedAttributes();
 
 					if (mimetypeNeeded && mimeType == null) {
-						final Attribute mimetypeAttr = signedAttributes.get(new ASN1ObjectIdentifier(CAdESAttributes.OID_id_aa_ets_mimeType));
+						final Attribute mimetypeAttr = signedAttributes.get(new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsMimeType));
 						if (mimetypeAttr != null) {
 							mimeType = mimetypeAttr.getAttributeValues()[0].toString();
 							foundPreviousDataType = true;
@@ -323,23 +322,17 @@ public class CAdESParameters {
 		// Metadatos con la localizacion de firma
 		dataConfig.setMetadata(CAdESSignerMetadataHelper.getCAdESSignerMetadata(config));
 
-		/// Identificamos si debemos generar una firma baseline para establecer la configuracion
-		// propia para estas firmas
+		// Identificamos si debemos generar una firma baseline para establecer la configuracion propia para estas firmas
 		final boolean baselineProfile = AOSignConstants.SIGN_PROFILE_BASELINE.equals(
 				config.getProperty(CAdESExtraParams.PROFILE));
 
 		// Almacenamos el perfil configurado que, en caso de no ser baseline, sera el avanzado
 		if (baselineProfile) {
 			dataConfig.setProfileSet(AOSignConstants.SIGN_PROFILE_BASELINE);
-		} else {
+		}
+		else {
 			dataConfig.setProfileSet(AOSignConstants.SIGN_PROFILE_ADVANCED);
 		}
-
-		// En el estandar baseline ETSI EN 319 122-1 V1.1.1 se indica expresamente que no se
-		// deberia incluir el IssuerSerial en el atributo del certificado firmante. Sin embargo,
-		// los validadores suelen emitir advertencias cuando se omite este atributo, asi que
-		// se seguira agregando
-		//dataConfig.setIncludedIssuerSerial(!baselineProfile);
 
 		// Configuracion establecida, que puede contener mas informacion que la requerida para la generacion de la firma CAdES
 		dataConfig.setExtraParams(config);
@@ -476,8 +469,7 @@ public class CAdESParameters {
 
 	/**
 	 * Establece los datos que se firman e incluir&aacute;n en la firma. Si no se desea incluir los datos
-	 * en la firma (firma detached o expl&iacute;cita) se debe indicar la huella de los datos mediante el
-	 * m&eacute;todo {@code #setDataDigest(byte[])}.
+	 * en la firma (firma detached o expl&iacute;cita) se debe indicar la huella de los datos mediante {@code #setDataDigest(byte[])}.
 	 * @param contentData Datos que se firmar&aacute;n e incluir&aacute;n en la firma.
 	 * @see #setDataDigest(byte[])
 	 */
@@ -642,8 +634,7 @@ public class CAdESParameters {
 
 	/**
 	 * Establece una configuraci&oacute;n de firma externa. Esta configuraci&oacute;n no se
-	 * cargar&aacute;. Es necesario proporcionarla mediante el uso del m&eacute;todo
-	 * {@code #load(byte[], String, Properties)}.
+	 * cargar&aacute;. Es necesario proporcionarla mediante el uso de {@code #load(byte[], String, Properties)}.
 	 * @param extraParams Propiedades con la configuraci&oacute;n de firma establecida.
 	 * @see #load(byte[], String, Properties)
 	 */

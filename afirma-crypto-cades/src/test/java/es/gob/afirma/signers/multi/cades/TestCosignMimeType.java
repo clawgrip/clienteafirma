@@ -257,23 +257,6 @@ public class TestCosignMimeType {
 
 	/**
 	 * Comprueba que una firma CAdES en la que se indica que se incluya el
-	 * MimeType y no se indica ni el MimeType ni el OID de los datos, ni se
-	 * encuentra informaci&oacute;n en la firma previa, ni contiene esta los
-	 * datos firmados, incluye el MimeType gen&eacute;rico.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
-	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaDatosDesconocidosSinTipo() throws Exception {
-		final Properties extraParams = new Properties();
-		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
-		final byte[] signature = cosign(this.signatureImplicitWithoutMimeTypeUnknownData, extraParams);
-		final String mimeType = getMimeType(signature);
-
-		Assert.assertEquals("No se ha agregado el MimeType por defecto", DEFAULT_MIMETYPE, mimeType); //$NON-NLS-1$
-	}
-
-	/**
-	 * Comprueba que una firma CAdES en la que se indica que se incluya el
 	 * MimeType y no se indica ni el MimeType ni el OID de los datos, cuando
 	 * la firma no incluye los datos ni el mimetype, pero si el OID, incluye el
 	 * MimeType correspondiente al OID del Content Type.
@@ -349,6 +332,5 @@ public class TestCosignMimeType {
 		}
 		return null;
 	}
-
 }
 

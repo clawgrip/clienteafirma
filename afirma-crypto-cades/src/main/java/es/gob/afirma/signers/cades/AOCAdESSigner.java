@@ -23,13 +23,11 @@ import java.util.logging.Logger;
 import es.gob.afirma.core.AOCancelledOperationException;
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.AOInvalidSignatureFormatException;
-import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSignInfo;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.signers.multi.cades.AOCAdESCoSigner;
-import es.gob.afirma.signers.pkcs7.BinaryErrorCode;
 import es.gob.afirma.signers.pkcs7.ObtainContentSignedData;
 import es.gob.afirma.signers.pkcs7.ReadNodesTree;
 
@@ -110,7 +108,7 @@ public final class AOCAdESSigner implements AOSigner {
             throw e;
         }
         catch (final Exception e) {
-            throw new AOException("Error al generar la firma CAdES: " + e, e, BinaryErrorCode.Internal.UNKWNON_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+            throw new AOException("Error al generar la firma CAdES", e); //$NON-NLS-1$
         }
 
         return applyTimeStamp(cadesSignedData, extraParams);
@@ -352,7 +350,7 @@ public final class AOCAdESSigner implements AOSigner {
     		throw new IllegalArgumentException("El algoritmo de firma no puede ser nulo"); //$NON-NLS-1$
     	}
     	if (algorithm.toUpperCase(Locale.US).startsWith("MD")) { //$NON-NLS-1$
-    		throw new AOException("CAdES no permite huellas digitales MD2 o MD5 (Decision 130/2011 CE)", ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM); //$NON-NLS-1$
+    		throw new AOException("CAdES no permite huellas digitales MD2 o MD5 (Decision 130/2011 CE)"); //$NON-NLS-1$
     	}
 
     	final String profile = extraParams.getProperty(CAdESExtraParams.PROFILE);

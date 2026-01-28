@@ -51,7 +51,6 @@ import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.cades.CAdESParameters;
 import es.gob.afirma.signers.cades.CAdESUtils;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
-import es.gob.afirma.signers.pkcs7.BinaryErrorCode;
 import es.gob.afirma.signers.pkcs7.ContainsNoDataException;
 import es.gob.afirma.signers.pkcs7.SigUtils;
 
@@ -334,7 +333,7 @@ final class CAdESCoSigner {
 			tmp = signedAttr.getEncoded(ASN1Encoding.DER);
 		}
 		catch (final IOException ex) {
-			throw new AOException("Error al codificar los atributos firmados", ex, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+			throw new AOException("Error al codificar los atributos firmados", ex); //$NON-NLS-1$
 		}
 
 		return new DEROctetString(

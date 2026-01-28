@@ -26,7 +26,7 @@ public class ContainsNoDataException extends AOInvalidSignatureFormatException {
 	 * @param message Mensaje asociado al error.
 	 */
 	public ContainsNoDataException(final String message) {
-		super(message, BinaryErrorCode.Functional.SIGNATURE_DOESNT_CONTAIN_DATA);
+		super(message);
 	}
 
 	/**
@@ -35,6 +35,6 @@ public class ContainsNoDataException extends AOInvalidSignatureFormatException {
 	 * @param e Excepcion previa que caus&oacute; el problema.
 	 */
 	public ContainsNoDataException(final String message, final Exception e) {
-		super(message, e, BinaryErrorCode.Functional.SIGNATURE_DOESNT_CONTAIN_DATA);
+		super(message, e);
 	}
 }

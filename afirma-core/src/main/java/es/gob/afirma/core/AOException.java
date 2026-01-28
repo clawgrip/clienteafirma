@@ -13,63 +13,39 @@ package es.gob.afirma.core;
  * Excepci&oacute;n gen&eacute;rica.
  * @version 1.1
  */
-public class AOException extends Exception implements AOControlledException {
+public class AOException extends Exception {
 
     private static final long serialVersionUID = -662191654860389176L;
 
-    private ErrorCode errorCode = null;
-
     /**
      * Contruye una excepci&oacute;n gen&eacute;rica con mensaje.
-     * @param code C&oacute;dico que identifica al error.
      */
-    public AOException(final ErrorCode code) {
-		super(code != null ? code.getDescription() : null);
-		this.errorCode = code;
+    public AOException() {
+    	// Vacio
 	}
 
     /**
      * Contruye una excepci&oacute;n gen&eacute;rica con mensaje.
      * @param msg Descripci&oacute;n del error.
-     * @param code C&oacute;dico que identifica al error.
      */
-    public AOException(final String msg, final ErrorCode code) {
+    public AOException(final String msg) {
 		super(msg);
-		this.errorCode = code;
 	}
 
     /**
      * Contruye una excepci&oacute;n gen&eacute;rica y define su causa.
      * @param cause Causa del error.
-     * @param code C&oacute;dico que identifica al error.
      */
-    public AOException(final Throwable cause, final ErrorCode code) {
-		super(code != null ? code.getDescription() : null, cause);
-		this.errorCode = code;
+    public AOException(final Throwable cause) {
+		super(cause);
 	}
 
     /**
      * Contruye una excepci&oacute;n gen&eacute;rica con mensaje y define su causa.
      * @param msg Descripci&oacute;n del error.
      * @param cause Causa del error.
-     * @param code C&oacute;dico que identifica al error.
      */
-    public AOException(final String msg, final Throwable cause, final ErrorCode code) {
+    public AOException(final String msg, final Throwable cause) {
     	super(msg, cause);
-    	this.errorCode = code;
-	}
-
-    @Override
-	public ErrorCode getErrorCode() {
-		return this.errorCode;
-	}
-
-	@Override
-	public String toString() {
-		String appendix = null;
-		if (this.errorCode != null) {
-			appendix = " (" + this.errorCode + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return appendix != null ? super.toString() + appendix : super.toString();
 	}
 }

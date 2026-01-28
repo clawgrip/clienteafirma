@@ -22,9 +22,9 @@ public final class PdfIsCertifiedException extends RuntimeConfigNeededException 
 	/** Serial ID. */
 	private static final long serialVersionUID = -5155373390967702913L;
 
-	public static final String REQUESTOR_MSG_CODE = "signingCertifiedPdf"; //$NON-NLS-1$
+	private static final String REQUESTOR_MSG_CODE = "signingCertifiedPdf"; //$NON-NLS-1$
 
 	public PdfIsCertifiedException(final String msg) {
-		super(msg, RequestType.CONFIRM, REQUESTOR_MSG_CODE, PdfExtraParams.ALLOW_SIGNING_CERTIFIED_PDFS, PdfErrorCode.Internal.SIGNING_PDF_WITH_CERTIFIED_SIGN);
+		super(msg, RequestType.CONFIRM, REQUESTOR_MSG_CODE, PdfExtraParams.ALLOW_SIGNING_CERTIFIED_PDFS);
 	}
 }

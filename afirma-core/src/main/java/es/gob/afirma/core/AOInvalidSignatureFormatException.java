@@ -19,45 +19,27 @@ public class AOInvalidSignatureFormatException extends AOException {
 
     /**
      * Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
      */
     public AOInvalidSignatureFormatException(final String msg) {
-        super(msg, ErrorCode.Functional.COMPATIBLE_SIGNATURE_NOT_FOUND);
+        super(msg);
     }
 
     /**
      * Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param e
-     *        Excepci&oacute;n que ha causado el lanzamiento de esta.
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta.
      */
     public AOInvalidSignatureFormatException(final String msg, final Throwable e) {
-        super(msg, e, ErrorCode.Functional.COMPATIBLE_SIGNATURE_NOT_FOUND);
+        super(msg, e);
     }
 
     /**
      * Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param errorCode
-     *        C&oacute;digo que detalla el error producido.
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta.
      */
-    public AOInvalidSignatureFormatException(final String msg, final ErrorCode errorCode) {
-        super(msg, errorCode);
-    }
-
-    /**
-     * Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param e
-     *        Excepci&oacute;n que ha causado el lanzamiento de esta.
-     * @param errorCode
-     *        C&oacute;digo que detalla el error producido.
-     */
-    public AOInvalidSignatureFormatException(final String msg, final Exception e, final ErrorCode errorCode) {
-        super(msg, e, errorCode);
+    public AOInvalidSignatureFormatException(final String msg, final Exception e) {
+        super(msg, e);
     }
 }

@@ -23,7 +23,7 @@ public final class PdfIsPasswordProtectedException extends RuntimePasswordNeeded
 	/** Serial Id. */
 	private static final long serialVersionUID = -4899395533584256907L;
 
-	public static final String REQUESTOR_MSG_CODE = "pdfpasswordprotected"; //$NON-NLS-1$
+	private static final String REQUESTOR_MSG_CODE = "pdfpasswordprotected"; //$NON-NLS-1$
 
 	/**
 	 * Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse por estar protegido por una contrase&ntilde;a
@@ -31,7 +31,7 @@ public final class PdfIsPasswordProtectedException extends RuntimePasswordNeeded
      * @param msg Mensaje de error.
 	 */
 	public PdfIsPasswordProtectedException(final String msg) {
-		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.OWNER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITHOUT_PASSWORD);
+		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.OWNER_PASSWORD_STRING);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public final class PdfIsPasswordProtectedException extends RuntimePasswordNeeded
 	 */
 	public PdfIsPasswordProtectedException(final Throwable e) {
 		super("El PDF se encuentra protegido con contrasena",  //$NON-NLS-1$
-				REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITHOUT_PASSWORD, e);
+				REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, e);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public final class PdfIsPasswordProtectedException extends RuntimePasswordNeeded
 	 * @param e Causa inicial de la excepci&oacute;n
 	 */
 	public PdfIsPasswordProtectedException(final String msg, final Throwable e) {
-		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.OWNER_PASSWORD_STRING, PdfErrorCode.Internal.SIGNING_PDF_WITHOUT_PASSWORD, e);
+		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.OWNER_PASSWORD_STRING, e);
 	}
 
 	/**

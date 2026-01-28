@@ -19,13 +19,11 @@ import org.spongycastle.cms.CMSSignedData;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.AOInvalidSignatureFormatException;
-import es.gob.afirma.core.ErrorCode;
 import es.gob.afirma.core.SigningLTSException;
 import es.gob.afirma.core.signers.AOCoSigner;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.cades.CAdESExtraParams;
 import es.gob.afirma.signers.cades.CAdESParameters;
-import es.gob.afirma.signers.pkcs7.BinaryErrorCode;
 
 /** Operaciones de cofirma CAdES. */
 public final class AOCAdESCoSigner implements AOCoSigner {
@@ -98,21 +96,19 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 			throw e;
 		}
         catch (final NoSuchAlgorithmException e) {
-        	throw new AOException("Algoritmo de firma o huella digital no soportado", e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM); //$NON-NLS-1$
+        	throw new AOException("Algoritmo de firma o huella digital no soportado", e); //$NON-NLS-1$
 		}
         catch (final CertificateException e) {
-        	throw new AOException("Error generando la Contrafirma CAdES", e, ErrorCode.Internal.ENCODING_SIGNING_CERTIFICATE); //$NON-NLS-1$
+        	throw new AOException("Error generando la Contrafirma CAdES", e); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
-			throw new AOException("Error generando la cofirma CAdES: " + e, e, BinaryErrorCode.Internal.UNKWNON_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+			throw new AOException("Error generando la cofirma CAdES", e); //$NON-NLS-1$
 		}
     }
 
     private static Properties getExtraParams(final Properties extraParams) {
-    	final Properties newExtraParams = extraParams != null ?
+    	return extraParams != null ?
     			(Properties) extraParams.clone() : new Properties();
-
-    	return newExtraParams;
     }
 
     /**

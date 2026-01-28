@@ -10,7 +10,6 @@
 package es.gob.afirma.signers.pades;
 
 import es.gob.afirma.core.AOFormatFileException;
-import es.gob.afirma.signers.pades.common.PdfErrorCode;
 
 /**
  * Excepci&oacute;n para notificar que se ha proporcionado un fichero que no es un PDF o es un
@@ -26,7 +25,7 @@ public final class InvalidPdfException extends AOFormatFileException {
 	 * @param cause Origen del error.
 	 */
 	public InvalidPdfException(final Throwable cause) {
-		super("El fichero no es un PDF o es un PDF no soportado", cause, PdfErrorCode.Functional.PDF_DOCUMENT_NEEDED); //$NON-NLS-1$
+		super("El fichero no es un PDF o es un PDF no soportado", cause); //$NON-NLS-1$
 	}
 
 	/**
@@ -34,7 +33,6 @@ public final class InvalidPdfException extends AOFormatFileException {
 	 * @param msg Mensaje de error.
 	 */
 	public InvalidPdfException(final String msg) {
-		super(msg, PdfErrorCode.Functional.PDF_DOCUMENT_NEEDED);
+		super(msg);
 	}
-
 }

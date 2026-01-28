@@ -45,7 +45,6 @@ import es.gob.afirma.core.AOUnsupportedSignAlgorithmException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
-import es.gob.afirma.signers.pkcs7.BinaryErrorCode;
 import es.gob.afirma.signers.pkcs7.SigUtils;
 
 /** Firmador CAdES en tres fases independientes, adecuado para su uso en un entorno mixto cliente-servidor.
@@ -166,7 +165,7 @@ public final class CAdESTriPhaseSigner {
         	signedAttributes = SigUtils.getAttributeSet(new AttributeTable(signedAttributesVector));
         }
         catch(final Exception e) {
-            throw new AOException("Error obteniendo los atributos a firmar: " + e, e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+            throw new AOException("Error obteniendo los atributos a firmar", e); //$NON-NLS-1$
         }
 
         // Codificamos y devolvemos la prefirma
@@ -174,7 +173,7 @@ public final class CAdESTriPhaseSigner {
             return signedAttributes.getEncoded(ASN1Encoding.DER);
         }
         catch (final Exception ex) {
-            throw new AOException("Error al codificar los datos ASN.1 a firmar finalmente", ex, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+            throw new AOException("Error al codificar los datos ASN.1 a firmar finalmente", ex); //$NON-NLS-1$
         }
     }
 
@@ -209,7 +208,7 @@ public final class CAdESTriPhaseSigner {
     		);
         }
         catch(final Exception e) {
-            throw new AOException("No se ha podido crear la estructura de certificados", e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+            throw new AOException("No se ha podido crear la estructura de certificados", e); //$NON-NLS-1$
         }
 
         final SignerIdentifier signerIdentifier = new SignerIdentifier(
@@ -251,7 +250,7 @@ public final class CAdESTriPhaseSigner {
             asn1SignedAttributes = (ASN1Set) ASN1Primitive.fromByteArray(signedAttributes);
         }
         catch (final IOException e) {
-            throw new AOException("Error en la inclusion de la recuperacion de los SignedAttibutes", e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+            throw new AOException("Error en la inclusion de la recuperacion de los SignedAttibutes", e); //$NON-NLS-1$
         }
 
         // SignerInfo
@@ -276,7 +275,7 @@ public final class CAdESTriPhaseSigner {
                 msg.write(baos);
             }
             catch (final Exception e) {
-                throw new AOException("Error en la escritura del contenido implicito en el ContentInfo", e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+                throw new AOException("Error en la escritura del contenido implicito en el ContentInfo", e); //$NON-NLS-1$
             }
             contentInfo = new ContentInfo(
         		new ASN1ObjectIdentifier(
@@ -331,9 +330,7 @@ public final class CAdESTriPhaseSigner {
 			).getEncoded(ASN1Encoding.DER);
 		}
         catch (final IOException e) {
-			throw new AOException("Error creando el ContentInfo de CAdES: " + e, e, BinaryErrorCode.Internal.INTERNAL_BINARY_SIGNING_ERROR); //$NON-NLS-1$
+			throw new AOException("Error creando el ContentInfo de CAdES", e); //$NON-NLS-1$
 		}
-
     }
-
 }

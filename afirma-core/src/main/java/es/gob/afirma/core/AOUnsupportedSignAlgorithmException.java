@@ -20,18 +20,15 @@ public final class AOUnsupportedSignAlgorithmException extends AOException {
 	private static final long serialVersionUID = 5925504116235792982L;
 
 	/** Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n. */
+     * @param msg Mensaje descriptivo de la excepci&oacute;n. */
     public AOUnsupportedSignAlgorithmException(final String msg) {
-        super(msg, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM);
+        super(msg);
     }
 
     /** Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg
-     *        Mensaje descriptivo de la excepci&oacute;n.
-     * @param e
-     *        Excepci&oacute;n que ha causado el lanzamiento de esta. */
+     * @param msg Mensaje descriptivo de la excepci&oacute;n.
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta. */
     public AOUnsupportedSignAlgorithmException(final String msg, final Exception e) {
-        super(msg, e, ErrorCode.Request.UNSUPPORTED_SIGNATURE_ALGORITHM);
+        super(msg, e);
     }
 }

@@ -38,7 +38,6 @@ import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.pades.common.BadPdfPasswordException;
-import es.gob.afirma.signers.pades.common.PdfErrorCode;
 import es.gob.afirma.signers.pades.common.PdfExtraParams;
 import es.gob.afirma.signers.pades.common.PdfHasUnregisteredSignaturesException;
 import es.gob.afirma.signers.pades.common.PdfIsPasswordProtectedException;
@@ -87,8 +86,7 @@ public final class PdfSessionManager {
                                                     final Calendar signTime,
                                                     final Properties xParams,
                                                     final boolean secureMode) throws IOException,
-                                                                                         InvalidPdfException,
-                                                                                         AOException {
+                                                                                     AOException {
 
 		// *********************************************************************************************************************
 		// **************** LECTURA PARAMETROS ADICIONALES *********************************************************************
@@ -136,8 +134,7 @@ public final class PdfSessionManager {
 			inPDF = pdfBytes;
 		}
 
-		final PdfReader pdfReader = PdfUtil.getPdfReader(inPDF, extraParams,
-				Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.HEADLESS)));
+		final PdfReader pdfReader = PdfUtil.getPdfReader(inPDF, extraParams);
 
 		// Nombre del subfiltro de firma en el diccionario PDF
 		String signatureSubFilter = extraParams.getProperty(PdfExtraParams.SIGNATURE_SUBFILTER);
@@ -368,8 +365,7 @@ public final class PdfSessionManager {
 			);
 		}
 		catch (final DocumentException e) {
-			LOGGER.severe("Error al crear la firma para estampar: " + e); //$NON-NLS-1$
-			throw new AOException("Error al crear la firma para estampar", e, PdfErrorCode.Internal.INTERNAL_PADES_SIGNING_ERROR); //$NON-NLS-1$
+			throw new AOException("Error al crear la firma para estampar", e); //$NON-NLS-1$
 		}
 		catch (final BadPasswordException e) {
 			// Devolvemos una excepcion u otra segun si se nos proporciono
@@ -598,8 +594,7 @@ public final class PdfSessionManager {
 			sap.preClose(exc, signTime, pages);
 		}
 		catch (final DocumentException e) {
-			LOGGER.severe("Error al estampar la firma: " + e); //$NON-NLS-1$
-			throw new AOException("Error al estampar la firma", e, PdfErrorCode.Internal.INTERNAL_PADES_SIGNING_ERROR); //$NON-NLS-1$
+			throw new AOException("Error al estampar la firma", e); //$NON-NLS-1$
 		}
 
 		final PdfObject pdfObject = ((com.aowagie.text.pdf.PdfStamperImp) stp.getWriter()).getFileID();

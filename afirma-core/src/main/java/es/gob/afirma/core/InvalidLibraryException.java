@@ -14,7 +14,7 @@ package es.gob.afirma.core;
  * porque se ha instalado un JAR inapropiadamente como extensi&oacute;n del JRE.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s
  */
-public class InvalidLibraryException extends AORuntimeException {
+public class InvalidLibraryException extends RuntimeException {
 	private static final long serialVersionUID = -8418397871871426778L;
 
 	/**
@@ -22,7 +22,7 @@ public class InvalidLibraryException extends AORuntimeException {
 	 * @param msg Mensaje de la excepci&oacute;n.
 	 */
 	public InvalidLibraryException(final String msg) {
-		super(msg, ErrorCode.Internal.LIBRARY_NOT_FOUND);
+		super(msg);
 	}
 
 	/**
@@ -31,25 +31,6 @@ public class InvalidLibraryException extends AORuntimeException {
 	 * @param e Excepci&oacute;n original.
 	 */
 	public InvalidLibraryException(final String msg, final Throwable e) {
-		super(msg, e, ErrorCode.Internal.LIBRARY_NOT_FOUND);
-	}
-
-	/**
-	 * Crea una nueva instancia de la excepci&oacute;n.
-	 * @param msg Mensaje de la excepci&oacute;n.
-	 * @param code C&oacute;digo de error.
-	 */
-	public InvalidLibraryException(final String msg, final ErrorCode code) {
-		super(msg, code);
-	}
-
-	/**
-	 * Crea una nueva instancia de la excepci&oacute;n.
-	 * @param msg Mensaje de la excepci&oacute;n
-	 * @param e Excepci&oacute;n original.
-	 * @param code C&oacute;digo de error.
-	 */
-	public InvalidLibraryException(final String msg, final Throwable e, final ErrorCode code) {
-		super(msg, e, code);
+		super(msg, e);
 	}
 }
