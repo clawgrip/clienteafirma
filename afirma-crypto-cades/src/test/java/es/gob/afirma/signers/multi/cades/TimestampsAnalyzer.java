@@ -5,20 +5,19 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.spongycastle.asn1.ASN1Encodable;
-import org.spongycastle.asn1.cms.Attribute;
-import org.spongycastle.asn1.cms.AttributeTable;
-import org.spongycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.spongycastle.cert.X509CertificateHolder;
-import org.spongycastle.cms.CMSException;
-import org.spongycastle.cms.CMSSignedData;
-import org.spongycastle.cms.SignerInformation;
-import org.spongycastle.tsp.TimeStampToken;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.tsp.TimeStampToken;
 
 import es.gob.afirma.core.signers.AOTimestampInfo;
 
@@ -53,10 +52,8 @@ final class TimestampsAnalyzer {
 
 		final List<AOTimestampInfo> ret = new ArrayList<>();
 
-		final Iterator<SignerInformation> i = signedData.getSignerInfos().getSigners().iterator();
-		while (i.hasNext()) {
+		for (final SignerInformation signerInformation : signedData.getSignerInfos().getSigners()) {
 
-			final SignerInformation signerInformation = i.next();
 			final AttributeTable at = signerInformation.getUnsignedAttributes();
 
 			if (at != null) {
@@ -76,17 +73,15 @@ final class TimestampsAnalyzer {
 				        tst = new TimeStampToken(sd);
 
 						final Collection<X509CertificateHolder> col = sd.getCertificates().getMatches(null);
-						if (!col.isEmpty()) {
-								final org.spongycastle.asn1.x509.Certificate c = ((X509CertificateHolder)col.toArray()[0]).toASN1Structure();
-								cert = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate( //$NON-NLS-1$
-									new ByteArrayInputStream(
-										c.getEncoded()
-									)
-								);
-						}
-						else {
+						if (col.isEmpty()) {
 							continue;
 						}
+						final org.bouncycastle.asn1.x509.Certificate c = ((X509CertificateHolder)col.toArray()[0]).toASN1Structure();
+						cert = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate( //$NON-NLS-1$
+							new ByteArrayInputStream(
+								c.getEncoded()
+							)
+						);
 
 					}
 					catch (final Exception e) {

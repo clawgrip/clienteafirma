@@ -6,16 +6,16 @@ import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.spongycastle.asn1.ASN1Encodable;
-import org.spongycastle.asn1.ASN1ObjectIdentifier;
-import org.spongycastle.asn1.cms.Attribute;
-import org.spongycastle.asn1.cms.AttributeTable;
-import org.spongycastle.cms.CMSSignedData;
-import org.spongycastle.cms.SignerInformation;
-import org.spongycastle.cms.SignerInformationStore;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
@@ -23,13 +23,12 @@ import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.signers.cades.AOCAdESSigner;
 import es.gob.afirma.signers.cades.CAdESExtraParams;
 
-public class TestCosignMimeType {
+class TestCosignMimeType {
 
 	private static final String ATTR_MIMETYPE_OID = "0.4.0.1733.2.1"; //$NON-NLS-1$
 
 	/** MimeType de los datos. */
 	private static final String MIMETYPE_JPEG = "image/jpeg"; //$NON-NLS-1$
-
 
 	private static final String OID_PDF = "1.2.840.10003.5.109.1"; //$NON-NLS-1$
 	private static final String MIMETYPE_PDF = "application/pdf"; //$NON-NLS-1$
@@ -65,8 +64,8 @@ public class TestCosignMimeType {
 	private PrivateKeyEntry signPke;
 	private PrivateKeyEntry cosignPke;
 
-	@Before
-	public void loadData() throws IOException {
+	@BeforeAll
+	void loadData() throws IOException {
 		this.jpegData = loadFileData(FILENAME_JPG);
 		this.unknownData = loadFileData(FILENAME_UNKNOWN);
 	}
@@ -80,28 +79,24 @@ public class TestCosignMimeType {
 		return data;
 	}
 
-	@Before
-	public void loadPrivateKeyEntries() throws Exception {
+	@BeforeAll
+	void loadPrivateKeyEntries() throws Exception {
 
 		KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(SIGN_CERT_PATH)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(SIGN_CERT_PATH)) {
 			ks.load(is, SIGN_CERT_PASS.toCharArray());
 		}
 		this.signPke = (PrivateKeyEntry) ks.getEntry(SIGN_CERT_ALIAS, new KeyStore.PasswordProtection(SIGN_CERT_PASS.toCharArray()));
 
 		ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_COSIGN)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_COSIGN)) {
 			ks.load(is, CERT_PASS_TO_COSIGN.toCharArray());
 		}
 		this.cosignPke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_COSIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_COSIGN.toCharArray()));
 	}
 
-	@Before
-	public void generateSignatures() throws Exception {
+	@BeforeAll
+	void generateSignatures() throws Exception {
 
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.MODE, AOSignConstants.SIGN_MODE_IMPLICIT);
@@ -147,13 +142,12 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesPorDefecto() throws Exception {
-
+	void cadesPorDefecto() throws Exception {
 		final Properties extraParams = new Properties();
 		final byte[] cosignature = cosign(this.signatureImplicitWithMimeTypePng, extraParams);
 		final String mimeType = getMimeType(cosignature);
 
-		Assert.assertNull("No se debe agregar el mimetype a las cofirmas CAdES por defecto", mimeType); //$NON-NLS-1$
+		Assertions.assertNull(mimeType, "No se debe agregar el mimetype a las cofirmas CAdES por defecto"); //$NON-NLS-1$
 	}
 
 	/**
@@ -162,14 +156,14 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeIndicandolo() throws Exception {
+	void cadesConMimeTypeIndicandolo() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		extraParams.setProperty(CAdESExtraParams.CONTENT_MIME_TYPE, MIMETYPE_PDF);
 		final byte[] signature = cosign(this.signatureImplicitWithMimeTypePng, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType indicado", MIMETYPE_PDF, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_PDF, mimeType, "No se ha agregado el MimeType indicado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -179,14 +173,14 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeIndicandoOid() throws Exception {
+	void cadesConMimeTypeIndicandoOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		extraParams.setProperty(CAdESExtraParams.CONTENT_TYPE_OID, OID_PDF);
 		final byte[] signature = cosign(this.signatureImplicitWithMimeTypePng, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType del OID indicado", MIMETYPE_PDF, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_PDF, mimeType, "No se ha agregado el MimeType del OID indicado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -196,13 +190,13 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaConEl() throws Exception {
+	void cadesConMimeTypeSinIndicarYFirmaConEl() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		final byte[] signature = cosign(this.signatureImplicitWithMimeTypePng, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType de los datos", MIMETYPE_PNG, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_PNG, mimeType, "No se ha agregado el MimeType de los datos"); //$NON-NLS-1$
 	}
 
 	/**
@@ -213,13 +207,13 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaConOid() throws Exception {
+	void cadesConMimeTypeSinIndicarYFirmaConOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		final byte[] signature = cosign(this.signatureExplicitWithContentTypePng, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType de los datos", MIMETYPE_PNG, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_PNG, mimeType, "No se ha agregado el MimeType de los datos"); //$NON-NLS-1$
 	}
 
 	/**
@@ -229,13 +223,13 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaConMimeTypeyOid() throws Exception {
+	void cadesConMimeTypeSinIndicarYFirmaConMimeTypeyOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		final byte[] signature = cosign(this.signatureExplicitWithContentTypeAndMimeTypePng, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType de los datos", MIMETYPE_PNG, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_PNG, mimeType, "No se ha agregado el MimeType de los datos"); //$NON-NLS-1$
 	}
 
 	/**
@@ -246,13 +240,13 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaImplicitaSinTipo() throws Exception {
+	void cadesConMimeTypeSinIndicarYFirmaImplicitaSinTipo() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		final byte[] signature = cosign(this.signatureImplicitWithoutMimeTypeUnknownData, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType por defecto", DEFAULT_MIMETYPE, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(DEFAULT_MIMETYPE, mimeType, "No se ha agregado el MimeType por defecto"); //$NON-NLS-1$
 	}
 
 	/**
@@ -263,13 +257,13 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
-	public void cadesConMimeTypeSinIndicarYFirmaSinDatosNiMimeType() throws Exception {
+	void cadesConMimeTypeSinIndicarYFirmaSinDatosNiMimeType() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
 		final byte[] signature = cosign(this.signatureExplicitWithoutMimeType, extraParams);
 		final String mimeType = getMimeType(signature);
 
-		Assert.assertEquals("No se ha agregado el MimeType por defecto", MIMETYPE_JPEG, mimeType); //$NON-NLS-1$
+		Assertions.assertEquals(MIMETYPE_JPEG, mimeType, "No se ha agregado el MimeType por defecto"); //$NON-NLS-1$
 	}
 
 	/**
@@ -280,14 +274,14 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	private byte[] sign(final byte[] data, final Properties extraParams) throws Exception {
-
 		final AOSigner signer = new AOCAdESSigner();
 		return signer.sign(
-				data,
-				"SHA512withRSA", //$NON-NLS-1$
-				this.signPke.getPrivateKey(),
-				this.signPke.getCertificateChain(),
-				extraParams);
+			data,
+			"SHA512withRSA", //$NON-NLS-1$
+			this.signPke.getPrivateKey(),
+			this.signPke.getCertificateChain(),
+			extraParams
+		);
 	}
 
 	/**
@@ -298,14 +292,14 @@ public class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	private byte[] cosign(final byte[] signature, final Properties extraParams) throws Exception {
-
 		final AOSigner signer = new AOCAdESSigner();
 		return signer.cosign(
-				signature,
-				"SHA512withRSA", //$NON-NLS-1$
-				this.cosignPke.getPrivateKey(),
-				this.cosignPke.getCertificateChain(),
-				extraParams);
+			signature,
+			"SHA512withRSA", //$NON-NLS-1$
+			this.cosignPke.getPrivateKey(),
+			this.cosignPke.getCertificateChain(),
+			extraParams
+		);
 	}
 
 	/**
@@ -333,4 +327,3 @@ public class TestCosignMimeType {
 		return null;
 	}
 }
-

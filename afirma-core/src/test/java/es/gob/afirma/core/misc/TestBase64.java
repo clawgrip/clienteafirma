@@ -3,13 +3,13 @@ package es.gob.afirma.core.misc;
 import java.io.InputStream;
 import java.util.zip.CRC32;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Pruebas de codificaci&oacute;n en Base64. */
-public final class TestBase64 {
+final class TestBase64 {
 
-	private static String[] TEST_FILES = new String[] {
+	private static final String[] TEST_FILES = {
 		"excel.xls", //$NON-NLS-1$
 		"pdf.pdf", //$NON-NLS-1$
 		"powerpoint.ppt", //$NON-NLS-1$
@@ -25,7 +25,7 @@ public final class TestBase64 {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testBase64Encoding() throws Exception {
+	void testBase64Encoding() throws Exception {
 		for (final String f : TEST_FILES) {
 			final byte[] data;
 			try (
@@ -48,7 +48,7 @@ public final class TestBase64 {
 			// Volvemos a calcular el CRC y vemos si coincide con el original
 			crc.reset();
 			crc.update(newBin);
-			Assert.assertEquals(crcl, crc.getValue());
+			Assertions.assertEquals(crcl, crc.getValue());
 		}
 	}
 }

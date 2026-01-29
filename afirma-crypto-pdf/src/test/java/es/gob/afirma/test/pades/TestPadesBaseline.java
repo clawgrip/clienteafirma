@@ -3,6 +3,7 @@ package es.gob.afirma.test.pades;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -10,11 +11,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSimpleSignInfo;
@@ -24,7 +24,7 @@ import es.gob.afirma.signers.cades.CAdESExtraParams;
 import es.gob.afirma.signers.pades.AOPDFSigner;
 import es.gob.afirma.signers.pades.common.PdfExtraParams;
 
-public class TestPadesBaseline {
+final class TestPadesBaseline {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -52,11 +52,11 @@ public class TestPadesBaseline {
 
 	private AOPDFSigner signer = null;
 
-	/** Antes de ejecutar cualquier prueba se ejecutar&aacute; este m&eacute;todo que cargar6aacute;
+	/** Antes de ejecutar cualquier prueba se cargan
 	 * todos los objetos que se vaya a necesitar en las distintas pruebas.
 	 * @throws Exception En cualquier error. */
-	@Before
-	public void loadParams() throws Exception {
+	@BeforeAll
+	void loadParams() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 
@@ -90,11 +90,13 @@ public class TestPadesBaseline {
 		this.contentHintParams.setProperty(CAdESExtraParams.CONTENT_DESCRIPTION, "JPEG Image"); //$NON-NLS-1$
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_SIGN), CERT_PASS_TO_SIGN.toCharArray());
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_SIGN)) {
+			ks.load(is, CERT_PASS_TO_SIGN.toCharArray());
+		}
 		this.pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_SIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_SIGN.toCharArray()));
 
-		try {
-			this.data = AOUtil.getDataFromInputStream(TestPadesBaseline.class.getResourceAsStream("/" + DATA_FILE)); //$NON-NLS-1$
+		try (InputStream is = TestPadesBaseline.class.getResourceAsStream("/" + DATA_FILE)) { //$NON-NLS-1$
+			this.data = AOUtil.getDataFromInputStream(is);
 		}
 		catch (final IOException e) {
 			LOGGER.log(Level.SEVERE, "No se ha podido cargar el fichero de pruebas: " + DATA_FILE, e);  //$NON-NLS-1$
@@ -106,7 +108,7 @@ public class TestPadesBaseline {
 	/** Firma baseline.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaseline() throws Exception {
+	void testFirmaBaseline() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -115,7 +117,7 @@ public class TestPadesBaseline {
 				this.baselineParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaseline: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -124,7 +126,7 @@ public class TestPadesBaseline {
 	 * localizacion e informacion de contacto.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConMetadatos() throws Exception {
+	void testFirmaBaselineConMetadatos() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -134,7 +136,7 @@ public class TestPadesBaseline {
 				add(this.baselineParams, this.metadataParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConMetadatos: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -142,17 +144,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con commitment-type-indications.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConCommitmentTypeIndications() throws Exception {
+	void testFirmaBaselineConCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.commitmentTypeIndicationsParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -160,17 +161,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con roles declarados.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConRoles() throws Exception {
+	void testFirmaBaselineConRoles() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConRoles: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -178,17 +178,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica de firma.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConPolitica() throws Exception {
+	void testFirmaBaselineConPolitica() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.policyParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConPolitica: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -196,17 +195,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con Content-Hint.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConContentHint() throws Exception {
+	void testFirmaBaselineConContentHint() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.metadataParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConContentHint: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -214,17 +212,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica de firma y raz&oacute;n de firma.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConPoliticaYReason() throws Exception {
+	void testFirmaBaselineConPoliticaYReason() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.policyParams, this.metadataParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConPoliticaYReason: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -232,17 +229,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica de firma y commitment type indications.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConPoliticaYCommitmentTypeIndications() throws Exception {
+	void testFirmaBaselineConPoliticaYCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.policyParams, this.commitmentTypeIndicationsParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConPoliticaYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -253,17 +249,16 @@ public class TestPadesBaseline {
 	 * el atributo CommitmentTypeIndications.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineSinPoliticaYConCommitmentTypeIndications() throws Exception {
+	void testFirmaBaselineSinPoliticaYConCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineSinPoliticaYConCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -271,17 +266,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con raz&oacute;n de firma y commitment type indications.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConReasonYCommitmentTypeIndications() throws Exception {
+	void testFirmaBaselineConReasonYCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConReasonYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -289,17 +283,16 @@ public class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica, raz&oacute;n de firma y commitment type indications.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testFirmaBaselineConPoliticaReasonYCommitmentTypeIndications() throws Exception {
+	void testFirmaBaselineConPoliticaReasonYCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
 
 		final byte[] result = this.signer.sign(
 				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
 				add(this.baselineParams, this.policyParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestPadesBaseline() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testFirmaBaselineConPoliticaReasonYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkSign(result, algorithm);
 	}
@@ -329,9 +322,8 @@ public class TestPadesBaseline {
 	 */
 	private static File saveTempFile(final byte[] data) throws IOException {
 		final File saveFile = File.createTempFile("testSign-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-		try ( final OutputStream os = new FileOutputStream(saveFile) ) {
+		try (OutputStream os = new FileOutputStream(saveFile) ) {
 			os.write(data);
-			os.flush();
 		}
 		return saveFile;
 	}
@@ -340,22 +332,18 @@ public class TestPadesBaseline {
 	 * Realiza las comprobaciones necesarias sobre la firma generada.
 	 * @param signature Firma generada.
 	 * @param algorithm Algoritmo de firma empleado en la nueva firma.
-	 * @throws IOException Cuando ocurre un error al leer la firma.
-	 * @throws AOException Cuando ocurre un error al extraer los datos originalmente firmados.
 	 */
-	private void checkSign(final byte[] signature, final String algorithm) throws IOException, AOException {
+	private void checkSign(final byte[] signature, final String algorithm) {
 
-		Assert.assertNotNull("Se ha obtenido una firma nula", signature); //$NON-NLS-1$
-		Assert.assertTrue("La firma no se reconoce como firma PAdES", this.signer.isSign(signature)); //$NON-NLS-1$
-
+		Assertions.assertNotNull(signature, "Se ha obtenido una firma nula"); //$NON-NLS-1$
+		Assertions.assertTrue(this.signer.isSign(signature), "La firma no se reconoce como firma PAdES"); //$NON-NLS-1$
 
 		final AOTreeModel tree = this.signer.getSignersStructure(signature, true);
 
 		final AOTreeNode rootNode = (AOTreeNode) tree.getRoot();
-		Assert.assertEquals("No se interpreto correctamente la estructura de la firma", "Datos", rootNode.getUserObject()); //$NON-NLS-1$ //$NON-NLS-2$
+		Assertions.assertEquals("Datos", rootNode.getUserObject(), "No se interpreto correctamente la estructura de la firma"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		AOSimpleSignInfo signInfo = null;
-
 		for (int i = 0; i < rootNode.getChildCount(); i++) {
 			final AOSimpleSignInfo currrentSignInfo = (AOSimpleSignInfo) rootNode.getChildAt(i).getUserObject();
 			if (this.pke.getCertificate().equals(currrentSignInfo.getCerts()[0])) {
@@ -364,8 +352,8 @@ public class TestPadesBaseline {
 			}
 		}
 
-		Assert.assertNotNull("No se encontro la cofirma generada en la nueva estructura de firma", signInfo); //$NON-NLS-1$
-		Assert.assertEquals("El algoritmo de firma no es el esperado", algorithm, signInfo.getSignAlgorithm()); //$NON-NLS-1$
-		Assert.assertNotNull("No se encontro la hora de firma", signInfo.getSigningTime()); //$NON-NLS-1$
+		Assertions.assertNotNull(signInfo, "No se encontro la cofirma generada en la nueva estructura de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(algorithm, signInfo.getSignAlgorithm(), "El algoritmo de firma no es el esperado"); //$NON-NLS-1$
+		Assertions.assertNotNull(signInfo.getSigningTime(), "No se encontro la hora de firma"); //$NON-NLS-1$
 	}
 }

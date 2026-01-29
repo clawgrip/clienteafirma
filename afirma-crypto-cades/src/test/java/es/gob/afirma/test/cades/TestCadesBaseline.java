@@ -8,13 +8,14 @@ import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.signers.cades.AOCAdESSigner;
 
-public class TestCadesBaseline {
+class TestCadesBaseline {
 
     private static final String CERT_PATH = "PruebaEmpleado4Activo.p12"; //$NON-NLS-1$
     private static final String CERT_PASS = "Giss2016"; //$NON-NLS-1$
@@ -23,32 +24,29 @@ public class TestCadesBaseline {
 	private PrivateKeyEntry pke;
 	private byte[] data;
 
-	@Before
-	public void init() throws Exception {
+	@BeforeAll
+	void init() throws Exception {
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
 			ks.load(is, CERT_PASS.toCharArray());
 		}
 		this.pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
 
-		try (
-			final InputStream is = TestCadesBaseline.class.getResourceAsStream("/rubric.jpg") //$NON-NLS-1$
-		) {
+		try (InputStream is = TestCadesBaseline.class.getResourceAsStream("/rubric.jpg")) { //$NON-NLS-1$
 			this.data = AOUtil.getDataFromInputStream(is);
 		}
 	}
 
 	@Test
-	public void testCadesBLevelDefault() throws Exception {
+	void testCadesBLevelDefault() throws Exception {
 
 		final Properties extraParams = new Properties();
 		extraParams.setProperty("profile", "baseline"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
 		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_default_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
 		try (final OutputStream fos = new FileOutputStream(outputFile)) {
@@ -59,7 +57,7 @@ public class TestCadesBaseline {
 	}
 
 	@Test
-	public void testCadesBLevelImplicit() throws Exception {
+	void testCadesBLevelImplicit() throws Exception {
 
 		final Properties extraParams = new Properties();
 		extraParams.setProperty("profile", "baseline"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -67,6 +65,7 @@ public class TestCadesBaseline {
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
 		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_implicita_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
 		try (final OutputStream fos = new FileOutputStream(outputFile)) {
@@ -77,7 +76,7 @@ public class TestCadesBaseline {
 	}
 
 	@Test
-	public void testCadesBLevelWithRoles() throws Exception {
+	void testCadesBLevelWithRoles() throws Exception {
 
 		final Properties extraParams = new Properties();
 		extraParams.setProperty("profile", "baseline"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -86,6 +85,7 @@ public class TestCadesBaseline {
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
 		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_con_roles_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
 		try (final OutputStream fos = new FileOutputStream(outputFile)) {
@@ -96,7 +96,7 @@ public class TestCadesBaseline {
 	}
 
 	@Test
-	public void testCadesBLevelWithRolesAndPolicy() throws Exception {
+	void testCadesBLevelWithRolesAndPolicy() throws Exception {
 
 		final Properties extraParams = new Properties();
 		extraParams.setProperty("profile", "baseline"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -110,6 +110,7 @@ public class TestCadesBaseline {
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
 		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_con_roles_y_politica_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
 		try (final OutputStream fos = new FileOutputStream(outputFile)) {

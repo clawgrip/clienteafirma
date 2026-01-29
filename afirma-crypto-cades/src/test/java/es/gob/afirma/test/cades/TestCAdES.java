@@ -23,8 +23,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
@@ -38,7 +38,7 @@ import es.gob.afirma.signers.cades.CAdESValidator;
 
 /** Pruebas del m&oacute;dulo CAdES de Afirma.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
-public final class TestCAdES {
+final class TestCAdES {
 
     private static final String CERT_PATH = "PruebaEmpleado4Activo.p12"; //$NON-NLS-1$
     private static final String CERT_PASS = "Giss2016"; //$NON-NLS-1$
@@ -52,9 +52,7 @@ public final class TestCAdES {
 	private static final List<byte[]> DATA = new ArrayList<>(2);
 	static {
 		for (final String dataFile : DATA_FILES) {
-			try (
-				final InputStream is = TestCAdES.class.getResourceAsStream("/" + dataFile) //$NON-NLS-1$
-			) {
+			try (InputStream is = TestCAdES.class.getResourceAsStream("/" + dataFile)) { //$NON-NLS-1$
 				DATA.add(AOUtil.getDataFromInputStream(is));
 			}
 			catch (final IOException e) {
@@ -103,7 +101,7 @@ public final class TestCAdES {
 	}
 
 	/** Algoritmos de firma a probar. */
-	private final static String[] ALGOS = new String[] {
+	private static final String[] ALGOS = {
 //		AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 		AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 //		AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
@@ -114,14 +112,12 @@ public final class TestCAdES {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testJpegSign() throws Exception {
+	void testJpegSign() throws Exception {
 
 		final PrivateKeyEntry pke;
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
 			ks.load(is, CERT_PASS.toCharArray());
 		}
 		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
@@ -132,17 +128,14 @@ public final class TestCAdES {
 		p.put("mode", AOSignConstants.SIGN_MODE_EXPLICIT); //$NON-NLS-1$
 
 		final byte[] data;
-		try (
-			final InputStream is = TestCAdES.class.getResourceAsStream("/rubric.jpg") //$NON-NLS-1$
-		) {
+		try (InputStream is = TestCAdES.class.getResourceAsStream("/rubric.jpg")) { //$NON-NLS-1$
 			data = AOUtil.getDataFromInputStream(is);
 		}
 
 		final byte[] sign = signer.sign(data, "SHA512withRSA", pke.getPrivateKey(), pke.getCertificateChain(), p); //$NON-NLS-1$
+		Assertions.assertNotNull(sign);
 
-		try (
-			final OutputStream fos = new FileOutputStream(File.createTempFile("JPG_", ".csig")) //$NON-NLS-1$ //$NON-NLS-2$
-		) {
+		try (OutputStream fos = new FileOutputStream(File.createTempFile("JPG_", ".csig"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			fos.write(sign);
 		}
 	}
@@ -151,25 +144,14 @@ public final class TestCAdES {
 	 * @throws Exception en cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testSignature() throws Exception {
-		/*
-      es.gob.afirma.platform.ws.TestSignVerifier verifier = null;
-      try {
-          verifier = new TestSignVerifier();
-      }
-      catch (Exception e) {
-          System.out.println("No se ha podido inicializar el validador de firmas, no se validaran como parte de las pruebas: " + e); //$NON-NLS-1$
-      }
-		 */
+	void testSignature() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 		final PrivateKeyEntry pke;
 		final X509Certificate cert;
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
 			ks.load(is, CERT_PASS.toCharArray());
 		}
 		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
@@ -200,38 +182,25 @@ public final class TestCAdES {
 					);
 
 					final File saveFile = File.createTempFile(algo + "-", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
-					try (
-						final OutputStream os = new FileOutputStream(saveFile)
-					) {
+					try (OutputStream os = new FileOutputStream(saveFile)) {
 						os.write(result);
-						os.flush();
 					}
 					System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
-					// Enviamos a validar a AFirma
-					//              if (verifier != null) {
-					//                  Assert.assertTrue("Fallo al validar " + saveFile.getAbsolutePath(), verifier.verifyBin(result)); //$NON-NLS-1$
-					//              }
-
-					Assert.assertNotNull(prueba, result);
-					Assert.assertTrue(signer.isSign(result));
-					Assert.assertTrue(CAdESValidator.isCAdESValid(result, AOSignConstants.CMS_CONTENTTYPE_SIGNEDDATA, true));
+					Assertions.assertNotNull(result, prueba);
+					Assertions.assertTrue(signer.isSign(result));
+					Assertions.assertTrue(CAdESValidator.isCAdESValid(result, AOSignConstants.CMS_CONTENTTYPE_SIGNEDDATA, true));
 
 					AOTreeModel tree = signer.getSignersStructure(result, false);
-					Assert.assertEquals("Datos", ((AOTreeNode) tree.getRoot()).getUserObject()); //$NON-NLS-1$
-					Assert.assertEquals("PRUEBA4EMPN P4EMPAPE1 P4EMPAPE2 - 00000000T", ((AOTreeNode) tree.getRoot()).getChildAt(0).getUserObject()); //$NON-NLS-1$
+					Assertions.assertEquals("Datos", ((AOTreeNode) tree.getRoot()).getUserObject()); //$NON-NLS-1$
+					Assertions.assertEquals("PRUEBA4EMPN P4EMPAPE1 P4EMPAPE2 - 00000000T", ((AOTreeNode) tree.getRoot()).getChildAt(0).getUserObject()); //$NON-NLS-1$
 
 					tree = signer.getSignersStructure(result, true);
-					Assert.assertEquals("Datos", ((AOTreeNode) tree.getRoot()).getUserObject()); //$NON-NLS-1$
+					Assertions.assertEquals("Datos", ((AOTreeNode) tree.getRoot()).getUserObject()); //$NON-NLS-1$
 					final AOSimpleSignInfo simpleSignInfo = (AOSimpleSignInfo) ((AOTreeNode) tree.getRoot()).getChildAt(0).getUserObject();
 
-					//                Assert.assertEquals("CAdES", simpleSignInfo.getSignFormat());
-					//                Assert.assertEquals(algo, simpleSignInfo.getSignAlgorithm());
-					Assert.assertNotNull(simpleSignInfo.getSigningTime());
-					Assert.assertEquals(cert, simpleSignInfo.getCerts()[0]);
-
-
-					//System.out.println(prueba + ": OK"); //$NON-NLS-1$
+					Assertions.assertNotNull(simpleSignInfo.getSigningTime());
+					Assertions.assertEquals(cert, simpleSignInfo.getCerts()[0]);
 				}
 			}
 		}
@@ -242,15 +211,13 @@ public final class TestCAdES {
 	 * @throws Exception en cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testSignatureWithClaimedRoles() throws Exception {
+	void testSignatureWithClaimedRoles() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 		final PrivateKeyEntry pke;
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		try (
-			final InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)
-		) {
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
 			ks.load(is, CERT_PASS.toCharArray());
 		}
 		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
@@ -264,13 +231,11 @@ public final class TestCAdES {
 		final byte[] result = signer.sign(
 			DATA.get(0), AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pke.getPrivateKey(), pke.getCertificateChain(), extraParams
 		);
+		Assertions.assertNotNull(result);
 
 		final File saveFile = File.createTempFile("CAdES-ClaimedRoles-", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
-		try (
-			final OutputStream os = new FileOutputStream(saveFile)
-		) {
+		try (OutputStream os = new FileOutputStream(saveFile)) {
 			os.write(result);
-			os.flush();
 		}
 		System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 	}

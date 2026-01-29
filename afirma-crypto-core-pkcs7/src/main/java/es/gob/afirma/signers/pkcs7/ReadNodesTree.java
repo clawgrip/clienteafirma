@@ -21,21 +21,21 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.spongycastle.asn1.ASN1Encodable;
-import org.spongycastle.asn1.ASN1GeneralizedTime;
-import org.spongycastle.asn1.ASN1InputStream;
-import org.spongycastle.asn1.ASN1Integer;
-import org.spongycastle.asn1.ASN1ObjectIdentifier;
-import org.spongycastle.asn1.ASN1Sequence;
-import org.spongycastle.asn1.ASN1Set;
-import org.spongycastle.asn1.ASN1TaggedObject;
-import org.spongycastle.asn1.ASN1UTCTime;
-import org.spongycastle.asn1.cms.Attribute;
-import org.spongycastle.asn1.cms.CMSAttributes;
-import org.spongycastle.asn1.cms.IssuerAndSerialNumber;
-import org.spongycastle.asn1.cms.SignedData;
-import org.spongycastle.asn1.cms.SignerInfo;
-import org.spongycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1GeneralizedTime;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.ASN1UTCTime;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.CMSAttributes;
+import org.bouncycastle.asn1.cms.IssuerAndSerialNumber;
+import org.bouncycastle.asn1.cms.SignedData;
+import org.bouncycastle.asn1.cms.SignerInfo;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSimpleSignInfo;
@@ -49,9 +49,8 @@ public final class ReadNodesTree {
     private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
     private String stringRetorn = ""; //$NON-NLS-1$
-    private AOTreeNode rama;
-    private AOTreeNode rama2;
-    private int seleccionados[];
+
+    private int[] seleccionados;
     private final List<String> lista = new ArrayList<>();
     private final List<X509Certificate[]> listaCert = new ArrayList<>();
 
@@ -85,9 +84,7 @@ public final class ReadNodesTree {
 
         // LEEMOS EL FICHERO QUE NOS INTRODUCEN
     	final ASN1Sequence dsq;
-    	try (
-			final ASN1InputStream is = new ASN1InputStream(data);
-		) {
+    	try (ASN1InputStream is = new ASN1InputStream(data)) {
     		dsq = (ASN1Sequence) is.readObject();
     	}
         final Enumeration<?> contentsData = dsq.getObjects();
@@ -97,7 +94,7 @@ public final class ReadNodesTree {
 
         // Contenido de SignedData
         final ASN1TaggedObject doj = (ASN1TaggedObject) contentsData.nextElement();
-        final ASN1Sequence contentSignedData = (ASN1Sequence) doj.getObject();
+        final ASN1Sequence contentSignedData = (ASN1Sequence) doj.getBaseObject();
 
         // Raiz de la secuencia de SignerInfo
         // Obtenemos los signerInfos del SignedData
@@ -127,10 +124,10 @@ public final class ReadNodesTree {
                 final AOSimpleSignInfo aossi = new AOSimpleSignInfo(nameSigner, signingTime);
                 aossi.setPkcs1(si.getEncryptedDigest().getOctets());
                 aossi.setSignAlgorithm(getSignatureAlgorithm(si));
-                this.rama = new AOTreeNode(aossi);
+            	final AOTreeNode rama = new AOTreeNode(aossi);
                 this.listaCert.add(nameSigner);
-                getUnsignedAtributes(true, si.getUnauthenticatedAttributes(), this.rama, certificates);
-                raiz.add(this.rama);
+                getUnsignedAtributes(true, si.getUnauthenticatedAttributes(), rama, certificates);
+                raiz.add(rama);
             }
         }
         else if (signerInfosSd != null) {
@@ -139,11 +136,10 @@ public final class ReadNodesTree {
                 final IssuerAndSerialNumber issuerSerial = IssuerAndSerialNumber.getInstance(atribute.getObjectAt(1));
                 final String nameSigner = searchName(certificates, issuerSerial.getSerialNumber());
                 final SignerInfo si = SignerInfo.getInstance(atribute);
-                this.rama = new AOTreeNode(nameSigner);
+                final AOTreeNode rama = new AOTreeNode(nameSigner);
                 this.lista.add(nameSigner);
-                getUnsignedAtributes(false, si.getUnauthenticatedAttributes(), this.rama, certificates);
-
-                raiz.add(this.rama);
+                getUnsignedAtributes(false, si.getUnauthenticatedAttributes(), rama, certificates);
+                raiz.add(rama);
             }
         }
 
@@ -160,15 +156,20 @@ public final class ReadNodesTree {
     private static String translateDigestOid(final ASN1ObjectIdentifier oid) {
 
     	final String oidString = oid.toString();
-    	if (oidString.equals("2.16.840.1.101.3.4.2.3")) {	// Huella SHA512 //$NON-NLS-1$
-    		return "SHA512"; //$NON-NLS-1$
-    	} else if (oidString.equals("2.16.840.1.101.3.4.2.1")) {	// Huella SHA256 //$NON-NLS-1$
-    		return "SHA256"; //$NON-NLS-1$
-    	} else if (oidString.equals("2.16.840.1.101.3.4.2.2")) {	// Huella SHA384 //$NON-NLS-1$
-    		return "SHA384"; //$NON-NLS-1$
-    	} else if (oidString.equals("1.3.14.3.2.26")) {	// Huella SHA1 //$NON-NLS-1$
-     		return "SHA1"; //$NON-NLS-1$
-     	}
+    	if (oidString != null) {
+			switch (oidString) {
+			case "2.16.840.1.101.3.4.2.3": //$NON-NLS-1$
+				return "SHA512"; //$NON-NLS-1$
+			case "2.16.840.1.101.3.4.2.1": //$NON-NLS-1$
+				return "SHA256"; //$NON-NLS-1$
+			case "2.16.840.1.101.3.4.2.2": //$NON-NLS-1$
+				return "SHA384"; //$NON-NLS-1$
+			case "1.3.14.3.2.26": //$NON-NLS-1$
+				return "SHA1"; //$NON-NLS-1$
+			default:
+				break;
+			}
+		}
     	return oidString;
     }
 
@@ -177,15 +178,17 @@ public final class ReadNodesTree {
     	final String oidString = oid.toString();
     	if (AOAlgorithmID.isRSAOID(oidString)) {	// Firma RSA
     		return "RSA"; //$NON-NLS-1$
-    	} else if (AOAlgorithmID.isDSAOID(oidString)) {	// Firma DSA	
+    	}
+		if (AOAlgorithmID.isDSAOID(oidString)) {	// Firma DSA
     		return "DSA"; //$NON-NLS-1$
-    	} else if (AOAlgorithmID.isECDSAOID(oidString)) {	// Firma ECDSA	
+    	}
+		if (AOAlgorithmID.isECDSAOID(oidString)) {	// Firma ECDSA
     		return "ECDSA"; //$NON-NLS-1$
     	}
     	return oidString;
     }
 
-    /** M&eacute;todo para obtener las contrafirmas.
+    /** Obtiene las contrafirmas.
      * @param withCertificates <code>true</code> para hacer la obtenci&oacute;n con certificados, <code>false</code>
      *                         en caso contrario.
      * @param signerInfouAtrib Atributos en los que puede estar la contrafirma.
@@ -195,6 +198,7 @@ public final class ReadNodesTree {
     		                          final ASN1Set signerInfouAtrib,
     		                          final AOTreeNode ramahija,
     		                          final ASN1Set certificates) {
+        AOTreeNode rama2;
         if (signerInfouAtrib != null) {
             final Enumeration<?> eAtributes = signerInfouAtrib.getObjects();
             while (eAtributes.hasMoreElements()) {
@@ -214,24 +218,23 @@ public final class ReadNodesTree {
                                 final AOSimpleSignInfo aossi = new AOSimpleSignInfo(nameSigner, signingTime);
                                 aossi.setPkcs1(si.getEncryptedDigest().getOctets());
                                 aossi.setSignAlgorithm(getSignatureAlgorithm(si));
-                                this.rama2 = new AOTreeNode(aossi);
+                                rama2 = new AOTreeNode(aossi);
                                 this.listaCert.add(nameSigner);
-                                ramahija.add(this.rama2);
-                                getUnsignedAtributes(true, si.getUnauthenticatedAttributes(), this.rama2, certificates);
+                                ramahija.add(rama2);
+                                getUnsignedAtributes(true, si.getUnauthenticatedAttributes(), rama2, certificates);
                             }
                             else {
                                 final String nameSigner = searchName(certificates, issuerSerial.getSerialNumber());
-                                this.rama2 = new AOTreeNode(nameSigner);
+                                rama2 = new AOTreeNode(nameSigner);
                                 this.lista.add(nameSigner);
-                                ramahija.add(this.rama2);
-                                getUnsignedAtributes(false, si.getUnauthenticatedAttributes(), this.rama2, certificates);
+                                ramahija.add(rama2);
+                                getUnsignedAtributes(false, si.getUnauthenticatedAttributes(), rama2, certificates);
                             }
                         }
                     }
                 }
             }
         }
-
     }
 
     private static boolean isValideAttributeType(final ASN1ObjectIdentifier attributeType) {
@@ -279,7 +282,6 @@ public final class ReadNodesTree {
         Arrays.sort(solucion);// de mayor a menor
 
         return solucion;
-
     }
 
     /** Simplifica un array quitando los elementos repetidos.
@@ -289,9 +291,9 @@ public final class ReadNodesTree {
     public static int[] simplyArray(final int[] nodes) {
         final List<Integer> devolver = new ArrayList<>();
 
-        for (int i = 0; i < nodes.length; i++) {
-            if (!devolver.contains(Integer.valueOf(nodes[i]))) {
-                devolver.add(Integer.valueOf(nodes[i]));
+        for (final int node : nodes) {
+            if (!devolver.contains(Integer.valueOf(node))) {
+                devolver.add(Integer.valueOf(node));
             }
         }
         final int[] simplificado = new int[devolver.size()];
@@ -301,13 +303,11 @@ public final class ReadNodesTree {
         return simplificado;
     }
 
-    /** M&eacute;todo que, apartir de un numero de serie de un certificado,
+    /** A partir de un numero de serie de un certificado,
      * devuelve su nombre com&uacute;n (CN). De no existir el CN,
      * devolver&aacute; el nombre de la unidad organizativa.
-     * @param certificates
-     *        Certificados de los firmantes.
-     * @param serialNumber
-     *        N&uacute;mero de serie del certificado a firmar.
+     * @param certificates Certificados de los firmantes.
+     * @param serialNumber N&uacute;mero de serie del certificado a firmar.
      * @return El nombre com&uacute;n. */
     private static String searchName(final ASN1Set certificates, final ASN1Integer serialNumber) {
         final Enumeration<?> certSet = certificates.getObjects();

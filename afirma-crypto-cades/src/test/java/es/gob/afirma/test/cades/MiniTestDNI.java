@@ -11,6 +11,7 @@ package es.gob.afirma.test.cades;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -19,16 +20,16 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.signers.cades.CAdESParameters;
 import es.gob.afirma.signers.cades.GenCAdESEPESSignedData;
 
 /** Pruebas espec&iacute;ficas de CAdES para DNIe.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
-public final class MiniTestDNI {
+final class TestMiniDni {
 
     private static final String DNIE_DRIVER_PATH = "name=testdni\r\nlibrary=c:/windows/system32/UsrPkcs11.dll\r\nshowInfo=false"; //$NON-NLS-1$
 
@@ -41,9 +42,9 @@ public final class MiniTestDNI {
     /** Mini-prueba CAdES especifica para DNIe.
      * @throws Exception en caso de cualquier tipo de problema. */
     @SuppressWarnings({ "static-method" })
-    @Ignore // Necesita un DNIe
+    @Disabled("Necesita un DNIe")
 	@Test
-    public void testCAdESDNIe() throws Exception {
+    void testCAdESDNIe() throws Exception {
 
         final Constructor<?> sunPKCS11Contructor = Class.forName("sun.security.pkcs11.SunPKCS11").getConstructor(InputStream.class); //$NON-NLS-1$
 
@@ -71,13 +72,9 @@ public final class MiniTestDNI {
     		parameters
 		);
 
-        Assert.assertNotNull(firma);
-        try (
-    		final java.io.FileOutputStream fos = new java.io.FileOutputStream("C:/pruebas/salida/MiniTestCadesNuevo.csig"); //$NON-NLS-1$
-		) {
+        Assertions.assertNotNull(firma);
+        try (OutputStream fos = new java.io.FileOutputStream("C:/pruebas/salida/MiniTestCadesNuevo.csig")) { //$NON-NLS-1$
             fos.write(firma);
         }
-
     }
-
 }

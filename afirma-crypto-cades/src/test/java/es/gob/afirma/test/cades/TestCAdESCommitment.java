@@ -12,6 +12,7 @@ package es.gob.afirma.test.cades;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -21,7 +22,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
@@ -30,7 +32,7 @@ import es.gob.afirma.signers.cades.AOCAdESSigner;
 
 /** Pruebas del m&oacute;dulo CAdES de Afirma.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
-public final class TestCAdESCommitment {
+final class TestCAdESCommitment {
 
 	private static final String CERT_PATH = "ANF_PF_Activo.pfx"; //$NON-NLS-1$
 	private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
@@ -43,8 +45,8 @@ public final class TestCAdESCommitment {
 	private static final List<byte[]> DATA = new ArrayList<>(2);
 	static {
 		for (final String dataFile : DATA_FILES) {
-			try {
-				DATA.add(AOUtil.getDataFromInputStream(TestCAdESCommitment.class.getResourceAsStream(dataFile)));
+			try (InputStream is = TestCAdESCommitment.class.getResourceAsStream(dataFile)) {
+				DATA.add(AOUtil.getDataFromInputStream(is));
 			}
 			catch (final IOException e) {
 				Logger.getLogger("es.gob.afirma").severe("No se ha podido cargar el fichero de pruebas' " + dataFile + "': " + e);  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
@@ -75,7 +77,7 @@ public final class TestCAdESCommitment {
 	}
 
 	/** Algoritmos de firma a probar. */
-	private final static String[] ALGOS = new String[] {
+	private static final String[] ALGOS = {
 		AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 	};
 
@@ -83,13 +85,15 @@ public final class TestCAdESCommitment {
 	 * @throws Exception en cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testSignature() throws Exception {
+	void testSignature() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 		final PrivateKeyEntry pke;
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH), CERT_PASS.toCharArray());
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
 		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
 
 		final AOSigner signer = new AOCAdESSigner();
@@ -115,20 +119,15 @@ public final class TestCAdESCommitment {
 					final byte[] result = signer.sign(
 						DATA.get(i), algo, pke.getPrivateKey(), pke.getCertificateChain(), extraParams
 					);
+					Assertions.assertNotNull(prueba);
 
 					final File saveFile = File.createTempFile(algo + "-", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
-					try (
-						final OutputStream os = new FileOutputStream(saveFile);
-					) {
+					try (OutputStream os = new FileOutputStream(saveFile)) {
 						os.write(result);
-						os.flush();
 					}
 					System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
-
 				}
 			}
 		}
-
 	}
-
 }

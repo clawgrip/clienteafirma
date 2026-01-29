@@ -13,19 +13,19 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.logging.Logger;
 
-import org.spongycastle.asn1.ASN1InputStream;
-import org.spongycastle.asn1.ASN1ObjectIdentifier;
-import org.spongycastle.asn1.ASN1Sequence;
-import org.spongycastle.asn1.ASN1Set;
-import org.spongycastle.asn1.ASN1TaggedObject;
-import org.spongycastle.asn1.DEROctetString;
-import org.spongycastle.asn1.DERSet;
-import org.spongycastle.asn1.cms.CMSAttributes;
-import org.spongycastle.asn1.cms.ContentInfo;
-import org.spongycastle.asn1.cms.SignedData;
-import org.spongycastle.asn1.cms.SignerInfo;
-import org.spongycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.spongycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.cms.CMSAttributes;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.cms.SignedData;
+import org.bouncycastle.asn1.cms.SignerInfo;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 
 import es.gob.afirma.core.AOInvalidSignatureFormatException;
 
@@ -39,8 +39,8 @@ public final class ObtainContentSignedData {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
-	/** M&eacute;todo que obtiene el contenido firmado de un tipo Signed Data
-	 * tanto en CADES como en CMS. Si la firma no contiene los datos, devuelve <code>null</code>.
+	/** Obtiene el contenido firmado de un tipo Signed Data, tanto en CADES como en CMS.
+	 * Si la firma no contiene los datos, devuelve <code>null</code>.
 	 * @param data Datos que contienen la firma.
 	 * @return El contenido firmado o {@code null} si no es una firma con contenido..
 	 * @throws AOInvalidSignatureFormatException Cuando los datos proporcionados no tienen la estructura
@@ -51,11 +51,8 @@ public final class ObtainContentSignedData {
 		ASN1ObjectIdentifier doi;
 		ASN1TaggedObject doj;
 		try {
-
 			final ASN1Sequence dsq;
-			try (
-				final ASN1InputStream is = new ASN1InputStream(data);
-			) {
+			try (ASN1InputStream is = new ASN1InputStream(data)) {
 				dsq  = (ASN1Sequence) is.readObject();
 			}
 
@@ -72,7 +69,7 @@ public final class ObtainContentSignedData {
 		// buscamos si es signedData
 		if (doi.equals(PKCSObjectIdentifiers.signedData)) {
 			// obtenemos el signed Data
-			final SignedData sd = SignedData.getInstance(doj.getObject());
+			final SignedData sd = SignedData.getInstance(doj.getBaseObject());
 			final ContentInfo ci = sd.getEncapContentInfo();
 			// obtenemos el contenido si lo tiene.
 			if (ci.getContent() != null) {
@@ -89,7 +86,7 @@ public final class ObtainContentSignedData {
 		return contenido;
 	}
 
-	/** M&eacute;todo que obtiene la huella digital de los datos firmados en una firma CMS/CAdES.
+	/** Obtiene la huella digital de los datos firmados en una firma CMS/CAdES.
 	 * La huella se obtenida estar&aacute; generada con el algoritmo de huella indicado, si este
 	 * algoritmo es el que se utiliz&oacute; en alguna de las operaci&oacute;nes de firma con la
 	 * que se gener&oacute; esta firma. Si no se utiliz&oacute; este algoritmo, se devuelve
@@ -121,7 +118,7 @@ public final class ObtainContentSignedData {
 
 		// Contenido a obtener informacion
 		final ASN1TaggedObject doj = (ASN1TaggedObject) e.nextElement();
-		final SignedData sd = SignedData.getInstance(doj.getObject());
+		final SignedData sd = SignedData.getInstance(doj.getBaseObject());
 		final ASN1Set signerInfosSd = sd.getSignerInfos();
 
 		byte[] messageDigest = null;
@@ -147,7 +144,7 @@ public final class ObtainContentSignedData {
 			}
 		}
 		if (messageDigest == null) {
-			LOGGER.warning("No se ha encontrado en la firma una huella digital generada con el algoritmo: " + digestAlgorithm); //$NON-NLS-1$
+			LOGGER.warning(()-> "No se ha encontrado en la firma una huella digital generada con el algoritmo: " + digestAlgorithm); //$NON-NLS-1$
 		}
 		return messageDigest;
 	}

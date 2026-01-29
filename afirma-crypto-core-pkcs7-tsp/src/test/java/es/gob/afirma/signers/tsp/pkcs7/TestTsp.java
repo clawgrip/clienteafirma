@@ -6,12 +6,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.security.MessageDigest;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /** Pruebas de sellos de tiempo.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
-public class TestTsp {
+class TestTsp {
 
 	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
 	private static final String CATCERT_TSP_SSL = "https://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
@@ -21,8 +21,8 @@ public class TestTsp {
 	 * @throws Exception En cualquier error */
 	@SuppressWarnings("static-method")
 	@Test
-	@Ignore
-	public void TestRfc3161TokenHttp() throws Exception {
+	@Disabled("Necesita TSA")
+	void TestRfc3161TokenHttp() throws Exception {
 
 		final CMSTimestamper cmsTsp = new CMSTimestamper(
 			CATCERT_REQUIRECERT,

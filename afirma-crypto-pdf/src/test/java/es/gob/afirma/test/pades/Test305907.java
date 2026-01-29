@@ -1,11 +1,12 @@
 package es.gob.afirma.test.pades;
 
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.signers.pades.AOPDFSigner;
@@ -13,7 +14,7 @@ import es.gob.afirma.signers.pades.common.PdfHasUnregisteredSignaturesException;
 
 /** Pruebas espec&iacute;ficas para el Bug 305907.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
-public final class Test305907 {
+final class Test305907 {
 
 	private static final String TEST_FILE = "CONVENIO.pdf"; //$NON-NLS-1$
 	private static final String TEST_FILE_2 = "CONVENIO_firmado_CF.pdf"; //$NON-NLS-1$
@@ -28,19 +29,26 @@ public final class Test305907 {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testReadRaw() throws Exception {
+	void testReadRaw() throws Exception {
 
-		byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TEST_FILE_2));
+		byte[] testPdf;
+		try(InputStream is = ClassLoader.getSystemResourceAsStream(TEST_FILE_2)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
-		Assert.assertTrue(signer.isSign(testPdf));
+		Assertions.assertTrue(signer.isSign(testPdf));
 
-		testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TEST_FILE));
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 		System.setProperty("allowCosigningUnregisteredSignatures", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-		Assert.assertFalse(signer.isSign(testPdf));
+		Assertions.assertFalse(signer.isSign(testPdf));
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH), CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         final PrivateKeyEntry pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
 
         boolean raises = false;
@@ -56,7 +64,7 @@ public final class Test305907 {
         catch (final PdfHasUnregisteredSignaturesException e) {
         	raises = true;
         }
-        Assert.assertTrue(raises);
+        Assertions.assertTrue(raises);
 
         final Properties p = new Properties();
         System.setProperty("allowCosigningUnregisteredSignatures", "true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -76,8 +84,6 @@ public final class Test305907 {
         	raises = true;
         }
         System.setProperty("allowCosigningUnregisteredSignatures", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-        Assert.assertFalse(raises);
-
+        Assertions.assertFalse(raises);
 	}
-
 }

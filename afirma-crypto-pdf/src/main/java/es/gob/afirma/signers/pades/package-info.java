@@ -44,30 +44,9 @@
  *   En general, no se soportan documentos PDF cifrados con certificados, con algoritmo AES256 o con cualquier otro medio introducido en
  *   versiones de Adobe Acrobat posteriores a la 9.
  *  </p>
- *  <p style="text-align: center;"><img src="doc-files/package-info-1.png" alt="Dependencias de subsistemas"></p>
- *  <p>Este m&oacute;dulo presenta las siguientes dependencias ditectas de primer nivel:</p>
- *  <ul>
- *   <li>Dependencia con el m&oacute;dulo N&uacute;cleo (<i>afirma-core</i>) del Cliente.</li>
- *   <li>Dependencia con el m&oacute;dulo PKCS#7 (<i>afirma-crypto-core-pkcs7</i>) del Cliente.</li>
- *   <li>Dependencia con el m&oacute;dulo CAdES (<i>afirma-crypto-cades</i>) del Cliente.</li>
- *   <li>Dependencia con SpongyCastle 1.54 o superior.</li>
- *   <li>Dependencia con iText 2.1.7<sup>*</sup></li>
- *  </ul>
  *  <p>
  *   <sup>*</sup> No se utilizan versiones m&aacute;s actuales de iText por incompatibilidades de licencias. Las funcionalidades
  *   de firma trif&aacute;sica PAdES requieren una vers&oacute;n modificada de iText 2.1.7 espec&iacute;fica del proyecto Cliente.
  *  </p>
- *  <p>Adicionalmente, se presentan las siguientes dependencias din&aacute;micas:</p>
- *  <ul>
- *   <li>
- *    Dependencia din&aacute;mica con el m&oacute;dulo N&uacute;cleo UI JSE (<i>afirma-ui.core.jse</i>) del Cliente.
- *    Es posible prescindir de este m&oacute;dulo si se restringe el uso de interfaces gr&aacute;ficas desde los
- *    m&eacute;todos de firma.
- *   </li>
- *  </ul>
- *  <p>
- *   Este m&oacute;dulo es compatible con cualquier entorno JSE 6 o superior.
- *  </p>
- *  <p>Desde este m&oacute;dulo es posible que se realicen llamadas a interfaces gr&aacute;ficas.</p>
  */
 package es.gob.afirma.signers.pades;

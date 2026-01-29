@@ -11,6 +11,7 @@ package es.gob.afirma.test.pades;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -19,8 +20,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Base64;
@@ -29,7 +30,7 @@ import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.signers.pades.AOPDFSigner;
 
 /** Pruebas PAdES espac&iacute;ficas para el PlugTest de la ETSI. */
-public final class TestPAdESETSI {
+final class TestPAdESETSI {
 
 	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
 	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
@@ -52,10 +53,10 @@ public final class TestPAdESETSI {
     static {
         final Properties p1 = new Properties();
         p1.setProperty("policyIdentifier", "1.2.3.4.5.2"); //$NON-NLS-1$ //$NON-NLS-2$
-        try {
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(POL_PATH)) {
             p1.setProperty(
                "policyIdentifierHash",  //$NON-NLS-1$
-               new String(Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(POL_PATH))))) //$NON-NLS-1$
+               Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
            );
         }
         catch(final Exception e) {
@@ -78,10 +79,10 @@ public final class TestPAdESETSI {
         p4.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
         p4.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
         p4.setProperty("policyIdentifier", "1.2.3.4.5.2"); //$NON-NLS-1$ //$NON-NLS-2$
-        try {
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(POL_PATH)) {
             p4.setProperty(
                "policyIdentifierHash",  //$NON-NLS-1$
-               new String(Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(POL_PATH))))) //$NON-NLS-1$
+               Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
            );
         }
         catch(final Exception e) {
@@ -90,12 +91,12 @@ public final class TestPAdESETSI {
         p4.setProperty("policyIdentifierHashAlgorithm", "SHA1"); //$NON-NLS-1$ //$NON-NLS-2$
 
         PADES_MODES = new Properties[] {
-                p1, p2 //, p3, p4
+            p1, p2 //, p3, p4
         };
     }
 
     /** Algoritmos de firma a probar. */
-    private final static String[] ALGOS = new String[] {
+    private static final String[] ALGOS = {
         AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA
     };
 
@@ -103,14 +104,16 @@ public final class TestPAdESETSI {
      * @throws Exception En cualquier error. */
     @SuppressWarnings("static-method")
 	@Test
-    public void testSignature() throws Exception {
+    void testSignature() throws Exception {
 
         Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 
         final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH), CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
 
         final AOSigner signer = new AOPDFSigner();
@@ -121,8 +124,11 @@ public final class TestPAdESETSI {
             for (final String algo : ALGOS) {
                 for (final String file : TEST_FILES) {
 
-                    final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(file));
-                    Assert.assertTrue("No se ha reconocido como un PDF", signer.isValidDataFile(testPdf)); //$NON-NLS-1$
+                    final byte[] testPdf;
+                    try (InputStream is = ClassLoader.getSystemResourceAsStream(file)) {
+                    	testPdf = AOUtil.getDataFromInputStream(is);
+                    }
+                    Assertions.assertTrue(signer.isValidDataFile(testPdf), "No se ha reconocido como un PDF"); //$NON-NLS-1$
 
                     prueba = "Firma PAdES en modo '" +  //$NON-NLS-1$
                     extraParams.getProperty("mode") +  //$NON-NLS-1$
@@ -142,26 +148,18 @@ public final class TestPAdESETSI {
                 		extraParams
             		);
 
-                    Assert.assertNotNull(prueba, result);
-                    Assert.assertTrue(signer.isSign(result));
-                    Assert.assertEquals(result, signer.getData(result));
-                    Assert.assertEquals(AOSignConstants.SIGN_FORMAT_PDF, signer.getSignInfo(result).getFormat());
+                    Assertions.assertNotNull(result, prueba);
+                    Assertions.assertTrue(signer.isSign(result));
+                    Assertions.assertEquals(result, signer.getData(result));
+                    Assertions.assertEquals(AOSignConstants.SIGN_FORMAT_PDF, signer.getSignInfo(result).getFormat());
 
                     final File saveFile = File.createTempFile(file.replace(".pdf", "") + "_" + (extraParams.getProperty("policyIdentifier") != null ? "POL_" : "") + (extraParams.getProperty("tsaURL") != null ? "TSP_" : "") + algo + "_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$
-                    try (
-                		final OutputStream os = new FileOutputStream(saveFile);
-            		) {
+                    try (OutputStream os = new FileOutputStream(saveFile)) {
             	        os.write(result);
-            	        os.flush();
                     }
                     System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
-
-
-
-
                 }
             }
         }
     }
-
 }

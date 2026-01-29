@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class TestPdfUtils {
+class TestPdfUtils {
 
 	/**
 	 * Comprueba el funcionamiento del algoritmo de extracci&oacute;n
@@ -15,7 +15,7 @@ public class TestPdfUtils {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testPageRanges() {
+	void testPageRanges() {
 
 		final int TOTAL_PAGES = 10;
 
@@ -58,7 +58,7 @@ public class TestPdfUtils {
 		pages.clear();
 		try {
 			PdfUtil.getPagesRange("5-3", TOTAL_PAGES, pages); //$NON-NLS-1$
-			Assert.fail("Se ha aceptado un rango no valido: 5-3"); //$NON-NLS-1$
+			Assertions.fail("Se ha aceptado un rango no valido: 5-3"); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			// OK
@@ -67,7 +67,7 @@ public class TestPdfUtils {
 		pages.clear();
 		try {
 			PdfUtil.getPagesRange("-1--3", TOTAL_PAGES, pages); //$NON-NLS-1$
-			Assert.fail("Se ha aceptado un rango no valido: -1--3"); //$NON-NLS-1$
+			Assertions.fail("Se ha aceptado un rango no valido: -1--3"); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			// OK
@@ -76,7 +76,7 @@ public class TestPdfUtils {
 		pages.clear();
 		try {
 			PdfUtil.getPagesRange("1a-5", TOTAL_PAGES, pages); //$NON-NLS-1$
-			Assert.fail("Se ha aceptado un rango no valido: 1a-5"); //$NON-NLS-1$
+			Assertions.fail("Se ha aceptado un rango no valido: 1a-5"); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			// OK
@@ -87,12 +87,12 @@ public class TestPdfUtils {
 
 		final Integer[] pages = pagesList.toArray(new Integer[0]);
 
-		Assert.assertEquals("No se han cargado todas las paginas del rango", expected.length, pages.length); //$NON-NLS-1$
+		Assertions.assertEquals(expected.length, pages.length, "No se han cargado todas las paginas del rango"); //$NON-NLS-1$
 
 		Arrays.sort(pages);
 
 		for (int i = 0; i < pages.length; i++) {
-			Assert.assertEquals("Encontrada pagina fuera del rango esperado", expected[i], pages[i].intValue()); //$NON-NLS-1$
+			Assertions.assertEquals(expected[i], pages[i].intValue(), "Encontrada pagina fuera del rango esperado"); //$NON-NLS-1$
 		}
 	}
 }

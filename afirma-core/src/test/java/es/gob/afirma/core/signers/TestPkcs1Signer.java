@@ -7,10 +7,10 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Signature;
 import java.util.Base64;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class TestPkcs1Signer {
+class TestPkcs1Signer {
 
     private static final String CERT_RSA_PATH = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
     private static final char[] CERT_RSA_PASS = "1234".toCharArray(); //$NON-NLS-1$
@@ -22,7 +22,7 @@ public class TestPkcs1Signer {
 
 	@SuppressWarnings("static-method")
 	@Test
-	public void testPkcs1RsaSign() throws Exception {
+	void testPkcs1RsaSign() throws Exception {
 
 		final byte[] data = "Hola Mundo!!".getBytes(StandardCharsets.UTF_8); //$NON-NLS-1$
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA;
@@ -40,12 +40,12 @@ public class TestPkcs1Signer {
 		sig.initVerify(pke.getCertificate().getPublicKey());
 		sig.update(data);
 
-		Assert.assertTrue("Error al verificar la firma RSA", sig.verify(pkcs1)); //$NON-NLS-1$
+		Assertions.assertTrue(sig.verify(pkcs1), "Error al verificar la firma RSA"); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("static-method")
 	@Test
-	public void testPkcs1EcdsaSign() throws Exception {
+	void testPkcs1EcdsaSign() throws Exception {
 
 		final byte[] data = "Hola Mundo!!".getBytes(StandardCharsets.UTF_8); //$NON-NLS-1$
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA256WITHECDSA;
@@ -62,7 +62,7 @@ public class TestPkcs1Signer {
 		sig.initVerify(pke.getCertificate().getPublicKey());
 		sig.update(data);
 
-		Assert.assertTrue("Error al verificar la firma ECDSA", sig.verify(pkcs1)); //$NON-NLS-1$
+		Assertions.assertTrue(sig.verify(pkcs1), "Error al verificar la firma ECDSA"); //$NON-NLS-1$
 	}
 
 	private static PrivateKeyEntry loadPrivateKeyEntry(final String path, final char[] pass, final String alias) throws Exception {

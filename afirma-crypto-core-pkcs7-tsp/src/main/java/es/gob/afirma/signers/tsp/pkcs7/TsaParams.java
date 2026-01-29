@@ -305,13 +305,13 @@ public final class TsaParams {
 			p.put("tsaURL", getTsaUrl().toString()); //$NON-NLS-1$
 		}
 		if (getTsaUsr() != null && !getTsaUsr().isEmpty()) {
-			p.put("tsaUsr", getTsaUsr().toString()); //$NON-NLS-1$
+			p.put("tsaUsr", getTsaUsr()); //$NON-NLS-1$
 		}
 		if (getTsaPwd() != null && !getTsaPwd().isEmpty()) {
-			p.put("tsaPwd", getTsaPwd().toString()); //$NON-NLS-1$
+			p.put("tsaPwd", getTsaPwd()); //$NON-NLS-1$
 		}
 		if (getTsaPolicy() != null && !getTsaPolicy().isEmpty()) {
-			p.put("tsaPolicy", getTsaPolicy().toString()); //$NON-NLS-1$
+			p.put("tsaPolicy", getTsaPolicy()); //$NON-NLS-1$
 		}
 		if (getExtensions() != null && getExtensions().length > 0) {
 			p.put("tsaExtensionOid", getExtensions()[0].getOid()); //$NON-NLS-1$

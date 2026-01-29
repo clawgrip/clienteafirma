@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,47 +50,42 @@ public final class TestMetadata {
     private static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
 
 	private static final String NEW_HISTORY_LIST_ITEM = "<rdf:li rdf:parseType=\"Resource\">\n" + //$NON-NLS-1$
-			"  <stEvt:action>signed</stEvt:action>\n" + //$NON-NLS-1$
-			"  <stEvt:instanceID>uuid:" + TAG_UUID + "</stEvt:instanceID>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-			"  <stEvt:parameters>Firmado por el Cliente @firma</stEvt:parameters>\n" + //$NON-NLS-1$
-			"  <stEvt:softwareAgent>Cliente @firma</stEvt:softwareAgent>\n" + //$NON-NLS-1$
-			"  <stEvt:when>" + TAG_DATE + "</stEvt:when>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-			"</rdf:li>"; //$NON-NLS-1$
+		"  <stEvt:action>signed</stEvt:action>\n" + //$NON-NLS-1$
+		"  <stEvt:instanceID>uuid:" + TAG_UUID + "</stEvt:instanceID>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"  <stEvt:parameters>Firmado por el Cliente @firma</stEvt:parameters>\n" + //$NON-NLS-1$
+		"  <stEvt:softwareAgent>Cliente @firma</stEvt:softwareAgent>\n" + //$NON-NLS-1$
+		"  <stEvt:when>" + TAG_DATE + "</stEvt:when>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"</rdf:li>"; //$NON-NLS-1$
 
 	/** Prueba del establecimiento de informaci&oacute;n adicional en el diccionario PDF.
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testMoreInfo() throws Exception {
+	void testMoreInfo() throws Exception {
 
 		// PDF de ejemplo
-		final PdfReader reader = new PdfReader(
-			AOUtil.getDataFromInputStream(
-				ClassLoader.getSystemResourceAsStream("PDF-A1B.pdf") //$NON-NLS-1$
-			)
-		);
-
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		final Calendar globalDate = new GregorianCalendar();
-
-		final PdfStamper stamper = new PdfStamper(reader, baos, globalDate);
-
-		final HashMap<String, String> p = new HashMap<>(2);
-		p.put("Primera propiedad", "Portafirmas"); //$NON-NLS-1$ //$NON-NLS-2$
-		p.put("Segunda propiedad", "JCCM"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		PdfPreProcessor.addMoreInfo(p, stamper);
-
-		stamper.close(globalDate);
-
-		reader.close();
-
+		final PdfReader reader;
 		try (
-			final OutputStream fos = new FileOutputStream(File.createTempFile("PDF_DICT_", ".pdf")) //$NON-NLS-1$ //$NON-NLS-2$
+			InputStream is = ClassLoader.getSystemResourceAsStream("PDF-A1B.pdf"); //$NON-NLS-1$
+			ByteArrayOutputStream baos = new ByteArrayOutputStream()
 		) {
-			fos.write(baos.toByteArray());
-		}
+			reader = new PdfReader(AOUtil.getDataFromInputStream(is));
 
+			final Calendar globalDate = new GregorianCalendar();
+
+			final PdfStamper stamper = new PdfStamper(reader, baos, globalDate);
+
+			final HashMap<String, String> p = new HashMap<>(2);
+			p.put("Primera propiedad", "Portafirmas"); //$NON-NLS-1$ //$NON-NLS-2$
+			p.put("Segunda propiedad", "JCCM"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			PdfPreProcessor.addMoreInfo(p, stamper);
+			stamper.close(globalDate);
+
+			try (OutputStream fos = new FileOutputStream(File.createTempFile("PDF_DICT_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
+				fos.write(baos.toByteArray());
+			}
+		}
 	}
 
 	/** Main para pruebas.
@@ -98,11 +94,10 @@ public final class TestMetadata {
 	public static void main(final String[] args) throws Exception {
 
 		// PDF de ejemplo
-		final PdfReader reader = new PdfReader(
-			AOUtil.getDataFromInputStream(
-				ClassLoader.getSystemResourceAsStream("PDF-A1B.pdf") //$NON-NLS-1$
-			)
-		);
+		final PdfReader reader;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream("PDF-A1B.pdf")) { //$NON-NLS-1$
+			reader = new PdfReader(AOUtil.getDataFromInputStream(is));
+		}
 
 		final byte[] xmpBytes = reader.getMetadata();
 
@@ -112,8 +107,7 @@ public final class TestMetadata {
 			originalXmp.indexOf(PROCESSING_INSTRUCTION_SUFFIX) + PROCESSING_INSTRUCTION_SUFFIX.length()
 		).replace(PROCESSING_INSTRUCTION_SUFFIX, " encoding=\"" + DEFAULT_ENCODING.toLowerCase() + "\"" + PROCESSING_INSTRUCTION_SUFFIX); //$NON-NLS-1$ //$NON-NLS-2$
 		final String originalXmpFooter = originalXmp.substring(
-			originalXmp.lastIndexOf("<?"), //$NON-NLS-1$
-			originalXmp.length()
+			originalXmp.lastIndexOf("<?") //$NON-NLS-1$
 		);
 
 		final DocumentBuilder db = SecureXmlBuilder.getSecureDocumentBuilder();

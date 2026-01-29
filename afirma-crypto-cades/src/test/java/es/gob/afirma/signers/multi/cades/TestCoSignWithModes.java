@@ -12,6 +12,7 @@ package es.gob.afirma.signers.multi.cades;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
@@ -20,9 +21,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
@@ -35,7 +36,7 @@ import es.gob.afirma.signers.cades.AOCAdESSigner;
 import es.gob.afirma.signers.pkcs7.ContainsNoDataException;
 
 /** Pruebas de cofirmas CAdES. */
-public class TestCoSignWithModes {
+class TestCoSignWithModes {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
@@ -67,11 +68,11 @@ public class TestCoSignWithModes {
 
 	private AOSigner signer = null;
 
-	/** Antes de ejecutar cualquier prueba se ejecutar&aacute; este m&eacute;todo que cargar6aacute;
+	/** Antes de ejecutar cualquier prueba se cargan
 	 * todos los objetos que se vaya a necesitar en las distintas pruebas.
 	 * @throws Exception En cualquier error. */
-	@Before
-	public void loadParams() throws Exception {
+	@BeforeAll
+	void loadParams() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 
@@ -82,15 +83,19 @@ public class TestCoSignWithModes {
 		this.explicitParams.setProperty("mode", AOSignConstants.SIGN_MODE_EXPLICIT); //$NON-NLS-1$
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_SIGN), CERT_PASS_TO_SIGN.toCharArray());
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_SIGN)) {
+			ks.load(is, CERT_PASS_TO_SIGN.toCharArray());
+		}
 		final PrivateKeyEntry pkeSign = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_SIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_SIGN.toCharArray()));
 
 		final KeyStore ksCosign = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-		ksCosign.load(ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_COSIGN), CERT_PASS_TO_COSIGN.toCharArray());
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_COSIGN)) {
+			ksCosign.load(is, CERT_PASS_TO_COSIGN.toCharArray());
+		}
 		this.pke = (PrivateKeyEntry) ksCosign.getEntry(CERT_ALIAS_TO_COSIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_COSIGN.toCharArray()));
 
-		try {
-			this.data = AOUtil.getDataFromInputStream(TestCoSignWithModes.class.getResourceAsStream("/" + DATA_FILE)); //$NON-NLS-1$
+		try (InputStream is = TestCoSignWithModes.class.getResourceAsStream("/" + DATA_FILE)) { //$NON-NLS-1$
+			this.data = AOUtil.getDataFromInputStream(is);
 		}
 		catch (final IOException e) {
 			LOGGER.log(Level.SEVERE, "No se ha podido cargar el fichero de pruebas: " + DATA_FILE, e);  //$NON-NLS-1$
@@ -107,7 +112,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA512() throws Exception {
+	void testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -116,7 +121,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -125,7 +130,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA512() throws Exception {
+	void testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -134,7 +139,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -144,7 +149,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA512() throws Exception {
+	void testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -153,7 +158,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, false);
 	}
@@ -162,7 +167,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512SobreFirmaExplicitaSHA512() throws Exception {
+	void testCofirmaExplicitaSHA512SobreFirmaExplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -171,65 +176,48 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, false);
 	}
-
 
 	/** Esta firma no debe ser posible. Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma expl&iacute;cita
 	 * con algoritmo de SHA256withRSA.
 	 * @throws Exception en cualquier error. */
-	@Test(expected = ContainsNoDataException.class)
-	public void testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA256() throws Exception {
-
-		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
-		this.signer.cosign(
-				this.explicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
-
-		Assert.fail("No debe ser posible cofirmar una firma sin los datos originales ni la huella en generada con el algoritmo usado en la firma"); //$NON-NLS-1$
-	}
-
-	/** Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma impl&iacute;cita
-	 * con algoritmo de SHA256withRSA.
-	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA256() throws Exception {
-
-		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-
-		final byte[] result = this.signer.cosign(
-				this.implicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
-
-		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
-
-		checkCosign(result, algorithm, true);
-	}
-
-	/**
-	 * Esta firma no debe ser posible. Cofirma expl&iacute;cita con algoritmo SHA512withRSA sobre firma expl&iacute;cita
-	 * con algoritmo de SHA256withRSA.
-	@Test(expected = ContainsNoDataException.class)
-	public void testCofirmaExplicitaSHA512SobreFirmaExplicitaSHA256() throws Exception {
-
-		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
-		try {
+	void testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA256() throws Exception {
+		Assertions.assertThrows(ContainsNoDataException.class, () -> {
+			final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 			this.signer.cosign(
 					this.explicitSHA256Signature, algorithm,
-					this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+					this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+			Assertions.fail("No debe ser posible cofirmar una firma sin los datos originales ni la huella en generada con el algoritmo usado en la firma"); //$NON-NLS-1$
+		});
+	}
 
-			Assert.fail("Se debio haber lanzado una excepcion de tipo ContainsNoDataException al no poderse cofirmar una firma sin los datos desde los que calcular el hash o el hash ya calculado con el mismo algoritmo"); //$NON-NLS-1$
-		}
+	/** Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma impl&iacute;cita
+	 * con algoritmo de SHA256withRSA.
+	 * @throws Exception en cualquier error. */
+	@Test
+	void testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA256() throws Exception {
+
+		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
+
+		final byte[] result = this.signer.cosign(
+				this.implicitSHA256Signature, algorithm,
+				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+
+		final File saveFile = saveTempFile(result);
+		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
+
+		checkCosign(result, algorithm, true);
+	}
 
 	/** Cofirma expl&iacute;cita con algoritmo SHA512withRSA sobre firma impl&iacute;cita
 	 * con algoritmo de SHA256withRSA.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA256() throws Exception {
+	void testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA256() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -238,7 +226,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -247,7 +235,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA512() throws Exception {
+	void testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -256,7 +244,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -265,7 +253,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA512() throws Exception {
+	void testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -274,17 +262,16 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
-
 
 	/** Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma expl&iacute;cita
 	 * con algoritmo de SHA512withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA512() throws Exception {
+	void testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -293,7 +280,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -302,7 +289,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA512withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA512() throws Exception {
+	void testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA512() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -311,17 +298,16 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, false);
 	}
-
 
 	/** Esta firma no debe ser posible. Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma expl&iacute;cita
 	 * con algoritmo de SHA256withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA256() throws Exception {
+	void testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA256() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -330,7 +316,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -339,7 +325,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA256withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA256() throws Exception {
+	void testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA256() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -348,7 +334,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -357,7 +343,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA256withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA256() throws Exception {
+	void testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA256() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -366,7 +352,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, false);
 	}
@@ -375,7 +361,7 @@ public class TestCoSignWithModes {
 	 * con algoritmo de SHA256withRSA indicando los datos a firmar.
 	 * @throws Exception en cualquier error. */
 	@Test
-	public void testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA256() throws Exception {
+	void testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA256() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
@@ -384,7 +370,7 @@ public class TestCoSignWithModes {
 				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
-		System.out.println("Prueba " + new TestCoSignWithModes() { /* Vacio */ }.getClass().getEnclosingMethod().getName() + ": " + saveFile.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
@@ -397,9 +383,8 @@ public class TestCoSignWithModes {
 	 */
 	private static File saveTempFile(final byte[] data) throws IOException {
 		final File saveFile = File.createTempFile("testCoSign-", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
-		try ( final OutputStream os = new FileOutputStream(saveFile) ) {
+		try (OutputStream os = new FileOutputStream(saveFile)) {
 			os.write(data);
-			os.flush();
 		}
 		return saveFile;
 	}
@@ -414,24 +399,23 @@ public class TestCoSignWithModes {
 	 */
 	private void checkCosign(final byte[] signature, final String algorithm, final boolean hasData) throws IOException, AOException {
 
-		Assert.assertNotNull("Se ha obtenido una cofirma nula", signature); //$NON-NLS-1$
-		Assert.assertTrue("La cofirma no se reconoce como firma CAdES", this.signer.isSign(signature)); //$NON-NLS-1$
-
+		Assertions.assertNotNull(signature, "Se ha obtenido una cofirma nula"); //$NON-NLS-1$
+		Assertions.assertTrue(this.signer.isSign(signature), "La cofirma no se reconoce como firma CAdES"); //$NON-NLS-1$
 
 		final byte[] contentData = this.signer.getData(signature);
 		if (hasData) {
-			Assert.assertNotNull("No se han encontrado los datos en la cofirma", contentData); //$NON-NLS-1$
-			Assert.assertNotEquals("El campo de datos de la firma esta vacio", contentData.length, 0); //$NON-NLS-1$
-			Assert.assertTrue("Los datos extraidos de la firma no son los que originalmente se firmaron", Arrays.equals(contentData, this.data)); //$NON-NLS-1$
+			Assertions.assertNotNull(contentData, "No se han encontrado los datos en la cofirma"); //$NON-NLS-1$
+			Assertions.assertNotEquals(contentData.length, 0, "El campo de datos de la firma esta vacio"); //$NON-NLS-1$
+			Assertions.assertTrue(Arrays.equals(contentData, this.data), "Los datos extraidos de la firma no son los que originalmente se firmaron"); //$NON-NLS-1$
 		}
 		else {
-			Assert.assertNull("El campo de datos de la firma deberia estar vacio", contentData); //$NON-NLS-1$
+			Assertions.assertNull(contentData, "El campo de datos de la firma deberia estar vacio"); //$NON-NLS-1$
 		}
 
 		final AOTreeModel tree = this.signer.getSignersStructure(signature, true);
 
 		final AOTreeNode rootNode = (AOTreeNode) tree.getRoot();
-		Assert.assertEquals("No se interpreto correctamente la estructura de la cofirma", "Datos", rootNode.getUserObject()); //$NON-NLS-1$ //$NON-NLS-2$
+		Assertions.assertEquals("Datos", rootNode.getUserObject(), "No se interpreto correctamente la estructura de la cofirma"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		AOSimpleSignInfo cosignInfo = null;
 
@@ -443,8 +427,8 @@ public class TestCoSignWithModes {
 			}
 		}
 
-		Assert.assertNotNull("No se encontro la cofirma generada en la nueva estructura de firma", cosignInfo); //$NON-NLS-1$
-		Assert.assertEquals("El algoritmo de firma no es el esperado", algorithm, cosignInfo.getSignAlgorithm()); //$NON-NLS-1$
-		Assert.assertNotNull("No se encontro la hora de firma", cosignInfo.getSigningTime()); //$NON-NLS-1$
+		Assertions.assertNotNull(cosignInfo, "No se encontro la cofirma generada en la nueva estructura de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(algorithm, cosignInfo.getSignAlgorithm(), "El algoritmo de firma no es el esperado"); //$NON-NLS-1$
+		Assertions.assertNotNull(cosignInfo.getSigningTime(), "No se encontro la hora de firma"); //$NON-NLS-1$
 	}
 }

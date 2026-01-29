@@ -12,9 +12,9 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.aowagie.text.DocumentException;
 import com.aowagie.text.Rectangle;
@@ -26,12 +26,11 @@ import com.aowagie.text.pdf.PdfStamper;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.test.pades.TestListSignatureFields;
 
 /**
  * Ejemplos de creacion de campos de firma con iText.
  */
-public class TestCreateSignFields {
+class TestCreateSignFields {
 
 	private static final String TEST_EMPTY_FILE = "/pdf_without_signatures.pdf"; //$NON-NLS-1$
 
@@ -51,10 +50,12 @@ public class TestCreateSignFields {
      * Carga las claves para firmar.
      * @throws Exception Cuando falla la carga de la clave.
      */
-    @Before
-    public void loadKeyStore() throws Exception {
+    @BeforeAll
+    void loadKeyStore() throws Exception {
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(CERT_PATH), CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         this.pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
     }
 
@@ -65,12 +66,12 @@ public class TestCreateSignFields {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCreateSignatureFieldsOnMultiPages() throws Exception {
+	void testCreateSignatureFieldsOnMultiPages() throws Exception {
 
 		System.out.println("Prueba de generacion de campos de firma en multiples paginas"); //$NON-NLS-1$
 
 		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -83,8 +84,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(outFile);
 		final List<String> unsignedFields = getEmptySignatureFields(outPdf);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo no es el esperado", SIGNATURE_FIELD, unsignedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD, unsignedFields.get(0), "El nombre del campo no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -93,12 +94,12 @@ public class TestCreateSignFields {
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
 	@Test
-	public void testSignFieldsOnMultiPages() throws Exception {
+	void testSignFieldsOnMultiPages() throws Exception {
 
 		System.out.println("Prueba de firma de un campo de firma en multiples paginas"); //$NON-NLS-1$
 
 		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -112,7 +113,7 @@ public class TestCreateSignFields {
 		final byte[] pdfWithFields = readFile(outFile);
 
 		final List<String> unsignedFields = getEmptySignatureFields(pdfWithFields);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
 
 		// Fichero de salida con las firmas
 		final File signedFile = File.createTempFile("signedPdf-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -124,8 +125,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(signedFile);
 		final List<String> signedFields = getSignedSignatureFields(outPdf);
-		Assert.assertEquals("No se ha firmado el campo de firma", 1, signedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo firmado no es el esperado", SIGNATURE_FIELD, signedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, signedFields.size(), "No se ha firmado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD, signedFields.get(0), "El nombre del campo firmado no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -134,12 +135,12 @@ public class TestCreateSignFields {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCreateInvisibleSignatureField() throws Exception {
+	void testCreateInvisibleSignatureField() throws Exception {
 
 		System.out.println("Prueba de generacion de campos de firma invisibles"); //$NON-NLS-1$
 
-		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		final byte[] inPdf;
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -152,8 +153,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(outFile);
 		final List<String> unsignedFields = getEmptySignatureFields(outPdf);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo no es el esperado", SIGNATURE_FIELD, unsignedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD, unsignedFields.get(0), "El nombre del campo no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -161,12 +162,12 @@ public class TestCreateSignFields {
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
 	@Test
-	public void testSignInvisibleSignatureField() throws Exception {
+	void testSignInvisibleSignatureField() throws Exception {
 
 		System.out.println("Prueba de firma de un campo de firma invisible"); //$NON-NLS-1$
 
-		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		final byte[] inPdf;
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -180,8 +181,8 @@ public class TestCreateSignFields {
 		final byte[] pdfWithFields = readFile(intermediateFile);
 
 		final List<String> unsignedFields = getEmptySignatureFields(pdfWithFields);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo no es el esperado", SIGNATURE_FIELD, unsignedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD, unsignedFields.get(0), "El nombre del campo no es el esperado"); //$NON-NLS-1$
 
 		// Fichero de salida con las firmas
 		final File signedFile = File.createTempFile("signedPdf-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -193,8 +194,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(signedFile);
 		final List<String> signedFields = getSignedSignatureFields(outPdf);
-		Assert.assertEquals("No se ha firmado el campo de firma", 1, signedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo firmado no es el esperado", SIGNATURE_FIELD, signedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, signedFields.size(), "No se ha firmado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD, signedFields.get(0), "El nombre del campo firmado no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -204,12 +205,12 @@ public class TestCreateSignFields {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCreateSignatureFieldWithSymbols() throws Exception {
+	void testCreateSignatureFieldWithSymbols() throws Exception {
 
 		System.out.println("Prueba de generacion de un campo de firma cuyo nombre contiene simbolos"); //$NON-NLS-1$
 
-		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		final byte[] inPdf;
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -222,8 +223,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(outFile);
 		final List<String> unsignedFields = getEmptySignatureFields(outPdf);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo no es el esperado", SIGNATURE_FIELD_WITH_SYMBOLS, unsignedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD_WITH_SYMBOLS, unsignedFields.get(0), "El nombre del campo no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -232,12 +233,12 @@ public class TestCreateSignFields {
 	 * @throws Exception Cuando ocurre cualquier error.
 	 */
 	@Test
-	public void testSignSignatureFieldWithSymbols() throws Exception {
+	void testSignSignatureFieldWithSymbols() throws Exception {
 
 		System.out.println("Prueba de firma de un campo de firma con nombre con simbolos"); //$NON-NLS-1$
 
-		byte[] inPdf;
-		try (InputStream is = TestListSignatureFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
+		final byte[] inPdf;
+		try (InputStream is = TestCreateSignFields.class.getResourceAsStream(TEST_EMPTY_FILE)) {
 			inPdf = AOUtil.getDataFromInputStream(is);
 		}
 
@@ -251,8 +252,8 @@ public class TestCreateSignFields {
 		final byte[] pdfWithFields = readFile(intermediateFile);
 
 		final List<String> unsignedFields = getEmptySignatureFields(pdfWithFields);
-		Assert.assertEquals("No se ha creado el campo de firma", 1, unsignedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo no es el esperado", SIGNATURE_FIELD_WITH_SYMBOLS, unsignedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, unsignedFields.size(), "No se ha creado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD_WITH_SYMBOLS, unsignedFields.get(0), "El nombre del campo no es el esperado"); //$NON-NLS-1$
 
 		// Fichero de salida con las firmas
 		final File signedFile = File.createTempFile("signedPdf-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -264,8 +265,8 @@ public class TestCreateSignFields {
 
 		final byte[] outPdf = readFile(signedFile);
 		final List<String> signedFields = getSignedSignatureFields(outPdf);
-		Assert.assertEquals("No se ha firmado el campo de firma", 1, signedFields.size()); //$NON-NLS-1$
-		Assert.assertEquals("El nombre del campo firmado no es el esperado", SIGNATURE_FIELD_WITH_SYMBOLS, signedFields.get(0)); //$NON-NLS-1$
+		Assertions.assertEquals(1, signedFields.size(), "No se ha firmado el campo de firma"); //$NON-NLS-1$
+		Assertions.assertEquals(SIGNATURE_FIELD_WITH_SYMBOLS, signedFields.get(0), "El nombre del campo firmado no es el esperado"); //$NON-NLS-1$
 	}
 
 	/**
@@ -364,7 +365,6 @@ public class TestCreateSignFields {
 	 * @throws IOException Cuando falla la lectura del fichero.
 	 */
 	private static final byte[] readFile(final File file) throws IOException {
-
 		byte[] data;
 		try (InputStream is = new FileInputStream(file)) {
 			data = AOUtil.getDataFromInputStream(is);
@@ -399,5 +399,4 @@ public class TestCreateSignFields {
 
 		return reader.getAcroFields().getSignatureNames();
 	}
-
 }

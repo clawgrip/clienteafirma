@@ -4,7 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
@@ -12,7 +13,7 @@ import es.gob.afirma.core.util.tree.AOTreeNode;
 /**
  * Conjunto de pruebas para
  */
-public class TestGetSignersStructure {
+class TestGetSignersStructure {
 
 	private static final String RESOURCE_COUNTERSIGN_CADES_BES = "countersign-cades.csig"; //$NON-NLS-1$
 	private static final String RESOURCE_CADES_T = "cades-t.csig"; //$NON-NLS-1$
@@ -24,7 +25,7 @@ public class TestGetSignersStructure {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testGetStructureCounterSignCadesBES() throws Exception {
+	void testGetStructureCounterSignCadesBES() throws Exception {
 
 		System.out.println("Test Contrafirma CAdES-BES"); //$NON-NLS-1$
 		System.out.println("--------------------------"); //$NON-NLS-1$
@@ -33,6 +34,7 @@ public class TestGetSignersStructure {
 
 		final ReadNodesTree reader = new ReadNodesTree();
 		final AOTreeModel tree = reader.readNodesTree(data, true);
+		Assertions.assertNotNull(tree);
 
 		printTreeBranch((AOTreeNode) tree.getRoot(), 0);
 
@@ -45,7 +47,7 @@ public class TestGetSignersStructure {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testGetStructureCadesT() throws Exception {
+	void testGetStructureCadesT() throws Exception {
 
 		System.out.println("Test Firma CAdES-T"); //$NON-NLS-1$
 		System.out.println("------------------"); //$NON-NLS-1$
@@ -54,6 +56,7 @@ public class TestGetSignersStructure {
 
 		final ReadNodesTree reader = new ReadNodesTree();
 		final AOTreeModel tree = reader.readNodesTree(data, true);
+		Assertions.assertNotNull(tree);
 
 		printTreeBranch((AOTreeNode) tree.getRoot(), 0);
 
@@ -66,7 +69,7 @@ public class TestGetSignersStructure {
 	 */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testGetStructureCadesA() throws Exception {
+	void testGetStructureCadesA() throws Exception {
 
 		System.out.println("Test Firma CAdES-A"); //$NON-NLS-1$
 		System.out.println("------------------"); //$NON-NLS-1$
@@ -75,6 +78,7 @@ public class TestGetSignersStructure {
 
 		final ReadNodesTree reader = new ReadNodesTree();
 		final AOTreeModel tree = reader.readNodesTree(data, true);
+		Assertions.assertNotNull(tree);
 
 		printTreeBranch((AOTreeNode) tree.getRoot(), 0);
 

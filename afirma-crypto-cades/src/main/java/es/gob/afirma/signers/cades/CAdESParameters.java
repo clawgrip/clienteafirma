@@ -11,15 +11,15 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import org.spongycastle.asn1.ASN1ObjectIdentifier;
-import org.spongycastle.asn1.DERUTF8String;
-import org.spongycastle.asn1.cms.Attribute;
-import org.spongycastle.asn1.cms.AttributeTable;
-import org.spongycastle.asn1.cms.CMSAttributes;
-import org.spongycastle.asn1.ess.ContentHints;
-import org.spongycastle.cms.CMSSignedData;
-import org.spongycastle.cms.SignerInformation;
-import org.spongycastle.cms.SignerInformationStore;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1UTF8String;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
+import org.bouncycastle.asn1.ess.ContentHints;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.MimeHelper;
@@ -249,7 +249,7 @@ public class CAdESParameters {
 							contentTypeOid = contentHints.getContentType().getId();
 							// Si no se proporciono la descripcion, aprovechamos y tambien la cogemos
 							if (contentTypeDescription == null) {
-								final DERUTF8String descriptionAttr = contentHints.getContentDescription();
+								final ASN1UTF8String descriptionAttr = contentHints.getContentDescriptionUTF8();
 								if (descriptionAttr != null) {
 									contentTypeDescription = descriptionAttr.getString();
 								}

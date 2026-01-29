@@ -2,12 +2,15 @@ package es.gob.afirma.test.pades;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.misc.Base64;
@@ -17,12 +20,12 @@ import es.gob.afirma.signers.pades.AOPDFSigner;
  * @author Carlos Gamuci */
 public class TestSignField {
 
-	private final static String TEST_FILE = "TEST_PDF.pdf"; //$NON-NLS-1$
-	private final static String TEST_FILE_MP = "multipage.pdf"; //$NON-NLS-1$
+	private static final String TEST_FILE = "TEST_PDF.pdf"; //$NON-NLS-1$
+	private static final String TEST_FILE_MP = "multipage.pdf"; //$NON-NLS-1$
 
-	private final static String RUBRIC_IMAGE = "rubric.jpg"; //$NON-NLS-1$
+	private static final String RUBRIC_IMAGE = "rubric.jpg"; //$NON-NLS-1$
 
-	private final static String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
+	private static final String DEFAULT_SIGNATURE_ALGORITHM = "SHA512withRSA"; //$NON-NLS-1$
 
     private static final String CERT_PATH = "PFActivoFirSHA256.pfx"; //$NON-NLS-1$
     private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
@@ -32,13 +35,15 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testImageOnPdf() throws Exception {
+	void testImageOnPdf() throws Exception {
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 			"Prueba de firma de PDF insertando imagen" //$NON-NLS-1$
 		);
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         final PrivateKeyEntry pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -47,13 +52,19 @@ public class TestSignField {
 		extraParams.put("imagePositionOnPageUpperRightX", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("imagePositionOnPageUpperRightY", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] image = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream("4df6ec6b6b5c7.jpg")); //$NON-NLS-1$
+		final byte[] image;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream("4df6ec6b6b5c7.jpg")) { //$NON-NLS-1$
+			image = AOUtil.getDataFromInputStream(is);
+		}
 		final String imageB64 = Base64.encode(image);
 		extraParams.put("image", imageB64); //$NON-NLS-1$
 
 		extraParams.put("imagePage", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE_MP));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE_MP)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		byte[] signedPdf = signer.sign(
@@ -63,12 +74,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		File tempFile = File.createTempFile("afirmaPDF-IMAGEN-1_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -87,9 +97,7 @@ public class TestSignField {
 			extraParams
 		);
 		tempFile = File.createTempFile("afirmaPDF-IMAGEN-LAST_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -108,9 +116,7 @@ public class TestSignField {
 			extraParams
 		);
 		tempFile = File.createTempFile("afirmaPDF-IMAGEN-TODAS_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -126,7 +132,7 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testNewPage() throws Exception {
+	void testNewPage() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 			"Prueba de firma de PDF con nueva pagina" //$NON-NLS-1$
@@ -135,7 +141,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -151,7 +159,10 @@ public class TestSignField {
 		extraParams.put("layer2FontStyle", "3"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("layer2FontColor", "red"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -161,12 +172,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -180,7 +190,7 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCampoDeFirmaSoloConPosiciones() throws Exception {
+	void testCampoDeFirmaSoloConPosiciones() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 			"Prueba de firma de PDF solo con posiciones de firma" //$NON-NLS-1$
@@ -189,7 +199,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -198,7 +210,10 @@ public class TestSignField {
 		extraParams.put("signaturePositionOnPageUpperRightX", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("signaturePositionOnPageUpperRightY", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -208,12 +223,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -227,7 +241,7 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCampoDeFirmaConPosicionesYRubrica() throws Exception {
+	void testCampoDeFirmaConPosicionesYRubrica() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 				"Prueba de firma de PDF con posiciones de firma y rubrica"); //$NON-NLS-1$
@@ -235,7 +249,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -250,7 +266,10 @@ public class TestSignField {
 
 		extraParams.put("signatureRubricImage", rubricImageB64); //$NON-NLS-1$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -260,12 +279,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -279,7 +297,7 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCampoDeFirmaConPosicionesYTexto() throws Exception {
+	void testCampoDeFirmaConPosicionesYTexto() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 				"Prueba de firma de PDF con posiciones de firma y texto"); //$NON-NLS-1$
@@ -287,7 +305,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -302,7 +322,10 @@ public class TestSignField {
 		extraParams.put("layer2FontStyle", "3"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("layer2FontColor", "red"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -312,12 +335,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -330,7 +352,7 @@ public class TestSignField {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCampoDeFirmaConPosicionesRubricaYTexto() throws Exception {
+	void testCampoDeFirmaConPosicionesRubricaYTexto() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 				"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
@@ -338,7 +360,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -358,7 +382,10 @@ public class TestSignField {
 		extraParams.put("layer2FontStyle", "3"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("layer2FontColor", "red"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -368,12 +395,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
@@ -383,11 +409,11 @@ public class TestSignField {
 		);
 	}
 
-	/** Prueba de firma PDF visible con r&uacute;brica y texto con todo el recuadro rotado.
+	/** Prueba de firma PDF visible con r&uacute;brica y texto con el recuadro rotado.
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void testCampoDeFirmaRotadoConPosicionesRubricaYTexto() throws Exception {
+	void testCampoDeFirmaRotadoConPosicionesRubricaYTexto() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
 				"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
@@ -395,7 +421,9 @@ public class TestSignField {
 		final PrivateKeyEntry pke;
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        ks.load(ClassLoader.getSystemResourceAsStream(TestSignField.CERT_PATH), TestSignField.CERT_PASS.toCharArray());
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
+        	ks.load(is, CERT_PASS.toCharArray());
+        }
         pke = (PrivateKeyEntry) ks.getEntry(TestSignField.CERT_ALIAS, new KeyStore.PasswordProtection(TestSignField.CERT_PASS.toCharArray()));
 
 		final Properties extraParams = new Properties();
@@ -417,7 +445,10 @@ public class TestSignField {
 		extraParams.put("layer2FontStyle", "3"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("layer2FontColor", "red"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] testPdf = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE));
+		final byte[] testPdf;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.TEST_FILE)) {
+			testPdf = AOUtil.getDataFromInputStream(is);
+		}
 
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(
@@ -427,12 +458,11 @@ public class TestSignField {
 			pke.getCertificateChain(),
 			extraParams
 		);
+		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		try (
-			final FileOutputStream fos = new FileOutputStream(tempFile);
-		) {
+		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 

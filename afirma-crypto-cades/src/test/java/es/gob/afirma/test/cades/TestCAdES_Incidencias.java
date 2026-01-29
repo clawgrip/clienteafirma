@@ -13,25 +13,23 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.signers.cades.AOCAdESSigner;
 
-
 /**
  * Pruebas asociadas a incidencias detectadas en el nucleo  */
-public final class TestCAdES_Incidencias {
+final class TestCAdES_Incidencias {
 
-	/** Prueba de an&aacute;lisis de las firmas del Gobierno Canario. Originalmente, ocurr&iacute;a un error
-	 * de tipo:
-	 * <code>java.lang.ClassCastException: org.spongycastle.asn1.ASN1GeneralizedTime cannot be cast to org.spongycastle.asn1.ASN1UTCTime</code>
+	/** Prueba de an&aacute;lisis de las firmas del Gobierno Canario. Originalmente, ocurr&iacute;a un error de tipo:
+	 * <code>java.lang.ClassCastException: org.bouncycastle.asn1.ASN1GeneralizedTime cannot be cast to org.bouncycastle.asn1.ASN1UTCTime</code>
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
-	public void inc71506_ExtraccionDatosCadesCanarias() throws Exception {
+	void inc71506_ExtraccionDatosCadesCanarias() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 		final byte[] signature;
@@ -42,6 +40,6 @@ public final class TestCAdES_Incidencias {
 		}
 
 		final AOSigner signer = new AOCAdESSigner();
-		Assert.assertNotNull("El arbol de firmas no puede ser nulo", signer.getSignersStructure(signature, true)); //$NON-NLS-1$
+		Assertions.assertNotNull(signer.getSignersStructure(signature, true), "El arbol de firmas no puede ser nulo"); //$NON-NLS-1$
 	}
 }

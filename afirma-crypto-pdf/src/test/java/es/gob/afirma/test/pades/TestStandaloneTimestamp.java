@@ -7,15 +7,16 @@ import java.io.OutputStream;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.signers.pades.PdfTimestamper;
 
 /** Pruebas de sellos de tiempo de forma independiente a las firmas.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
-public final class TestStandaloneTimestamp {
+final class TestStandaloneTimestamp {
 
 	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
 	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
@@ -34,28 +35,20 @@ public final class TestStandaloneTimestamp {
      * @throws Exception en cualquier error. */
     @SuppressWarnings("static-method")
     @Test
-    @Ignore
-	public void testTimestampCosignedPdf() throws Exception {
+    @Disabled("Necesita TSA")
+	void testTimestampCosignedPdf() throws Exception {
     	final byte[] inPdf;
-    	try (
-			final InputStream is = TestStandaloneTimestamp.class.getResourceAsStream("/cosigned.pdf") //$NON-NLS-1$
-		) {
-	    	inPdf = AOUtil.getDataFromInputStream(
-				is
-			);
+    	try (InputStream is = TestStandaloneTimestamp.class.getResourceAsStream("/cosigned.pdf")) { //$NON-NLS-1$
+	    	inPdf = AOUtil.getDataFromInputStream(is);
     	}
     	final byte[] outPdf = PdfTimestamper.timestampPdf(
 			inPdf,
 			EXTRAPARAMS,
 			new GregorianCalendar()
 		);
-    	try (
-	    	final OutputStream fos = new FileOutputStream(
-				File.createTempFile("COSIGNED_TIMESTAMPED_", ".pdf") //$NON-NLS-1$ //$NON-NLS-2$
-			);
-		) {
+    	Assertions.assertNotNull(outPdf);
+    	try (OutputStream fos = new FileOutputStream(File.createTempFile("COSIGNED_TIMESTAMPED_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
     		fos.write(outPdf);
-    		fos.flush();
     	}
     }
 
@@ -63,29 +56,20 @@ public final class TestStandaloneTimestamp {
      * @throws Exception en cualquier error. */
     @SuppressWarnings("static-method")
     @Test
-    @Ignore
-	public void testTimestampPdf() throws Exception {
+    @Disabled("Necesita TSA")
+	void testTimestampPdf() throws Exception {
     	final byte[] inPdf;
-    	try (
-			final InputStream is = TestStandaloneTimestamp.class.getResourceAsStream("/multipage.pdf") //$NON-NLS-1$
-		) {
-	    	inPdf = AOUtil.getDataFromInputStream(
-				is
-			);
+    	try (InputStream is = TestStandaloneTimestamp.class.getResourceAsStream("/multipage.pdf")) { //$NON-NLS-1$
+	    	inPdf = AOUtil.getDataFromInputStream(is);
     	}
     	final byte[] outPdf = PdfTimestamper.timestampPdf(
 			inPdf,
 			EXTRAPARAMS,
 			new GregorianCalendar()
 		);
-    	try (
-	    	final OutputStream fos = new FileOutputStream(
-				File.createTempFile("NORMAL_TIMESTAMPED_", ".pdf") //$NON-NLS-1$ //$NON-NLS-2$
-			);
-		) {
+    	Assertions.assertNotNull(outPdf);
+    	try (OutputStream fos = new FileOutputStream(File.createTempFile("NORMAL_TIMESTAMPED_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
     		fos.write(outPdf);
-    		fos.flush();
     	}
     }
-
 }
