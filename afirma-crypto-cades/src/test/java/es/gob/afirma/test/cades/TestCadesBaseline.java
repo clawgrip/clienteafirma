@@ -9,7 +9,7 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -24,7 +24,7 @@ class TestCadesBaseline {
 	private PrivateKeyEntry pke;
 	private byte[] data;
 
-	@BeforeAll
+	@BeforeEach
 	void init() throws Exception {
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$

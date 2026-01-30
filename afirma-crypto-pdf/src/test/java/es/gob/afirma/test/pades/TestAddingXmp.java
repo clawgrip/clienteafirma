@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.aowagie.text.pdf.PdfReader;
@@ -49,6 +50,7 @@ class TestAddingXmp {
 
         // Guardamos el resultado
         final File tmpFile = File.createTempFile("TESTXMP_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
+        Assertions.assertNotNull(tmpFile);
         try (OutputStream fos = new FileOutputStream(tmpFile)) {
 	        fos.write(baos.toByteArray());
         }

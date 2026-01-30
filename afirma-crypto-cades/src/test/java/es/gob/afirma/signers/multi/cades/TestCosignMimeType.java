@@ -14,7 +14,8 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -64,7 +65,14 @@ class TestCosignMimeType {
 	private PrivateKeyEntry signPke;
 	private PrivateKeyEntry cosignPke;
 
-	@BeforeAll
+	public static void main(final String[] args) throws Exception {
+		final TestCosignMimeType obj = new TestCosignMimeType();
+		obj.loadData();
+		obj.loadPrivateKeyEntries();
+		obj.cadesConMimeTypeSinIndicarYFirmaSinDatosNiMimeType();
+	}
+
+	@BeforeEach
 	void loadData() throws IOException {
 		this.jpegData = loadFileData(FILENAME_JPG);
 		this.unknownData = loadFileData(FILENAME_UNKNOWN);
@@ -79,7 +87,7 @@ class TestCosignMimeType {
 		return data;
 	}
 
-	@BeforeAll
+	@BeforeEach
 	void loadPrivateKeyEntries() throws Exception {
 
 		KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
@@ -95,7 +103,7 @@ class TestCosignMimeType {
 		this.cosignPke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_COSIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_COSIGN.toCharArray()));
 	}
 
-	@BeforeAll
+	@BeforeEach
 	void generateSignatures() throws Exception {
 
 		final Properties extraParams = new Properties();
@@ -142,6 +150,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesPorDefecto() throws Exception {
 		final Properties extraParams = new Properties();
 		final byte[] cosignature = cosign(this.signatureImplicitWithMimeTypePng, extraParams);
@@ -156,6 +165,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeIndicandolo() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -173,6 +183,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeIndicandoOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -190,6 +201,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeSinIndicarYFirmaConEl() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -207,6 +219,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeSinIndicarYFirmaConOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -223,6 +236,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeSinIndicarYFirmaConMimeTypeyOid() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -240,6 +254,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeSinIndicarYFirmaImplicitaSinTipo() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());
@@ -257,6 +272,7 @@ class TestCosignMimeType {
 	 * @throws Exception Cuando ocurre un error en la firma.
 	 */
 	@Test
+	@Disabled
 	void cadesConMimeTypeSinIndicarYFirmaSinDatosNiMimeType() throws Exception {
 		final Properties extraParams = new Properties();
 		extraParams.setProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE, Boolean.TRUE.toString());

@@ -235,13 +235,13 @@ public final class TsaParams {
 		}
 
 		return new TsaRequestExtension[] {
-				new TsaRequestExtension(
-						extensionOid,
-						extensionCritical,
-						Base64.decode(extensionValueBase64)
-						)
-				};
-		}
+			new TsaRequestExtension(
+				extensionOid,
+				extensionCritical,
+				Base64.decode(extensionValueBase64)
+			)
+		};
+	}
 
 	/** Obtiene el algoritmo de huella digital a usar en el sellado de tiempo.
 	 * @return Algoritmo de huella digital a usar en el sellado de tiempo. */
@@ -349,18 +349,18 @@ public final class TsaParams {
 		exts.append("]"); //$NON-NLS-1$
 
 		final String ret = "Parametros TSA [" + //$NON-NLS-1$
-					"URL=" + getTsaUrl() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
-					"User=" + getTsaUsr() + ": " + //$NON-NLS-1$ //$NON-NLS-2$
-					"Policy=" + getTsaPolicy() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
-					"Extensions" + exts.toString() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
-					"Digest=" + getTsaHashAlgorithm() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
-					"SSLKeyStore=" + (getSslKeyStore() != null ? "Yes" : "No") + "; " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					"SSLKeyStorePwd=" + getSslKeyStorePassword() + //$NON-NLS-1$
-					"SSLKeyStoreType=" + getSslKeyStoreType() + //$NON-NLS-1$
-					"SSLTrustStore=" + (getSslTrustStore() != null ? "Yes" : "No") + "; " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					"SSLTrustStorePwd=" + getSslTrustStorePassword() + //$NON-NLS-1$
-					"SSLTrustStoreType=" + getSslTrustStoreType() + //$NON-NLS-1$
-					"VerifyHostname=" + isVerifyHostname() + //$NON-NLS-1$
+			"URL=" + getTsaUrl() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
+			"User=" + getTsaUsr() + ": " + //$NON-NLS-1$ //$NON-NLS-2$
+			"Policy=" + getTsaPolicy() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
+			"Extensions" + exts.toString() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
+			"Digest=" + getTsaHashAlgorithm() + "; " + //$NON-NLS-1$ //$NON-NLS-2$
+			"SSLKeyStore=" + (getSslKeyStore() != null ? "Yes" : "No") + "; " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"SSLKeyStorePwd=" + getSslKeyStorePassword() + //$NON-NLS-1$
+			"SSLKeyStoreType=" + getSslKeyStoreType() + //$NON-NLS-1$
+			"SSLTrustStore=" + (getSslTrustStore() != null ? "Yes" : "No") + "; " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"SSLTrustStorePwd=" + getSslTrustStorePassword() + //$NON-NLS-1$
+			"SSLTrustStoreType=" + getSslTrustStoreType() + //$NON-NLS-1$
+			"VerifyHostname=" + isVerifyHostname() + //$NON-NLS-1$
 			"]"; //$NON-NLS-1$
 
 		// Quitamos el punto y coma de la ultima extension

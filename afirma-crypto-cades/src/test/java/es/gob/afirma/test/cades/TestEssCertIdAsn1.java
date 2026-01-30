@@ -12,7 +12,7 @@ import org.bouncycastle.asn1.ess.ESSCertIDv2;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.IssuerSerial;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /** Pruebas de codificaci&oacute;n de ESSCertIDv2.
@@ -27,7 +27,6 @@ final class TestEssCertIdAsn1 {
 	/** Pruebas de codificaci&oacute;n de ESSCertIDv2.
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
-	@Disabled
 	@Test
 	void TestEssCertIdAsn1DefaultValue() throws Exception {
 		final ESSCertIDv2 essCertIDv2WithOid = new ESSCertIDv2(
@@ -38,6 +37,7 @@ final class TestEssCertIdAsn1 {
 				new BigInteger("1") //$NON-NLS-1$
 			)
 		);
+		Assertions.assertNotNull(essCertIDv2WithOid.getCertHashObject());
 		try (OutputStream fos = new FileOutputStream(File.createTempFile("WITH_OID_", ".der"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			fos.write(essCertIDv2WithOid.getEncoded());
 		}

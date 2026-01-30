@@ -14,7 +14,7 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -48,7 +48,7 @@ class TestCAdESMimeType {
 
 	private PrivateKeyEntry pke;
 
-	@BeforeAll
+	@BeforeEach
 	void loadData() throws IOException {
 		this.jpegData = loadFileData(FILENAME_JPG);
 		this.unknownData = loadFileData(FILENAME_UNKNOWN);
@@ -63,7 +63,7 @@ class TestCAdESMimeType {
 		return data;
 	}
 
-	@BeforeAll
+	@BeforeEach
 	void loadPrivateKeyEntry() throws Exception {
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
@@ -238,7 +238,6 @@ class TestCAdESMimeType {
 		}
 
 		final ASN1Encodable asn1Value = mimetypeAttr.getAttributeValues()[0];
-
 		return asn1Value.toString();
 	}
 }

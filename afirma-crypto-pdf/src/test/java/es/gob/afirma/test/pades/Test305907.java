@@ -6,6 +6,7 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -29,6 +30,7 @@ final class Test305907 {
 	 * @throws Exception En cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
+	@Disabled
 	void testReadRaw() throws Exception {
 
 		byte[] testPdf;

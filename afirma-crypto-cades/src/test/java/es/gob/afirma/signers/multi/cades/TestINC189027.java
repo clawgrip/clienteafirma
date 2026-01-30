@@ -6,9 +6,9 @@ import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.AOFormatFileException;
@@ -31,7 +31,7 @@ class TestINC189027 {
 
 	/** Carga el almac&eacute;n de certificados.
 	 * @throws Exception Cuando ocurre algun problema al cargar el almac&eacute;n o los datos. */
-	@BeforeAll
+	@BeforeEach
 	void cargaAlmacen() throws Exception {
 		ksIs = getClass().getClassLoader().getResourceAsStream(PKCS12_KEYSTORE);
 		ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
@@ -72,7 +72,7 @@ class TestINC189027 {
 	/** Cierra el flujo de lectura del almac&eacute;n de certificados.
 	 * @throws IOException Cuando ocurre alg&uacute;n problema al cerrar el flujo de datos. */
 	@SuppressWarnings("static-method")
-	@AfterAll
+	@AfterEach
 	void cerrar() throws IOException {
 		ksIs.close();
 	}

@@ -234,7 +234,7 @@ public class CAdESParameters {
 					final AttributeTable signedAttributes = signerInfo.getSignedAttributes();
 
 					if (mimetypeNeeded && mimeType == null) {
-						final Attribute mimetypeAttr = signedAttributes.get(new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsMimeType));
+						final Attribute mimetypeAttr = signedAttributes.get(new ASN1ObjectIdentifier(CAdESAttributes.OID_ID_AE_ETS_MIMETYPE));
 						if (mimetypeAttr != null) {
 							mimeType = mimetypeAttr.getAttributeValues()[0].toString();
 							foundPreviousDataType = true;

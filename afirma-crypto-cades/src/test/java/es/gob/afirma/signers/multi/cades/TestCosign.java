@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.AOException;
@@ -43,7 +43,7 @@ final class TestCosign {
 
 	/** Carga el almac&eacute;n de certificados.
 	 * @throws Exception Cuando ocurre algun problema al cargar el almac&eacute;n o los datos. */
-	@BeforeAll
+	@BeforeEach
 	void cargaAlmacen() throws Exception {
 		try (InputStream ksIs = getClass().getClassLoader().getResourceAsStream(CERT_PATH)) {
 			this.ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$

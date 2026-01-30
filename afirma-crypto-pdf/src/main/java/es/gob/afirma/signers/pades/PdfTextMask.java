@@ -127,59 +127,54 @@ public class PdfTextMask {
 
 		final PdfTextMask mask = new PdfTextMask();
 
-		char character = '\0';
-		int length = -1;
 		boolean[] positions = null;
 		final boolean shiftment;
 
 		final String[] elements = param.split(";"); //$NON-NLS-1$
-		if (elements.length == 4) {
+		if (elements.length != 4) {
+			throw new IllegalArgumentException("El numero de elementos de la mascara no es valido"); //$NON-NLS-1$
+		}
+		// Caracter de ofuscacion
+		if (elements[0].length() != 1) {
+			throw new IllegalArgumentException("No se indico un caracter de ofuscacion unico"); //$NON-NLS-1$
+		}
+		final char character = elements[0].charAt(0);
 
-			// Caracter de ofuscacion
-			if (elements[0].length() != 1) {
-				throw new IllegalArgumentException("No se indico un caracter de ofuscacion unico"); //$NON-NLS-1$
-			}
-			character = elements[0].charAt(0);
-
-			// Numero minimo de digitos para identificar elementos
-			boolean isNumber = true;
-			for (final char c : elements[1].toCharArray()) {
-				if (!Character.isDigit(c)) {
-					isNumber = false;
-				}
-			}
-			if (!isNumber) {
-				throw new IllegalArgumentException("No se indico un numero valido de digitos minimos"); //$NON-NLS-1$
-			}
-			length = Integer.parseInt(elements[1]);
-
-			// Posiciones de la mascara
-			final String[] positionLists = elements[2].split(","); //$NON-NLS-1$
-			if (positionLists.length <= 1) {
-				throw new IllegalArgumentException("No se indico un listado de posiciones valido"); //$NON-NLS-1$
-			}
-			int pos = positionLists.length - 1;
-			while (pos >= 0 && !Boolean.parseBoolean(positionLists[pos])) {
-				pos--;
-			}
-			if (pos > 0) {
-				positions = new boolean[pos + 1];
-				for (int i = 0; i < positions.length; i++) {
-					positions[i] = Boolean.parseBoolean(positionLists[i]);
-				}
-			}
-
-			shiftment = Boolean.parseBoolean(elements[3]);
-
-			if (character != '\0' && length > -1 && positions != null) {
-				mask.setObfuscatedChar(character);
-				mask.setMinLength(length);
-				mask.setPositions(positions);
-				mask.setShiftSupported(shiftment);
+		// Numero minimo de digitos para identificar elementos
+		boolean isNumber = true;
+		for (final char c : elements[1].toCharArray()) {
+			if (!Character.isDigit(c)) {
+				isNumber = false;
 			}
 		}
-		else {
-			throw new IllegalArgumentException("El numero de elementos de la mascara no es valido"); //$NON-NLS-1$
+		if (!isNumber) {
+			throw new IllegalArgumentException("No se indico un numero valido de digitos minimos"); //$NON-NLS-1$
+		}
+		final int length = Integer.parseInt(elements[1]);
+
+		// Posiciones de la mascara
+		final String[] positionLists = elements[2].split(","); //$NON-NLS-1$
+		if (positionLists.length <= 1) {
+			throw new IllegalArgumentException("No se indico un listado de posiciones valido"); //$NON-NLS-1$
+		}
+		int pos = positionLists.length - 1;
+		while (pos >= 0 && !Boolean.parseBoolean(positionLists[pos])) {
+			pos--;
+		}
+		if (pos > 0) {
+			positions = new boolean[pos + 1];
+			for (int i = 0; i < positions.length; i++) {
+				positions[i] = Boolean.parseBoolean(positionLists[i]);
+			}
+		}
+
+		shiftment = Boolean.parseBoolean(elements[3]);
+
+		if (character != '\0' && length > -1 && positions != null) {
+			mask.setObfuscatedChar(character);
+			mask.setMinLength(length);
+			mask.setPositions(positions);
+			mask.setShiftSupported(shiftment);
 		}
 
 		return mask;

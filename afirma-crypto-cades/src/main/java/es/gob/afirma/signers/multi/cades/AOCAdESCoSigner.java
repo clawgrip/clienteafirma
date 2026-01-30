@@ -108,7 +108,7 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 
     private static Properties getExtraParams(final Properties extraParams) {
     	return extraParams != null ?
-    			(Properties) extraParams.clone() : new Properties();
+			(Properties) extraParams.clone() : new Properties();
     }
 
     /**

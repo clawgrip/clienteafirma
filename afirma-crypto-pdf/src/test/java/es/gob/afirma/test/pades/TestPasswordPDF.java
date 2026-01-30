@@ -10,7 +10,7 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -26,7 +26,7 @@ final class TestPasswordPDF {
 
     PrivateKeyEntry pke = null;
 
-    @BeforeAll
+    @BeforeEach
     void loadKeys() throws Exception {
 
     	final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$

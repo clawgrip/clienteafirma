@@ -37,7 +37,7 @@ final class TimestampsAnalyzer {
 		}
 		catch (final CMSException e) {
 			LOGGER.log(Level.SEVERE,
-				"La firma proporcionada no es un SignedData compatible CMS, se devolvera una lista de sellos vacia: " + e, //$NON-NLS-1$
+				"La firma proporcionada no es un SignedData compatible CMS, se devolvera una lista de sellos vacia", //$NON-NLS-1$
 				e
 			);
 			return new ArrayList<>(0);
@@ -87,7 +87,7 @@ final class TimestampsAnalyzer {
 					catch (final Exception e) {
 						LOGGER.log(
 							Level.SEVERE,
-							"Error extrayendo los sellos de tiempo de la firma CMS, se continuara con la siguiente: " + e, //$NON-NLS-1$
+							"Error extrayendo los sellos de tiempo de la firma CMS, se continuara con la siguiente", //$NON-NLS-1$
 							e
 						);
 						continue;
@@ -99,12 +99,9 @@ final class TimestampsAnalyzer {
 							tst.getTimeStampInfo().getGenTime()
 						)
 					);
-
 				}
 			}
-
 		}
 		return ret;
 	}
-
 }

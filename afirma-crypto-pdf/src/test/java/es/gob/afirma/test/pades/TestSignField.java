@@ -260,7 +260,10 @@ public class TestSignField {
 		extraParams.put("signaturePositionOnPageUpperRightX", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("signaturePositionOnPageUpperRightY", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] rubricImage = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE));
+		final byte[] rubricImage;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE)) {
+			rubricImage = AOUtil.getDataFromInputStream(is);
+		}
 
 		final String rubricImageB64 = Base64.encode(rubricImage);
 
@@ -371,7 +374,10 @@ public class TestSignField {
 		extraParams.put("signaturePositionOnPageUpperRightX", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 		extraParams.put("signaturePositionOnPageUpperRightY", "200"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] rubricImage = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE));
+		final byte[] rubricImage;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE)) {
+			rubricImage = AOUtil.getDataFromInputStream(is);
+		}
 
 		final String rubricImageB64 = Base64.encode(rubricImage);
 
@@ -434,7 +440,10 @@ public class TestSignField {
 
 		extraParams.put("signatureRotation", "90"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final byte[] rubricImage = AOUtil.getDataFromInputStream(ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE));
+		final byte[] rubricImage;
+		try (InputStream is = ClassLoader.getSystemResourceAsStream(TestSignField.RUBRIC_IMAGE)) {
+			rubricImage = AOUtil.getDataFromInputStream(is);
+		}
 
 		final String rubricImageB64 = Base64.encode(rubricImage);
 

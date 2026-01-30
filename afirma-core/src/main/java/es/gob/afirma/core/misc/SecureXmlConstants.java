@@ -1,6 +1,10 @@
 package es.gob.afirma.core.misc;
 
-class SecureXmlConstants {
+final class SecureXmlConstants {
+
+	private SecureXmlConstants() {
+		// No instanciable
+	}
 
 	// Constantes copiadas de javax.xml.XMLConstants
 	static final String FEATURE_SECURE_PROCESSING = "http://javax.xml.XMLConstants/feature/secure-processing";  //$NON-NLS-1$

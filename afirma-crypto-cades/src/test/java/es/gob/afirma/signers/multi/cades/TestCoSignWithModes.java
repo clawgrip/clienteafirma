@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.AOException;
@@ -71,7 +71,7 @@ class TestCoSignWithModes {
 	/** Antes de ejecutar cualquier prueba se cargan
 	 * todos los objetos que se vaya a necesitar en las distintas pruebas.
 	 * @throws Exception En cualquier error. */
-	@BeforeAll
+	@BeforeEach
 	void loadParams() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
@@ -405,7 +405,7 @@ class TestCoSignWithModes {
 		final byte[] contentData = this.signer.getData(signature);
 		if (hasData) {
 			Assertions.assertNotNull(contentData, "No se han encontrado los datos en la cofirma"); //$NON-NLS-1$
-			Assertions.assertNotEquals(contentData.length, 0, "El campo de datos de la firma esta vacio"); //$NON-NLS-1$
+			Assertions.assertNotEquals(0, contentData.length, "El campo de datos de la firma esta vacio"); //$NON-NLS-1$
 			Assertions.assertTrue(Arrays.equals(contentData, this.data), "Los datos extraidos de la firma no son los que originalmente se firmaron"); //$NON-NLS-1$
 		}
 		else {

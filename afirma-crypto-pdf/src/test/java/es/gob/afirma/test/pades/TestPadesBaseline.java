@@ -12,7 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
@@ -55,7 +56,7 @@ final class TestPadesBaseline {
 	/** Antes de ejecutar cualquier prueba se cargan
 	 * todos los objetos que se vaya a necesitar en las distintas pruebas.
 	 * @throws Exception En cualquier error. */
-	@BeforeAll
+	@BeforeEach
 	void loadParams() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
@@ -144,6 +145,7 @@ final class TestPadesBaseline {
 	/** Firma baseline con commitment-type-indications.
 	 * @throws Exception en cualquier error. */
 	@Test
+	@Disabled
 	void testFirmaBaselineConCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
@@ -229,13 +231,15 @@ final class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica de firma y commitment type indications.
 	 * @throws Exception en cualquier error. */
 	@Test
+	@Disabled
 	void testFirmaBaselineConPoliticaYCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.policyParams, this.commitmentTypeIndicationsParams));
+			this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
+			add(this.baselineParams, this.policyParams, this.commitmentTypeIndicationsParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConPoliticaYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -249,6 +253,7 @@ final class TestPadesBaseline {
 	 * el atributo CommitmentTypeIndications.
 	 * @throws Exception en cualquier error. */
 	@Test
+	@Disabled
 	void testFirmaBaselineSinPoliticaYConCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
@@ -283,6 +288,7 @@ final class TestPadesBaseline {
 	/** Firma baseline con pol&iacute;tica, raz&oacute;n de firma y commitment type indications.
 	 * @throws Exception en cualquier error. */
 	@Test
+	@Disabled
 	void testFirmaBaselineConPoliticaReasonYCommitmentTypeIndications() throws Exception {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;

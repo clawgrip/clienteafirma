@@ -308,12 +308,12 @@ public final class AOSignConstants {
 
 		if (upperPseudoName.equals("http://www.w3.org/2001/04/xmlenc#sha256".toUpperCase(Locale.US))  //$NON-NLS-1$
 				|| "2.16.840.1.101.3.4.2.1".equals(upperPseudoName) //$NON-NLS-1$
-				|| upperPseudoName.startsWith("SHA256") //$NON-NLS-1$
+				|| upperPseudoName.startsWith(DIGEST_ALGORITHM_SHA256)
 				|| upperPseudoName.startsWith("SHA-256")) { //$NON-NLS-1$
 			return "SHA-256"; //$NON-NLS-1$
 		}
 
-		if (upperPseudoName.startsWith("SHA384") //$NON-NLS-1$
+		if (upperPseudoName.startsWith(DIGEST_ALGORITHM_SHA384)
 				|| "2.16.840.1.101.3.4.2.2".equals(upperPseudoName) //$NON-NLS-1$
 				|| upperPseudoName.startsWith("SHA-384")) { //$NON-NLS-1$
 			return "SHA-384"; //$NON-NLS-1$
@@ -321,7 +321,7 @@ public final class AOSignConstants {
 
 		if (upperPseudoName.equals("http://www.w3.org/2001/04/xmlenc#sha512".toUpperCase(Locale.US))  //$NON-NLS-1$
 				|| "2.16.840.1.101.3.4.2.3".equals(upperPseudoName) //$NON-NLS-1$
-				|| upperPseudoName.startsWith("SHA512") //$NON-NLS-1$
+				|| upperPseudoName.startsWith(DIGEST_ALGORITHM_SHA512)
 				|| upperPseudoName.startsWith("SHA-512")) { //$NON-NLS-1$
 			return "SHA-512"; //$NON-NLS-1$
 		}

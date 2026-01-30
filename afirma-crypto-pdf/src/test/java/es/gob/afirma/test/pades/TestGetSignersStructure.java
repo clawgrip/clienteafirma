@@ -9,7 +9,7 @@ import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.AOException;
@@ -41,7 +41,7 @@ final class TestGetSignersStructure {
 
 	/** Carga la clave y certificado de firma.
 	 * @throws Exception En cualquier error. */
-	@BeforeAll
+	@BeforeEach
 	void loadKeys() throws Exception {
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
 		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {

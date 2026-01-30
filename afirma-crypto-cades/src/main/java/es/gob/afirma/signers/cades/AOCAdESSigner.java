@@ -201,9 +201,7 @@ public final class AOCAdESSigner implements AOSigner {
 
     	checkAlgorithm(algorithm, extraParams);
 
-        return new AOCAdESCoSigner().cosign(
-			sign, algorithm, key, certChain, extraParams
-		);
+        return new AOCAdESCoSigner().cosign(sign, algorithm, key, certChain, extraParams);
     }
 
 	@Override
@@ -237,8 +235,7 @@ public final class AOCAdESSigner implements AOSigner {
      *        informaci&oacute;n b&aacute;sica de cada firma individual
      *        mediante objetos <code>AOSimpleSignInfo</code>, si es <code>false</code> un &aacute;rbol con los nombres comunes de los
      *        titulares de los certificados usados para cada firma.
-     * @return &Aacute;rbol de nodos de firma o <code>null</code> en caso de
-     *         error.
+     * @return &Aacute;rbol de nodos de firma o <code>null</code> en caso de error.
      * @throws AOInvalidSignatureFormatException Cuando los datos introducidos no son una firma CAdES.
      * @throws IOException Si ocurren problemas relacionados con la lectura de la firma */
     @Override

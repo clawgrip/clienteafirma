@@ -1,7 +1,6 @@
 package es.gob.afirma.core.misc;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.signers.AOSignConstants;
@@ -13,7 +12,6 @@ final class TestConstants {
 	/** Prueba de obtenci&oacute;n de nombre de algoritmo de huella <i>NONE</i>. */
 	@SuppressWarnings("static-method")
 	@Test
-	@Disabled
 	void testDigestNone() {
 		final String digestAlgo = AOSignConstants.getDigestAlgorithmName("NONEwithRSA"); //$NON-NLS-1$
 		System.out.println(digestAlgo);

@@ -29,6 +29,7 @@ import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.BEROctetString;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.DLSet;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
@@ -258,7 +259,7 @@ final class CAdESCoSigner {
 						final ASN1Sequence elemento = (ASN1Sequence) signedAttrib.getObjectAt(s);
 						final ASN1ObjectIdentifier oids = (ASN1ObjectIdentifier) elemento.getObjectAt(0);
 						if (CMSAttributes.messageDigest.getId().equals(oids.toString())) {
-							final DERSet derSetHash = (DERSet) elemento.getObjectAt(1);
+							final DLSet derSetHash = (DLSet) elemento.getObjectAt(1);
 							final DEROctetString derHash = (DEROctetString) derSetHash.getObjectAt(0);
 							config.setDataDigest(derHash.getOctets());
 						}
@@ -273,9 +274,10 @@ final class CAdESCoSigner {
 			throw new ContainsNoDataException("No se puede crear la cofirma ya que no se han encontrado ni los datos firmados ni una huella digital compatible con el algoritmo de firma"); //$NON-NLS-1$
 		}
 		final ASN1EncodableVector signedAttributes = CAdESUtils.generateSignedAttributes(
-				certChain[0],
-				config,
-				false);
+			certChain[0],
+			config,
+			false
+		);
 		final ASN1Set signedAttr = SigUtils.getAttributeSet(new AttributeTable(signedAttributes));
 
 		// === FIRMA ===

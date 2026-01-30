@@ -35,7 +35,7 @@ public final class AOSignerFactory {
 	private static final String SIGNER_CLASS_XADES       	  = "es.gob.afirma.signers.xades.AOXAdESSigner"; //$NON-NLS-1$
 	private static final String SIGNER_CLASS_XADES_TRI   	  = "es.gob.afirma.signers.xadestri.client.AOXAdESTriPhaseSigner"; //$NON-NLS-1$
 	private static final String SIGNER_CLASS_XADES_ASIC_S	  = "es.gob.afirma.signers.xades.asic.AOXAdESASiCSSigner"; //$NON-NLS-1$
-	private static final String SIGNER_CLASS_XADES_ASIC_S_tri = "es.gob.afirma.signers.xadestri.client.asic.AOXAdESASiCSTriPhaseSigner"; //$NON-NLS-1$
+	private static final String SIGNER_CLASS_XADES_ASIC_S_TRI = "es.gob.afirma.signers.xadestri.client.asic.AOXAdESASiCSTriPhaseSigner"; //$NON-NLS-1$
 	private static final String SIGNER_CLASS_XMLDSIG     	  = "es.gob.afirma.signers.xmldsig.AOXMLDSigSigner"; //$NON-NLS-1$
 	private static final String SIGNER_CLASS_PADES       	  = "es.gob.afirma.signers.pades.AOPDFSigner"; //$NON-NLS-1$
 	private static final String SIGNER_CLASS_PADES_TRI   	  = "es.gob.afirma.signers.padestri.client.AOPDFTriPhaseSigner"; //$NON-NLS-1$
@@ -48,7 +48,7 @@ public final class AOSignerFactory {
 	// 0.- Nombre
 	// 1.- Clase manejadora
 	// 2.- Soporte de identificacion de firmas
-	private static final String[][] SIGNERS_CLASSES = new String[][] {
+	private static final String[][] SIGNERS_CLASSES = {
 		{AOSignConstants.SIGN_FORMAT_CADES,              SIGNER_CLASS_CADES,        	Boolean.TRUE.toString()},
 		{AOSignConstants.SIGN_FORMAT_CADES_TRI,          SIGNER_CLASS_CADES_TRI,    	Boolean.FALSE.toString()},
 		{AOSignConstants.SIGN_FORMAT_CADES_ASIC_S,       SIGNER_CLASS_CADES_ASIC_S, 	Boolean.TRUE.toString()},
@@ -63,7 +63,7 @@ public final class AOSignerFactory {
 		{AOSignConstants.SIGN_FORMAT_XADES_ENVELOPING,   SIGNER_CLASS_XADES,        	Boolean.FALSE.toString()},
 		{AOSignConstants.SIGN_FORMAT_XADES_TRI,          SIGNER_CLASS_XADES_TRI,    	Boolean.FALSE.toString()},
 		{AOSignConstants.SIGN_FORMAT_XADES_ASIC_S,       SIGNER_CLASS_XADES_ASIC_S, 	Boolean.TRUE.toString()},
-		{AOSignConstants.SIGN_FORMAT_XADES_ASIC_S_TRI,   SIGNER_CLASS_XADES_ASIC_S_tri, Boolean.FALSE.toString()},
+		{AOSignConstants.SIGN_FORMAT_XADES_ASIC_S_TRI,   SIGNER_CLASS_XADES_ASIC_S_TRI, Boolean.FALSE.toString()},
 		{AOSignConstants.SIGN_FORMAT_XMLDSIG,            SIGNER_CLASS_XMLDSIG,      	Boolean.TRUE.toString()},
 		{AOSignConstants.SIGN_FORMAT_XMLDSIG_DETACHED,   SIGNER_CLASS_XMLDSIG,      	Boolean.FALSE.toString()},
 		{AOSignConstants.SIGN_FORMAT_XMLDSIG_ENVELOPED,  SIGNER_CLASS_XMLDSIG,      	Boolean.FALSE.toString()},
@@ -93,7 +93,7 @@ public final class AOSignerFactory {
 		if (signData == null) {
 			throw new IllegalArgumentException("No se han indicado datos de firma"); //$NON-NLS-1$
 		}
-		for (final String format[] : SIGNERS_CLASSES) {
+		for (final String[] format : SIGNERS_CLASSES) {
 
 			// Solo buscaremos el signer compatible entre los que soportan la identificacion
 			if (!Boolean.parseBoolean(format[2])) {
@@ -105,7 +105,7 @@ public final class AOSignerFactory {
 					SIGNERS.put(format[0], (AOSigner) Class.forName(format[1]).getDeclaredConstructor().newInstance());
 				}
 				catch(final Exception e) {
-					LOGGER.warning("No se ha podido instanciar un manejador para el formato de firma '" + format[0] + "': " + e); //$NON-NLS-1$ //$NON-NLS-2$
+					LOGGER.warning(()-> "No se ha podido instanciar un manejador para el formato de firma '" + format[0] + "': " + e); //$NON-NLS-1$ //$NON-NLS-2$
 					continue;
 				}
 			}
@@ -116,7 +116,7 @@ public final class AOSignerFactory {
 		}
 		return null;
 	}
-	
+
 	/** Recupera un manejador de firma capaz de tratar la firma indicada. En caso
 	 * de no tener ning&uacute;n manejador compatible se devolver&aacute; <code>null</code>.
 	 * @param signData Firma electr&oacute;nica
@@ -127,7 +127,7 @@ public final class AOSignerFactory {
 		if (signData == null) {
 			throw new IllegalArgumentException("No se han indicado datos de firma"); //$NON-NLS-1$
 		}
-		for (final String format[] : SIGNERS_CLASSES) {
+		for (final String[] format : SIGNERS_CLASSES) {
 
 			// Solo buscaremos el signer compatible entre los que soportan la identificacion
 			if (!Boolean.parseBoolean(format[2])) {
@@ -165,7 +165,7 @@ public final class AOSignerFactory {
 			}
 		}
 		if (signerClass == null) {
-			LOGGER.warning("El formato de firma '" + signFormat + "' no esta soportado, se devolvera null"); //$NON-NLS-1$ //$NON-NLS-2$
+			LOGGER.warning(()-> "El formato de firma '" + signFormat + "' no esta soportado, se devolvera null"); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		}
 		if (SIGNERS.get(signFormat) == null) {

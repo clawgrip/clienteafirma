@@ -128,10 +128,10 @@ public final class OfficeAnalizer {
         FILE_DESCRIPTIONS.put("application/vnd.oasis.opendocument.image", "Imagen"); //$NON-NLS-1$ //$NON-NLS-2$
         FILE_DESCRIPTIONS.put("application/vnd.oasis.opendocument.text-master", "Plantilla de documento"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        FILE_DESCRIPTIONS.put("application/msword", "Documento de texto"); //$NON-NLS-1$ //$NON-NLS-2$
-        FILE_DESCRIPTIONS.put("application/vnd.ms-powerpoint", "Presentaci\u00F3n"); //$NON-NLS-1$ //$NON-NLS-2$
-        FILE_DESCRIPTIONS.put("application/vnd.ms-excel", "Hoja de c\u00E1lculo"); //$NON-NLS-1$ //$NON-NLS-2$
-        FILE_DESCRIPTIONS.put("application/vnd.ms-project", "Planificaci&oacute;n de proyecto"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put("application/msword", "Documento de texto de Microsoft Office"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put("application/vnd.ms-powerpoint", "Presentaci\u00F3n de Microsoft Office"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put("application/vnd.ms-excel", "Hoja de c\u00E1lculo de Microsoft Office"); //$NON-NLS-1$ //$NON-NLS-2$
+        FILE_DESCRIPTIONS.put("application/vnd.ms-project", "Planificaci&oacute;n de proyecto de Microsoft Office"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /** Devuelve el MimeType correspondiente al documento ofim&aacute;tico

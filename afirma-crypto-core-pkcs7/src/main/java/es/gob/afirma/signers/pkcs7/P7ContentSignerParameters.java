@@ -33,7 +33,7 @@ public final class P7ContentSignerParameters {
 
         this.data = data2 != null ? data2.clone() : null;
 
-        if (signatureAlgorithm == null || signatureAlgorithm.length() < 1) {
+        if (signatureAlgorithm == null || signatureAlgorithm.isEmpty()) {
             LOGGER.warning("No se especifico algoritmo para la firma CADES, se utilizara " + AOSignConstants.DEFAULT_SIGN_ALGO); //$NON-NLS-1$
             this.sigAlgo = AOSignConstants.DEFAULT_SIGN_ALGO;
         }

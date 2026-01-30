@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.aowagie.text.DocumentException;
@@ -50,7 +50,7 @@ class TestCreateSignFields {
      * Carga las claves para firmar.
      * @throws Exception Cuando falla la carga de la clave.
      */
-    @BeforeAll
+    @BeforeEach
     void loadKeyStore() throws Exception {
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
         try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {

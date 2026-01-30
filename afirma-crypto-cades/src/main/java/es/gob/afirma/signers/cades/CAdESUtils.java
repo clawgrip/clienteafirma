@@ -525,20 +525,16 @@ public final class CAdESUtils {
         			signerAttrOid = PKCSObjectIdentifiers.id_aa_ets_signerAttr;
         		}
         		else if (AOSignConstants.SIGN_PROFILE_BASELINE.equals(config.getProfileSet()) ) {
-        			signerAttrOid = new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsSignerAttrV2);
+        			signerAttrOid = new ASN1ObjectIdentifier(CAdESAttributes.OID_ID_AE_ETS_SIGNER_ATTR_V2);
         		}
         		// Agregamos los roles
         		if (signerAttrOid != null) {
         			contextSpecific.add(
-        					new Attribute(
-        							signerAttrOid,
-        							new DERSet(
-        									new DERSequence(
-        											new DERTaggedObject(0, new DERSequence(claimedRoles))
-        											)
-        									)
-        							)
-        					);
+    					new Attribute(
+							signerAttrOid,
+							new DERSet(new DERSequence(new DERTaggedObject(0, new DERSequence(claimedRoles))))
+						)
+					);
         		}
         	}
         }
@@ -549,10 +545,8 @@ public final class CAdESUtils {
         if (config.getSigningTime() != null) {
         	contextSpecific.add(
     			new Attribute(
-    					CMSAttributes.signingTime,
-					new DERSet(
-						new DERUTCTime(config.getSigningTime())
-					)
+					CMSAttributes.signingTime,
+					new DERSet(new DERUTCTime(config.getSigningTime()))
 				)
 			);
         }
@@ -561,9 +555,10 @@ public final class CAdESUtils {
         // en las contrafirmas
         if (!isCountersign && config.getMimeType() != null) {
         	contextSpecific.add(
-        			new Attribute(
-        					new ASN1ObjectIdentifier(CAdESAttributes.oidIdAaEtsMimeType),
-        					new DERSet(new DERUTF8String(config.getMimeType())))
+    			new Attribute(
+					new ASN1ObjectIdentifier(CAdESAttributes.OID_ID_AE_ETS_MIMETYPE),
+					new DERSet(new DERUTF8String(config.getMimeType()))
+				)
 			);
         }
 
@@ -583,10 +578,10 @@ public final class CAdESUtils {
     	for (final String role : claimedRoles) {
     		if (role != null && !role.isEmpty()) {
     			roles.add(
-    					new Attribute(
-    							X509AttributeIdentifiers.id_at_role,
-    							new DERSet(new DERUTF8String(role))
-    					)
+					new Attribute(
+						X509AttributeIdentifiers.id_at_role,
+						new DERSet(new DERUTF8String(role))
+					)
     			);
     		}
     	}
