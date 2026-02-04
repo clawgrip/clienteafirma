@@ -57,11 +57,8 @@ final class TestPdfVersioning {
         Assertions.assertNotNull(result);
 
         final File saveFile = File.createTempFile("PDFA1B-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-        try (
-    		final OutputStream os = new FileOutputStream(saveFile);
-		) {
+        try (OutputStream os = new FileOutputStream(saveFile)) {
 	        os.write(result);
-	        os.flush();
         }
         System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 	}
@@ -100,7 +97,6 @@ final class TestPdfVersioning {
         final File saveFile = File.createTempFile("PDF7-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
         try (OutputStream os = new FileOutputStream(saveFile)) {
 	        os.write(result);
-	        os.flush();
         }
         System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 	}

@@ -13,21 +13,17 @@ import java.util.logging.Logger;
 
 import es.gob.afirma.core.signers.AOSignConstants;
 
-
-/** Clase auxiliar que prepara los par&aacute;metros para cada una de las formas
- * de firma. */
+/** Clase auxiliar que prepara los par&aacute;metros para cada una de las formas de firma. */
 public final class P7ContentSignerParameters {
 
     private final byte[] data;
     private final String sigAlgo;
     private final byte[] signature;
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(P7ContentSignerParameters.class.getName());
 
-    /** M&eacute;todo que asigna los datos pasados por par&aacute;metro a las
-     * propiedades de la clase.
-     * @param data2
-     *        Archivo de firmas.
+    /** Asigna los datos pasados por par&aacute;metro a las propiedades de la clase.
+     * @param data2 Archivo de firmas.
      * @param signatureAlgorithm Tipo de datos. */
     public P7ContentSignerParameters(final byte[] data2, final String signatureAlgorithm) {
 
@@ -44,22 +40,21 @@ public final class P7ContentSignerParameters {
 
     }
 
-    /** M&eacute;todo que devuelve el contenido
+    /** Devuelve el contenido
      * @return el contenido */
     public byte[] getContent() {
         return this.data != null ? this.data.clone() : null;
     }
 
-    /** M&eacute;todo que devuelve la firma.
+    /** Devuelve la firma.
      * @return la firma. */
     public byte[] getSignature() {
         return this.signature.clone();
     }
 
-    /** M&eacute;todo que devuelve el tipo
+    /** Devuelve el tipo
      * @return el tipo */
     public String getSignatureAlgorithm() {
         return this.sigAlgo;
     }
-
 }

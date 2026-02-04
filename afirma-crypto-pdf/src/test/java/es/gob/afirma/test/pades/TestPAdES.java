@@ -101,36 +101,20 @@ public class TestPAdES {
 			InputStream is3 = ClassLoader.getSystemResourceAsStream(TEST_FILES[3])
 		) {
 	    	Assertions.assertFalse(
-				new AOPDFSigner().isSign(
-					AOUtil.getDataFromInputStream(
-						is0
-					)
-				),
+    			new AOPDFSigner().isSign(AOUtil.getDataFromInputStream(is0)),
 				"El fichero " + TEST_FILES[0] + " se identifica como firma y no lo es" //$NON-NLS-1$ //$NON-NLS-2$
 			);
 	    	Assertions.assertTrue(
-				new AOPDFSigner().isSign(
-					AOUtil.getDataFromInputStream(
-						is1
-					)
-				),
+				new AOPDFSigner().isSign(AOUtil.getDataFromInputStream(is1)),
 				"El fichero " + TEST_FILES[1] + " no se identifica como firma" //$NON-NLS-1$ //$NON-NLS-2$
 			);
 	    	Assertions.assertTrue(
-				new AOPDFSigner().isSign(
-					AOUtil.getDataFromInputStream(
-						is2
-					)
-				),
+				new AOPDFSigner().isSign(AOUtil.getDataFromInputStream(is2)),
 				"El fichero " + TEST_FILES[2] + " no se identifica como firma" //$NON-NLS-1$ //$NON-NLS-2$
 			);
 	    	System.setProperty("allowCosigningUnregisteredSignatures", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 	    	Assertions.assertTrue(
-    			new AOPDFSigner().isSign(
-    				AOUtil.getDataFromInputStream(
-    					is3
-    				)
-    			),
+    			new AOPDFSigner().isSign(AOUtil.getDataFromInputStream(is3)),
     			"El fichero " + TEST_FILES[3] + " no se identifica como firma" //$NON-NLS-1$ //$NON-NLS-2$
     		);
     	}
@@ -247,18 +231,14 @@ public class TestPAdES {
 		);
 
         final File saveFile = File.createTempFile("TSA-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-        try (
-    		final OutputStream os = new FileOutputStream(saveFile);
-		) {
+        try (OutputStream os = new FileOutputStream(saveFile)) {
 	        os.write(result);
-	        os.flush();
         }
 
         System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
         Assertions.assertNotNull(result, prueba);
         Assertions.assertTrue(signer.isSign(result));
-
     }
 
     /** Prueba de PDF con sello de tiempo contra la TSA de CATCert.
@@ -387,12 +367,12 @@ public class TestPAdES {
                     Assertions.assertTrue(signer.isValidDataFile(testPdf), "No se ha reconocido como un PDF"); //$NON-NLS-1$
 
                     prueba = "Firma PAdES en modo '" +  //$NON-NLS-1$
-                    extraParams.getProperty("mode") +  //$NON-NLS-1$
-                    "' con el algoritmo ': " + //$NON-NLS-1$
-                    algo +
-                    "' y el fichero '" +  //$NON-NLS-1$
-                    file +
-                    "'"; //$NON-NLS-1$
+	                    extraParams.getProperty("mode") +  //$NON-NLS-1$
+	                    "' con el algoritmo ': " + //$NON-NLS-1$
+	                    algo +
+	                    "' y el fichero '" +  //$NON-NLS-1$
+	                    file +
+	                    "'"; //$NON-NLS-1$
 
                     System.out.println(prueba);
 

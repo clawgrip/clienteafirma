@@ -48,7 +48,7 @@ public final class TsaParams {
 	private final String sslTrustStoreType;
 	private final boolean verifyHostname;
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(TsaParams.class.getName());
 
 	/** Construye los par&aacute;metros de configuraci&oacute;n de una Autoridad de Sellado de Tiempo.
 	 * @param requireCert Indicar <code>true</code> si es necesario incluir el certificado de la TSA,
@@ -110,9 +110,7 @@ public final class TsaParams {
 	 * @param extraParams Propiedades que contienen los par&aacute;metros de configuraci&oacute;n necesarios. */
 	public TsaParams(final Properties extraParams) {
 		if (extraParams == null) {
-			throw new IllegalArgumentException(
-				"La propiedades de configuracion de la TSA no pueden ser nulas" //$NON-NLS-1$
-			);
+			throw new IllegalArgumentException("La propiedades de configuracion de la TSA no pueden ser nulas"); //$NON-NLS-1$
 		}
 		final String tsa = extraParams.getProperty("tsaURL"); //$NON-NLS-1$
         if (tsa == null) {
@@ -124,9 +122,7 @@ public final class TsaParams {
     		this.tsaURL = new URI(tsa);
     	}
     	catch(final Exception e) {
-    		throw new IllegalArgumentException(
-				"Se ha indicado una URL de TSA invalida: " + tsa, e //$NON-NLS-1$
-			);
+    		throw new IllegalArgumentException("Se ha indicado una URL de TSA invalida: " + tsa, e); //$NON-NLS-1$
     	}
         this.tsaPolicy = extraParams.containsKey("tsaPolicy") ? //$NON-NLS-1$
     		extraParams.getProperty("tsaPolicy") : //$NON-NLS-1$

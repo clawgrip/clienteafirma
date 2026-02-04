@@ -43,7 +43,7 @@ public final class CommitmentTypeIndicationsHelper {
 		COMMITMENT_TYPE_IDENTIFIERS.put("6", COMMITMENT_TYPE_IDENTIFIER_PROOF_OF_CREATION); //$NON-NLS-1$
 	}
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");	//$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(CommitmentTypeIndicationsHelper.class.getName());
 
 	private CommitmentTypeIndicationsHelper() {
 		// No permitimos la instanciacion
@@ -160,17 +160,10 @@ public final class CommitmentTypeIndicationsHelper {
     			qualifiers[i] = new ASN1ObjectIdentifier(strQuals[i]);
     		}
     		catch(final Exception e) {
-    			throw new IllegalArgumentException(
-					"El calificador proporcionado no es un OID: " + strQuals[i], e //$NON-NLS-1$
-				);
+    			throw new IllegalArgumentException("El calificador proporcionado no es un OID: " + strQuals[i], e); //$NON-NLS-1$
     		}
     	}
 
-    	return new CommitmentTypeIndication(
-			id,
-			new DERSequence(qualifiers)
-		);
-
+    	return new CommitmentTypeIndication(id, new DERSequence(qualifiers));
     }
-
 }

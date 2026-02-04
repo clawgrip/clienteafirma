@@ -36,7 +36,7 @@ public final class OfficeAnalizer {
 
     private static final String ZIP_MIMETYPE = "application/zip"; //$NON-NLS-1$
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(OfficeAnalizer.class.getName());
 
     /** MimeTypes reconocidos del formato OOXML. */
     private static final Set<String> OOXML_MIMETYPES = new HashSet<>(17);
@@ -177,8 +177,9 @@ public final class OfficeAnalizer {
 
     	try {
     		Files.delete(tempFile.toPath());
-    	} catch (final IOException e) {
-    		LOGGER.warning("No se ha podido eliminar el fichero temporal:  " + e); //$NON-NLS-1$
+    	}
+    	catch (final IOException e) {
+    		LOGGER.warning(()-> "No se ha podido eliminar el fichero temporal:  " + e); //$NON-NLS-1$
     	}
 
     	if (mimetype == null) {

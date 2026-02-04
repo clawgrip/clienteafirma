@@ -45,7 +45,7 @@ public final class PdfTimestamper {
 
     private static final int UNDEFINED = -1;
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(PdfTimestamper.class.getName());
 
     /** Sello a nivel de firma. No permite mas cambios. */
     public static final String TS_LEVEL_SIGN = "1"; //$NON-NLS-1$
@@ -63,28 +63,8 @@ public final class PdfTimestamper {
 
     private static Class<?> tsaParamsClass = null;
 
-    private static boolean initialized = false;
-
 	private PdfTimestamper() {
 		// No instanciable
-	}
-
-	private static void initialize() {
-		if (initialized) {
-			return;
-		}
-
-		try {
-			cmsTimestamperClass = Class.forName("es.gob.afirma.signers.tsp.pkcs7.CMSTimestamper", //$NON-NLS-1$
-					false, PdfTimestamper.class.getClassLoader());
-			tsaParamsClass = Class.forName("es.gob.afirma.signers.tsp.pkcs7.TsaParams"); //$NON-NLS-1$
-		}
-		catch (final Throwable e) {
-			LOGGER.info("No se encuentran las clases de sellado de tiempo CAdES: " + e); //$NON-NLS-1$
-			cmsTimestamperClass = null;
-			tsaParamsClass = null;
-		}
-		initialized = true;
 	}
 
 	/**
@@ -100,12 +80,6 @@ public final class PdfTimestamper {
 			             final Properties extraParams,
 			             final Calendar signTime) throws AOException,
 	                                                     IOException {
-
-		// Si no estan disponibles las clases necesarias para el sellado
-		// de tiempo, no hacemos nada
-		if (!isAvailable()) {
-			return inPDF;
-		}
 
     	// Comprobamos si se ha pedido un sello de tiempo
     	if (extraParams != null) {
@@ -271,16 +245,6 @@ public final class PdfTimestamper {
 		catch (final Exception e) {
 			throw new InvalidLibraryException("Error con las bibliotecas de composicion del sello de tiempo para firmas PDF", e); //$NON-NLS-1$
 		}
-	}
-
-	static boolean isAvailable() {
-
-		// Cargamos las clases de sellado de tiempo
-		initialize();
-
-		// Si no se encuentran cargadas las clases,
-		// no estara disponible el sellado de tiempo
-		return cmsTimestamperClass != null;
 	}
 
 	/**

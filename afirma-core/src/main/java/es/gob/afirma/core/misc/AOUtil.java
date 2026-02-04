@@ -40,10 +40,10 @@ public final class AOUtil {
 
     private static final int BUFFER_SIZE = 4096;
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(AOUtil.class.getName());
 
     private static final String[] SUPPORTED_URI_SCHEMES = {
-            "http", "https", "file", "urn" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        "http", "https", "file", "urn" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     };
 
     private static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
@@ -70,18 +70,18 @@ public final class AOUtil {
         // Realizamos los cambios necesarios para proteger los caracteres no
         // seguros
         // de la URL
-        filename =
-                filename.replace(" ", "%20") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("<", "%3C") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace(">", "%3E") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("\"", "%22") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("{", "%7B") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("}", "%7D") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("|", "%7C") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("^", "%5E") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("[", "%5B") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("]", "%5D") //$NON-NLS-1$ //$NON-NLS-2$
-                        .replace("`", "%60"); //$NON-NLS-1$ //$NON-NLS-2$
+        filename = filename
+    		.replace(" ", "%20") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("<", "%3C") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace(">", "%3E") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("\"", "%22") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("{", "%7B") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("}", "%7D") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("|", "%7C") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("^", "%5E") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("[", "%5B") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("]", "%5D") //$NON-NLS-1$ //$NON-NLS-2$
+            .replace("`", "%60"); //$NON-NLS-1$ //$NON-NLS-2$
 
         final URI uri = new URI(filename);
 
@@ -104,7 +104,6 @@ public final class AOUtil {
         }
 
         throw new URISyntaxException(filename, "Tipo de URI no soportado"); //$NON-NLS-1$
-
     }
 
     /** Obtiene el flujo de entrada de un fichero (para su lectura) a partir de su URI.
@@ -330,8 +329,8 @@ public final class AOUtil {
     		return p;
     	}
     	p.load(new InputStreamReader(
-    					new ByteArrayInputStream(Base64.decode(base64.replace('-', '+').replace('_', '/'))), DEFAULT_ENCODING)
-    			);
+			new ByteArrayInputStream(Base64.decode(base64.replace('-', '+').replace('_', '/'))), DEFAULT_ENCODING)
+		);
 
     	return p;
     }

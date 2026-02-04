@@ -131,10 +131,10 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.metadataParams));
+			this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
+			add(this.baselineParams, this.metadataParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConMetadatos: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -151,8 +151,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.commitmentTypeIndicationsParams));
+			this.data, algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			add(this.baselineParams, this.commitmentTypeIndicationsParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -168,8 +171,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.claimedRolesParams));
+			this.data, algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			add(this.baselineParams, this.claimedRolesParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConRoles: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -185,8 +191,12 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.policyParams));
+			this.data,
+			algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			add(this.baselineParams, this.policyParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConPolitica: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -202,8 +212,12 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.metadataParams));
+			this.data,
+			algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			add(this.baselineParams, this.metadataParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConContentHint: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -219,8 +233,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.policyParams, this.metadataParams, this.claimedRolesParams));
+			this.data, algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			add(this.baselineParams, this.policyParams, this.metadataParams, this.claimedRolesParams)
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConPoliticaYReason: " + saveFile.getAbsolutePath()); //$NON-NLS-1$

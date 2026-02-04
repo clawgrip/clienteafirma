@@ -90,15 +90,11 @@ final class TestPAdESETSI {
         }
         p4.setProperty("policyIdentifierHashAlgorithm", "SHA1"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        PADES_MODES = new Properties[] {
-            p1, p2 //, p3, p4
-        };
+        PADES_MODES = new Properties[] { p1, p2 /*, p3, p4*/ };
     }
 
     /** Algoritmos de firma a probar. */
-    private static final String[] ALGOS = {
-        AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA
-    };
+    private static final String[] ALGOS = { AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA };
 
     /** Pruebas de firma con los ficheros de prueba y certificado de la ETSI.
      * @throws Exception En cualquier error. */
@@ -131,13 +127,13 @@ final class TestPAdESETSI {
                     Assertions.assertTrue(signer.isValidDataFile(testPdf), "No se ha reconocido como un PDF"); //$NON-NLS-1$
 
                     prueba = "Firma PAdES en modo '" +  //$NON-NLS-1$
-                    extraParams.getProperty("mode") +  //$NON-NLS-1$
-                    "' con el algoritmo ': " + //$NON-NLS-1$
-                    algo +
-                    "'m el fichero '" +  //$NON-NLS-1$
-                    file +
-                    "' y las propiedades: " + //$NON-NLS-1$
-                    extraParams;
+	                    extraParams.getProperty("mode") +  //$NON-NLS-1$
+	                    "' con el algoritmo ': " + //$NON-NLS-1$
+	                    algo +
+	                    "'m el fichero '" +  //$NON-NLS-1$
+	                    file +
+	                    "' y las propiedades: " + //$NON-NLS-1$
+	                    extraParams;
                     System.out.println(prueba);
 
                     final byte[] result = signer.sign(

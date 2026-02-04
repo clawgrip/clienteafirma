@@ -41,7 +41,7 @@ import es.gob.afirma.core.misc.Platform.OS;
 
 final class PdfVisibleAreasUtils {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(PdfVisibleAreasUtils.class.getName());
 
     private static final int DEFAULT_LAYER_2_FONT_SIZE = 12;
     private static final int UNDEFINED = -1;
@@ -95,23 +95,23 @@ final class PdfVisibleAreasUtils {
 	 * @return Fuente de letra.
 	 */
 	static Font getFont(final int fontFamily,
-			                             final int fontSize,
-			                             final int fontStyle,
-			                             final String fontColor,
-			                             final boolean pdfa) {
+			            final int fontSize,
+			            final int fontStyle,
+			            final String fontColor,
+			            final boolean pdfa) {
 
 		final int family = fontFamily == UNDEFINED ? Font.COURIER : fontFamily;
 		final int size = fontSize == UNDEFINED ? DEFAULT_LAYER_2_FONT_SIZE : fontSize;
 		final int style = fontStyle == UNDEFINED ? Font.NORMAL : fontStyle;
 
-		BaseFont baseFont;
+		final BaseFont baseFont;
 		try {
 			baseFont = getBaseFont(fontFamily, pdfa);
 		}
 		catch (final Exception e) {
 			LOGGER.warning(
-					"Error construyendo la fuente de letra para la firma visible PDF, se usara la por defecto y el PDF no sera compatible PDF/A: " + e //$NON-NLS-1$
-					);
+				"Error construyendo la fuente de letra para la firma visible PDF, se usara la por defecto y el PDF no sera compatible PDF/A: " + e //$NON-NLS-1$
+			);
 
 			return new Font(family, size, style, null);
 		}
@@ -164,12 +164,12 @@ final class PdfVisibleAreasUtils {
 			try {
 				font = loadFontToEmbed(fontFamily);
 			}
-			// En Android puede fallar con un error la carga de una fuente, asi que se
-			// protege con un Throwable
+			// En Android puede fallar con un error la carga de una fuente, asi que se protege con un Throwable
 			catch (final Throwable e) {
 				LOGGER.log(Level.WARNING,
-						"No se ha podido cargar la fuente de letra para incrustar. Puede que el resultado no sea un PDF/A", //$NON-NLS-1$
-						e);
+					"No se ha podido cargar la fuente de letra para incrustar. Puede que el resultado no sea un PDF/A", //$NON-NLS-1$
+					e
+				);
 				font = loadInternalFont(fontFamily);
 			}
 		}
@@ -189,15 +189,15 @@ final class PdfVisibleAreasUtils {
 	private static BaseFont loadFontToEmbed(final int fontFamily) throws DocumentException, IOException {
 		BaseFont font;
 		switch (fontFamily) {
-		case Font.HELVETICA:
-			font = BaseFont.createFont("/fonts/helvetica.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
-			break;
-		case Font.TIMES_ROMAN:
-			font = BaseFont.createFont("/fonts/times.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
-			break;
-		case Font.COURIER:
-		default:
-			font = BaseFont.createFont("/fonts/courier.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
+			case Font.HELVETICA:
+				font = BaseFont.createFont("/fonts/helvetica.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
+				break;
+			case Font.TIMES_ROMAN:
+				font = BaseFont.createFont("/fonts/times.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
+				break;
+			case Font.COURIER:
+			default:
+				font = BaseFont.createFont("/fonts/courier.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
 		}
 		font.setSubset(false);
 		return font;
@@ -248,7 +248,6 @@ final class PdfVisibleAreasUtils {
 							   final String signerContact,
 							   final boolean obfuscate,
 							   final String maskConfig) {
-
 		if (txt == null) {
 			return null;
 		}
@@ -329,23 +328,17 @@ final class PdfVisibleAreasUtils {
 			if (sdTag.contains(LAYERTEXT_TAG_DATE_DELIMITER)) {
 				final String dateFormat = sdTag.replace(LAYERTEXT_TAG_DELIMITER, "").split(LAYERTEXT_TAG_DATE_DELIMITER)[1]; //$NON-NLS-1$
 				try {
-					date = new SimpleDateFormat(dateFormat).format(
-							tbpDate
-					);
+					date = new SimpleDateFormat(dateFormat).format(tbpDate);
 				}
 				catch(final Exception e) {
 					LOGGER.warning(
 						"Patron incorrecto para la fecha de firma en la firma visible (" + dateFormat + "), se usara el por defecto: " + e //$NON-NLS-1$ //$NON-NLS-2$
 					);
-					date = new SimpleDateFormat().format(
-						tbpDate
-					);
+					date = new SimpleDateFormat().format(tbpDate);
 				}
 			}
 			else {
-				date = new SimpleDateFormat().format(
-					tbpDate
-				);
+				date = new SimpleDateFormat().format(tbpDate);
 			}
 			ret = ret.replace(sdTag, date);
 		}

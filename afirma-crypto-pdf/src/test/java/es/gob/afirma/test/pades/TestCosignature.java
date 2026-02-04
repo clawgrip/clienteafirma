@@ -16,7 +16,7 @@ import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.signers.pades.AOPDFSigner;
 
 /** Pruebas de cofirmas. */
-class TestCosignature {
+final class TestCosignature {
 
 	private static final String TEST_FILE = "TEST_PDF.pdf"; //$NON-NLS-1$
 

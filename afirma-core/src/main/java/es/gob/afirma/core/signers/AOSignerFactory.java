@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * momento en el cliente. */
 public final class AOSignerFactory {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(AOSignerFactory.class.getName());
 
 	/** Manejador de firma soportados con sus identificadores de formato de firma asociados. */
 	private static final Map<String, AOSigner> SIGNERS = new HashMap<>(20);

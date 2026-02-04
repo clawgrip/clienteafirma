@@ -31,7 +31,7 @@ import es.gob.afirma.core.signers.AdESPolicy;
  */
 public class CAdESParameters {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(CAdESParameters.class.getName());
 
 	private static final String SHA1_ALGORITHM = "SHA1"; //$NON-NLS-1$
 
@@ -163,10 +163,10 @@ public class CAdESParameters {
 
 		// Incluir politica de certificacion del certificado firmante en la firma
 		final boolean doNotIncludePolicyOnSigningCertificate = Boolean.parseBoolean(
-				config.getProperty(
-						CAdESExtraParams.DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE, Boolean.FALSE.toString()
-						)
-				);
+			config.getProperty(
+				CAdESExtraParams.DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE, Boolean.FALSE.toString()
+			)
+		);
 		dataConfig.setIncludedPolicyOnSigningCertificate(!doNotIncludePolicyOnSigningCertificate);
 
 		// Politica de firma
@@ -174,7 +174,7 @@ public class CAdESParameters {
 
 		// Incluir solo certificado de firma
 		dataConfig.setIncludedOnlySigningCertificate(Boolean.parseBoolean(
-				config.getProperty(CAdESExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString())));
+			config.getProperty(CAdESExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString())));
 
 		// Commintment type indications declarados
 		dataConfig.setCommitmentTypeIndications(CommitmentTypeIndicationsHelper.getCommitmentTypeIndications(config));
@@ -207,7 +207,8 @@ public class CAdESParameters {
 			if (mimetypeNeeded && mimeType == null && contentTypeOid != null) {
 				try {
 					mimeType = MimeHelper.transformOidToMimeType(contentTypeOid);
-				} catch (final IOException e) {
+				}
+				catch (final IOException e) {
 					LOGGER.warning("No se pudo cargar la tabla de correspondencias entre OIDs y MimeTypes: " + e); //$NON-NLS-1$
 				}
 
@@ -222,8 +223,7 @@ public class CAdESParameters {
 			// Si aun nos falta informacion de la que necesitamos, pero hay firmas previas,
 			// tratamos de extraerla de ellas
 			if ((contentHintNeeded && contentTypeOid == null
-							|| mimetypeNeeded && mimeType == null) && signedData != null) {
-
+					|| mimetypeNeeded && mimeType == null) && signedData != null) {
 
 				boolean foundPreviousDataType = false;
 				final SignerInformationStore signersInfo = signedData.getSignerInfos();
@@ -301,21 +301,21 @@ public class CAdESParameters {
 				}
 				catch (final Exception e) {
 					LOGGER.warning(
-							"No se han podido cargar las librerias para identificar el tipo de dato firmado: " + e //$NON-NLS-1$
-							);
+						"No se han podido cargar las librerias para identificar el tipo de dato firmado: " + e //$NON-NLS-1$
+					);
 				}
 			}
 
 			// Asignamos la informacion necesaria a la configuracion
 			if (contentHintNeeded) {
 				dataConfig.setContentTypeOid(contentTypeOid != null ?
-						contentTypeOid : MimeHelper.DEFAULT_CONTENT_OID_DATA);
+					contentTypeOid : MimeHelper.DEFAULT_CONTENT_OID_DATA);
 				dataConfig.setContentDescription(contentTypeDescription != null ?
-						contentTypeDescription : MimeHelper.DEFAULT_CONTENT_DESCRIPTION);
+					contentTypeDescription : MimeHelper.DEFAULT_CONTENT_DESCRIPTION);
 			}
 			if (mimetypeNeeded) {
 				dataConfig.setMimeType(mimeType != null ?
-						mimeType : MimeHelper.DEFAULT_MIMETYPE);
+					mimeType : MimeHelper.DEFAULT_MIMETYPE);
 			}
 		}
 

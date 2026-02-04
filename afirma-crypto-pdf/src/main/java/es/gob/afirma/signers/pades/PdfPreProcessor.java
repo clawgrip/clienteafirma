@@ -32,7 +32,7 @@ import es.gob.afirma.core.misc.Base64;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 public final class PdfPreProcessor {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(PdfPreProcessor.class.getName());
 
     /** Tama&ntilde;o m&aacute;ximo de ruta de un recurso. */
 	private static final int MAX_PATH_SIZE = 500;
@@ -86,7 +86,8 @@ public final class PdfPreProcessor {
 					try (InputStream is = AOUtil.loadFile(uri)) {
 						attachment = AOUtil.getDataFromInputStream(is);
 					}
-				} catch (final Exception e) {
+				}
+				catch (final Exception e) {
 					LOGGER.info("El parametro de adjunto no contiene una ruta valida a un recurso: " + e); //$NON-NLS-1$
 					attachment = null;
 				}

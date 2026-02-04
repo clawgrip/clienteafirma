@@ -25,7 +25,7 @@ import es.gob.afirma.core.signers.AOTimestampInfo;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 final class TimestampsAnalyzer {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(TimestampsAnalyzer.class.getName());
 
 	/** Obtiene los sellos de una firma CMS.
 	 * @param sign Firma.
@@ -78,9 +78,7 @@ final class TimestampsAnalyzer {
 						}
 						final org.bouncycastle.asn1.x509.Certificate c = ((X509CertificateHolder)col.toArray()[0]).toASN1Structure();
 						cert = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate( //$NON-NLS-1$
-							new ByteArrayInputStream(
-								c.getEncoded()
-							)
+							new ByteArrayInputStream(c.getEncoded())
 						);
 
 					}
@@ -93,12 +91,7 @@ final class TimestampsAnalyzer {
 						continue;
 					}
 
-					ret.add(
-						new AOTimestampInfo(
-							cert,
-							tst.getTimeStampInfo().getGenTime()
-						)
-					);
+					ret.add(new AOTimestampInfo(cert, tst.getTimeStampInfo().getGenTime()));
 				}
 			}
 		}

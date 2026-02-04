@@ -41,7 +41,7 @@ public final class ExtraParamsProcessor {
 	private static final int MAX_PATH_SIZE = 255;
 
 	/** Manejador del log. */
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(ExtraParamsProcessor.class.getName());
 
 	private ExtraParamsProcessor() {
 		/* Constructor no publico */
@@ -63,7 +63,6 @@ public final class ExtraParamsProcessor {
 		if (entries == null) {
 			return params;
 		}
-
 		try {
 			params.load(new ByteArrayInputStream(entries.getBytes()));
 		}
@@ -72,7 +71,6 @@ public final class ExtraParamsProcessor {
 				"Se han encontrado entradas no validas en la configuracion de la operacion: " + e//$NON-NLS-1$
 			);
 		}
-
 		return params;
 	}
 

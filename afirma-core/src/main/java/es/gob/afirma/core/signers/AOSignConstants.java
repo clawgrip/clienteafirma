@@ -348,7 +348,7 @@ public final class AOSignConstants {
 		}
 
 		// No se ha podido extraer el nombre del algoritmo
-		Logger.getLogger("es.gob.afirma").warning( //$NON-NLS-1$
+		Logger.getLogger(AOSignConstants.class.getName()).warning(
 			"Algoritmo de huella desconocido, no se normalizara su nombre: " + pseudoName //$NON-NLS-1$
 		);
 
@@ -368,8 +368,7 @@ public final class AOSignConstants {
 					"El nombre del algoritmo no puede ser nulo"); //$NON-NLS-1$
 		}
 		if (keyType == null) {
-			throw new IllegalArgumentException(
-					"El tipo de clave de certificado no puede ser nulo"); //$NON-NLS-1$
+			throw new IllegalArgumentException("El tipo de clave de certificado no puede ser nulo"); //$NON-NLS-1$
 		}
 
 		// Limpiamos el nombre del algorithm de huella
@@ -379,11 +378,14 @@ public final class AOSignConstants {
 		String suffix;
 		if ("RSA".equals(keyType)) { //$NON-NLS-1$
 			suffix = "withRSA"; //$NON-NLS-1$
-		} else if ("DSA".equals(keyType)) { //$NON-NLS-1$
+		}
+		else if ("DSA".equals(keyType)) { //$NON-NLS-1$
 			suffix = "withDSA"; //$NON-NLS-1$
-		} else if (keyType.startsWith("EC")) { //$NON-NLS-1$
+		}
+		else if (keyType.startsWith("EC")) { //$NON-NLS-1$
 			suffix = "withECDSA"; //$NON-NLS-1$
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException("Tipo de clave de firma no soportado: " + keyType); //$NON-NLS-1$
 		}
 		return digestAlgorithm + suffix;

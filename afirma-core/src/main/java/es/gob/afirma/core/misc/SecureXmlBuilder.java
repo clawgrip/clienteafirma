@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
  */
 public final class SecureXmlBuilder {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(SecureXmlBuilder.class.getName());
 
 	private static DocumentBuilderFactory secureBuilderFactory = null;
 

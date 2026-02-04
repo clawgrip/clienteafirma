@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * extracci&oacute;n de datos relativos a la misma. */
 public final class Platform {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(Platform.class.getName());
 
     /** Arquitectura del procesador. */
     public enum MACHINE {
@@ -123,22 +123,20 @@ public final class Platform {
         if (osName.contains("indows")) { //$NON-NLS-1$
             return OS.WINDOWS;
         }
-        else if (osName.contains("inux")) { //$NON-NLS-1$
+		if (osName.contains("inux")) { //$NON-NLS-1$
             if ("Dalvik".equals(System.getProperty("java.vm.name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 return OS.ANDROID;
             }
             return OS.LINUX;
         }
-        else if (osName.contains("SunOS") || osName.contains("olaris")) { //$NON-NLS-1$ //$NON-NLS-2$
+		if (osName.contains("SunOS") || osName.contains("olaris")) { //$NON-NLS-1$ //$NON-NLS-2$
             return OS.SOLARIS;
         }
-        else if (osName.startsWith("Mac OS X")) { //$NON-NLS-1$
+		if (osName.startsWith("Mac OS X")) { //$NON-NLS-1$
             return OS.MACOSX;
         }
-        else {
-            LOGGER.warning("No se ha podido determinar el sistema operativo"); //$NON-NLS-1$
-            return OS.OTHER;
-        }
+		LOGGER.warning("No se ha podido determinar el sistema operativo"); //$NON-NLS-1$
+		return OS.OTHER;
 
     }
 
@@ -149,26 +147,24 @@ public final class Platform {
         if (userAgent == null) {
             return BROWSER.OTHER;
         }
-        else if (userAgent.toLowerCase(Locale.US).contains("msie")) { //$NON-NLS-1$
+		if (userAgent.toLowerCase(Locale.US).contains("msie")) { //$NON-NLS-1$
             return BROWSER.INTERNET_EXPLORER;
         }
-        else if (userAgent.toLowerCase(Locale.US).contains("firefox")) { //$NON-NLS-1$
+		if (userAgent.toLowerCase(Locale.US).contains("firefox")) { //$NON-NLS-1$
             return BROWSER.FIREFOX;
         }
-        else if (userAgent.toLowerCase(Locale.US).contains("chrome")) { //$NON-NLS-1$
+		if (userAgent.toLowerCase(Locale.US).contains("chrome")) { //$NON-NLS-1$
             return BROWSER.CHROME;
         }
-        else if (userAgent.toLowerCase(Locale.US).contains("safari")) { //$NON-NLS-1$
+		if (userAgent.toLowerCase(Locale.US).contains("safari")) { //$NON-NLS-1$
             // CUIDADO: Chrome incluye la cadena "safari" como parte de su
             // UserAgent
             return BROWSER.SAFARI;
         }
-        else if (userAgent.toLowerCase(Locale.US).contains("opera")) { //$NON-NLS-1$
+		if (userAgent.toLowerCase(Locale.US).contains("opera")) { //$NON-NLS-1$
             return BROWSER.OPERA;
         }
-        else { // Cualquier otro navegador
-            return BROWSER.OTHER;
-        }
+		return BROWSER.OTHER;
     }
 
     /** Recupera el sistema operativo de ejecuci&oacute;n.
@@ -330,5 +326,4 @@ public final class Platform {
         }
         return "/usr/lib"; //$NON-NLS-1$
     }
-
 }

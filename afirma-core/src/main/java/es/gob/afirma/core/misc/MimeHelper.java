@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * identificadores de tipo de contenido. */
 public final class MimeHelper {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(MimeHelper.class.getName());
 
     /** Valor que devuelve JMimeMagic por defecto cuando no sabe identificar la extensi&oacute;n
      * o el MimeType de unos datos. */

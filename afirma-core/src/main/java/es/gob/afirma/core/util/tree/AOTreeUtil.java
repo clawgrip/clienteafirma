@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 public final class AOTreeUtil {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(AOTreeUtil.class.getName());
 
 	private AOTreeUtil() {
 		// No instanciable

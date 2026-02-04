@@ -30,7 +30,7 @@ public final class AOPkcs1Signer implements AOSigner {
 
 	private static final String PKCS1_FILE_SUFFIX = ".p1"; //$NON-NLS-1$
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(AOPkcs1Signer.class.getName());
 
 	/** Realiza una firma electr&oacute;nica PKCS#1 v1.5.
 	 * @param algorithm Algoritmo de firma a utilizar.
@@ -56,9 +56,7 @@ public final class AOPkcs1Signer implements AOSigner {
 			           final Properties extraParams) throws AOException {
 
 		if (algorithm == null) {
-			throw new IllegalArgumentException(
-				"Es necesario indicar el algoritmo de firma, no puede ser nulo" //$NON-NLS-1$
-			);
+			throw new IllegalArgumentException("Es necesario indicar el algoritmo de firma, no puede ser nulo"); //$NON-NLS-1$
 		}
 
 		LOGGER.fine(()->

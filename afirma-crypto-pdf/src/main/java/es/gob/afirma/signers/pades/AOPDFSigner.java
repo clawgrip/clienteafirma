@@ -63,7 +63,7 @@ public final class AOPDFSigner implements AOSigner {
     private static final String PDF_FILE_SUFFIX = ".pdf"; //$NON-NLS-1$
     private static final String PDF_FILE_HEADER = "%PDF-"; //$NON-NLS-1$
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(AOPDFSigner.class.getName());
 
 	private static final PdfName PDFNAME_ETSI_RFC3161 = new PdfName("ETSI.RFC3161"); //$NON-NLS-1$
 	private static final PdfName PDFNAME_DOCTIMESTAMP = new PdfName("DocTimeStamp"); //$NON-NLS-1$
@@ -144,14 +144,12 @@ public final class AOPDFSigner implements AOSigner {
 
         // Sello de tiempo
         byte[] data = inPDF;
-        if (PdfTimestamper.isAvailable()) {
-        	try {
-        		data = PdfTimestamper.timestampPdf(data, extraParams, signTime);
-        	}
-        	catch (final IOException e) {
-				throw new AOException("Error en la composicion del sello de tiempo de la firma", e); //$NON-NLS-1$
-			}
-        }
+    	try {
+    		data = PdfTimestamper.timestampPdf(data, extraParams, signTime);
+    	}
+    	catch (final IOException e) {
+			throw new AOException("Error en la composicion del sello de tiempo de la firma", e); //$NON-NLS-1$
+		}
 
 		// Prefirma
         final PdfSignResult pre = PAdESTriPhaseSigner.preSign(
@@ -537,7 +535,6 @@ public final class AOPDFSigner implements AOSigner {
 
         // TODO: Devolver el PDF sin firmar
         return sign;
-
 	}
 
     /** Si la entrada es un documento PDF, devuelve el mismo documento PDF.

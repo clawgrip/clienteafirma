@@ -26,7 +26,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
  * GenCadesSignedData, CoSigner y CounterSigner. */
 public final class SigUtils {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(SigUtils.class.getName());
 
     private SigUtils() {
         // No permitimos la instanciacion
@@ -64,8 +64,7 @@ public final class SigUtils {
     }
 
     /** Genera un estructura de tipo SET de formato ASN1 a partir de una lista de objectos ya existente.
-     * @param derObjects
-     *        Una lista con los nuevos objetos a obtener el tipo SET
+     * @param derObjects Lista con los nuevos objetos a obtener el tipo SET
      * @param v Vector con los objectos ya existentes
      * @return Un SET de ASN1 con los elementos de la lista introducida. */
     public static ASN1Set fillRestCerts(final List<ASN1Encodable> derObjects, final ASN1EncodableVector v) {

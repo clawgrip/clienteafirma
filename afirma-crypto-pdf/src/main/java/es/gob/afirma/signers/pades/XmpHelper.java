@@ -193,13 +193,7 @@ final class XmpHelper {
 
 		try {
 		final Node node = doc.importNode(
-			db.parse(
-				new InputSource(
-					new StringReader(
-						newnode
-					)
-				)
-			).getDocumentElement(),
+			db.parse(new InputSource(new StringReader(newnode))).getDocumentElement(),
 			true
 		);
 
@@ -269,9 +263,7 @@ final class XmpHelper {
 
 		reader.close();
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
-			"Se ha registrado la firma en el historico XMP del PDF" //$NON-NLS-1$
-		);
+		Logger.getLogger(XmpHelper.class.getName()).info("Se ha registrado la firma en el historico XMP del PDF"); //$NON-NLS-1$
 
 		return baos.toByteArray();
 	}

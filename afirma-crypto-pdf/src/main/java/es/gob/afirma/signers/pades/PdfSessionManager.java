@@ -53,7 +53,7 @@ public final class PdfSessionManager {
 
     private static final int CSIZE = 27000;
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");  //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(PdfSessionManager.class.getName());
 
     private static final int PDF_MAX_VERSION = 7;
     private static final int PDF_MIN_VERSION = 2;
@@ -152,7 +152,7 @@ public final class PdfSessionManager {
 		int certificationLevel;
 		try {
 			certificationLevel = extraParams.getProperty(PdfExtraParams.CERTIFICATION_LEVEL) != null
-					? Integer.parseInt(extraParams.getProperty(PdfExtraParams.CERTIFICATION_LEVEL).trim())
+				? Integer.parseInt(extraParams.getProperty(PdfExtraParams.CERTIFICATION_LEVEL).trim())
 					: UNDEFINED;
 		}
 		catch (final Exception e) {
@@ -166,7 +166,7 @@ public final class PdfSessionManager {
 		int pdfVersion;
 		try {
 			pdfVersion = extraParams.getProperty(PdfExtraParams.PDF_VERSION) != null
-					? Integer.parseInt(extraParams.getProperty(PdfExtraParams.PDF_VERSION).trim())
+				? Integer.parseInt(extraParams.getProperty(PdfExtraParams.PDF_VERSION).trim())
 					: PDF_MAX_VERSION;
 		}
 		catch (final Exception e) {
@@ -212,12 +212,12 @@ public final class PdfSessionManager {
 			layer4Text = PdfVisibleAreasUtils.getLayerText(
 					extraParams.getProperty(PdfExtraParams.LAYER4_TEXT),
 					certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
-							signTime,
-							reason,
-							signatureProductionCity,
-							signerContact,
-							obfuscate,
-							pdfMaskConfig
+						signTime,
+						reason,
+						signatureProductionCity,
+						signerContact,
+						obfuscate,
+						pdfMaskConfig
 					);
 
 			// Texto en capa 2
@@ -228,12 +228,12 @@ public final class PdfSessionManager {
 			layer2Text = PdfVisibleAreasUtils.getLayerText(
 					configuredLayer2Text,
 					certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
-							signTime,
-							reason,
-							signatureProductionCity,
-							signerContact,
-							obfuscate,
-							pdfMaskConfig
+						signTime,
+						reason,
+						signatureProductionCity,
+						signerContact,
+						obfuscate,
+						pdfMaskConfig
 					);
 
 			// Tipo de letra en capa 2
@@ -244,9 +244,10 @@ public final class PdfSessionManager {
 								: UNDEFINED;
 			}
 			catch (final Exception e) {
-				LOGGER.warning("Se ha indicado un tipo de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
+				LOGGER.warning(
+					"Se ha indicado un tipo de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
 						+ extraParams.getProperty(PdfExtraParams.LAYER2_FONTFAMILY) + "'): " + e //$NON-NLS-1$
-						);
+				);
 				layer2FontFamily = UNDEFINED;
 			}
 
@@ -254,11 +255,12 @@ public final class PdfSessionManager {
 			int layer2FontSize;
 			try {
 				layer2FontSize = extraParams.getProperty(PdfExtraParams.LAYER2_FONTSIZE) != null
-						? Integer.parseInt(extraParams.getProperty(PdfExtraParams.LAYER2_FONTSIZE).trim())
-								: UNDEFINED;
+					? Integer.parseInt(extraParams.getProperty(PdfExtraParams.LAYER2_FONTSIZE).trim())
+							: UNDEFINED;
 			}
 			catch (final Exception e) {
-				LOGGER.warning("Se ha indicado un tamano de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
+				LOGGER.warning(
+					"Se ha indicado un tamano de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
 						+ extraParams.getProperty(PdfExtraParams.LAYER2_FONTSIZE) + "'): " + e //$NON-NLS-1$
 						);
 				layer2FontSize = UNDEFINED;
@@ -268,13 +270,14 @@ public final class PdfSessionManager {
 			int layer2FontStyle;
 			try {
 				layer2FontStyle = extraParams.getProperty(PdfExtraParams.LAYER2_FONTSTYLE) != null
-						? Integer.parseInt(extraParams.getProperty(PdfExtraParams.LAYER2_FONTSTYLE).trim())
-								: UNDEFINED;
+					? Integer.parseInt(extraParams.getProperty(PdfExtraParams.LAYER2_FONTSTYLE).trim())
+							: UNDEFINED;
 			}
 			catch (final Exception e) {
-				LOGGER.warning("Se ha indicado un estilo de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
+				LOGGER.warning(
+					"Se ha indicado un estilo de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
 						+ extraParams.getProperty(PdfExtraParams.LAYER2_FONTSTYLE) + "'): " + e //$NON-NLS-1$
-						);
+				);
 				layer2FontStyle = UNDEFINED;
 			}
 
@@ -282,12 +285,12 @@ public final class PdfSessionManager {
 			final String layer2FontColor = extraParams.getProperty(PdfExtraParams.LAYER2_FONTCOLOR);
 
 			layer2Font = PdfVisibleAreasUtils.getFont(
-					layer2FontFamily,
-					layer2FontSize,
-					layer2FontStyle,
-					layer2FontColor,
-					pdfA1
-					);
+				layer2FontFamily,
+				layer2FontSize,
+				layer2FontStyle,
+				layer2FontColor,
+				pdfA1
+			);
 		}
 		// ** Fin texto firma visible **
 		// *****************************
@@ -352,12 +355,12 @@ public final class PdfSessionManager {
 
 		try {
 			stp = PdfStamper.createSignature(pdfReader, // PDF de entrada
-					baos, // Salida
-					pdfVersion == UNDEFINED ? '\0' /* Mantener version */
-							: Integer.toString(pdfVersion).toCharArray()[0] /* Version a medida */,
-					null, // No crear temporal
-					PdfUtil.getAppendMode(extraParams, pdfReader), // Append Mode
-					signTime // Momento de la firma
+				baos, // Salida
+				pdfVersion == UNDEFINED ? '\0' /* Mantener version */
+						: Integer.toString(pdfVersion).toCharArray()[0] /* Version a medida */,
+				null, // No crear temporal
+				PdfUtil.getAppendMode(extraParams, pdfReader), // Append Mode
+				signTime // Momento de la firma
 			);
 		}
 		catch (final DocumentException e) {
@@ -409,8 +412,7 @@ public final class PdfSessionManager {
 		}
 
 		// Si se ha configurado, permitimos que el lector de PDF muestre una marca junto a la firma
-		final boolean includeQuestionMark = Boolean
-				.parseBoolean(extraParams.getProperty(PdfExtraParams.INCLUDE_QUESTION_MARK));
+		final boolean includeQuestionMark = Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.INCLUDE_QUESTION_MARK));
 		if (includeQuestionMark) {
 			sap.setAcro6Layers(false);
 			sap.setLayer4Text(PdfSignatureAppearance.questionMark);
@@ -504,12 +506,12 @@ public final class PdfSessionManager {
 					else {
 
 						final Image rotatedRubric = PdfVisibleAreasUtils.buildRotatedSignatureImage(
-								stp,
-								sap,
-								signaturePositionOnPage,
-								signatureRotation,
-								rubric
-								);
+							stp,
+							sap,
+							signaturePositionOnPage,
+							signatureRotation,
+							rubric
+						);
 
 						// Eliminamos el texto de la apariencia, ya que este se habra impreso en la imagen
 						// de rubrica

@@ -130,12 +130,9 @@ public final class TestMetadata {
 			db.parse(
 				new InputSource(
 					new StringReader(
-						NEW_HISTORY_LIST_ITEM.replace(
-							TAG_UUID,
-							UUID.randomUUID().toString()
-						).replace(
-							TAG_DATE,
-							new PdfDate(new GregorianCalendar()).getW3CDate()
+						NEW_HISTORY_LIST_ITEM
+							.replace(TAG_UUID,UUID.randomUUID().toString())
+							.replace(TAG_DATE, new PdfDate(new GregorianCalendar()).getW3CDate()
 						)
 					)
 				)
@@ -148,10 +145,7 @@ public final class TestMetadata {
 		final Map<String, String> props = new ConcurrentHashMap<>(1);
 		props.put("encoding", DEFAULT_ENCODING); //$NON-NLS-1$
 
-		String xmlString = new String(
-			writeXml(doc.getDocumentElement()),
-			DEFAULT_ENCODING
-		);
+		String xmlString = new String(writeXml(doc.getDocumentElement()), DEFAULT_ENCODING);
 		xmlString = xmlString.replace(
 			xmlString.substring(
 				0,
@@ -177,12 +171,9 @@ public final class TestMetadata {
 
 		reader.close();
 
-		try (
-			final OutputStream fos = new FileOutputStream(File.createTempFile("PDFXMP_", ".txt")); //$NON-NLS-1$ //$NON-NLS-2$
-		) {
+		try (OutputStream fos = new FileOutputStream(File.createTempFile("PDFXMP_", ".txt"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			fos.write(baos.toByteArray());
 		}
-
 	}
 
     /** Escribe un XML como texto.
@@ -205,5 +196,4 @@ public final class TestMetadata {
         lsSerializer.write(node, lsOutput);
         return baos.toByteArray();
     }
-
 }

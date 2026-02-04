@@ -38,7 +38,7 @@ import es.gob.afirma.signers.pkcs7.ContainsNoDataException;
 /** Pruebas de cofirmas CAdES. */
 class TestCoSignWithModes {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(TestCoSignWithModes.class.getName());
 
     private static final String CERT_PATH_TO_SIGN = "PruebaEmpleado4Activo.p12"; //$NON-NLS-1$
     private static final String CERT_PASS_TO_SIGN = "Giss2016"; //$NON-NLS-1$
@@ -74,7 +74,7 @@ class TestCoSignWithModes {
 	@BeforeEach
 	void loadParams() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
+		LOGGER.setLevel(Level.WARNING);
 
 		this.implicitParams = new Properties();
 		this.implicitParams.setProperty("mode", AOSignConstants.SIGN_MODE_IMPLICIT); //$NON-NLS-1$
@@ -135,15 +135,18 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.implicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+			this.implicitSHA512Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			this.pke.getCertificateChain(),
+			this.explicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
 
 		checkCosign(result, algorithm, true);
 	}
-
 
 	/** Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma expl&iacute;cita
 	 * con algoritmo de SHA512withRSA.

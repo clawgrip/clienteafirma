@@ -58,7 +58,7 @@ public final class CMSTimestamper {
 
     private static final String SIGNATURE_TIMESTAMP_TOKEN_OID = "1.2.840.113549.1.9.16.2.14"; //$NON-NLS-1$
 
-	static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	static final Logger LOGGER = Logger.getLogger(CMSTimestamper.class.getName());
 
     private final TimeStampRequestGenerator tsqGenerator;
     private final URI tsaURL;
@@ -154,9 +154,7 @@ public final class CMSTimestamper {
     		 );
 
              final ASN1Primitive derObj;
-             try (
-        		 final ASN1InputStream is = new ASN1InputStream(new ByteArrayInputStream(tsToken));
-    		 ) {
+             try (ASN1InputStream is = new ASN1InputStream(new ByteArrayInputStream(tsToken))) {
             	 derObj = is.readObject();
              }
              final DERSet derSet = new DERSet(derObj);
@@ -200,7 +198,6 @@ public final class CMSTimestamper {
 
     	try (OutputStream out = conn.getOutputStream()) {
 	         out.write(requestBytes);
-	         out.flush();
     	}
 
     	final byte[] respBytes;
@@ -256,7 +253,7 @@ public final class CMSTimestamper {
 
          final byte[] requestBytes = request.getEncoded();
 
-         byte[] rawResponse;
+         final byte[] rawResponse;
          try {
         	 rawResponse = getTSAResponse(requestBytes);
          }

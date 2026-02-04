@@ -28,9 +28,8 @@ import es.gob.afirma.signers.cades.CAdESParameters;
 /** Operaciones de cofirma CAdES. */
 public final class AOCAdESCoSigner implements AOCoSigner {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma");	 //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(AOCAdESCoSigner.class.getName());
 
-	/** {@inheritDoc} */
 	@Override
 	public byte[] cosign(final byte[] sign,
                          final String algorithm,
@@ -41,7 +40,6 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 		return cosign(null, sign, algorithm, key, certChain, xParams);
     }
 
-	/** {@inheritDoc} */
 	@Override
 	public byte[] cosign(final byte[] data,
                          final byte[] sign,
@@ -52,8 +50,7 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 
         final Properties extraParams = getExtraParams(xParams);
 
-		// Comprobamos que no haya firmas de archivo, salvo que nos indiquen que debe firmarse
-		// incluso en ese caso
+		// Comprobamos que no haya firmas de archivo, salvo que nos indiquen que debe firmarse incluso en ese caso
 		final String allowSignLts = extraParams.getProperty(CAdESExtraParams.ALLOW_SIGN_LTS_SIGNATURES);
 		if (allowSignLts == null || !Boolean.parseBoolean(allowSignLts)) {
 			try {
@@ -85,11 +82,12 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 
 		try {
 			return CAdESCoSigner.coSigner(
-					sign,
-					algorithm,
-					key,
-					certChain,
-					parameters);
+				sign,
+				algorithm,
+				key,
+				certChain,
+				parameters
+			);
 
 		}
 		catch (final AOException e) {
@@ -121,15 +119,15 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 
         if (extraParams.containsKey(CAdESExtraParams.PRECALCULATED_HASH_ALGORITHM)) {
         	LOGGER.warning("Se ignorara el parametro '" + CAdESExtraParams.MODE + //$NON-NLS-1$
-        			"' por haberse proporcionado tambien el parametro '" + CAdESExtraParams.PRECALCULATED_HASH_ALGORITHM + //$NON-NLS-1$
-        			"'. La firma sera explicita."); //$NON-NLS-1$
+    			"' por haberse proporcionado tambien el parametro '" + CAdESExtraParams.PRECALCULATED_HASH_ALGORITHM + //$NON-NLS-1$
+    			"'. La firma sera explicita."); //$NON-NLS-1$
         	extraParams.remove(CAdESExtraParams.MODE);
         }
 
         if (algorithm != null && AOSignConstants.isSHA2SignatureAlgorithm(algorithm) &&
         		extraParams.containsKey(CAdESExtraParams.SIGNING_CERTIFICATE_V2)) {
         	LOGGER.warning("Se ignorara la propiedad '" + CAdESExtraParams.SIGNING_CERTIFICATE_V2 + //$NON-NLS-1$
-        			"' porque las firmas SHA2 siempre usan SigningCertificateV2"); //$NON-NLS-1$
+    			"' porque las firmas SHA2 siempre usan SigningCertificateV2"); //$NON-NLS-1$
         	extraParams.remove(CAdESExtraParams.SIGNING_CERTIFICATE_V2);
         }
     }

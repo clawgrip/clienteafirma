@@ -72,9 +72,7 @@ public final class AdESPolicy {
         	this.policyIdentifierHashAlgorithm = identifierHashAlgorithm == null ?
         			DEFAULT_HASH_ALGORITHM : AOSignConstants.getDigestAlgorithmName(identifierHashAlgorithm);
 
-            try (
-        		final InputStream is = new URL(identifier).openStream()
-    		) {
+            try (InputStream is = new URL(identifier).openStream()) {
                 this.policyIdentifierHash =  Base64.encode(
             		MessageDigest.getInstance(this.policyIdentifierHashAlgorithm).digest(
         				AOUtil.getDataFromInputStream(is)
@@ -210,7 +208,6 @@ public final class AdESPolicy {
 			"calificador='" + getPolicyQualifier(); //$NON-NLS-1$
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean equals(final Object o) {
 
@@ -223,7 +220,6 @@ public final class AdESPolicy {
     		   other.getPolicyIdentifierHashAlgorithm().equals(getPolicyIdentifierHashAlgorithm());
     }
 
-    /** {@inheritDoc} */
     @Override
     public int hashCode() {
     	return getPolicyIdentifier().hashCode();

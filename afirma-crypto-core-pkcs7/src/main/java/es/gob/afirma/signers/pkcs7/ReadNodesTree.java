@@ -46,7 +46,7 @@ import es.gob.afirma.core.util.tree.AOTreeNode;
 /** Clase que genera las listas de nodos o de firmantes que existe en un fichero. */
 public final class ReadNodesTree {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(ReadNodesTree.class.getName());
 
     private String stringRetorn = ""; //$NON-NLS-1$
 
@@ -71,15 +71,10 @@ public final class ReadNodesTree {
     }
 
     /** Genera el &aacute;rbol que representa las firmas.
-     * @param data
-     *        Archivo que contiene la firma.
-     * @param asSimpleSignInfo
-     *        Indica si deben extraerse informacion b&aacute;sica de la
-     *        firma o solo los nombres.
+     * @param data Archivo que contiene la firma.
+     * @param asSimpleSignInfo Indica si deben extraerse informacion b&aacute;sica de la firma o solo los nombres.
      * @return Un modelo de &aacute;rbol.
-     * @throws java.io.IOException
-     *         Si ocurre alg&uacute;n problema leyendo o escribiendo los
-     *         datos */
+     * @throws IOException Si ocurre alg&uacute;n problema leyendo o escribiendo los datos */
     public AOTreeModel readNodesTree(final byte[] data, final boolean asSimpleSignInfo) throws IOException {
 
         // LEEMOS EL FICHERO QUE NOS INTRODUCEN
@@ -330,12 +325,9 @@ public final class ReadNodesTree {
 
     /** A partir de un numero de serie de un certificado, devuelve un array con
      * el certificado y su cadena de confianza.
-     * @param certificates
-     *        Certificados de los firmantes.
-     * @param serialNumber
-     *        N&uacute;mero de serie del certificado a firmar.
-     * @return El certificado (en la posici&oacute;n 0 y su cadena de confianza
-     *         en orden). */
+     * @param certificates Certificados de los firmantes.
+     * @param serialNumber N&uacute;mero de serie del certificado a firmar.
+     * @return El certificado (en la posici&oacute;n 0 y su cadena de confianza en orden). */
     private static X509Certificate[] searchCert(final ASN1Set certificates, final ASN1Integer serialNumber) {
     	if (certificates != null) {
         final Enumeration<?> certSet = certificates.getObjects();

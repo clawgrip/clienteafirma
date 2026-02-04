@@ -26,7 +26,7 @@ import org.xml.sax.XMLReader;
 /** Clase con m&eacute;todos para el trabajo con ficheros. */
 public final class AOFileUtils {
 
-	static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	static final Logger LOGGER = Logger.getLogger(AOFileUtils.class.getName());
 
 	private AOFileUtils() {
 		// No permitimos la instanciacion

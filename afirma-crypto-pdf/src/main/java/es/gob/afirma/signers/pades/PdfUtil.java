@@ -45,7 +45,7 @@ import es.gob.afirma.core.AOException;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 public final class PdfUtil {
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(PdfUtil.class.getName());
 
 	private static final String FILTER_ADOBE_PKCS7_DETACHED = "/adbe.pkcs7.detached"; //$NON-NLS-1$
 
@@ -153,7 +153,7 @@ public final class PdfUtil {
 		// Contrasena del usuario del PDF
 		final String userPassword =  extraParams.getProperty(PdfExtraParams.USER_PASSWORD_STRING);
 
-		PdfReader pdfReader;
+		final PdfReader pdfReader;
 		try {
 			if (ownerPassword != null) {
 				pdfReader = new PdfReader(inPDF, ownerPassword.getBytes());
@@ -467,8 +467,6 @@ public final class PdfUtil {
 	    	}
 	    	return null;
     }
-
-
 
     /**
      * Carga en el listado de p&aacute;ginas las p&aacute;ginas indicadas en una cadena, que puede

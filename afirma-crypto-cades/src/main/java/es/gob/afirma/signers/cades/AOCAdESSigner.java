@@ -61,7 +61,7 @@ import es.gob.afirma.signers.pkcs7.ReadNodesTree;
  */
 public final class AOCAdESSigner implements AOSigner {
 
-    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+    private static final Logger LOGGER = Logger.getLogger(AOCAdESSigner.class.getName());
 
     /**
      * Firma datos en formato CAdES.
@@ -80,9 +80,7 @@ public final class AOCAdESSigner implements AOSigner {
                        final Certificate[] certChain,
                        final Properties xParams) throws AOException {
 
-
     	if (certChain == null || certChain.length < 1) {
-
     	    throw new IllegalArgumentException("La cadena de certificados debe contener al menos un elemento"); //$NON-NLS-1$
     	}
 
@@ -96,13 +94,14 @@ public final class AOCAdESSigner implements AOSigner {
     	// el algoritmo y los parametros adicionales
         final CAdESParameters cadesConfig = CAdESParameters.load(data, algorithm, extraParams);
 
-        byte[] cadesSignedData;
+        final byte[] cadesSignedData;
         try {
 			cadesSignedData = GenCAdESEPESSignedData.generateSignedData(
-					algorithm,
-					key,
-					certChain,
-					cadesConfig);
+				algorithm,
+				key,
+				certChain,
+				cadesConfig
+			);
         }
         catch (final AOCancelledOperationException | AOException e) {
             throw e;
@@ -355,7 +354,7 @@ public final class AOCAdESSigner implements AOSigner {
 		// Comprobacion del perfil de firma con la configuracion establecida
 		if (AOSignConstants.SIGN_PROFILE_BASELINE.equalsIgnoreCase(profile) && AOSignConstants.isSHA1SignatureAlgorithm(algorithm)) {
 			LOGGER.warning(()-> "El algoritmo '" + algorithm + "' no esta recomendado para su uso " //$NON-NLS-1$ //$NON-NLS-2$
-					+ "en las firmas baseline por no cumplir los requisitos de seguridad actuales"); //$NON-NLS-1$
+				+ "en las firmas baseline por no cumplir los requisitos de seguridad actuales"); //$NON-NLS-1$
 		}
     }
 
@@ -426,13 +425,15 @@ public final class AOCAdESSigner implements AOSigner {
         	final String tsaHashAlgorithm = (String) getTsaHashAlgorithmMethod.invoke(tsaParams);
 
         	final Method addTimestampMethod = cmsTimestamperClass.getMethod("addTimestamp", //$NON-NLS-1$
-        			byte[].class,
-        			String.class,
-        			GregorianCalendar.class);
+    			byte[].class,
+    			String.class,
+    			GregorianCalendar.class
+			);
         	upgradedSignature = (byte[]) addTimestampMethod.invoke(cmsTimestamper,
-        			signature,
-        			tsaHashAlgorithm,
-        			new GregorianCalendar());
+    			signature,
+    			tsaHashAlgorithm,
+    			new GregorianCalendar()
+			);
         }
         catch (final Exception e) {
         	LOGGER.log(Level.SEVERE, "No se ha podido aplicar el sello de tiempo", e); //$NON-NLS-1$
@@ -440,5 +441,4 @@ public final class AOCAdESSigner implements AOSigner {
 
         return upgradedSignature != null ? upgradedSignature : signature;
 	}
-
 }

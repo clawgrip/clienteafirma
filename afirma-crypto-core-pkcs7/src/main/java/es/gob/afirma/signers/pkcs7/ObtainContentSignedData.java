@@ -37,7 +37,7 @@ public final class ObtainContentSignedData {
 		// No permitimos la instanciacion
 	}
 
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(ObtainContentSignedData.class.getName());
 
 	/** Obtiene el contenido firmado de un tipo Signed Data, tanto en CADES como en CMS.
 	 * Si la firma no contiene los datos, devuelve <code>null</code>.
@@ -48,8 +48,8 @@ public final class ObtainContentSignedData {
 	public static byte[] obtainData(final byte[] data) throws AOInvalidSignatureFormatException {
 		byte[] contenido = null;
 
-		ASN1ObjectIdentifier doi;
-		ASN1TaggedObject doj;
+		final ASN1ObjectIdentifier doi;
+		final ASN1TaggedObject doj;
 		try {
 			final ASN1Sequence dsq;
 			try (ASN1InputStream is = new ASN1InputStream(data)) {
@@ -99,9 +99,7 @@ public final class ObtainContentSignedData {
 	public static byte[] obtainMessageDigest(final byte[] signature, final String digestAlgorithm) throws IOException {
 
 		final ASN1Sequence dsq;
-		try (
-			final ASN1InputStream is = new ASN1InputStream(signature);
-		) {
+		try (ASN1InputStream is = new ASN1InputStream(signature)) {
 			dsq  = (ASN1Sequence) is.readObject();
 		}
 

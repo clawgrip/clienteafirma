@@ -277,17 +277,13 @@ public final class CAdESTriPhaseSigner {
                 throw new AOException("Error en la escritura del contenido implicito en el ContentInfo", e); //$NON-NLS-1$
             }
             contentInfo = new ContentInfo(
-        		new ASN1ObjectIdentifier(
-    				PKCSObjectIdentifiers.data.getId()
-				),
+        		new ASN1ObjectIdentifier(PKCSObjectIdentifiers.data.getId()),
 				new BEROctetString(baos.toByteArray())
     		);
         }
         else {
             contentInfo = new ContentInfo(
-        		new ASN1ObjectIdentifier(
-    				PKCSObjectIdentifiers.data.getId()
-				),
+        		new ASN1ObjectIdentifier(PKCSObjectIdentifiers.data.getId()),
 				null
 			);
         }
@@ -298,14 +294,12 @@ public final class CAdESTriPhaseSigner {
             try {
                 ce.add(
             		org.bouncycastle.asn1.x509.Certificate.getInstance(
-        				ASN1Primitive.fromByteArray(
-    						cert.getEncoded()
-						)
+        				ASN1Primitive.fromByteArray(cert.getEncoded())
     				)
         		);
             }
             catch(final Exception e) {
-                Logger.getLogger("es.gob.afirma").severe( //$NON-NLS-1$
+                Logger.getLogger(CAdESTriPhaseSigner.class.getName()).severe(
             		"Error insertando el certificado '" + AOUtil.getCN((X509Certificate) cert) + "' en la cadena de confianza: " + e //$NON-NLS-1$ //$NON-NLS-2$
         		);
             }

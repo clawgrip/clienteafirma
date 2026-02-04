@@ -18,7 +18,7 @@ import es.gob.afirma.signers.pades.AOPDFSigner;
 
 /** Pruebas de firmas PDF visibles.
  * @author Carlos Gamuci */
-public class TestSignField {
+public final class TestSignField {
 
 	private static final String TEST_FILE = "TEST_PDF.pdf"; //$NON-NLS-1$
 	private static final String TEST_FILE_MP = "multipage.pdf"; //$NON-NLS-1$
@@ -36,9 +36,7 @@ public class TestSignField {
 	@SuppressWarnings("static-method")
 	@Test
 	void testImageOnPdf() throws Exception {
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
-			"Prueba de firma de PDF insertando imagen" //$NON-NLS-1$
-		);
+		Logger.getLogger(TestSignField.class.getName()).info("Prueba de firma de PDF insertando imagen"); //$NON-NLS-1$
 
         final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
         try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {

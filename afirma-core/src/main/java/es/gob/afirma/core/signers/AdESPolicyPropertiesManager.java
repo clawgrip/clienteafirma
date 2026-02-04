@@ -57,7 +57,7 @@ public final class AdESPolicyPropertiesManager {
 	private static final String HTTPS_PREFIX = "https://"; //$NON-NLS-1$
 
 	/** Manejador del log. */
-	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
+	private static final Logger LOGGER = Logger.getLogger(AdESPolicyPropertiesManager.class.getName());
 
 	private static final String BUNDLE_NAME = "policy"; //$NON-NLS-1$
 
@@ -174,9 +174,8 @@ public final class AdESPolicyPropertiesManager {
 	 * @param value Valor a establecer.
 	 */
 	private static void setProperty(final Properties config, final String property, final String value) {
-
 		if (config.containsKey(property)) {
-			LOGGER.warning("La siguiente propiedad se ignora en favor del valor derivado de la politica establecida: " + property);  //$NON-NLS-1$
+			LOGGER.warning(()-> "La siguiente propiedad se ignora en favor del valor derivado de la politica establecida: " + property);  //$NON-NLS-1$
 		}
 		config.setProperty(property, value);
 	}
