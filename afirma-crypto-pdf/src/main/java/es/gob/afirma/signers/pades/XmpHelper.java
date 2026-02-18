@@ -118,9 +118,7 @@ final class XmpHelper {
 	                                                                    ParserConfigurationException {
 		final byte[] pdfPassword = getPdfPassword(extraParams);
 
-		final PdfReader reader = pdfPassword != null
-			? new PdfReader(inPdf, pdfPassword)
-			: new PdfReader(inPdf);
+		final PdfReader reader = pdfPassword != null ? new PdfReader(inPdf, pdfPassword) : new PdfReader(inPdf);
 
 		// Si el PDF estaba cifrado, no actualizamos el XMP
 		if (reader.isEncrypted()) {
@@ -143,9 +141,7 @@ final class XmpHelper {
 			0,
 			originalXmp.indexOf(PROCESSING_INSTRUCTION_SUFFIX) + PROCESSING_INSTRUCTION_SUFFIX.length()
 		);
-		final String originalXmpFooter = originalXmp.substring(
-			originalXmp.lastIndexOf("<?") //$NON-NLS-1$
-		);
+		final String originalXmpFooter = originalXmp.substring(originalXmp.lastIndexOf("<?")); //$NON-NLS-1$
 
 		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
@@ -154,11 +150,7 @@ final class XmpHelper {
 
 		String newnode = NEW_HISTORY_LIST_ITEM.replace(
 			TAG_UUID,
-			UUID.nameUUIDFromBytes(
-				BigInteger.valueOf(
-					globalDate.getTimeInMillis()
-				).toByteArray()
-			).toString()
+			UUID.nameUUIDFromBytes(BigInteger.valueOf(globalDate.getTimeInMillis()).toByteArray()).toString()
 		).replace(
 			TAG_DATE,
 			new PdfDate(globalDate).getW3CDate()
@@ -192,14 +184,13 @@ final class XmpHelper {
 		}
 
 		try {
-		final Node node = doc.importNode(
-			db.parse(new InputSource(new StringReader(newnode))).getDocumentElement(),
-			true
-		);
-
-		n.appendChild(node);
+			final Node node = doc.importNode(
+				db.parse(new InputSource(new StringReader(newnode))).getDocumentElement(),
+				true
+			);
+			n.appendChild(node);
 		}
-		catch (IOException | SAXException | DOMException e) {
+		catch (final IOException | SAXException | DOMException e) {
 			reader.close();
 			throw e;
 		}

@@ -70,9 +70,7 @@ public class TestPAdES {
         p2.setProperty("mode", AOSignConstants.SIGN_MODE_EXPLICIT); //$NON-NLS-1$
         p2.setProperty("allowCosigningUnregisteredSignatures", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        PADES_MODES = new Properties[] {
-                p1, p2
-        };
+        PADES_MODES = new Properties[] { p1, p2 };
     }
 
     /** Algoritmos de firma a probar. */

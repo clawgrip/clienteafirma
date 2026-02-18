@@ -9,10 +9,9 @@
 
 package es.gob.afirma.signers.pades;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
@@ -30,137 +29,24 @@ import es.gob.afirma.core.misc.SecureXmlBuilder;
 
 /** Resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
  * Es un <i>JavaBean</i> que encapsula los resultados de la pre-firma o firma completa PDF. */
-public final class PdfSignResult implements Serializable {
+public final class PdfSignResult {
 
-	private static final long serialVersionUID = 2L;
+	private final String fileID;
+    private final byte[] sign;
+    private final byte[] timestamp;
+    private final GregorianCalendar signTime;
+    private final Properties extraParams;
 
-	private String fileID;
-    private byte[] sign;
-    private byte[] timestamp;
-    private GregorianCalendar signTime;
-    private Properties extraParams;
+	/** Construye el resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
+	 * @param preSignAsXml Prefirma en formato XML.
+	 * @throws SAXException Si hay problemas tratando los datos XML.
+	 * @throws IOException Si hay problemas tratando cuanquier otro datos.
+	 * @throws ParserConfigurationException Si hay problemas en la configuraci&oacute;n del analizador XML. */
+	public PdfSignResult(final String preSignAsXml) throws SAXException, IOException, ParserConfigurationException {
 
-	protected PdfSignResult() {
-        this.fileID = null;
-        this.sign = new byte[0];
-        this.signTime = new GregorianCalendar();
-        this.extraParams = new Properties();
-	}
-
-    /** Construye el resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
-     * @param pdfFileId Identificador &uacute;nico del PDF
-     * @param signature Firma o pre-firma
-     * @param tsp Sello de tiempo
-     * @param signingTime Momento de firmado
-     * @param xParams Opciones adiconales de la firma */
-    public PdfSignResult(final String pdfFileId,
-    		             final byte[] signature,
-    		             final byte[] tsp,
-    		             final GregorianCalendar signingTime,
-    		             final Properties xParams) {
-    	if (signingTime == null) {
-    		throw new IllegalArgumentException("Es obligatorio proporcionar un momento de firmado"); //$NON-NLS-1$
-    	}
-    	if (pdfFileId == null || pdfFileId.isEmpty()) {
-    		throw new IllegalArgumentException("Es obligatorio proporcionar un MAC de PDF"); //$NON-NLS-1$
-    	}
-        if (signature == null || signature.length < 1) {
-            throw new IllegalArgumentException("Es obligatorio una pre-firma"); //$NON-NLS-1$
-        }
-        this.fileID = pdfFileId;
-        this.sign = signature.clone();
-        this.timestamp = tsp != null ? tsp.clone() : null;
-        this.signTime = signingTime;
-        this.extraParams = xParams != null ? xParams : new Properties();
-    }
-
-
-	/** Establece los par&aacute;metros adicionales de la firma.
-	 * &Uacute;til cuando se desean a&ntilde;adir par&aacute;metros en la post-firma que
-	 * no alteran la huella digital del rango procesable del PDF (por ejemplo, la imagen de la r&uacute;brica)
-	 * @param xParams Par&aacute;metros adicionales de la firma, se sobrescriben los existentes si los hubiera */
-	public void setExtraParams(final Properties xParams) {
-		this.extraParams = xParams != null ? (Properties) xParams.clone() : null;
-	}
-
-    /** Obtiene las opciones adicionales de la firma.
-     * @return Opciones adicionales de la firma */
-    Properties getExtraParams() {
-    	return this.extraParams != null ? (Properties) this.extraParams.clone() : null;
-    }
-
-    /** Obtiene el FileID (<i>/ID</i>) del diccionario PDF generado.
-     * @return FileID del diccionario PDF generado */
-    public String getFileID() {
-        return this.fileID;
-    }
-
-    /** Obtiene los atributos CAdES a firmar.
-     * @return Atributos CAdES a firmar (pre-firma) */
-    public byte[] getSign() {
-        return this.sign.clone();
-    }
-
-    /** Obtiene el sello de tiempo.
-     * @return Sello de tiempo. */
-    public byte[] getTimestamp() {
-    	return this.timestamp != null ? this.timestamp.clone() : null;
-    }
-
-    /** Obtiene el momento en el que se realiz&oacute; la firma.
-     * @return Momento en el que se realiz&oacute; la firma */
-    GregorianCalendar getSignTime() {
-    	return this.signTime;
-    }
-
-	/** Serializaci&oacute;n del objeto.
-	 * @param out Datos de salida.
-	 * @throws IOException Cuando no se puede serializar. */
-    private void writeObject(final ObjectOutputStream out) throws IOException {
-
-    	final DatatypeFactory dataTypeFactory;
-    	try {
-    		dataTypeFactory = DatatypeFactory.newInstance();
-    	}
-    	catch (final Exception e) {
-    		throw new IOException(e);
-    	}
-
-    	final StringBuilder sb = new StringBuilder()
-    		.append("<signResult>\n") //$NON-NLS-1$
-    		.append(" <extraParams>\n") //$NON-NLS-1$
-    		.append(AOUtil.properties2Base64(getExtraParams())).append('\n')
-    		.append(" </extraParams>\n") //$NON-NLS-1$
-    		.append(" <pdfId>\n") //$NON-NLS-1$
-    		.append(getFileID()).append('\n')
-    		.append(" </pdfIf>\n") //$NON-NLS-1$
-    		.append(" <sign>\n") //$NON-NLS-1$
-    		.append(Base64.encode(getSign())).append('\n')
-    		.append(" </sign>\n") //$NON-NLS-1$
-    		.append(" <timestamp>\n") //$NON-NLS-1$
-    		.append(this.timestamp != null ? Base64.encode(getTimestamp()) : "").append('\n') //$NON-NLS-1$
-    		.append(" </timestamp>\n") //$NON-NLS-1$
-    		.append(" <signTime>\n") //$NON-NLS-1$
-    		.append(dataTypeFactory.newXMLGregorianCalendar(getSignTime()).toXMLFormat()).append('\n')
-    		.append(" </signTime>\n") //$NON-NLS-1$
-    		.append("</signResult>") //$NON-NLS-1$
-		;
-    	out.write(sb.toString().getBytes());
-    }
-
-	/** Deserializaci&oacute;n del objeto.
-	 * @param in Datos de entrada (en formato XML).
-	 * @throws IOException Cuando no se puede deserializar. */
-	private void readObject(final ObjectInputStream in) throws IOException {
-    	final Document xmlSign;
-    	try {
-    		xmlSign = SecureXmlBuilder.getSecureDocumentBuilder().parse(in);
-		}
-    	catch (final SAXException | ParserConfigurationException e) {
-    		throw new IOException(e);
-		}
-
-    	final NodeList nodeList = xmlSign.getChildNodes();
+		final ByteArrayInputStream is = new ByteArrayInputStream(preSignAsXml.getBytes(StandardCharsets.UTF_8));
+    	final Document xmlSign = SecureXmlBuilder.getSecureDocumentBuilder().parse(is);
+    	final NodeList nodeList = xmlSign.getChildNodes().item(0).getChildNodes();
     	int i = getNextElementNode(nodeList, 0);
 
     	// extraParams
@@ -213,6 +99,102 @@ public final class PdfSignResult implements Serializable {
     	this.signTime = dataTypeFactory.newXMLGregorianCalendar(node.getTextContent().trim()).toGregorianCalendar();
     }
 
+    /** Construye el resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
+     * @param pdfFileId Identificador &uacute;nico del PDF
+     * @param signature Firma o pre-firma
+     * @param tsp Sello de tiempo
+     * @param signingTime Momento de firmado
+     * @param xParams Opciones adiconales de la firma */
+    public PdfSignResult(final String pdfFileId,
+    		             final byte[] signature,
+    		             final byte[] tsp,
+    		             final GregorianCalendar signingTime,
+    		             final Properties xParams) {
+    	if (signingTime == null) {
+    		throw new IllegalArgumentException("Es obligatorio proporcionar un momento de firmado"); //$NON-NLS-1$
+    	}
+    	if (pdfFileId == null || pdfFileId.isEmpty()) {
+    		throw new IllegalArgumentException("Es obligatorio proporcionar un MAC de PDF"); //$NON-NLS-1$
+    	}
+        if (signature == null || signature.length < 1) {
+            throw new IllegalArgumentException("Es obligatorio una pre-firma"); //$NON-NLS-1$
+        }
+        this.fileID = pdfFileId;
+        this.sign = signature.clone();
+        this.timestamp = tsp != null ? tsp.clone() : null;
+        this.signTime = signingTime;
+        this.extraParams = xParams != null ? xParams : new Properties();
+    }
+
+    /** Obtiene las opciones adicionales de la firma.
+     * @return Opciones adicionales de la firma. */
+    Properties getExtraParams() {
+    	return this.extraParams != null ? (Properties) this.extraParams.clone() : null;
+    }
+
+    /** Obtiene el FileID (<i>/ID</i>) del diccionario PDF generado.
+     * @param unscaped <code>true</code> para eliminar la codificaci&oacute;n XML,
+     *                 <code>false</code> para obtener el dato codificado en XML.
+     * @return FileID del diccionario PDF generado */
+    public String getFileID(final boolean unscaped) {
+        return unscaped ? unescapeXML(this.fileID) : fileID;
+    }
+
+    /** Obtiene los atributos CAdES a firmar.
+     * @return Atributos CAdES a firmar (pre-firma). */
+    public byte[] getSign() {
+        return this.sign.clone();
+    }
+
+    /** Obtiene el sello de tiempo.
+     * @return Sello de tiempo. */
+    public byte[] getTimestamp() {
+    	return this.timestamp != null ? this.timestamp.clone() : null;
+    }
+
+    /** Obtiene el momento en el que se realiz&oacute; la firma.
+     * @return Momento en el que se realiz&oacute; la firma. */
+    GregorianCalendar getSignTime() {
+    	return this.signTime;
+    }
+
+    @Override
+	public String toString() {
+    	final DatatypeFactory dataTypeFactory;
+    	try {
+    		dataTypeFactory = DatatypeFactory.newInstance();
+    	}
+    	catch (final Exception e) {
+    		throw new IllegalStateException(e);
+    	}
+    	final String base64Properties;
+		try {
+			base64Properties = AOUtil.properties2Base64(getExtraParams());
+		}
+		catch (final IOException e) {
+			throw new IllegalStateException(e);
+		}
+    	return new StringBuilder()
+			.append("<signResult>\n") //$NON-NLS-1$
+			.append(" <extraParams>\n") //$NON-NLS-1$
+			.append(base64Properties).append('\n')
+			.append(" </extraParams>\n") //$NON-NLS-1$
+			.append(" <pdfId>\n") //$NON-NLS-1$
+			.append(getFileID(false)).append('\n')
+			.append(" </pdfId>\n") //$NON-NLS-1$
+			.append(" <sign>\n") //$NON-NLS-1$
+			.append(Base64.encode(getSign())).append('\n')
+			.append(" </sign>\n") //$NON-NLS-1$
+			.append(" <timestamp>\n") //$NON-NLS-1$
+			.append(this.timestamp != null ? Base64.encode(getTimestamp()) : "").append('\n') //$NON-NLS-1$
+			.append(" </timestamp>\n") //$NON-NLS-1$
+			.append(" <signTime>\n") //$NON-NLS-1$
+			.append(dataTypeFactory.newXMLGregorianCalendar(getSignTime()).toXMLFormat()).append('\n')
+			.append(" </signTime>\n") //$NON-NLS-1$
+			.append("</signResult>") //$NON-NLS-1$
+		.toString();
+    }
+
 	/** Busca el siguiente nodo de tipo elemento del listado.
 	 * @param nodeList Listado de nodos.
 	 * @param initialIndex &Iacute;ndice desde el que empezar la b&uacute;squeda.
@@ -227,4 +209,15 @@ public final class PdfSignResult implements Serializable {
     	}
     	throw new IOException("No se encontraron todos los campos del PdfSignResult serializado"); //$NON-NLS-1$
     }
+
+	private static String unescapeXML(final String input) {
+		if (input == null) {
+			return null;
+		}
+		return input.replace("&amp;", "&")   //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("&lt;", "<")    //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("&gt;", ">")    //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("&quot;", "\"") //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("&apos;", "'"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

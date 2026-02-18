@@ -212,7 +212,7 @@ public final class PAdESTriPhaseSigner {
         );
 
         return new PdfSignResult(
-            ptps.getFileID(),
+    		escapeXML(ptps.getFileID()),
             cadesPresign,
             null, // Sello de tiempo
             signTime,
@@ -243,7 +243,7 @@ public final class PAdESTriPhaseSigner {
     		preSign.getExtraParams(),
     		pkcs1Signature,
     		preSign.getSign(),
-    		preSign.getFileID(),
+    		preSign.getFileID(true),
     		preSign.getTimestamp(),
     		preSign.getSignTime()
 		);
@@ -326,8 +326,19 @@ public final class PAdESTriPhaseSigner {
 		    catch (final IOException | DocumentException e) {
 		        throw new AOException("Error al cerrar el PDF para finalizar el proceso de firma", e); //$NON-NLS-1$
 		    }
-		    ret = new String(baos.toByteArray(), StandardCharsets.ISO_8859_1).replace(badFileID, signature.getFileID()).getBytes(StandardCharsets.ISO_8859_1);
+		    ret = new String(baos.toByteArray(), StandardCharsets.ISO_8859_1).replace(badFileID, signature.getFileID(true)).getBytes(StandardCharsets.ISO_8859_1);
         }
 	    return ret;
     }
+
+	private static String escapeXML(final String input) {
+		if (input == null) {
+			return null;
+		}
+		return input.replace("&",  "&amp;")   //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("<",  "&lt;")    //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace(">",  "&gt;")    //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("\"", "&quot;")  //$NON-NLS-1$ //$NON-NLS-2$
+				    .replace("'",  "&apos;"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
