@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import es.gob.afirma.core.SignaturePolicyIncompatibilityException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 
 /** Clase de utilidad para el proceso de propiedades enviadas desde JavaScript
  * y recogidas desde Java en formato <code>Properties</code>. */
@@ -206,16 +206,12 @@ public final class ExtraParamsProcessor {
 		return normalizedFormat != null ? normalizedFormat : format;
 	}
 
-	/**
-	 * Indica si la expansi&oacute;n de propiedades est&aacute; habilitada para una
-	 * pol&iacute;tica de firma concreta.
+	/** Indica si la expansi&oacute;n de propiedades est&aacute; habilitada para una pol&iacute;tica de firma concreta.
 	 * @param policyName Nombre de la pol&iacute;tica de firma.
-	 * @return {@code true} si la pol&iacute;tica esta soportada, {@code false} en
-	 * caso contrario.
-	 */
+	 * @return {@code true} si la pol&iacute;tica esta soportada, {@code false} en caso contrario. */
 	private static boolean isSupportedPolicy(final String policyName) {
 		return AdESPolicyPropertiesManager.POLICY_ID_AGE.equals(policyName) ||
-				AdESPolicyPropertiesManager.POLICY_ID_AGE_1_8.equals(policyName);
+			AdESPolicyPropertiesManager.POLICY_ID_AGE_1_8.equals(policyName);
 	}
 
 	/**
@@ -334,9 +330,7 @@ public final class ExtraParamsProcessor {
 	 * dato debe estar en las propiedades, o si no estamos en modo seguro ({@code false}) y
 	 * podr&iacute;amos tener una referencia a un fichero local que cargar.
 	 * @return Datos binarios cargados.
-	 * @throws IOException Cuando no se encuentra el dato en la configuraci&oacute;n o cuando
-	 * no se puede cargar.
-	 */
+	 * @throws IOException Cuando no se encuentra el dato en la configuraci&oacute;n o cuando no se puede cargar. */
 	public static byte[] loadByteArrayFromExtraParams(final Properties extraParams, final String paramName,
 			final boolean secureMode) throws IOException {
 
@@ -346,18 +340,19 @@ public final class ExtraParamsProcessor {
 		}
 
 		byte[] content;
-		if (!secureMode && !value.isEmpty() && value.length() < MAX_PATH_SIZE && !Base64.isBase64(value)) {
+		if (!secureMode && !value.isEmpty() && value.length() < MAX_PATH_SIZE && !AOUtil.isBase64(value)) {
 			try {
 				final URI uri = AOUtil.createURI(value);
 				try (InputStream is = AOUtil.loadFile(uri)) {
 					content = AOUtil.getDataFromInputStream(is);
 				}
-			} catch (final Exception e) {
+			}
+			catch (final Exception e) {
 				throw new IOException("El propiedad '" + paramName + "' no contiene una ruta valida a un recurso", e); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		else {
-			content = Base64.decode(value);
+			content = Base64.getDecoder().decode(value);
 		}
 
 		return content;

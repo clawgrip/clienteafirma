@@ -19,6 +19,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -43,7 +44,6 @@ import org.bouncycastle.tsp.TimeStampToken;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
 
@@ -170,8 +170,6 @@ public final class CMSTimestamper {
         }
 
         return CMSSignedData.replaceSigners(signedData, new SignerInformationStore(vNewSigners)).getEncoded();
-
-
     }
 
     private byte[] getTSAResponse(final byte[] request) throws IOException {
@@ -199,17 +197,14 @@ public final class CMSTimestamper {
     	try (OutputStream out = conn.getOutputStream()) {
 	         out.write(requestBytes);
     	}
-
     	final byte[] respBytes;
     	try (InputStream is = conn.getInputStream()) {
     		respBytes = AOUtil.getDataFromInputStream(is);
     	}
-
         final String encoding = conn.getContentEncoding();
         if (encoding != null && encoding.equalsIgnoreCase("base64")) { //$NON-NLS-1$
-             return Base64.decode(new String(respBytes));
+             return Base64.getDecoder().decode(new String(respBytes));
         }
-
         return respBytes;
      }
 
@@ -230,7 +225,7 @@ public final class CMSTimestamper {
 
         if (this.tsaUsername != null && !this.tsaUsername.isEmpty()) {
             final String userPassword = this.tsaUsername + ":" + this.tsaPassword; //$NON-NLS-1$
-            tsaConnection.setRequestProperty("Authorization", "Basic " + Base64.encode(userPassword.getBytes())); //$NON-NLS-1$ //$NON-NLS-2$
+            tsaConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(userPassword.getBytes())); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         return tsaConnection;

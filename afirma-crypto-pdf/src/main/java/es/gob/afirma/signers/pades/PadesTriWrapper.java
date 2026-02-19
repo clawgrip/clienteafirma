@@ -1,13 +1,9 @@
-package es.gob.afirma.test.pades;
+package es.gob.afirma.signers.pades;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStore;
-import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -28,99 +24,15 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.xml.sax.SAXException;
 
 import es.gob.afirma.core.AOException;
-import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.signers.AOPkcs1Signer;
-import es.gob.afirma.signers.pades.PAdESTriPhaseSigner;
-import es.gob.afirma.signers.pades.PdfSignResult;
 
-/**
+/** Envoltura de firma trif&aacute;sica PAdES con tipos b&aacute;sicos (para ser invocada desde Swift u Objective-C).
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 public final class PadesTriWrapper {
 
 	private static final Logger LOGGER = Logger.getLogger(PadesTriWrapper.class.getName());
 
-	/** Main para pruebas.
-	 * @param args No se usa.
-	 * @throws Exception En cualquier error. */
-	public static void main(final String[] args) throws Exception {
-
-		final byte[] testPdf;
-        try (InputStream is = ClassLoader.getSystemResourceAsStream("TEST_PDF.pdf")) { //$NON-NLS-1$
-        	testPdf = AOUtil.getDataFromInputStream(is);
-        }
-        final String pdfTbsAsBase64 = Base64.getEncoder().encodeToString(testPdf);
-
-        final String signAlgorithm = "SHA256withRSA"; //$NON-NLS-1$
-
-	    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
-	    final String certPass = "1234"; //$NON-NLS-1$
-	    final String certAlias = "eidas_certificado_pruebas___99999999r"; //$NON-NLS-1$
-        final PrivateKeyEntry pke;
-        final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
-        try (InputStream is = ClassLoader.getSystemResourceAsStream(certPath)) {
-        	ks.load(is, certPass.toCharArray());
-        }
-        pke = (PrivateKeyEntry) ks.getEntry(certAlias, new KeyStore.PasswordProtection(certPass.toCharArray()));
-
-        final StringBuilder pemChain = new StringBuilder();
-        for (final Certificate cert : pke.getCertificateChain()) {
-        	pemChain.append("-----BEGIN CERTIFICATE-----\n"); //$NON-NLS-1$
-        	pemChain.append(Base64.getMimeEncoder().encodeToString(cert.getEncoded()));
-        	pemChain.append("\n-----END CERTIFICATE-----\n"); //$NON-NLS-1$
-        }
-        final String certChainAsPem = pemChain.toString();
-
-        final String signTimeAsString = "18/2/2026 16:11:00"; //$NON-NLS-1$
-
-        final String extraParamsAsString =
-    		"format=Adobe PDF\n" + //$NON-NLS-1$
-			"mode=implicit\n" + //$NON-NLS-1$
-			"signReason=test\n" + //$NON-NLS-1$
-			"signatureProductionCity=Madrid\n" + //$NON-NLS-1$
-	        "signerContact=sink@usa.net\n" + //$NON-NLS-1$
-	        "policyQualifier=http://administracionelectronica.gob.es/es/ctt/politicafirma/politica_firma_AGE_v1_8.pdf\n" + //$NON-NLS-1$
-	        "policyIdentifier=2.16.724.1.3.1.1.2.1.8\n" + //$NON-NLS-1$
-	        "policyIdentifierHash=8lVVNGDCPen6VELRD1Ja8HARFk==\n" + //$NON-NLS-1$
-	        "policyIdentifierHashAlgorithm=SHA-1\n" + //$NON-NLS-1$
-	        "allowCosigningUnregisteredSignatures=true\n"; //$NON-NLS-1$
-
-        final String preSignAsXml = getPresign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
-
-        final String getDataTbsAsBase64 = getDataTbsAsBase64(preSignAsXml);
-
-        // Firma PKCS#1
-        final byte[] dataTbs = Base64.getDecoder().decode(getDataTbsAsBase64);
-        final AOPkcs1Signer signer = new AOPkcs1Signer();
-		final Properties extraParams = new Properties();
-		extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
-        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), pke.getCertificateChain(), extraParams);
-        final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
-
-        System.out.println(signatureAsBase64);
-
-        final String signedPdfAsBase64 = getPostSign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
-
-        final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsBase64);
-        try (FileOutputStream fos = new FileOutputStream(File.createTempFile("TriPDF_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
-        	fos.write(signedPdf);
-        }
-	}
-
-	/** Obtiene la prefirma de una firma PAdES.
-	 * @param signAlgorithm Algoritmo de firma.
-	 * @param pdfTbs PDF a firmar.
-	 * @param certChain Cadena de certificados del firmante.
-	 * @param signTime Fecha de firma.
-	 * @param extraParams Par&aacute;metros adicionales de la firma.
-	 * @return Prefirma.
-	 * @throws IOException Si hay errores de tratamiento de datos.
-	 * @throws AOException En cualquier otro error. */
-	public static PdfSignResult getPresign(final String signAlgorithm,
-			                               final byte[] pdfTbs,
-			                               final X509Certificate[] certChain,
-			                               final GregorianCalendar signTime,
-			                               final Properties extraParams) throws IOException, AOException {
-		return PAdESTriPhaseSigner.preSign(signAlgorithm, pdfTbs, certChain, signTime, extraParams, true);
+	private PadesTriWrapper() {
+		// No instanciable
 	}
 
 	/** Obtiene la prefirma de una firma PAdES.
@@ -171,7 +83,7 @@ public final class PadesTriWrapper {
 		}
 
 		try {
-			return getPresign(signAlgorithm, pdfTbs, certChain, signTime, extraParams).toString();
+			return PAdESTriPhaseSigner.preSign(signAlgorithm, pdfTbs, certChain, signTime, extraParams, true).toString();
 		}
 		catch (final IOException | AOException e) {
 			return getErrorResult("Error obteniendo la prefirma", e); //$NON-NLS-1$
@@ -191,23 +103,6 @@ public final class PadesTriWrapper {
 			return null;
 		}
 		return Base64.getEncoder().encodeToString(psr.getSign());
-	}
-
-	/** Obtiene una postfirma PAdES a partir de una prefirma y la firma, generando un PDF final completo.
-     * @param signAlgorithm Nombre del algoritmo de firma electr&oacute;nica (debe ser el mismo que el usado en la prefirma).
-     * @param pdfTbs PDF a firmar (debe ser el mismo que el usado en la prefirma).
-     * @param certChain Cadena de certificados del firmante (debe ser la misma que la usado en la prefirma).
-     * @param signature Resultado de la firma de los datos de la prefirma.
-     * @param preSign Resultado de la pre-firma.
-     * @return PDF firmado.
-     * @throws AOException En cualquier otro error.
-     * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n de estructuras. */
-	public static byte[] getPostSign(final String signAlgorithm,
-                                     final byte[] pdfTbs,
-                                     final X509Certificate[] certChain,
-                                     final byte[] signature,
-                                     final PdfSignResult preSign) throws AOException, IOException {
-		return PAdESTriPhaseSigner.postSign(signAlgorithm, pdfTbs, certChain, signature, preSign, true);
 	}
 
 	/** Obtiene una postfirma PAdES a partir de una prefirma y la firma, generando un PDF final completo.
@@ -248,7 +143,7 @@ public final class PadesTriWrapper {
 			return getErrorResult("Error decodificando la prefirma", e); //$NON-NLS-1$
 		}
 		try {
-			return Base64.getEncoder().encodeToString(getPostSign(signAlgorithm, pdfTbs, certChain, signature, preSign));
+			return Base64.getEncoder().encodeToString(PAdESTriPhaseSigner.postSign(signAlgorithm, pdfTbs, certChain, signature, preSign, true));
 		}
 		catch (final AOException | IOException e) {
 			return getErrorResult("Error obteniendo la postfirma", e); //$NON-NLS-1$

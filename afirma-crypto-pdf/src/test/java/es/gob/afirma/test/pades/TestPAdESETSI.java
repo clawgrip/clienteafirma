@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.signers.pades.AOPDFSigner;
@@ -56,7 +56,7 @@ final class TestPAdESETSI {
         try (InputStream is = ClassLoader.getSystemResourceAsStream(POL_PATH)) {
             p1.setProperty(
                "policyIdentifierHash",  //$NON-NLS-1$
-               Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
+               Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
            );
         }
         catch(final Exception e) {
@@ -82,7 +82,7 @@ final class TestPAdESETSI {
         try (InputStream is = ClassLoader.getSystemResourceAsStream(POL_PATH)) {
             p4.setProperty(
                "policyIdentifierHash",  //$NON-NLS-1$
-               Base64.encode(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
+               Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(AOUtil.getDataFromInputStream(is))) //$NON-NLS-1$
            );
         }
         catch(final Exception e) {

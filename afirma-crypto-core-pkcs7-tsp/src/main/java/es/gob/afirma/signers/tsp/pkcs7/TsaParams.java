@@ -11,10 +11,10 @@ package es.gob.afirma.signers.tsp.pkcs7;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.signers.AOSignConstants;
 
 /** Par&aacute;metros de configuraci&oacute;n de una Autoridad de Sellado de Tiempo.
@@ -85,9 +85,7 @@ public final class TsaParams {
 			         final String sslTrustStoreType,
 			         final boolean verifyHostname) {
         if (url == null) {
-        	throw new IllegalArgumentException(
-				"La URL del servidor de sello de tiempo no puede ser nula" //$NON-NLS-1$
-			);
+        	throw new IllegalArgumentException("La URL del servidor de sello de tiempo no puede ser nula"); //$NON-NLS-1$
         }
         this.tsaURL = url;
         this.tsaPolicy = policy != null ? policy : DEFAULT_POLICY;
@@ -114,9 +112,7 @@ public final class TsaParams {
 		}
 		final String tsa = extraParams.getProperty("tsaURL"); //$NON-NLS-1$
         if (tsa == null) {
-        	throw new IllegalArgumentException(
-				"La URL del servidor de sello de tiempo no puede ser nula" //$NON-NLS-1$
-			);
+        	throw new IllegalArgumentException("La URL del servidor de sello de tiempo no puede ser nula"); //$NON-NLS-1$
         }
         try {
     		this.tsaURL = new URI(tsa);
@@ -138,7 +134,7 @@ public final class TsaParams {
         final String keyStoreDataB64 = extraParams.getProperty("tsaSslKeyStore"); //$NON-NLS-1$
         if (keyStoreDataB64 != null) {
         	try {
-				this.sslKeyStore = Base64.decode(keyStoreDataB64);
+				this.sslKeyStore = Base64.getDecoder().decode(keyStoreDataB64);
 			}
 			catch(final Exception e) {
 				throw new IllegalArgumentException(
@@ -156,7 +152,7 @@ public final class TsaParams {
         final String trustStoreDataB64 = extraParams.getProperty("tsaSslTrustStore"); //$NON-NLS-1$
         if (trustStoreDataB64 != null) {
 			try {
-				this.sslTrustStore = Base64.decode(trustStoreDataB64);
+				this.sslTrustStore = Base64.getDecoder().decode(trustStoreDataB64);
 			}
 			catch(final Exception e) {
 				throw new IllegalArgumentException(
@@ -234,7 +230,7 @@ public final class TsaParams {
 			new TsaRequestExtension(
 				extensionOid,
 				extensionCritical,
-				Base64.decode(extensionValueBase64)
+				Base64.getDecoder().decode(extensionValueBase64)
 			)
 		};
 	}
@@ -311,19 +307,19 @@ public final class TsaParams {
 		}
 		if (getExtensions() != null && getExtensions().length > 0) {
 			p.put("tsaExtensionOid", getExtensions()[0].getOid()); //$NON-NLS-1$
-			p.put("tsaExtensionValueBase64", Base64.encode(getExtensions()[0].getValue())); //$NON-NLS-1$
+			p.put("tsaExtensionValueBase64", Base64.getEncoder().encodeToString(getExtensions()[0].getValue())); //$NON-NLS-1$
 			p.put("tsaExtensionCritical", Boolean.toString(getExtensions()[0].isCritical())); //$NON-NLS-1$
 		}
 		if (getTsaHashAlgorithm() != null && !getTsaHashAlgorithm().isEmpty()) {
 			p.put("tsaHashAlgorithm", getTsaHashAlgorithm()); //$NON-NLS-1$
 		}
 		if (getSslKeyStore() != null && getSslKeyStore().length > 0) {
-			p.put("tsaSslKeyStore", Base64.encode(getSslKeyStore())); //$NON-NLS-1$
+			p.put("tsaSslKeyStore", Base64.getEncoder().encodeToString(getSslKeyStore())); //$NON-NLS-1$
 			p.put("tsaSslKeyStorePassword", getSslKeyStorePassword()); //$NON-NLS-1$
 			p.put("tsaSslKeyStoreType", getSslKeyStoreType()); //$NON-NLS-1$
 		}
 		if (getSslTrustStore() != null && getSslTrustStore().length > 0) {
-			p.put("tsaSslTrustStore", Base64.encode(getSslTrustStore())); //$NON-NLS-1$
+			p.put("tsaSslTrustStore", Base64.getEncoder().encodeToString(getSslTrustStore())); //$NON-NLS-1$
 			p.put("tsaSslTrustStorePassword", getSslTrustStorePassword()); //$NON-NLS-1$
 			p.put("tsaSslTrustStoreType", getSslTrustStoreType()); //$NON-NLS-1$
 		}

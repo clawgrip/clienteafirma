@@ -1,6 +1,7 @@
 package es.gob.afirma.core.misc;
 
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.zip.CRC32;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,10 +41,10 @@ final class TestBase64 {
 			final long crcl = crc.getValue();
 
 			// Lo pasamos a Base64
-			final String tmpB64Bin = Base64.encode(data);
+			final String tmpB64Bin = Base64.getEncoder().encodeToString(data);
 
 			// Lo pasamos de nuevo a binario
-			final byte[] newBin = Base64.decode(tmpB64Bin);
+			final byte[] newBin = Base64.getDecoder().decode(tmpB64Bin);
 
 			// Volvemos a calcular el CRC y vemos si coincide con el original
 			crc.reset();

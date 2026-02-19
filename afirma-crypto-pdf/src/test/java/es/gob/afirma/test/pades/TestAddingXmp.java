@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -16,7 +17,6 @@ import com.aowagie.text.pdf.PdfReader;
 import com.aowagie.text.pdf.PdfStamper;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 
 /** Prueba de adici&oacute;n de XMP a un PDF.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -37,7 +37,7 @@ class TestAddingXmp {
 
 		final String sigDataBase64;
 		try (InputStream is = ClassLoader.getSystemResourceAsStream("4df6ec6b6b5c7.jpg")) { //$NON-NLS-1$
-			sigDataBase64 = Base64.encode(AOUtil.getDataFromInputStream(is));
+			sigDataBase64 = Base64.getEncoder().encodeToString(AOUtil.getDataFromInputStream(is));
 		}
 		final HashMap<String, String> moreInfo = new HashMap<>(1);
 		moreInfo.put("SignerBiometricSignatureData", sigDataBase64); //$NON-NLS-1$

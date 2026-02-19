@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.signers.pades.AOPDFSigner;
 
 /** Pruebas de firmas PDF visibles.
@@ -54,7 +54,7 @@ public final class TestSignField {
 		try (InputStream is = ClassLoader.getSystemResourceAsStream("4df6ec6b6b5c7.jpg")) { //$NON-NLS-1$
 			image = AOUtil.getDataFromInputStream(is);
 		}
-		final String imageB64 = Base64.encode(image);
+		final String imageB64 = Base64.getEncoder().encodeToString(image);
 		extraParams.put("image", imageB64); //$NON-NLS-1$
 
 		extraParams.put("imagePage", "1"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -263,7 +263,7 @@ public final class TestSignField {
 			rubricImage = AOUtil.getDataFromInputStream(is);
 		}
 
-		final String rubricImageB64 = Base64.encode(rubricImage);
+		final String rubricImageB64 = Base64.getEncoder().encodeToString(rubricImage);
 
 		extraParams.put("signatureRubricImage", rubricImageB64); //$NON-NLS-1$
 
@@ -377,7 +377,7 @@ public final class TestSignField {
 			rubricImage = AOUtil.getDataFromInputStream(is);
 		}
 
-		final String rubricImageB64 = Base64.encode(rubricImage);
+		final String rubricImageB64 = Base64.getEncoder().encodeToString(rubricImage);
 
 		extraParams.put("signatureRubricImage", rubricImageB64); //$NON-NLS-1$
 		extraParams.put("layer2Text", "Este es el texto de prueba 'Hola Mundo'"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -443,7 +443,7 @@ public final class TestSignField {
 			rubricImage = AOUtil.getDataFromInputStream(is);
 		}
 
-		final String rubricImageB64 = Base64.encode(rubricImage);
+		final String rubricImageB64 = Base64.getEncoder().encodeToString(rubricImage);
 
 		extraParams.put("signatureRubricImage", rubricImageB64); //$NON-NLS-1$
 		extraParams.put("layer2Text", "Firmado por $$SUBJECTCN$$ el $$SIGNDATE=dd/MM/yyyy$$ con un certificado emitido por $$ISSUERCN$$"); //$NON-NLS-1$ //$NON-NLS-2$

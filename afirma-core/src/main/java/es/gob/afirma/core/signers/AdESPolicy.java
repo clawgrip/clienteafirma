@@ -12,11 +12,10 @@ package es.gob.afirma.core.signers;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Properties;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
-
 
 /** Pol&iacute;tica de firma para AdES.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -73,7 +72,7 @@ public final class AdESPolicy {
         			DEFAULT_HASH_ALGORITHM : AOSignConstants.getDigestAlgorithmName(identifierHashAlgorithm);
 
             try (InputStream is = new URL(identifier).openStream()) {
-                this.policyIdentifierHash =  Base64.encode(
+                this.policyIdentifierHash =  Base64.getEncoder().encodeToString(
             		MessageDigest.getInstance(this.policyIdentifierHashAlgorithm).digest(
         				AOUtil.getDataFromInputStream(is)
     				)
@@ -89,7 +88,7 @@ public final class AdESPolicy {
                 throw new IllegalArgumentException("Si se indica la huella digital del identificador de politica es obligatorio indicar tambien el algoritmo"); //$NON-NLS-1$
             }
 
-        	if (!Base64.isBase64(identifierHash.getBytes())) {
+        	if (!AOUtil.isBase64(identifierHash.getBytes())) {
         		throw new IllegalArgumentException("La huella digital de la politica debe estar en formato Base64"); //$NON-NLS-1$
         	}
 

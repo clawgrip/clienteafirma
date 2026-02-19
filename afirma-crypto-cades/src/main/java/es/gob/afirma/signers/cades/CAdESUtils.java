@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Locale;
 
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -46,7 +47,6 @@ import org.bouncycastle.asn1.x509.IssuerSerial;
 import org.bouncycastle.asn1.x509.PolicyInformation;
 import org.bouncycastle.asn1.x509.X509AttributeIdentifiers;
 
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AdESPolicy;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
@@ -300,8 +300,7 @@ public final class CAdESUtils {
 		);
     }
 
-    private static DERSet getSigPolicyAttribute(final String digestAlgorithmName,
-    		                                final AdESPolicy policy) throws IOException {
+    private static DERSet getSigPolicyAttribute(final String digestAlgorithmName, final AdESPolicy policy) {
 
         final ASN1ObjectIdentifier doiSigPolicyId = new ASN1ObjectIdentifier(
     		policy.getPolicyIdentifier().toLowerCase(Locale.US).replace("urn:oid:", "") //$NON-NLS-1$ //$NON-NLS-2$
@@ -327,7 +326,7 @@ public final class CAdESUtils {
         // Huella del documento
         final byte[] hashed;
         if (policy.getPolicyIdentifierHash()!=null) {
-            hashed = Base64.decode(policy.getPolicyIdentifierHash());
+            hashed = Base64.getDecoder().decode(policy.getPolicyIdentifierHash());
         }
         else {
             hashed = new byte[]{0};
@@ -346,7 +345,7 @@ public final class CAdESUtils {
         // sigPolicyHash
         v.add(otherHashAlgAndValue.toASN1Primitive()); // como sequence
         // sigPolicyQualifiers
-        if(spqInfo!=null) {
+        if (spqInfo != null) {
             v.add(new DERSequence(spqInfo.toASN1Primitive()));
         }
 
@@ -487,10 +486,10 @@ public final class CAdESUtils {
         	final SignerLocation location = CAdESSignerMetadataHelper.getSignerLocation(config.getMetadata().getSignerLocation());
         	if (location != null) {
         		contextSpecific.add(
-        				new Attribute(
-        						PKCSObjectIdentifiers.id_aa_ets_signerLocation,
-        						new DERSet(location)
-        				)
+    				new Attribute(
+						PKCSObjectIdentifiers.id_aa_ets_signerLocation,
+						new DERSet(location)
+    				)
         		);
         	}
         }

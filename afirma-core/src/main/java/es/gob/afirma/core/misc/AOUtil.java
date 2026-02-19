@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -47,6 +48,12 @@ public final class AOUtil {
     };
 
     private static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
+
+    /** Caracteres aceptados en una codificaci&oacute;n Base64 seg&uacute;n la
+     * <a href="http://www.faqs.org/rfcs/rfc3548.html">RFC 3548</a>.
+     * Importante: A&ntilde;adimos el car&aacute;cter &tilde; porque en ciertas
+     * codificaciones de Base64 est&aacute; aceptado, aunque no es nada recomendable */
+    private static final String BASE_64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz=_-\t\n+/0123456789\r~"; //$NON-NLS-1$
 
     /** Crea una URI a partir de un nombre de fichero local o una URL.
      * @param file Nombre del fichero local o URL
@@ -157,13 +164,10 @@ public final class AOUtil {
         return baos.toByteArray();
     }
 
-    /** Obtiene el nombre com&uacute;n (Common Name, CN) del titular de un
-     * certificado X&#46;509. Si no se encuentra el CN, se devuelve la unidad organizativa
-     * (Organization Unit, OU).
-     * @param c Certificado X&#46;509 del cual queremos obtener el nombre
-     *        com&uacute;n.
-     * @return Nombre com&uacute;n (Common Name, CN) del titular de un
-     *         certificado X&#46;509. */
+    /** Obtiene el nombre com&uacute;n (Common Name, CN) del titular de un certificado X&#46;509.
+     * Si no se encuentra el CN, se devuelve la unidad organizativa (Organization Unit, OU).
+     * @param c Certificado X&#46;509 del cual queremos obtener el nombre com&uacute;n.
+     * @return Nombre com&uacute;n (Common Name, CN) del titular de un certificado X&#46;509. */
     public static String getCN(final X509Certificate c) {
         if (c == null) {
             return null;
@@ -202,12 +206,9 @@ public final class AOUtil {
         return principal;
     }
 
-    /** Obtiene las unidades organizativas(Organizational Unit, OU) de un <i>Principal</i>
-     * X&#46;400.
-     * @param principal <i>Principal</i> del cual queremos obtener el nombre
-     *        com&uacute;n
-     * @return Unidad organizativa (Organizational Unit, OU) de un <i>Principal</i>
-     *         X&#46;400 */
+    /** Obtiene las unidades organizativas(Organizational Unit, OU) de un <i>Principal</i> X&#46;400.
+     * @param principal <i>Principal</i> del cual queremos obtener el nombre com&uacute;n
+     * @return Unidad organizativa (Organizational Unit, OU) de un <i>Principal</i> X&#46;400 */
     public static String[] getOUS(final String principal) {
         if (principal == null) {
             return null;
@@ -316,7 +317,7 @@ public final class AOUtil {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final OutputStreamWriter osw = new OutputStreamWriter(baos, DEFAULT_ENCODING);
 		p.store(osw, ""); //$NON-NLS-1$
-		return Base64.encode(baos.toByteArray(), true);
+		return Base64.getEncoder().encodeToString(baos.toByteArray()).replace('+', '-').replace('/', '_');
 	}
 
 	/** Convierte una cadena Base64 en un objeto de propiedades.
@@ -329,10 +330,61 @@ public final class AOUtil {
     		return p;
     	}
     	p.load(new InputStreamReader(
-			new ByteArrayInputStream(Base64.decode(base64.replace('-', '+').replace('_', '/'))), DEFAULT_ENCODING)
+			new ByteArrayInputStream(Base64.getDecoder().decode(base64.replace('-', '+').replace('_', '/'))), DEFAULT_ENCODING)
 		);
 
     	return p;
     }
-}
 
+    /** Comprueba si un array de datos es una cadena en Base64.
+     * @param data Datos a comprobar si podr&iacute;an o no ser Base64.
+     * @return <code>true</code> si los datos proporcionado pueden ser una
+     *         codificaci&oacute;n Base64 de un original binario (que no tiene
+     *         necesariamente porqu&eacute; serlo), <code>false</code> en caso contrario. */
+    public static boolean isBase64(final byte[] data) {
+
+        int count = 0;
+
+        // Comprobamos que todos los caracteres de la cadena pertenezcan al alfabeto Base64
+
+        for (int i = 0; i < data.length; i++) {
+        	final char b = (char) data[i];
+        	// Solo puede aparecer el signo igual en los tres ultimos caracteres de la cadena
+        	if (BASE_64_ALPHABET.indexOf(b) == -1 || b == '=' && i < data.length - 3) {
+        		return false;
+        	}
+        	if (b != '\n' && b != '\r') {
+        		count++;
+        	}
+        }
+
+        // Comprobamos que la cadena (sin contar los saltos de linea) tenga una longitud multiplo de 4 caracteres
+        return count % 4 == 0;
+    }
+
+    /** Comprueba si una cadena de texto es una cadena en Base64.
+     * @param data Cadena de texto a comprobar si podr&iacute;an o no ser Base64.
+     * @return <code>true</code> si los datos proporcionado pueden ser una
+     *         codificaci&oacute;n Base64 de un original binario (que no tiene
+     *         necesariamente porqu&eacute; serlo), <code>false</code> en caso contrario. */
+    public static boolean isBase64(final String data) {
+
+        int count = 0;
+
+        // Comprobamos que todos los caracteres de la cadena pertenezcan al alfabeto Base64
+
+        for (int i = 0; i < data.length(); i++) {
+        	final char b = data.charAt(i);
+        	// Solo puede aparecer el signo igual en como 2 ultimos caracteres de la cadena
+        	if (BASE_64_ALPHABET.indexOf(b) == -1 || b == '=' && i < data.length() - 2) {
+        		return false;
+        	}
+        	if (b != '\n' && b != '\r') {
+        		count++;
+        	}
+        }
+
+        // Comprobamos que la cadena (sin contar los saltos de linea) tenga una longitud multiplo de 4 caracteres
+        return count % 4 == 0;
+    }
+}

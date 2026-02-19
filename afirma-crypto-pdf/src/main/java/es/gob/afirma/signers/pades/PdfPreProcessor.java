@@ -12,6 +12,7 @@ package es.gob.afirma.signers.pades;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -26,7 +27,6 @@ import com.aowagie.text.pdf.PdfReader;
 import com.aowagie.text.pdf.PdfStamper;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 
 /** Utilidades para el manejo y modificaci&oacute;n de PDF antes de firmarlo.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -71,7 +71,6 @@ public final class PdfPreProcessor {
 		// Descripcion del adjunto
 		final String attachmentDescription = extraParams.getProperty(PdfExtraParams.ATTACH_DESCRIPTION);
 
-
 		if (b64Attachment != null && attachmentFileName != null) {
 
 			byte[] attachment = null;
@@ -97,16 +96,15 @@ public final class PdfPreProcessor {
 			// interpretamos que es un Base 64 con el propio adjunto
 			if (attachment == null) {
 				try {
-					attachment = Base64.decode(b64Attachment);
+					attachment = Base64.getDecoder().decode(b64Attachment);
 				}
-				catch(final IOException e) {
+				catch(final IllegalArgumentException e) {
 					LOGGER.warning("Se ha indicado un adjunto, pero no estaba en formato Base64, se ignorara : " + e); //$NON-NLS-1$
 					return;
 				}
 			}
 			stp.getWriter().addFileAttachment(attachmentDescription, attachment, null, attachmentFileName);
 		}
-
 	}
 
 	/** Sobreimpone una imagen JPEG en un documento PDF.
@@ -261,10 +259,8 @@ public final class PdfPreProcessor {
 
     	byte[] image = null;
 
-    	// Si no tenemos habilitado el modo seguro, permitiriamos que la imagen se cargue desde una
-    	// ruta externa
-    	// Permitimos un tamano maximo de ruta para no interpretar como ruta
-		// un base 64 grande
+    	// Si no tenemos habilitado el modo seguro, permitiriamos que la imagen se cargue desde una ruta externa.
+    	// Permitimos un tamano maximo de ruta para no interpretar como ruta un Base64 grande.
 		if (!secureMode && imageReference.length() < MAX_PATH_SIZE) {
 			try {
 				final URI uri = AOUtil.createURI(imageReference);
@@ -281,7 +277,7 @@ public final class PdfPreProcessor {
     	// interpretamos que es un Base 64 con la propia imagen
     	if (image == null) {
     		try {
-    			image = Base64.decode(imageReference);
+    			image = Base64.getDecoder().decode(imageReference);
     		}
     		catch (final Exception e) {
     			throw new IOException("Se ha proporcionado una imagen de rubrica que no esta codificada en Base64", e); //$NON-NLS-1$

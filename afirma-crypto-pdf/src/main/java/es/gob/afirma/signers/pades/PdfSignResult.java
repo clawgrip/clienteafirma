@@ -12,6 +12,7 @@ package es.gob.afirma.signers.pades;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
@@ -24,7 +25,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import es.gob.afirma.core.misc.AOUtil;
-import es.gob.afirma.core.misc.Base64;
 import es.gob.afirma.core.misc.SecureXmlBuilder;
 
 /** Resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
@@ -70,7 +70,7 @@ public final class PdfSignResult {
     	if (!"sign".equalsIgnoreCase(node.getNodeName())) { //$NON-NLS-1$
     		throw new IOException("No se encontro el nodo 'sign' del PdfSignResultSerializado"); //$NON-NLS-1$
     	}
-    	this.sign = Base64.decode(node.getTextContent().trim());
+    	this.sign = Base64.getDecoder().decode(node.getTextContent().trim());
 
     	// timestamp
     	i = getNextElementNode(nodeList, ++i);
@@ -80,7 +80,7 @@ public final class PdfSignResult {
 				"No se encontro el nodo 'timestamp' del PdfSignResultSerializado, aunque no haya sello de tiempo el nodo debe existir (aunque vacio)" //$NON-NLS-1$
 			);
     	}
-    	this.timestamp = node.getTextContent().trim().isEmpty() ? null : Base64.decode(node.getTextContent().trim());
+    	this.timestamp = node.getTextContent().trim().isEmpty() ? null : Base64.getDecoder().decode(node.getTextContent().trim());
 
     	// signTime
     	i = getNextElementNode(nodeList, ++i);
@@ -183,10 +183,10 @@ public final class PdfSignResult {
 			.append(getFileID(false)).append('\n')
 			.append(" </pdfId>\n") //$NON-NLS-1$
 			.append(" <sign>\n") //$NON-NLS-1$
-			.append(Base64.encode(getSign())).append('\n')
+			.append(Base64.getEncoder().encodeToString(getSign())).append('\n')
 			.append(" </sign>\n") //$NON-NLS-1$
 			.append(" <timestamp>\n") //$NON-NLS-1$
-			.append(this.timestamp != null ? Base64.encode(getTimestamp()) : "").append('\n') //$NON-NLS-1$
+			.append(this.timestamp != null ? Base64.getEncoder().encodeToString(getTimestamp()) : "").append('\n') //$NON-NLS-1$
 			.append(" </timestamp>\n") //$NON-NLS-1$
 			.append(" <signTime>\n") //$NON-NLS-1$
 			.append(dataTypeFactory.newXMLGregorianCalendar(getSignTime()).toXMLFormat()).append('\n')
