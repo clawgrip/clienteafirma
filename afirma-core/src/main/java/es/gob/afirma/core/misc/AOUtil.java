@@ -349,8 +349,8 @@ public final class AOUtil {
 
         for (int i = 0; i < data.length; i++) {
         	final char b = (char) data[i];
-        	// Solo puede aparecer el signo igual en los tres ultimos caracteres de la cadena
-        	if (BASE_64_ALPHABET.indexOf(b) == -1 || b == '=' && i < data.length - 3) {
+        	// Solo puede aparecer el signo igual en los dos ultimos caracteres de la cadena
+        	if (BASE_64_ALPHABET.indexOf(b) == -1 || b == '=' && i < data.length - 2) {
         		return false;
         	}
         	if (b != '\n' && b != '\r') {
