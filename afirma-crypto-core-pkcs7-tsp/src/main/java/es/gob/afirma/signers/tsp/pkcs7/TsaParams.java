@@ -120,12 +120,15 @@ public final class TsaParams {
     	catch(final Exception e) {
     		throw new IllegalArgumentException("Se ha indicado una URL de TSA invalida: " + tsa, e); //$NON-NLS-1$
     	}
+
         this.tsaPolicy = extraParams.containsKey("tsaPolicy") ? //$NON-NLS-1$
     		extraParams.getProperty("tsaPolicy") : //$NON-NLS-1$
     			DEFAULT_POLICY;
+
         this.tsaHashAlgorithm = extraParams.containsKey("tsaHashAlgorithm") ? //$NON-NLS-1$
         		AOSignConstants.getDigestAlgorithmName(extraParams.getProperty("tsaHashAlgorithm")) : //$NON-NLS-1$
         			DEFAULT_DIGEST_ALGO;
+
         this.tsaRequireCert = !Boolean.FALSE.toString().equalsIgnoreCase(extraParams.getProperty("tsaRequireCert")); //$NON-NLS-1$
         this.tsaUsr = extraParams.getProperty("tsaUsr"); //$NON-NLS-1$
         this.tsaPwd = extraParams.getProperty("tsaPwd"); //$NON-NLS-1$
@@ -138,7 +141,7 @@ public final class TsaParams {
 			}
 			catch(final Exception e) {
 				throw new IllegalArgumentException(
-					"No se ha proporcionado en el parametro 'tsaSslKeyStore' el almacen de claves del SSL de la TSA en base 64", e  //$NON-NLS-1$
+					"No se ha proporcionado en el parametro 'tsaSslKeyStore' el almacen de claves del SSL de la TSA en base64", e  //$NON-NLS-1$
 				);
 			}
         }

@@ -83,17 +83,15 @@ final class PdfVisibleAreasUtils {
 		// No instanciable
 	}
 
-	/**
-	 * Obtiene la fuente para generar el texto de la firma visible.
-	 * @param fontFamily Identificador de familia de la fuente (0: COURIER, 1: HELVETICA,
-	 * 2: TIMES_ROMAN, 3: SYMBOL, 4: ZAPFDINGBATS). Con -1 se usa el valor por defecto: COURIER.
+	/** Obtiene la fuente para generar el texto de la firma visible.
+	 * @param fontFamily Identificador de familia de la fuente (0: COURIER, 1: HELVETICA, 2: TIMES_ROMAN, 3: SYMBOL, 4: ZAPFDINGBATS).
+	 *                   Con -1 se usa el valor por defecto: COURIER.
 	 * @param fontSize Tama&ntilde;o de fuente. Con -1 se usa el valor por defecto: 12.
-	 * @param fontStyle Estilo a aplicar al texto (0: NORMAL, 1: BOLD, 2: ITALIC, 3: BOLDITALIC,
-	 * 4: UNDERLINE, 8: STRIKETHRU). Con -1 se usa el valor por defecto: NORMAL.
+	 * @param fontStyle Estilo a aplicar al texto (0: NORMAL, 1: BOLD, 2: ITALIC, 3: BOLDITALIC, 4: UNDERLINE, 8: STRIKETHRU).
+	 *                  Con -1 se usa el valor por defecto: NORMAL.
 	 * @param fontColor Nombre del color (black, white, lightGray, gray, darkGray, red o pink).
 	 * @param pdfa {@code true} si se trata de un documento PDF/A, {@code false} en caso contrario.
-	 * @return Fuente de letra.
-	 */
+	 * @return Fuente de letra. */
 	static Font getFont(final int fontFamily,
 			            final int fontSize,
 			            final int fontStyle,
@@ -112,7 +110,6 @@ final class PdfVisibleAreasUtils {
 			LOGGER.warning(
 				"Error construyendo la fuente de letra para la firma visible PDF, se usara la por defecto y el PDF no sera compatible PDF/A: " + e //$NON-NLS-1$
 			);
-
 			return new Font(family, size, style, null);
 		}
 
@@ -120,7 +117,7 @@ final class PdfVisibleAreasUtils {
 		final ColorValues cv = COLORS.get(colorName) != null ? COLORS.get(colorName) : COLORS.get(BLACK);
 
 		try {
-			Class<?> colorClass;
+			final Class<?> colorClass;
 			if (Platform.getOS() == OS.ANDROID || Platform.getOS() == OS.OTHER) {
 				colorClass = Class.forName("harmony.java.awt.Color"); //$NON-NLS-1$
 			}
@@ -137,9 +134,7 @@ final class PdfVisibleAreasUtils {
 				Integer.valueOf(cv.getB())
 			);
 
-			// Utilizamos el constructor por reflexion para poder
-			// utilizar indistintamente la case de color de Java
-			// y de Android
+			// Utilizamos el constructor por reflexion para poder utilizar indistintamente la case de color de Java y de Android
 			return Font.class.getConstructor(
 				BaseFont.class,
 				Float.TYPE,
@@ -148,21 +143,17 @@ final class PdfVisibleAreasUtils {
 			).newInstance(baseFont, Float.valueOf(size), Integer.valueOf(style), color);
 		}
 		catch (final Exception e) {
-			LOGGER.warning(
-				"Error estableciendo el color del tipo de letra para la firma visible PDF, se usara el por defecto: " + e); //$NON-NLS-1$
+			LOGGER.warning("Error estableciendo el color del tipo de letra para la firma visible PDF, se usara el por defecto: " + e); //$NON-NLS-1$
 			return new Font(baseFont, size, style, null);
 		}
 	}
 
 	private static BaseFont getBaseFont(final int fontFamily, final boolean pdfa) throws DocumentException, IOException {
 
-		BaseFont font;
-
-		// Si la firma es PDF/A, incrustamos toda la fuente para seguir
-		// respetando el estandar
+		// Si la firma es PDF/A, incrustamos toda la fuente para seguir respetando el estandar
 		if (pdfa) {
 			try {
-				font = loadFontToEmbed(fontFamily);
+				return loadFontToEmbed(fontFamily);
 			}
 			// En Android puede fallar con un error la carga de una fuente, asi que se protege con un Throwable
 			catch (final Throwable e) {
@@ -170,22 +161,16 @@ final class PdfVisibleAreasUtils {
 					"No se ha podido cargar la fuente de letra para incrustar. Puede que el resultado no sea un PDF/A", //$NON-NLS-1$
 					e
 				);
-				font = loadInternalFont(fontFamily);
 			}
 		}
-		else {
-			font = loadInternalFont(fontFamily);
-		}
-		return font;
+		return loadInternalFont(fontFamily);
 	}
 
-	/**
-	 * Carga una de las fuentes incluidas en la biblioteca y la marca para que se incruste en el PDF.
+	/** Carga una de las fuentes incluidas en la biblioteca y la marca para que se incruste en el PDF.
 	 * @param fontFamily Familia de fuentes.
 	 * @return Fuente de letra.
 	 * @throws DocumentException Cuando falla la composici&oacute;n de la fuente.
-	 * @throws IOException Cuando falla la carga de la fuente.
-	 */
+	 * @throws IOException Cuando falla la carga de la fuente. */
 	private static BaseFont loadFontToEmbed(final int fontFamily) throws DocumentException, IOException {
 		BaseFont font;
 		switch (fontFamily) {
@@ -203,43 +188,33 @@ final class PdfVisibleAreasUtils {
 		return font;
 	}
 
-	/**
-	 * Compone una de las fuentes por defecto de PDF.
+	/** Compone una de las fuentes por defecto de PDF.
 	 * @param fontFamily Familia de fuentes.
 	 * @return Fuente de letra.
 	 * @throws DocumentException Cuando falla la composici&oacute;n de la fuente.
-	 * @throws IOException Cuando falla la carga de la fuente.
-	 */
+	 * @throws IOException Cuando falla la carga de la fuente. */
 	private static BaseFont loadInternalFont(final int fontFamily) throws DocumentException, IOException {
-		BaseFont font;
 		switch (fontFamily) {
-		case Font.HELVETICA:
-			font = BaseFont.createFont(BaseFont.HELVETICA, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
-			break;
-		case Font.TIMES_ROMAN:
-			font = BaseFont.createFont(BaseFont.TIMES_ROMAN, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
-			break;
-		case Font.COURIER:
-		default:
-			font = BaseFont.createFont(BaseFont.COURIER, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
+			case Font.HELVETICA:
+				return BaseFont.createFont(BaseFont.HELVETICA, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
+			case Font.TIMES_ROMAN:
+				return BaseFont.createFont(BaseFont.TIMES_ROMAN, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
+			case Font.COURIER:
+			default:
+				return BaseFont.createFont(BaseFont.COURIER, "", BaseFont.NOT_EMBEDDED); //$NON-NLS-1$
 		}
-		return font;
 	}
 
-	/**
-	 * Obtiene el texto que debe mostrarse en la firmna PDF visible.
+	/** Obtiene el texto que debe mostrarse en la firmna PDF visible.
 	 * @param txt Texto base con los patrones de los datos a integrar.
 	 * @param cert Certificado de firma.
 	 * @param signDate Fecha de firma.
 	 * @param reason Raz&oacute;n de firma del PDF.
 	 * @param signatureProductionCity Ciudad en la que se firma el PDF.
 	 * @param signerContact Informaci&oacute;n de contacto del firmante.
-	 * @param obfuscate Indica si se deben ofuscar los identificadores
-	 * encontrados en los campos que se incorporan al texto.
-	 * @param maskConfig M&aacute;scara con los par&aacute;metros para la
-	 * identificaci&oacute;n de los identificados de los campos.
-	 * @return Texto que mostrar en el campo de firma PDF.
-	 */
+	 * @param obfuscate Indica si se deben ofuscar los identificadores encontrados en los campos que se incorporan al texto.
+	 * @param maskConfig M&aacute;scara con los par&aacute;metros para la identificaci&oacute;n de los identificados de los campos.
+	 * @return Texto que mostrar en el campo de firma PDF. */
 	static String getLayerText(final String txt,
 							   final X509Certificate cert,
 							   final Calendar signDate,
@@ -345,30 +320,24 @@ final class PdfVisibleAreasUtils {
 		return ret;
 	}
 
-	/**
-	 * Genera una mascara de ofuscacion si se solicita ofuscar.
+	/** Genera una m&aacute;scara de ofuscaci&oacute;n si se solicita ofuscar.
 	 * @param obfuscate Indica si se debe ofuscar texto o no.
-	 * @param maskConfig Configuraci&oacute;n de la mascara a aplicar o {@code null}
-	 * si se quiere usar la por defecto.
-	 * @return M&aacute;scara de ofuscaci&oacute;n o {@code null} si no se desea ofuscar.
-	 */
+	 * @param maskConfig Configuraci&oacute;n de la m&aacute;scara a aplicar o {@code null} si se quiere usar la por defecto.
+	 * @return M&aacute;scara de ofuscaci&oacute;n o {@code null} si no se desea ofuscar. */
 	private static PdfTextMask prepareMask(final boolean obfuscate, final String maskConfig) {
 
-		PdfTextMask mask = null;
 		if (obfuscate) {
-			if (maskConfig != null) {
-				try {
-					mask = PdfTextMask.parseParam(maskConfig);
-				}
-				catch (final Exception e) {
-					LOGGER.log(Level.WARNING, "La mascara de ofuscacion no esta bien definida. Se usara la por defecto", e); //$NON-NLS-1$
-				}
+			if (maskConfig == null) {
+				return new PdfTextMask();
 			}
-			else {
-				mask = new PdfTextMask();
+			try {
+				return PdfTextMask.parseParam(maskConfig);
+			}
+			catch (final Exception e) {
+				LOGGER.log(Level.WARNING, "La mascara de ofuscacion no esta bien definida. Se usara la por defecto", e); //$NON-NLS-1$
 			}
 		}
-		return mask;
+		return null;
 	}
 
 	private static final class ColorValues {
@@ -396,11 +365,9 @@ final class PdfVisibleAreasUtils {
 		}
 	}
 
-	/**
-	 * Crea una imagen de firma ya con el texto y/o r&uacute;brica ya rotados.
+	/** Crea una imagen de firma ya con el texto y/o r&uacute;brica ya rotados.
 	 * @param stamper Estampador PDF.
-	 * @param appearance Apariencia de la firma PDF. De esta se obtiene el texto de la firma y su
-	 * fuente de letra.
+	 * @param appearance Apariencia de la firma PDF. De esta se obtiene el texto de la firma y su fuente de letra.
 	 * @param rubricRect Rect&aacute;ngulo de firma.
 	 * @param degrees Grados de rotaci&oacute;n del campo de firma.
 	 * @param rubricImg imagen a estampar
@@ -430,15 +397,12 @@ final class PdfVisibleAreasUtils {
         // 5. Creamos una plantilla y le agregamos la nueva imagen para hacer efectivo el rotado.
         // 6. Devolvemos la imagen de la nueva plantilla.
 
-
-        // 1 -- Creamos una plantilla con las dimensiones apropiadas para imprimir la rubrica sin
-        // rotar
+        // 1 -- Creamos una plantilla con las dimensiones apropiadas para imprimir la rubrica sin rotar
         final float canvasWidth = rotation == 0 || rotation == 180 ? rubricWidth : rubricHeight;
         final float canvasHeight = rotation == 0 || rotation == 180 ? rubricHeight : rubricWidth;
         final PdfTemplate canvas = PdfTemplate.createTemplate(stamper.getWriter(), canvasWidth, canvasHeight);
 
-        // 2 -- Si hay imagen de rubrica, la imprimimos en la plantilla escalandola para que encaje
-        // en ella sin deformarse
+        // 2 -- Si hay imagen de rubrica, la imprimimos en la plantilla escalandola para que encaje en ella sin deformarse
         if (rubricImg != null) {
 
         	rubricImg.setInterpolation(true);
@@ -482,12 +446,10 @@ final class PdfVisibleAreasUtils {
         rotatedRubric.setRotationDegrees(rotation);
         rotatedRubric.setAbsolutePosition(0, 0);
 
-        // Ahora, la imagen esta rotada a nivel logico, pero no lo estara realmente hasta que se
-        // imprima, asi que creamos un segundo lienzo con el tamano correspondiente a la firma e
-        // imprimimos en el la imagen rotada
+        // Ahora, la imagen esta rotada a nivel logico, pero no lo estara realmente hasta que se imprima, asi que
+        // creamos un segundo lienzo con el tamano correspondiente a la firma e imprimimos en el la imagen rotada
 
-        // 5 -- Creamos un segundo lienzo, con el tamano real de la firma, e imprimimos en el la
-        // imagen rotada
+        // 5 -- Creamos un segundo lienzo, con el tamano real de la firma, e imprimimos en el la imagen rotada
 
         // Creamos el lienzo y copiamos en la version rotada del anterior. Esto es necesario para
         // conseguir la imagen rotada, pero, por algun motivo, tiene efectos inexperados:
@@ -495,8 +457,10 @@ final class PdfVisibleAreasUtils {
         //  - Habra rotado la imagen (que incluye tanto la rubrica como el texto), pero no la habra
         //    agregado al nuevo lienzo, por lo que  habra que agregarla.
         final PdfTemplate rotatedCanvas = PdfTemplate.createTemplate(stamper.getWriter(), rubricWidth, rubricHeight);
-        try (final ByteBuffer actualBuffer = canvas.getInternalBuffer();
-        		final ByteBuffer rotatedBuffer = rotatedCanvas.getInternalBuffer();) {
+        try (
+    		final ByteBuffer actualBuffer = canvas.getInternalBuffer();
+    		ByteBuffer rotatedBuffer = rotatedCanvas.getInternalBuffer()
+		) {
         	rotatedBuffer.write(actualBuffer.toByteArray());
         }
 
@@ -514,36 +478,30 @@ final class PdfVisibleAreasUtils {
         return rotatedRubric;
     }
 
-    /**
-     * Imprime un texto en una plantilla PDF.
+    /** Imprime un texto en una plantilla PDF.
      * @param template Plantilla en la que imprimir el texto.
      * @param text Texto.
      * @param font Fuente que aplicar.
      * @param dataRect Espacio que debe ocupar la firma.
-     * @throws DocumentException Cuando ocurre un error al imprimir el texto.
-     */
+     * @throws DocumentException Cuando ocurre un error al imprimir el texto. */
     private static void printText(final PdfTemplate template, final String text, final Font font, final Rectangle dataRect) throws DocumentException {
 
     	final Rectangle sr = new Rectangle(MARGIN, MARGIN, dataRect.getWidth() - MARGIN, dataRect.getHeight() - MARGIN);
-
     	final float adjustedFontSize = fitText(font, text, sr, font.getSize(), PdfWriter.RUN_DIRECTION_DEFAULT);
-
     	final ColumnText ct = new ColumnText(template);
     	ct.setRunDirection(PdfWriter.RUN_DIRECTION_DEFAULT);
     	ct.setSimpleColumn(new Phrase(text, font), sr.getLeft(), sr.getBottom(), sr.getRight(), sr.getTop(), adjustedFontSize, Element.ALIGN_LEFT);
     	ct.go();
     }
 
-    /**
-     * Fits the text to some rectangle adjusting the font size as needed. Copiado de iText.
+    /** Fits the text to some rectangle adjusting the font size as needed. Copiado de iText.
      * @param font the font to use
      * @param text the text
      * @param rect the rectangle where the text must fit
      * @param maxFontSize the maximum font size
      * @param runDirection the run direction
      * @return the calculated font size that makes the text fit.
-     * @author Paulo Soares
-     */
+     * @author Paulo Soares. */
     private static float fitText(final Font font, final String text, final Rectangle rect, final float maxFontSize, final int runDirection) {
         float maxSize = maxFontSize;
     	try {

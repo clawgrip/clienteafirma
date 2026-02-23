@@ -90,9 +90,9 @@ public final class PadesTriWrapper {
 		}
 	}
 
-	/** Obtiene de una prefirma los datos a firmar.
+	/** Obtiene (en Base64) de una prefirma los datos a firmar.
 	 * @param preSignAsXml Prefirma (como XML).
-	 * @return Datos a firmar. */
+	 * @return Datos a firmar (en Base64). */
 	public static String getDataTbsAsBase64(final String preSignAsXml) {
 		final PdfSignResult psr;
 		try {

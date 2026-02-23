@@ -172,27 +172,12 @@ public final class CMSTimestamper {
         return CMSSignedData.replaceSigners(signedData, new SignerInformationStore(vNewSigners)).getEncoded();
     }
 
-    private byte[] getTSAResponse(final byte[] request) throws IOException {
-    	if (this.tsaURL.getScheme().equals("https")) { //$NON-NLS-1$
-    		return getTSAResponseHttps(request);
-    	}
-    	throw new UnsupportedOperationException("Protocolo de conexion con TSA no soportado: " + this.tsaURL.getScheme()); //$NON-NLS-1$
-    }
-
-    /** Obtiene el <i>token</i> de sello de tiempo por HTTPS (SSL).
-     * @param requestBytes Petici&oacute;n a TSA en ASN.1 binario
-     * @return Respuesta de la TSA (array de bytes seg&uacute;n RFC 3161)
-     * @throws IOException Si hay problemas de dentrada / salida */
-    private byte[] getTSAResponseHttps(final byte[] requestBytes) throws IOException {
-		return getTSAResponseHttp(requestBytes, prepareConnection());
-    }
-
     /** Obtiene el <i>token</i> de sello de tiempo por HTTP.
      * @param requestBytes Petici&oacute;n a TSA en ASN.1 binario
      * @param conn Conexi&oacute;n a trav&eacute;s de la cual enviar la petici&oacute;n.
      * @return Respuesta de la TSA (array de bytes seg&uacute;n RFC 3161)
      * @throws IOException Si hay problemas de dentrada / salida */
-    private static byte[] getTSAResponseHttp(final byte[] requestBytes, final URLConnection conn) throws IOException {
+    private static byte[] getTSAResponse(final byte[] requestBytes, final URLConnection conn) throws IOException {
 
     	try (OutputStream out = conn.getOutputStream()) {
 	         out.write(requestBytes);
@@ -208,12 +193,9 @@ public final class CMSTimestamper {
         return respBytes;
      }
 
-    /**
-     * Crea una conexi&oacute;n contra la TSA. Esta se realizar&aacute; sobre HTTPS o HTTP
-     * seg&uacute;n se indique en el par&aacute;metro {@code secureConnection}.
+    /** Crea una conexi&oacute;n contra la TSA.
      * @return Conex&iacute;n contra la TSA.
-     * @throws IOException Cuando ocurre un error al abrir la conexi&oacute;n o si la URL no es v&aacute;lida.
-     */
+     * @throws IOException Cuando ocurre un error al abrir la conexi&oacute;n o si la URL no es v&aacute;lida. */
     private URLConnection prepareConnection() throws IOException {
 
     	final URLConnection tsaConnection = this.tsaURL.toURL().openConnection();
@@ -250,7 +232,7 @@ public final class CMSTimestamper {
 
          final byte[] rawResponse;
          try {
-        	 rawResponse = getTSAResponse(requestBytes);
+        	 rawResponse = getTSAResponse(requestBytes, prepareConnection());
          }
          catch (final IOException e) {
         	 throw new AOException("No se ha podido conectar con el servicio La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$

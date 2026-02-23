@@ -39,9 +39,9 @@ import es.gob.afirma.signers.pades.common.PdfExtraParams;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 public class TestPAdES {
 
-	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
-	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
-	private static final Boolean CATCERT_REQUIRECERT = Boolean.TRUE;
+	private static final String TSP_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
+	private static final String TSP_URL = "http://tss.accv.es:8318/tsa"; //$NON-NLS-1$
+	private static final Boolean TSP_REQUIRECERT = Boolean.TRUE;
 
     private static final Properties[] PADES_MODES;
 
@@ -75,16 +75,16 @@ public class TestPAdES {
 
     /** Algoritmos de firma a probar. */
     private static final String[] ALGOS = {
-            AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
-            AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
-            AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA
+        AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
+        AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
+        AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA
     };
 
-    /** Main para pruebas sin JUNit.
+    /** Main para pruebas sin JUnit.
      * @param args No se usa.
-     * @throws Exception EN cualquier error. */
+     * @throws Exception En cualquier error. */
     public static void main(final String[] args) throws Exception {
-    	new TestPAdES().testSignature();
+    	new TestPAdES().testTimestampedSignatureAndDocument();
     }
 
     /** Prueba de identificaci&oacute;n de un PDF sin ninguna firma.
@@ -145,15 +145,15 @@ public class TestPAdES {
         System.out.println(prueba);
 
         final Properties extraParams = new Properties();
-        //********* TSA CATCERT ********************************************************************
-        //******************************************************************************************
-        extraParams.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        extraParams.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-        extraParams.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
-        extraParams.put("tsaHashAlgorithm", "SHA-512"); //$NON-NLS-1$ //$NON-NLS-2$
+        //********* TSA ********************************************************************
+        //**********************************************************************************
+        extraParams.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        extraParams.put("tsaPolicy", TSP_POLICY); //$NON-NLS-1$
+        extraParams.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
+        extraParams.put("tsaHashAlgorithm", "SHA-256"); //$NON-NLS-1$ //$NON-NLS-2$
         extraParams.put("tsType", PdfTimestamper.TS_LEVEL_SIGN_DOC); //$NON-NLS-1$
-        //******************************************************************************************
-        //********* FIN TSA CATCERT ****************************************************************
+        //**********************************************************************************
+        //********* FIN TSA ****************************************************************
 
         // Certificacion
         extraParams.put("certificationLevel", "1"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -166,7 +166,7 @@ public class TestPAdES {
 
         final byte[] result = signer.sign(
     		testPdf,
-    		"SHA512withRSA", //$NON-NLS-1$
+    		"SHA256withRSA", //$NON-NLS-1$
     		pke.getPrivateKey(),
     		pke.getCertificateChain(),
     		extraParams
@@ -212,9 +212,9 @@ public class TestPAdES {
         final Properties extraParams = new Properties();
         //********* TSA CATCERT ********************************************************************
         //******************************************************************************************
-        extraParams.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        extraParams.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-        extraParams.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
+        extraParams.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        extraParams.put("tsaPolicy", TSP_POLICY); //$NON-NLS-1$
+        extraParams.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         extraParams.put("tsaHashAlgorithm", "SHA-512"); //$NON-NLS-1$ //$NON-NLS-2$
         extraParams.put("tsType", PdfTimestamper.TS_LEVEL_DOC); //$NON-NLS-1$
         //******************************************************************************************
@@ -258,9 +258,9 @@ public class TestPAdES {
         final Properties extraParams = new Properties();
         //********* TSA CATCERT ********************************************************************
         //******************************************************************************************
-        extraParams.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        extraParams.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-        extraParams.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
+        extraParams.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        extraParams.put("tsaPolicy", TSP_POLICY); //$NON-NLS-1$
+        extraParams.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         extraParams.put("tsaHashAlgorithm", "SHA-512"); //$NON-NLS-1$ //$NON-NLS-2$
         extraParams.put("tsType", PdfTimestamper.TS_LEVEL_DOC); //$NON-NLS-1$
         //******************************************************************************************
@@ -307,9 +307,9 @@ public class TestPAdES {
         final Properties extraParams = new Properties();
         //********* TSA CATCERT ********************************************************************
         //******************************************************************************************
-        extraParams.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        extraParams.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-        extraParams.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
+        extraParams.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        extraParams.put("tsaPolicy", TSP_POLICY); //$NON-NLS-1$
+        extraParams.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         extraParams.put("tsaHashAlgorithm", "SHA-512"); //$NON-NLS-1$ //$NON-NLS-2$
         extraParams.put("tsType", PdfTimestamper.TS_LEVEL_SIGN); //$NON-NLS-1$
         //******************************************************************************************

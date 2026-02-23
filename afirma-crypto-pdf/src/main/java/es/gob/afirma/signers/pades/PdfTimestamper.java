@@ -12,9 +12,8 @@ package es.gob.afirma.signers.pades;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Properties;
@@ -32,8 +31,9 @@ import com.aowagie.text.pdf.PdfStamper;
 import com.aowagie.text.pdf.PdfString;
 
 import es.gob.afirma.core.AOException;
-import es.gob.afirma.core.InvalidLibraryException;
 import es.gob.afirma.core.misc.AOUtil;
+import es.gob.afirma.signers.tsp.pkcs7.CMSTimestamper;
+import es.gob.afirma.signers.tsp.pkcs7.TsaParams;
 
 /** Sellador de tiempo para documentos PDF.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
@@ -49,8 +49,10 @@ public final class PdfTimestamper {
 
     /** Sello a nivel de firma. No permite mas cambios. */
     public static final String TS_LEVEL_SIGN = "1"; //$NON-NLS-1$
+
     /** Sello a nivel de documento. Permite cambios de formulario. */
     public static final String TS_LEVEL_DOC = "2"; //$NON-NLS-1$
+
     /** Sello a nivel de firma y a nivel de documento. Permite cambios de anotaciones y formularios. */
     public static final String TS_LEVEL_SIGN_DOC = "3"; //$NON-NLS-1$
 
@@ -59,28 +61,19 @@ public final class PdfTimestamper {
 
     private static final int PDF_MIN_COMPRESABLE_VERSION = 5;
 
-    private static Class<?> cmsTimestamperClass = null;
-
-    private static Class<?> tsaParamsClass = null;
-
 	private PdfTimestamper() {
 		// No instanciable
 	}
 
-	/**
-	 * Aplica un sello de tiempo a un PDF.
+	/** Aplica un sello de tiempo a un PDF.
 	 * @param inPDF PDF de entrada.
 	 * @param extraParams Par&aacute;metros de la TSA.
 	 * @param signTime Tiempo para el sello.
 	 * @return PDF con el sello de tiempo aplicado.
 	 * @throws AOException Si hay problemas durante el proceso.
-	 * @throws IOException Si hay problemas en el tratamiento de datos.
-	 */
-	public static byte[] timestampPdf(final byte[] inPDF,
-			             final Properties extraParams,
-			             final Calendar signTime) throws AOException,
-	                                                     IOException {
-
+	 * @throws IOException Si hay problemas en el tratamiento de datos. */
+	public static byte[] timestampPdf(final byte[] inPDF, final Properties extraParams, final Calendar signTime) throws AOException,
+	                                                                                                                    IOException {
     	// Comprobamos si se ha pedido un sello de tiempo
     	if (extraParams != null) {
     		final String tsa = extraParams.getProperty(PdfExtraParams.TSA_URL);
@@ -180,16 +173,21 @@ public final class PdfTimestamper {
 	        		}
 
 	        		// Obtenemos el sello
-	        		final byte[] tspToken = getTspToken(extraParams, original, signTime);
-
-	            	// Y lo insertamos en el PDF
-	        		final byte[] outc = new byte[CSIZE];
-
+	        		final byte[] tspToken;
+					try {
+						tspToken = getTspToken(extraParams, original, signTime);
+					}
+					catch (final NoSuchAlgorithmException | AOException | IOException e) {
+						throw new IOException("Error obteniendo el sello de tiempo desde la TSA", e); //$NON-NLS-1$
+					}
 	                if (tspToken.length > CSIZE) {
 	                	throw new AOException(
 	            			"El tamano del sello de tiempo (" + tspToken.length + ") supera el maximo permitido para un PDF (" + CSIZE + ")" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	        			);
 	                }
+
+	            	// Y lo insertamos en el PDF
+	        		final byte[] outc = new byte[CSIZE];
 
 	        		final PdfDictionary dic2 = new PdfDictionary();
 	        		System.arraycopy(tspToken, 0, outc, 0, tspToken.length);
@@ -210,150 +208,52 @@ public final class PdfTimestamper {
 	}
 
 	private static byte[] getTspToken(final Properties extraParams,
-			final byte[] original,
-			final Calendar signTime) throws AOException {
+			                          final byte[] original,
+			                          final Calendar signTime) throws NoSuchAlgorithmException, AOException, IOException {
+		// Cargamos los parametros
+		final TsaParams tsaParams = new TsaParams(extraParams);
 
-		try {
-			// Cargamos los parametros
-			final Object tsaParamsObject = buildTsaParams(extraParams);
+		// Obtenemos el sellador de tiempo
+		final CMSTimestamper timestamper = new CMSTimestamper(tsaParams);
 
-			// Obtenemos el sellador de tiempo
-			final Object timestamperObject = buildCmsTimeStamper(tsaParamsObject);
+		// Obtenemos el algoritmo de hash del sello
+		final String tsaHashAlgorithm = tsaParams.getTsaHashAlgorithm();
 
-			// Obtenemos el algoritmo de hash del sello
-			final String tsaHashAlgorithm = getHashAlgorithm(tsaParamsObject);
+		final byte[] tsDigest = MessageDigest.getInstance(tsaHashAlgorithm).digest(original);
 
-			// Identificamos el metodo para la generacion del sello de tiempo
-			final Method getTimeStampTokenMethod = cmsTimestamperClass.getMethod(
-					"getTimeStampToken", //$NON-NLS-1$
-					byte[].class, String.class, Calendar.class);
-
-			final byte[] tsDigest = MessageDigest.getInstance(tsaHashAlgorithm)
-					.digest(original);
-
-			// Obtenemos el token TSP
-			return (byte[]) getTimeStampTokenMethod.invoke(
-				timestamperObject,
-				tsDigest,
-				tsaHashAlgorithm,
-				signTime
-			);
-		}
-		catch (final InvocationTargetException e) {
-			throw new AOException("Error al generar los sellos de tiempo", e); //$NON-NLS-1$
-		}
-		catch (final Exception e) {
-			throw new InvalidLibraryException("Error con las bibliotecas de composicion del sello de tiempo para firmas PDF", e); //$NON-NLS-1$
-		}
+		// Obtenemos el token TSP
+		return timestamper.getTimeStampToken(tsDigest, tsaHashAlgorithm, signTime);
 	}
 
-	/**
-	 * Agrega un sello de tiempo a una firma CMS/CAdES.
+	/** Agrega un sello de tiempo a una firma CMS/CAdES.
 	 * @param cmsSignature Firma CMS/CAdES
 	 * @param extraParams Par&aacute;metros de configuraci&oacute;n de firma.
 	 * @param signingTime Hora de la firma.
-	 * @return Firma CMS/CAdES con el sello de tiempo.
-	 */
-	public static byte[] addCmsTimeStamp(final byte[] cmsSignature,
-			final Properties extraParams, final Calendar signingTime) {
+	 * @return Firma CMS/CAdES con el sello de tiempo. */
+	public static byte[] addCmsTimeStamp(final byte[] cmsSignature, final Properties extraParams, final Calendar signingTime) {
 
-        Object tsaParamsObject;
+		final TsaParams tsaParams;
         try {
-        	tsaParamsObject = buildTsaParams(extraParams);
+        	tsaParams = new TsaParams(extraParams);
         }
         catch(final Exception e) {
-        	LOGGER.warning(
-    			"Se ha pedido aplicar sello de tiempo, pero falta informacion necesaria: " + e //$NON-NLS-1$
-			);
-        	tsaParamsObject = null;
+        	LOGGER.warning("Se ha pedido aplicar sello de tiempo, pero falta informacion necesaria, se devuelve la firma sin sello: " + e); //$NON-NLS-1$
+        	return cmsSignature;
         }
 
-        byte[] timeStampedSignature = cmsSignature;
-        if (tsaParamsObject != null) {
-        	try {
-        		// Obtenemos el algoritmo de hash del sello
-        		final String tsaHashAlgorithm = getHashAlgorithm(tsaParamsObject);
-        		// Obtenemos el algoritmo de hash del sello de tiempo
-        		final Object timestamperObject = buildCmsTimeStamper(tsaParamsObject);
+    	try {
+    		// Obtenemos el algoritmo de hash del sello
+    		final String tsaHashAlgorithm = tsaParams.getTsaHashAlgorithm();
 
-        		final Method addTimestampMethod = cmsTimestamperClass.getMethod(
-        				"addTimestamp", byte[].class, String.class, Calendar.class); //$NON-NLS-1$
+    		// Obtenemos el algoritmo de hash del sello de tiempo
+    		final CMSTimestamper timestamperObject = new CMSTimestamper(tsaParams);
 
-        		timeStampedSignature = (byte[]) addTimestampMethod.invoke(
-    				timestamperObject,
-    				cmsSignature,
-    				tsaHashAlgorithm,
-    				signingTime
-				);
-        	}
-        	catch (final Exception e) {
-        		LOGGER.warning("No se ha podido actualizar la firma: " + e); //$NON-NLS-1$
-        	}
-        }
+    		return timestamperObject.addTimestamp(cmsSignature, tsaHashAlgorithm, signingTime);
+    	}
+    	catch (final Exception e) {
+    		LOGGER.warning("No se ha podido actualizar la firma, se devuelve la firma sin sello de tiempo: " + e); //$NON-NLS-1$
+    	}
 
-		return timeStampedSignature;
-	}
-
-	/**
-	 * Carga los par&aacute;metros para la generaci&oacute;n de un sello de tiempo
-	 * a partir de los extraParams de firma.
-	 * @param params ExtraParams de firma.
-	 * @return Objeto TsaParams para la generaci&oacute;n del sello de tiempo.
-	 * @throws InstantiationException Error en la instanciacion del objeto.
-	 * @throws IllegalAccessException Intento de acceso a un constructor protegido.
-	 * @throws IllegalArgumentException Parametro no v&aacute;lido.
-	 * @throws InvocationTargetException Error al contruir el objeto.
-	 * @throws NoSuchMethodException El constructor no existe.
-	 * @throws SecurityException Acceso no permitido.
-	 */
-	private static Object buildTsaParams(final Properties params)
-			throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
-		return tsaParamsClass
-				.getConstructor(Properties.class)
-				.newInstance(params);
-
-	}
-
-	/**
-	 * Obtiene el algoritmo de hash para el sello de tiempo solicitado
-	 * en los par&aacute;metros TSA.
-	 * @param tsaParams Par&aacute;metros TSA.
-	 * @return Objeto TsaParams para la generaci&oacute;n del sello de tiempo.
-	 * @throws IllegalAccessException Intento de acceso a un constructor protegido.
-	 * @throws IllegalArgumentException Parametro no v&aacute;lido.
-	 * @throws InvocationTargetException Error al contruir el objeto.
-	 * @throws NoSuchMethodException El constructor no existe.
-	 * @throws SecurityException Acceso no permitido.
-	 */
-	private static String getHashAlgorithm(final Object tsaParams)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException,
-			SecurityException {
-		return (String) tsaParamsClass
-				.getMethod("getTsaHashAlgorithm") //$NON-NLS-1$
-				.invoke(tsaParams);
-	}
-
-	/**
-	 * Carga un objeto para la generaci&oacute;n de sellos de tiempo CMS a
-	 * partir de los parametros de TSA necesarios.
-	 * @param tsaParams Par&aacute;metros TSA.
-	 * @return Objeto Constructor de sellos de tiempo.
-	 * @throws InstantiationException Error en la instanciacion del objeto.
-	 * @throws IllegalAccessException Intento de acceso a un constructor protegido.
-	 * @throws IllegalArgumentException Parametro no v&aacute;lido.
-	 * @throws InvocationTargetException Error al contruir el objeto.
-	 * @throws NoSuchMethodException El constructor no existe.
-	 * @throws SecurityException Acceso no permitido.
-	 */
-	private static Object buildCmsTimeStamper(final Object tsaParams)
-			throws InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
-		return cmsTimestamperClass
-				.getConstructor(tsaParamsClass.getClass())
-				.newInstance(tsaParams);
+		return cmsSignature;
 	}
 }

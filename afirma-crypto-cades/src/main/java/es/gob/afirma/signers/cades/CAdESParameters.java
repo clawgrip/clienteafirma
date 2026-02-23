@@ -163,9 +163,7 @@ public class CAdESParameters {
 
 		// Incluir politica de certificacion del certificado firmante en la firma
 		final boolean doNotIncludePolicyOnSigningCertificate = Boolean.parseBoolean(
-			config.getProperty(
-				CAdESExtraParams.DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE, Boolean.FALSE.toString()
-			)
+			config.getProperty(CAdESExtraParams.DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE, Boolean.FALSE.toString())
 		);
 		dataConfig.setIncludedPolicyOnSigningCertificate(!doNotIncludePolicyOnSigningCertificate);
 
@@ -174,7 +172,8 @@ public class CAdESParameters {
 
 		// Incluir solo certificado de firma
 		dataConfig.setIncludedOnlySigningCertificate(Boolean.parseBoolean(
-			config.getProperty(CAdESExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString())));
+			config.getProperty(CAdESExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString()))
+		);
 
 		// Commintment type indications declarados
 		dataConfig.setCommitmentTypeIndications(CommitmentTypeIndicationsHelper.getCommitmentTypeIndications(config));
@@ -194,6 +193,7 @@ public class CAdESParameters {
 		// El atributo contentHint si incluira, salvo que se indique expresamente que no se haga
 		final boolean contentHintNeeded = !config.containsKey(CAdESExtraParams.INCLUDE_CONTENT_HINT_ATTRIBUTE)
 				|| !Boolean.FALSE.toString().equalsIgnoreCase(config.getProperty(CAdESExtraParams.INCLUDE_CONTENT_HINT_ATTRIBUTE));
+
 		// El atributo mimetype se incluira cuando se pida
 		final boolean mimetypeNeeded = Boolean.parseBoolean(config.getProperty(CAdESExtraParams.INCLUDE_MIMETYPE_ATTRIBUTE));
 
@@ -202,8 +202,7 @@ public class CAdESParameters {
 			String contentTypeDescription = config.getProperty(CAdESExtraParams.CONTENT_DESCRIPTION);
 			String mimeType = config.getProperty(CAdESExtraParams.CONTENT_MIME_TYPE);
 
-			// Si necesitamos el mimetype y no lo tenemos, pero si tenemos el OID del contenido
-			// obtenemos el mimeType del OID
+			// Si necesitamos el mimetype y no lo tenemos, pero si tenemos el OID del contenido obtenemos el mimeType del OID
 			if (mimetypeNeeded && mimeType == null && contentTypeOid != null) {
 				try {
 					mimeType = MimeHelper.transformOidToMimeType(contentTypeOid);
@@ -212,9 +211,7 @@ public class CAdESParameters {
 					LOGGER.warning("No se pudo cargar la tabla de correspondencias entre OIDs y MimeTypes: " + e); //$NON-NLS-1$
 				}
 
-				// Si el mimetype extraido del OID es el generico, lo
-				// obviaremos para tratar de identificarlo a partir de los
-				// datos
+				// Si el mimetype extraido del OID es el generico, lo obviaremos para tratar de identificarlo a partir de los datos
 				if (MimeHelper.DEFAULT_MIMETYPE.equals(mimeType)) {
 					mimeType = null;
 				}

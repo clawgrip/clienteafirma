@@ -25,7 +25,7 @@ public final class CadesTriWrapper {
 		// No instanciable
 	}
 
-	/** Obtiene la prefirma de una firma CAdES.
+	/** Obtiene la prefirma (en Base64) de una firma CAdES.
 	 * @param signAlgorithm Algoritmo de firma.
 	 * @param fileTbsAsBase64 Documento a firmar (como Base64).
 	 * @param certChainAsPem Cadena de certificados del firmante (como PEM).
