@@ -9,36 +9,27 @@
 
 package es.gob.afirma.core;
 
-/**
- * Excepci&oacute;n para notificar que los datos proporcionados no disponen del formato
- * de firma que se esperaba.
- */
+/** Excepci&oacute;n para notificar que los datos proporcionados no disponen del formato de firma que se esperaba. */
 public class AOInvalidSignatureFormatException extends AOException {
 
     private static final long serialVersionUID = 825249824660706387L;
 
-    /**
-     * Crea la excepci&oacute;n con un mensaje determinado.
-     * @param msg Mensaje descriptivo de la excepci&oacute;n.
-     */
+    /** Crea la excepci&oacute;n con un mensaje determinado.
+     * @param msg Mensaje descriptivo de la excepci&oacute;n. */
     public AOInvalidSignatureFormatException(final String msg) {
         super(msg);
     }
 
-    /**
-     * Crea la excepci&oacute;n con un mensaje determinado.
+    /** Crea la excepci&oacute;n con un mensaje determinado.
      * @param msg Mensaje descriptivo de la excepci&oacute;n.
-     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta.
-     */
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta. */
     public AOInvalidSignatureFormatException(final String msg, final Throwable e) {
         super(msg, e);
     }
 
-    /**
-     * Crea la excepci&oacute;n con un mensaje determinado.
+    /** Crea la excepci&oacute;n con un mensaje determinado.
      * @param msg Mensaje descriptivo de la excepci&oacute;n.
-     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta.
-     */
+     * @param e Excepci&oacute;n que ha causado el lanzamiento de esta. */
     public AOInvalidSignatureFormatException(final String msg, final Exception e) {
         super(msg, e);
     }

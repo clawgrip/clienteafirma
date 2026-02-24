@@ -9,18 +9,14 @@
 
 package es.gob.afirma.signers.pades;
 
-/**
- * Indica que la pagina indicada donde firmar no es correcta
- * @author Jos&eacute; Montero Rivero
- */
+/** Indica que la pagina indicada donde firmar no es correcta.
+ * @author Jos&eacute; Montero Rivero. */
 public final class IncorrectPageException extends RuntimeException {
 
 	private static final long serialVersionUID = -2415913095143368605L;
 
-	/**
-	 * Crea la excepci&oacute;n indicando que la p&aacute;gina no es correcta.
-	 * @param msg Mensaje de error.
-	 */
+	/** Crea la excepci&oacute;n indicando que la p&aacute;gina no es correcta.
+	 * @param msg Mensaje de error. */
 	public IncorrectPageException(final String msg) {
 		super(msg);
 	}

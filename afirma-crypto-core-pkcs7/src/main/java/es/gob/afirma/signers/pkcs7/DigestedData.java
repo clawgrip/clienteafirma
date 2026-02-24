@@ -23,9 +23,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 
 /** Clase base para la implementaci&oacute;n del tipo DigestedData. La Estructura
  * del mensaje es la siguiente:<br>
- *
  * <pre>
- * <code>
  *  DigestedData ::= SEQUENCE {
  *        version CMSVersion,
  *        digestAlgorithm DigestAlgorithmIdentifier,
@@ -33,9 +31,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
  *        digest Digest }
  *
  *  Digest ::= OCTET STRING
- * </code>
  * </pre>
- *
  * La implementaci&oacute;n del c&oacute;digo ha seguido los pasos necesarios
  * para crear un mensaje DigestedData de BouncyCastle. */
 public final class DigestedData implements ASN1Encodable {
@@ -56,10 +52,9 @@ public final class DigestedData implements ASN1Encodable {
     }
 
     /** Crea un objeto CMS DigestedData.
-     * @param digestAlgo ALgoritmo de huella digital
-     * @param contentInfo ContentInfo
-     * @param digest Valor de la huella digital
-     */
+     * @param digestAlgo ALgoritmo de huella digital.
+     * @param contentInfo ContentInfo.
+     * @param digest Valor de la huella digital. */
     public DigestedData(final AlgorithmIdentifier digestAlgo, final ContentInfo contentInfo, final ASN1OctetString digest) {
         this.version = new ASN1Integer(0);
         this.digestAlgorithm = digestAlgo;
@@ -67,31 +62,24 @@ public final class DigestedData implements ASN1Encodable {
         this.digest = digest;
     }
 
-    /** Crea un object CMS DigestedData a partir de una Secuencia ASN.1.
-     * @param seq Secuencia origen
-     */
+    /** Crea un object CMS DigestedData a partir de una Secuencia ASN&#46;1.
+     * @param seq Secuencia origen. */
     public DigestedData(final ASN1Sequence seq) {
         final Enumeration<?> e = seq.getObjects();
-
         this.version = (ASN1Integer) e.nextElement();
         this.digestAlgorithm = AlgorithmIdentifier.getInstance(e.nextElement());
         this.contentInfo = ContentInfo.getInstance(e.nextElement());
         this.digest = (ASN1OctetString) e.nextElement();
-
     }
 
-    /**
-     * Recupera la versi&oacute;n del sistema de empaquetado PKCS#7.
-     * @return Versi&oacute;n del empaquetado.
-     */
+    /** Recupera la versi&oacute;n del sistema de empaquetado PKCS#7.
+     * @return Versi&oacute;n del empaquetado. */
     public String getVersion() {
         return this.version.toString();
     }
 
-    /**
-     * Recupera el algoritmo de huella digital configurada para los empaquetados.
-     * @return Algoritmo.
-     */
+    /** Recupera el algoritmo de huella digital configurada para los empaquetados.
+     * @return Algoritmo. */
     public String getDigestAlgorithm() {
         return this.digestAlgorithm.getAlgorithm().toString();
     }
@@ -100,16 +88,13 @@ public final class DigestedData implements ASN1Encodable {
         return this.digest;
     }
 
-    /**
-     * Recupera el tipo de contenido.
-     * @return Tipo de contenido.
-     */
+    /** Recupera el tipo de contenido.
+     * @return Tipo de contenido. */
     public String getContentType() {
         return this.contentInfo.getContentType().toString();
     }
 
     /** Produce an object suitable for an ASN1OutputStream.
-     *
      * <pre>
      * DigestedData ::= SEQUENCE {
      *     version CMSVersion,

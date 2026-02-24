@@ -36,20 +36,13 @@ public final class AOTreeNode {
 
     /** Removes <code>newChild</code> from its present parent (if it has a
      * parent), sets the child's parent to this node, and then adds the child to
-     * this node's child array at index <code>childIndex</code>. <code>newChild</code> must not be null and must not be an ancestor of
-     * this node.
-     * @param newChild
-     *        the TreeNode to insert under this node
-     * @param childIndex
-     *        the index in this node's child array where this node is to be
-     *        inserted
-     * @exception ArrayIndexOutOfBoundsException
-     *            if <code>childIndex</code> is out of bounds
-     * @exception IllegalArgumentException
-     *            if <code>newChild</code> is null or is an ancestor of this
-     *            node
-     * @exception IllegalStateException
-     *            if this node does not allow children */
+     * this node's child array at index <code>childIndex</code>. <code>newChild</code> must
+     * not be null and must not be an ancestor of this node.
+     * @param newChild the TreeNode to insert under this node
+     * @param childIndex the index in this node's child array where this node is to be inserted
+     * @exception ArrayIndexOutOfBoundsException if <code>childIndex</code> is out of bounds
+     * @exception IllegalArgumentException if <code>newChild</code> is null or is an ancestor of this node
+     * @exception IllegalStateException if this node does not allow children */
     private void insert(final AOTreeNode newChild, final int childIndex) {
 
         if (newChild == null) {

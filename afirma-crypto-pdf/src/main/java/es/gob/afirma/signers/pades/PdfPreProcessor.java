@@ -75,10 +75,8 @@ public final class PdfPreProcessor {
 
 			byte[] attachment = null;
 
-			// Si no tenemos habilitado el modo seguro, permitiriamos que el recurso se cargue desde una
-			// ruta externa
-			// Permitimos un tamano maximo de ruta para no interpretar como ruta
-			// un base 64 grande
+			// Si no tenemos habilitado el modo seguro, permitiriamos que el recurso se cargue desde una ruta externa.
+			// Permitimos un tamano maximo de ruta para no interpretar como ruta un Base64 grande.
 			if (!secureMode && b64Attachment.length() < MAX_PATH_SIZE) {
 				try {
 					final URI uri = AOUtil.createURI(b64Attachment);
@@ -93,7 +91,7 @@ public final class PdfPreProcessor {
 			}
 
 			// Si estaba configurado el modo seguro o el parametro de adjunto no era una ruta,
-			// interpretamos que es un Base 64 con el propio adjunto
+			// interpretamos que es un Base 64 con el propio adjunto.
 			if (attachment == null) {
 				try {
 					attachment = Base64.getDecoder().decode(b64Attachment);
@@ -284,13 +282,11 @@ public final class PdfPreProcessor {
     		}
     	}
 
-    	final Image jpgImage;
     	try {
-			jpgImage = new Jpeg(image);
+			return new Jpeg(image);
 		}
     	catch (final Exception e) {
     		throw new IOException("Se ha proporcionado una imagen de rubrica que no esta codificada en JPEG", e); //$NON-NLS-1$
 		}
-    	return jpgImage;
     }
 }

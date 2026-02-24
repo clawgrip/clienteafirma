@@ -226,15 +226,15 @@ public final class PdfSessionManager {
 				configuredLayer2Text = getDefaultLayer2Text(reason != null, signatureProductionCity != null);
 			}
 			layer2Text = PdfVisibleAreasUtils.getLayerText(
-					configuredLayer2Text,
-					certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
-						signTime,
-						reason,
-						signatureProductionCity,
-						signerContact,
-						obfuscate,
-						pdfMaskConfig
-					);
+				configuredLayer2Text,
+				certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
+				signTime,
+				reason,
+				signatureProductionCity,
+				signerContact,
+				obfuscate,
+				pdfMaskConfig
+			);
 
 			// Tipo de letra en capa 2
 			int layer2FontFamily;
@@ -262,7 +262,7 @@ public final class PdfSessionManager {
 				LOGGER.warning(
 					"Se ha indicado un tamano de letra no valido para la capa 2 del PDF ('" //$NON-NLS-1$
 						+ extraParams.getProperty(PdfExtraParams.LAYER2_FONTSIZE) + "'): " + e //$NON-NLS-1$
-						);
+				);
 				layer2FontSize = UNDEFINED;
 			}
 
@@ -288,8 +288,7 @@ public final class PdfSessionManager {
 				layer2FontFamily,
 				layer2FontSize,
 				layer2FontStyle,
-				layer2FontColor,
-				pdfA1
+				layer2FontColor
 			);
 		}
 		// ** Fin texto firma visible **

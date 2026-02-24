@@ -222,53 +222,53 @@ public final class CMSTimestamper {
      * @throws IOException Si hay errores en la comunicaci&oacute;n o en la lectura de datos con la TSA. */
     public byte[] getTimeStampToken(final byte[] imprint, final String hashAlgorithm, final Calendar time) throws AOException, IOException {
 
-    	final TimeStampRequest request = this.tsqGenerator.generate(
-               new ASN1ObjectIdentifier(hashAlgorithm != null ? AOAlgorithmID.getOID(hashAlgorithm) : X509ObjectIdentifiers.id_SHA1.getId()),
-               imprint,
-               BigInteger.valueOf(time != null ? time.getTimeInMillis() : System.currentTimeMillis())
-          );
+		final TimeStampRequest request = this.tsqGenerator.generate(
+			new ASN1ObjectIdentifier(hashAlgorithm != null ? AOAlgorithmID.getOID(hashAlgorithm) : X509ObjectIdentifiers.id_SHA1.getId()),
+			imprint, BigInteger.valueOf(time != null ? time.getTimeInMillis() : System.currentTimeMillis())
+		);
 
-         final byte[] requestBytes = request.getEncoded();
+		final byte[] requestBytes = request.getEncoded();
 
-         final byte[] rawResponse;
-         try {
-        	 rawResponse = getTSAResponse(requestBytes, prepareConnection());
-         }
-         catch (final IOException e) {
-        	 throw new AOException("No se ha podido conectar con el servicio La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
-         }
-         catch (final Exception e) {
-        	 throw new AOException("Error en la generacion del sello de tiempo", e); //$NON-NLS-1$
-         }
+		final byte[] rawResponse;
+		try {
+			rawResponse = getTSAResponse(requestBytes, prepareConnection());
+		}
+		catch (final IOException e) {
+			throw new AOException("No se ha podido conectar con el servicio La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
+		}
+		catch (final Exception e) {
+			throw new AOException("Error en la generacion del sello de tiempo", e); //$NON-NLS-1$
+		}
 
-         final TimeStampResponse response;
-         try {
-            response = new TimeStampResponse(rawResponse);
-         }
-         catch (final Exception e) {
-        	LOGGER.severe("Respuesta de la TSA: " + new String(rawResponse)); //$NON-NLS-1$
-            throw new AOException("La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
-         }
+		final TimeStampResponse response;
+		try {
+			response = new TimeStampResponse(rawResponse);
+		}
+		catch (final Exception e) {
+			LOGGER.severe("Respuesta de la TSA: " + new String(rawResponse)); //$NON-NLS-1$
+			throw new AOException("La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
+		}
 
-         // Validamos los atributos de la respuesta (RFC 3161 PKIStatus)
-         try {
-            response.validate(request);
-         }
-         catch (final Exception e) {
-            throw new AOException("La respuesta de la TSA no es valida", e); //$NON-NLS-1$
-         }
-         final PKIFailureInfo failure = response.getFailInfo();
-         final int value = failure == null ? 0 : failure.intValue();
-         if (value != 0) {
-             throw new AOException("Respuesta invalida de la TSA ('" + this.tsaURL + "') con el codigo " + value); //$NON-NLS-1$ //$NON-NLS-2$
-         }
+		// Validamos los atributos de la respuesta (RFC 3161 PKIStatus)
+		try {
+			response.validate(request);
+		}
+		catch (final Exception e) {
+			throw new AOException("La respuesta de la TSA no es valida", e); //$NON-NLS-1$
+		}
+		final PKIFailureInfo failure = response.getFailInfo();
+		final int value = failure == null ? 0 : failure.intValue();
+		if (value != 0) {
+			throw new AOException("Respuesta invalida de la TSA ('" + this.tsaURL + "') con el codigo " + value); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
-         // Extraemos el token de sello de tiempo (quitando la informacion de estado de las comunicaciones)
-         final TimeStampToken  tsToken = response.getTimeStampToken();
-         if (tsToken == null) {
-             throw new AOException("La respuesta de la TSA ('" + this.tsaURL + "') no contiene un sello de tiempo valido: " + new String(rawResponse)); //$NON-NLS-1$ //$NON-NLS-2$
-         }
+		// Extraemos el token de sello de tiempo (quitando la informacion de estado de las comunicaciones)
+		final TimeStampToken tsToken = response.getTimeStampToken();
+		if (tsToken == null) {
+			throw new AOException("La respuesta de la TSA ('" + this.tsaURL //$NON-NLS-1$
+				+ "') no contiene un sello de tiempo valido: " + new String(rawResponse)); //$NON-NLS-1$
+		}
 
-         return tsToken.getEncoded();
+		return tsToken.getEncoded();
      }
 }

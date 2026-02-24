@@ -90,13 +90,11 @@ final class PdfVisibleAreasUtils {
 	 * @param fontStyle Estilo a aplicar al texto (0: NORMAL, 1: BOLD, 2: ITALIC, 3: BOLDITALIC, 4: UNDERLINE, 8: STRIKETHRU).
 	 *                  Con -1 se usa el valor por defecto: NORMAL.
 	 * @param fontColor Nombre del color (black, white, lightGray, gray, darkGray, red o pink).
-	 * @param pdfa {@code true} si se trata de un documento PDF/A, {@code false} en caso contrario.
 	 * @return Fuente de letra. */
 	static Font getFont(final int fontFamily,
 			            final int fontSize,
 			            final int fontStyle,
-			            final String fontColor,
-			            final boolean pdfa) {
+			            final String fontColor) {
 
 		final int family = fontFamily == UNDEFINED ? Font.COURIER : fontFamily;
 		final int size = fontSize == UNDEFINED ? DEFAULT_LAYER_2_FONT_SIZE : fontSize;
@@ -104,7 +102,7 @@ final class PdfVisibleAreasUtils {
 
 		final BaseFont baseFont;
 		try {
-			baseFont = getBaseFont(fontFamily, pdfa);
+			baseFont = loadInternalFont(fontFamily);
 		}
 		catch (final Exception e) {
 			LOGGER.warning(
@@ -146,46 +144,6 @@ final class PdfVisibleAreasUtils {
 			LOGGER.warning("Error estableciendo el color del tipo de letra para la firma visible PDF, se usara el por defecto: " + e); //$NON-NLS-1$
 			return new Font(baseFont, size, style, null);
 		}
-	}
-
-	private static BaseFont getBaseFont(final int fontFamily, final boolean pdfa) throws DocumentException, IOException {
-
-		// Si la firma es PDF/A, incrustamos toda la fuente para seguir respetando el estandar
-		if (pdfa) {
-			try {
-				return loadFontToEmbed(fontFamily);
-			}
-			// En Android puede fallar con un error la carga de una fuente, asi que se protege con un Throwable
-			catch (final Throwable e) {
-				LOGGER.log(Level.WARNING,
-					"No se ha podido cargar la fuente de letra para incrustar. Puede que el resultado no sea un PDF/A", //$NON-NLS-1$
-					e
-				);
-			}
-		}
-		return loadInternalFont(fontFamily);
-	}
-
-	/** Carga una de las fuentes incluidas en la biblioteca y la marca para que se incruste en el PDF.
-	 * @param fontFamily Familia de fuentes.
-	 * @return Fuente de letra.
-	 * @throws DocumentException Cuando falla la composici&oacute;n de la fuente.
-	 * @throws IOException Cuando falla la carga de la fuente. */
-	private static BaseFont loadFontToEmbed(final int fontFamily) throws DocumentException, IOException {
-		BaseFont font;
-		switch (fontFamily) {
-			case Font.HELVETICA:
-				font = BaseFont.createFont("/fonts/helvetica.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
-				break;
-			case Font.TIMES_ROMAN:
-				font = BaseFont.createFont("/fonts/times.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
-				break;
-			case Font.COURIER:
-			default:
-				font = BaseFont.createFont("/fonts/courier.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED); //$NON-NLS-1$
-		}
-		font.setSubset(false);
-		return font;
 	}
 
 	/** Compone una de las fuentes por defecto de PDF.
@@ -325,7 +283,6 @@ final class PdfVisibleAreasUtils {
 	 * @param maskConfig Configuraci&oacute;n de la m&aacute;scara a aplicar o {@code null} si se quiere usar la por defecto.
 	 * @return M&aacute;scara de ofuscaci&oacute;n o {@code null} si no se desea ofuscar. */
 	private static PdfTextMask prepareMask(final boolean obfuscate, final String maskConfig) {
-
 		if (obfuscate) {
 			if (maskConfig == null) {
 				return new PdfTextMask();
@@ -458,7 +415,7 @@ final class PdfVisibleAreasUtils {
         //    agregado al nuevo lienzo, por lo que  habra que agregarla.
         final PdfTemplate rotatedCanvas = PdfTemplate.createTemplate(stamper.getWriter(), rubricWidth, rubricHeight);
         try (
-    		final ByteBuffer actualBuffer = canvas.getInternalBuffer();
+    		ByteBuffer actualBuffer = canvas.getInternalBuffer();
     		ByteBuffer rotatedBuffer = rotatedCanvas.getInternalBuffer()
 		) {
         	rotatedBuffer.write(actualBuffer.toByteArray());
@@ -562,19 +519,16 @@ final class PdfVisibleAreasUtils {
      * la firma. La medida de posicionamiento es el p&iacute;xel y se cuenta en
      * el eje horizontal de izquierda a derecha y en el vertical de abajo a arriba.
      * @param extraParams Conjunto de propiedades con las coordenadas del rect&aacute;ngulo
-     * @return  Rect&aacute;ngulo que define la posici&oacute;n de la p&aacute;gina en donde
-     *          debe agregarse la firma*/
+     * @return  Rect&aacute;ngulo que define la posici&oacute;n de la p&aacute;gina en donde debe agregarse la firma. */
     static Rectangle getSignaturePositionOnPage(final Properties extraParams) {
     	return PdfUtil.getPositionOnPage(extraParams, "signature"); //$NON-NLS-1$
     }
 
-    /**
-     * Indica si se ha establecido una configuraci&oacute;n que d&eacute; pie
+    /** Indica si se ha establecido una configuraci&oacute;n que d&eacute; pie
      * a realizar una firma visible PDF. Se considerar&aacute; que ser&aacute;
      * una firma visible aquella que defina un &aacute;rea de firma o un campo de firma.
      * @param extraParams Conjunto de propiedades con la cofiguraci&oacute;n de la firma.
-     * @return  {@code true} si la firma es visible, {@code false} si no lo es.
-     */
+     * @return  {@code true} si la firma es visible, {@code false} si no lo es. */
     static boolean isVisibleSignature(final Properties extraParams) {
 
     	if (extraParams == null) {
@@ -588,8 +542,8 @@ final class PdfVisibleAreasUtils {
 
     	final Rectangle signatureRect = PdfUtil.getPositionOnPage(extraParams, "signature"); //$NON-NLS-1$
     	return signatureRect != null
-    			&& Math.signum(signatureRect.getWidth()) != 0
-    			&& Math.signum(signatureRect.getHeight()) != 0;
+			&& Math.signum(signatureRect.getWidth()) != 0
+			&& Math.signum(signatureRect.getHeight()) != 0;
     }
 
     /**
@@ -633,16 +587,12 @@ final class PdfVisibleAreasUtils {
     	return new String(chars);
     }
 
-    /**
-     * Aplica el algoritmo de ofuscaci&oacute;n sobre un fragmento determinado
-     * de un texto.
+    /** Aplica el algoritmo de ofuscaci&oacute;n sobre un fragmento determinado de un texto.
      * @param text Array de caracteres del texto.
      * @param pos Posici&oacute;n del texto a partir de la cual aplicar el
      * algoritmo de ofuscaci&oacute;n.
-     * @param length Longitud de la subcadena sobre la que hay que aplicar la
-     * ofuscaci&oacute;n.
-     * @param mask Configuraci&oacute;n con la m&aacute;scara a aplicar.
-     */
+     * @param length Longitud de la subcadena sobre la que hay que aplicar la ofuscaci&oacute;n.
+     * @param mask Configuraci&oacute;n con la m&aacute;scara a aplicar. */
     private static void obfuscate(final char[] text, final int pos, final int length, final PdfTextMask mask) {
 
     	final int numDigits = countDigits(text);
@@ -703,13 +653,9 @@ final class PdfVisibleAreasUtils {
     	}
     }
 
-    /**
-     * Cuenta el n&uacute;mero de caracteres en claro que admite la
-     * m&aacute;scara.
+    /** Cuenta el n&uacute;mero de caracteres en claro que admite la m&aacute;scara.
      * @param positions Posiciones contempladas por la m&aacute;scara.
-     * @return N&uacute;mero de caracteres que la m&aacute;scara no
-     * ofuscar&aacute;.
-     */
+     * @return N&uacute;mero de caracteres que la m&aacute;scara no ofuscar&aacute;. */
     private static int countPlainPositions(final boolean[] positions) {
     	int count = 0;
     	for (final boolean position : positions) {
@@ -720,11 +666,9 @@ final class PdfVisibleAreasUtils {
 		return count;
 	}
 
-    /**
-     * Cuenta el n&uacute;mero de d&iacute;gitos de una cadena de texto.
+    /** Cuenta el n&uacute;mero de d&iacute;gitos de una cadena de texto.
      * @param text Cadena de texto.
-     * @return N&uacute;mero de d&iacute;gitos en la cadena.
-     */
+     * @return N&uacute;mero de d&iacute;gitos en la cadena. */
     private static int countDigits(final char[] text) {
     	int digitsCount = 0;
     	for (final char c : text) {

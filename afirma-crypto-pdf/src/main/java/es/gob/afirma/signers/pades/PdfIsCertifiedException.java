@@ -11,12 +11,11 @@ package es.gob.afirma.signers.pades;
 
 import es.gob.afirma.core.RuntimeConfigNeededException;
 
-/**
- * Excepci&oacute;n que indica que el PDF esta certificado y que firmarlo
+/** Excepci&oacute;n que indica que el PDF esta certificado y que firmarlo
  * podr&iacute;a invalidar firmas anteriores, por lo que ser&iacute;a necesaria
  * la confirmaci&oacute;n del usuario.
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s
- * @author Carlos Gamuci */
+ * @author Carlos Gamuci. */
 public final class PdfIsCertifiedException extends RuntimeConfigNeededException {
 
 	/** Serial ID. */

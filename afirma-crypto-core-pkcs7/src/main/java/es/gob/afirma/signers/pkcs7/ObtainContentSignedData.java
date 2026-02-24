@@ -46,8 +46,6 @@ public final class ObtainContentSignedData {
 	 * @throws AOInvalidSignatureFormatException Cuando los datos proporcionados no tienen la estructura
 	 *                                  b&aacute;sica de firma ASN.1. */
 	public static byte[] obtainData(final byte[] data) throws AOInvalidSignatureFormatException {
-		byte[] contenido = null;
-
 		final ASN1ObjectIdentifier doi;
 		final ASN1TaggedObject doj;
 		try {
@@ -73,24 +71,21 @@ public final class ObtainContentSignedData {
 			final ContentInfo ci = sd.getEncapContentInfo();
 			// obtenemos el contenido si lo tiene.
 			if (ci.getContent() != null) {
-				contenido = ((DEROctetString) ci.getContent()).getOctets();
+				return ((DEROctetString) ci.getContent()).getOctets();
 			}
-			else {
-				LOGGER.info("No existe contenido en esta firma. Se devolvera null"); //$NON-NLS-1$
-			}
+			LOGGER.info("No existe contenido en esta firma. Se devolvera null"); //$NON-NLS-1$
 		}
 		else {
 			LOGGER.warning("No se puede obtener el contenido de esta firma."); //$NON-NLS-1$
 		}
 
-		return contenido;
+		return null;
 	}
 
 	/** Obtiene la huella digital de los datos firmados en una firma CMS/CAdES.
 	 * La huella se obtenida estar&aacute; generada con el algoritmo de huella indicado, si este
 	 * algoritmo es el que se utiliz&oacute; en alguna de las operaci&oacute;nes de firma con la
-	 * que se gener&oacute; esta firma. Si no se utiliz&oacute; este algoritmo, se devuelve
-	 * {@code null}.
+	 * que se gener&oacute; esta firma. Si no se utiliz&oacute; este algoritmo, se devuelve {@code null}.
 	 * @param signature Firma de la que obtener la huella digital.
 	 * @param digestAlgorithm Algoritmo con el que se gener&oacute; la huella digital que buscamos.
 	 * @return La huella digital de los datos firmados generada con el algoritmo indicado, o

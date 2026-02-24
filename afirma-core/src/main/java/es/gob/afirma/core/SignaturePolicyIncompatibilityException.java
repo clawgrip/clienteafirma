@@ -11,10 +11,8 @@ package es.gob.afirma.core;
 
 import java.util.Properties;
 
-/**
- * Excepci&oacute;n que denota que se va a generar una firma que declara la pol&iacute;tica de firma
- * de la AGE, pero es incompatible con ella.
- */
+/** Excepci&oacute;n que denota que se va a generar una firma que declara la pol&iacute;tica de firma
+ * de la AGE, pero es incompatible con ella. */
 public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfigNeededException {
 
 	/** Serial Id. */
@@ -28,45 +26,37 @@ public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfig
 
 	/** Error identificado durante una operaci&oacute;n de firma. */
 	public static final int OP_SIGN = 1;
+
 	/** Error identificado durante una operaci&oacute;n de cofirma. */
 	public static final int OP_COSIGN = 2;
+
 	/** Error identificado durante una operaci&oacute;n de contrafirma. */
 	public static final int OP_COUNTERSIGN = 3;
 
-	/**
-	 * Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
-	 * @param message Mensaje descriptivo del problema.
-	 */
+	/** Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
+	 * @param message Mensaje descriptivo del problema. */
 	public SignaturePolicyIncompatibilityException(final String message) {
 		this(message, OP_SIGN);
 	}
 
-	/**
-	 * Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
+	/** Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
 	 * @param message Mensaje descriptivo del problema.
-	 * @param operation C&oacute;digo de operaci&oacute;n que identifica el mensaje de solicitud
-	 * de confirmaci&oacute;n al usuario.
-	 */
+	 * @param operation C&oacute;digo de operaci&oacute;n que identifica el mensaje de solicitud de confirmaci&oacute;n al usuario. */
 	public SignaturePolicyIncompatibilityException(final String message, final int operation) {
 		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED);
 	}
 
-	/**
-	 * Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
+	/** Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
 	 * @param message Mensaje descriptivo del problema.
-	 * @param cause Origen del problema.
-	 */
+	 * @param cause Origen del problema. */
 	public SignaturePolicyIncompatibilityException(final String message, final Throwable cause) {
 		this(message, OP_SIGN, cause);
 	}
 
-	/**
-	 * Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
+	/** Crear la excepci&oacute;n motivada por lo indicado en el mensaje.
 	 * @param message Mensaje descriptivo del problema.
-	 * @param operation C&oacute;digo de operaci&oacute;n que identifica el mensaje de solicitud
-	 * de confirmaci&oacute;n al usuario.
-	 * @param cause Origen del problema.
-	 */
+	 * @param operation C&oacute;digo de operaci&oacute;n que identifica el mensaje de solicitud de confirmaci&oacute;n al usuario.
+	 * @param cause Origen del problema. */
 	public SignaturePolicyIncompatibilityException(final String message, final int operation, final Throwable cause) {
 		super(message, RuntimeConfigNeededException.RequestType.CONFIRM, getMessageCode(operation), EXTRA_PARAM_NEEDED, cause);
 	}
@@ -82,12 +72,9 @@ public class SignaturePolicyIncompatibilityException extends CustomRuntimeConfig
 		}
 	}
 
-	/**
-	 * Obtiene el c&oacute;digo del mensaje que se debe mostrar a un usuario para una
-	 * operaci&oacute;n.
+	/** Obtiene el c&oacute;digo del mensaje que se debe mostrar a un usuario para una operaci&oacute;n.
 	 * @param operation C&oacute;digo de operaci&oacute;n.
-	 * @return Mensaje que mostrar al usuario.
-	 */
+	 * @return Mensaje que mostrar al usuario. */
 	private static String getMessageCode(final int operation) {
 		String msg;
 		switch (operation) {

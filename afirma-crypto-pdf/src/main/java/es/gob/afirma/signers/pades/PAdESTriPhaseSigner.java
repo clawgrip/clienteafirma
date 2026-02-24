@@ -156,17 +156,16 @@ public final class PAdESTriPhaseSigner {
      *                Deben usarse exactamente los mismos valores en la post-firma.
      * @param signTime Momento de la firma. Debe usarse exactamente el mismo valor en la post-firma.
      * @param secureMode Modo seguro.
-     * @return pre-firma CAdES/PAdES (atributos CAdES a firmar)
-     * @throws IOException En caso de errores de entrada / salida
-     * @throws AOException En caso de cualquier otro tipo de error
-     * @throws InvalidPdfException En caso de errores al generar los datos de sesi&oacute;n */
+     * @return pre-firma CAdES/PAdES (atributos CAdES a firmar).
+     * @throws IOException En caso de errores de entrada / salida.
+     * @throws AOException En caso de cualquier otro tipo de error.
+     * @throws InvalidPdfException En caso de errores al generar los datos de sesi&oacute;n. */
     public static PdfSignResult preSign(final String signatureAlgorithm,
                                         final byte[] inPDF,
                                         final Certificate[] signerCertificateChain,
                                         final GregorianCalendar signTime,
                                         final Properties xParams,
-                                        final boolean secureMode) throws IOException,
-                                                                         AOException {
+                                        final boolean secureMode) throws IOException, AOException {
 
         final Properties extraParams = xParams != null ? xParams : new Properties();
 
@@ -293,7 +292,8 @@ public final class PAdESTriPhaseSigner {
     		cadesSignature,
     		timestamp, // Sello de tiempo
     		signingTime,
-    		xParams != null ? xParams : new Properties());
+    		xParams != null ? xParams : new Properties()
+		);
     }
 
     private static byte[] insertSignatureOnPdf(final byte[] inPdf,

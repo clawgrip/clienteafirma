@@ -37,23 +37,20 @@ public class PdfTextMask {
 	}
 
 	/** Establece el caracter sustitutivo.
-	 * @param ofuscatedChar Caracter sustitutivo.
-	 */
+	 * @param ofuscatedChar Caracter sustitutivo. */
 	public void setObfuscatedChar(final char ofuscatedChar) {
 		this.obfuscatedChar = ofuscatedChar;
 	}
 
 	/** Recupera el caracter sustitutivo.
-	 * @return Caracter sustitutivo.
-	 */
+	 * @return Caracter sustitutivo. */
 	public char getObfuscatedChar() {
 		return this.obfuscatedChar;
 	}
 
 	/** Establece la l&oacute;ngitud m&iacute;nima de digitos que debe tener
 	 * una cadena para considerarla objetivo de ofuscaci&oacute;n.
-	 * @param minLength L&oacute;ngitud m&iacute;nima de d&iacute;gitos.
-	 */
+	 * @param minLength L&oacute;ngitud m&iacute;nima de d&iacute;gitos. */
 	public void setMinLength(final int minLength) {
 		this.minLength = minLength;
 	}
@@ -68,16 +65,14 @@ public class PdfTextMask {
 
 	/** Establece las posiciones de la m&aacute;scara que deben no mostrarse
 	 * ({@code false}) y las que si ({@code true}).
-	 * @param positions Posiciones que deben ocultarse o mostrarse.
-	 */
+	 * @param positions Posiciones que deben ocultarse o mostrarse. */
 	public void setPositions(final boolean[] positions) {
 		this.positions = positions != null ? positions.clone() : null;
 	}
 
 	/** Recupera las posiciones de la m&aacute;scara que deben no mostrarse
 	 * ({@code false}) y las que si ({@code true}).
-	 * @return Posiciones que deben ocultarse o mostrarse.
-	 */
+	 * @return Posiciones que deben ocultarse o mostrarse. */
 	public boolean[] getPositions() {
 		return this.positions != null ? this.positions.clone() : null;
 	}
@@ -86,8 +81,7 @@ public class PdfTextMask {
 	 * ocultaci&oacute;n o si debe respetarse el n&uacute;mero de caracters a
 	 * mostrar desplazando sus posiciones.
 	 * @param shiftSupported Si deben desplazarse las posiciones de la
-	 * m&aacute;scara ({@code true}) o no ({@code false}).
-	 */
+	 * m&aacute;scara ({@code true}) o no ({@code false}). */
 	public void setShiftSupported(final boolean shiftSupported) {
 		this.shiftSupported = shiftSupported;
 	}
@@ -96,14 +90,12 @@ public class PdfTextMask {
 	 * ocultaci&oacute;n o si debe respetarse el n&uacute;mero de caracters a
 	 * mostrar desplazando sus posiciones.
 	 * @return Si deben desplazarse las posiciones de la m&aacute;scara
-	 * ({@code true}) o no ({@code false}).
-	 */
+	 * ({@code true}) o no ({@code false}). */
 	public boolean isShiftSupported() {
 		return this.shiftSupported;
 	}
 
-	/**
-	 * Genera una m&aacute;scara a partir de una cadena en la que se
+	/** Genera una m&aacute;scara a partir de una cadena en la que se
 	 * especifican sus valores con la forma:<br>
 	 * {@code caracterSustitutivo;longitudDigitos;posiciones;desplazamiento}<br>
 	 * Aqu&iacute;:
@@ -119,10 +111,8 @@ public class PdfTextMask {
 	 * mostrar todos los caracteres indicados ({@code true}) o si esta debe respetarse ({@code false}).</li>
 	 * </ul>
 	 * @param param Cadena con el patr&oacute;n definido.
-	 * @return La m&aacute;scara con el patr&oacute;n definido o la por defecto si el patr&oacute;n no
-	 * est&aacute; bien formado.
-	 * @throws IllegalArgumentException Si la m&aacute;scara no esta bien definida.
-	 */
+	 * @return La m&aacute;scara con el patr&oacute;n definido o la por defecto si el patr&oacute;n no est&aacute; bien formado.
+	 * @throws IllegalArgumentException Si la m&aacute;scara no esta bien definida. */
 	public static PdfTextMask parseParam(final String param) throws IllegalArgumentException {
 
 		final PdfTextMask mask = new PdfTextMask();

@@ -12,82 +12,64 @@ package es.gob.afirma.signers.pades;
 /** Par&aacute;metros adicionales para las firmas PAdES. */
 public final class PdfExtraParams {
 
-	/**
-	 * Si se establece a <code>true</code> se evita usar la cadena de certificados
+	/** Si se establece a <code>true</code> se evita usar la cadena de certificados
 	 * del firmante en la inclusi&oacute;n en el diccionario PDF y en la estructura
 	 * de apariencia (PdfSignatureAppearance). Esto permite trabajar en modo
 	 * trif&aacute;sico sin que la infraestructura PDF conozca la identidad del
-	 * firmante, que quedar&iacute;a encapsulada en la parte CAdES.
-	 */
+	 * firmante, que quedar&iacute;a encapsulada en la parte CAdES. */
 	public static final String DO_NOT_USE_CERTCHAIN_ON_POSTSIGN = "doNotUseCertChainOnPostSign"; //$NON-NLS-1$
 
-	/**
-	 * Indica si debe rotarse el campo de firma. Si se indica <code>true</code> el
+	/** Indica si debe rotarse el campo de firma. Si se indica <code>true</code> el
 	 * texto de la firma se rota 90 grados en sentido positivo. Si se indica
 	 * <code>false</code> o no se indica, no se rota nada. Se respetan las
 	 * posiciones del campo de firma (no se rota el propio campo, solo su texto).
 	 * Este campo solo aplica a las firmas PDF visibles. Si se rota una firma se
-	 * pierde la imagen de r&uacute;brica que se pudiese haber establecido.
-	 */
+	 * pierde la imagen de r&uacute;brica que se pudiese haber establecido. */
 	public static final String SIGNATURE_ROTATION = "signatureRotation"; //$NON-NLS-1$
 
-	/**
-	 * Si se establece a <code>true</code> omite la inclusi&oacute;n de la
+	/** Si se establece a <code>true</code> omite la inclusi&oacute;n de la
 	 * pol&iacute;tica de certificaci&oacute;n en el <i>SigningCertificate</i>, si
-	 * se establece a <code>false</code> se incluye siempre que el certificado la
-	 * declare.
-	 */
+	 * se establece a <code>false</code> se incluye siempre que el certificado la declare. */
 	public static final String DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE = "doNotIncludePolicyOnSigningCertificate"; //$NON-NLS-1$
 
-	/**
-	 * Si se establece a <code>true</code> se incluye en la firma &uacute;nicamente
+	/** Si se establece a <code>true</code> se incluye en la firma &uacute;nicamente
 	 * el certificado del firmante (y no la cadena de certificaci&oacute;n
 	 * completa). Si no se establece o se establece a <code>false</code> se
-	 * incluir&aacute; toda la cadena de certificaci&oacute;n (propiedad compartida
-	 * con XAdES y CAdES).
-	 */
+	 * incluir&aacute; toda la cadena de certificaci&oacute;n (propiedad compartida con XAdES y CAdES). */
 	public static final String INCLUDE_ONLY_SIGNNING_CERTIFICATE = "includeOnlySignningCertificate";//$NON-NLS-1$
 
-	/**
-	 * Establece la fecha y hora indicadas como momento de la firma. Debe
-	 * establecerse en el formato <code>yyyy:MM:dd:HH:mm:ss</code>. Por ejemplo, la
-	 * cadena <code>2010:12:25:12:30:01</code> indica el venticinco de diciembre de
+	/** Establece la fecha y hora indicadas como momento de la firma.
+	 * Debe establecerse en el formato <code>yyyy:MM:dd:HH:mm:ss</code>.
+	 * Por ejemplo, la cadena <code>2010:12:25:12:30:01</code> indica el venticinco de diciembre de
 	 * 2010 a las 12 horas, treinta minutos y un segundo. Se toma siempre como zona
-	 * horaria la establecida en la m&aacute;quina donde se ejecuta el firmador.
-	 */
+	 * horaria la establecida en la m&aacute;quina donde se ejecuta el firmador. */
 	public static final String SIGN_TIME = "signTime";//$NON-NLS-1$
 
 	/** Perfil de firma que se desea generar. */
 	public static final String PROFILE = "profile"; //$NON-NLS-1$
 
-	/**
-	 * Si se establece a <code>true</code> se permite firmar un PDF incluso si este
+	/** Si se establece a <code>true</code> se permite firmar un PDF incluso si este
 	 * contiene firmas previas no registradas dentro de campos Acrobat (AcroFields).
 	 * El firmar un PDF que contenga firmas no registradas puede dar como resultado
 	 * que se invaliden estas firmas previas, por lo que no se recomienda
 	 * permitirlo. Si no se establece o se establece a <code>false</code>, al
 	 * intentar firmar un PDF que contenga firmas no registradas se lanza una
-	 * excepci&oacute;n de tipo<code> PdfHasUnregisteredSignaturesException</code>.
-	 */
+	 * excepci&oacute;n de tipo<code> PdfHasUnregisteredSignaturesException</code>. */
 	public static final String ALLOW_COSIGNING_UNREGISTERED_SIGNATURES = "allowCosigningUnregisteredSignatures";//$NON-NLS-1$
 
-	/**
-	 * Nombre del sub-filtro en el diccionario PDF para indicar el tipo de la firma.
+	/** Nombre del sub-filtro en el diccionario PDF para indicar el tipo de la firma.
 	 * Si no se indica este par&aacute;metro por defecto se usa
 	 * <code>adbe.pkcs7.detached</code> (firma PAdES b&aacute;sica). Es posible
 	 * indicar <code>ETSI.CAdES.detached</code> para generar una firma PAdES-BES, si
 	 * bien el hacerlo puede causar que al a&ntilde;adir firmas adicionales al PDF
-	 * se invaliden las ya existentes.
-	 */
+	 * se invaliden las ya existentes. */
 	public static final String SIGNATURE_SUBFILTER = "signatureSubFilter";//$NON-NLS-1$
 
-	/**
-	 * Si se establece a <code>false</code> no se comprime el PDF resultante. Si no
+	/** Si se establece a <code>false</code> no se comprime el PDF resultante. Si no
 	 * se establece o se establece a cualquier otro valor distinto de
 	 * <code>false</code>, el PDF de salida (firmado) se comprime para que ocupe
 	 * menos tama&ntilde;o. Esta propiedad s&oacute;lo se aplica si se trata de un
-	 * PDF v4 o superior, en versiones anteriores nunca se comprimen los PDF.
-	 */
+	 * PDF v4 o superior, en versiones anteriores nunca se comprimen los PDF. */
 	public static final String COMPRESS_PDF = "compressPdf";//$NON-NLS-1$
 
 	/**
@@ -199,11 +181,7 @@ public final class PdfExtraParams {
 	 */
 	public static final String ATTACH_DESCRIPTION = "attachDescription";//$NON-NLS-1$
 
-	/**
-	 * <p>
-	 * Configura si debe realizarse una firma de aprobaci&oacute;n (por defecto) o
-	 * certificada.
-	 * </p>
+	/** Configura si debe realizarse una firma de aprobaci&oacute;n (por defecto) o certificada.
 	 * <p>
 	 * Una firma de aprobaci&oacute;n o de formulario se realiza sobre un campo de
 	 * firma de formulario del documento (preexistente o creado
@@ -212,24 +190,20 @@ public final class PdfExtraParams {
 	 * opci&oacute;n com&uacute;n de firma.
 	 * </p>
 	 * <p>
-	 * Una firma certificada o de documento se aplica sobre un campo de firma
-	 * identificado como de documento (preexistente o creado autom&aacute;ticamente
-	 * en el momento de la firma). Un documento puede contener un &uacute;nico campo
-	 * de este tipo y por tanto una &uacute;nica firma certificada. En caso de
-	 * agregarse una firma certificada al documento, esta debe ser la primera que se
-	 * agregue. Si hubiese alguna firma previa el resultado no ser&iacute;a
-	 * v&aacute;lido.
+	 * Una firma certificada o de documento se aplica sobre un campo de firma identificado como de documento
+	 * (preexistente o creado autom&aacute;ticamente en el momento de la firma).
+	 * Un documento puede contener un &uacute;nico campo de este tipo y por tanto una &uacute;nica firma certificada.
+	 * En caso de agregarse una firma certificada al documento, esta debe ser la primera que se agregue.
+	 * Si hubiese alguna firma previa el resultado no ser&iacute;a v&aacute;lido.
 	 * </p>
 	 * <p>
-	 * Independientemente de sus nombres, ambos tipos de firma aplican a todo el
-	 * documento (lo firman por completo), s&oacute;lo cambia la designaci&oacute;n
-	 * del campo en el que se almacenan.
+	 * Independientemente de sus nombres, ambos tipos de firma aplican al documento entero (lo firman por completo),
+	 * s&oacute;lo cambia la designaci&oacute;n del campo en el que se almacenan.
 	 * </p>
 	 * <p>
-	 * Una firma certificada restringe modificaciones posteriores sobre el
-	 * documento. Seg&uacute;n el nivel de certificaci&oacute;n de esta firma se
-	 * podr&aacute;n hacer unos cambios u otros. El Cliente @firma permite
-	 * configurar el nivel de certificaci&oacute;n de una firma por medio del
+	 * Una firma certificada restringe modificaciones posteriores sobre el documento.
+	 * Seg&uacute;n el nivel de certificaci&oacute;n de esta firma se podr&aacute;n hacer unos cambios u otros.
+	 * El Cliente @firma permite configurar el nivel de certificaci&oacute;n de una firma por medio del
 	 * par&aacute;metro certificationLevel y un valor num&eacute;rico:
 	 * </p>
 	 * <ul>
@@ -261,31 +235,26 @@ public final class PdfExtraParams {
 	/** Valor para indicar el nivel 3 de firma certificada de PDF (certificada com&uacute;n). */
 	public static final String CERTIFICATION_LEVEL_VALUE_TYPE_3 = "3"; //$NON-NLS-1$
 
-	/**
-	 * Versi&oacute;n del PDF de salida:
+	/** Versi&oacute;n del PDF de salida:
 	 * <ul>
-	 * <li><i>2</i> = PDF 1.2</li>
-	 * <li><i>3</i> = PDF 1.3</li>
-	 * <li><i>4</i> = PDF 1.4</li>
-	 * <li><i>5</i> = PDF 1.5</li>
-	 * <li><i>6</i> = PDF 1.6</li>
-	 * <li><i>7</i> = PDF 1.7</li>
+	 *   <li><i>2</i> = PDF 1.2</li>
+	 *   <li><i>3</i> = PDF 1.3</li>
+	 *   <li><i>4</i> = PDF 1.4</li>
+	 *   <li><i>5</i> = PDF 1.5</li>
+	 *   <li><i>6</i> = PDF 1.6</li>
+	 *   <li><i>7</i> = PDF 1.7</li>
 	 * </ul>
 	 */
 	public static final String PDF_VERSION = "pdfVersion";//$NON-NLS-1$
 
-	/**
-	 * Nombre del campo en donde insertar la firma. Si el documento PDF tiene ya un
+	/** Nombre del campo en donde insertar la firma. Si el documento PDF tiene ya un
 	 * campo de firma pre-creado es posible utilizarlo para insertar la firma
 	 * generada, referenci&aacute;ndolo por su nombre.<br>
 	 * Si se indica un nombre de campo de firma que no exista en el documento PDF
-	 * proporcionado, se generar&aacute; una excepci&oacute;n.
-	 */
+	 * proporcionado, se generar&aacute; una excepci&oacute;n. */
 	public static final String SIGNATURE_FIELD = "signatureField";//$NON-NLS-1$
 
-	/**
-	 * Bandera que indica si la firma debe ser visible en el documento PDF.
-	 */
+	/** Bandera que indica si la firma debe ser visible en el documento PDF. */
 	public static final String VISIBLE_SIGNATURE = "visibleSignature"; //$NON-NLS-1$
 
 	/** Valor para indicar que el usuario debe poder seleccionar el &aacute;rea de firma. */
@@ -294,17 +263,14 @@ public final class PdfExtraParams {
 	/** Valor para indicar que el usuario debe seleccionar obligatoriamente el &aacute;rea de firma. */
 	public static final String VISIBLE_SIGNATURE_VALUE_WANT = "want"; //$NON-NLS-1$
 
-	/**
-	 * Bandera que indica si se le permitir&aacute; al usuario establecer una visualizaci&oacute;n
-	 * personalizada de la firma en el documento PDF.
-	 */
+	/** Bandera que indica si se le permitir&aacute; al usuario establecer una visualizaci&oacute;n
+	 * personalizada de la firma en el documento PDF. */
 	public static final String VISIBLE_APPEARANCE = "visibleAppearance"; //$NON-NLS-1$
 
 	/** Valor para indicar que el usuario debe poder seleccionar la apariencia de la firma. */
 	public static final String VISIBLE_APPEARANCE_VALUE_CUSTOM = "custom"; //$NON-NLS-1$
 
-	/**
-	 * P&aacute;gina del documento PDF donde insertar la firma.
+	/** P&aacute;gina del documento PDF donde insertar la firma.
 	 * Se podr&aacute;n seleccionar todas las p&aacute;ginas usando la palabra clave {@code all}.
 	 * Se podr&aacute;n seleccionar p&aacute;ginas individuales list&aacute;ndolas separadas por comas (,).
 	 * Por ejemplo, para mostrar la firma en las p&aacute;ginas 1, 2, 5 y 7, se usar&aacute;: 1,2,5,7
@@ -319,72 +285,52 @@ public final class PdfExtraParams {
 	 * <code>signaturePositionOnPageLowerLeftX</code>,
 	 * <code>signaturePositionOnPageLowerLeftY</code>,
 	 * <code>signaturePositionOnPageUpperRightX</code> y
-	 * <code>signaturePositionOnPageUpperRightY</code>.
-	 */
+	 * <code>signaturePositionOnPageUpperRightY</code>. */
 	public static final String SIGNATURE_PAGE = "signaturePage";//$NON-NLS-1$
 
-	/**
-	 * Tiene el mismo funcionamiento que el par&aacute;metro signaturePage.
-	 * Se admite este parametro para evitar confusiones por parte de los integradores.
-	 */
+	/** Tiene el mismo funcionamiento que el par&aacute;metro signaturePage.
+	 * Se admite este parametro para evitar confusiones por parte de los integradores. */
 	public static final String SIGNATURE_PAGES = "signaturePages";//$NON-NLS-1$
 
-	/**
-	 * Coordenada horizontal inferior izquierda de la posici&oacute;n del recuadro
+	/** Coordenada horizontal inferior izquierda de la posici&oacute;n del recuadro
 	 * visible de la firma dentro de la p&aacute;gina.<br>
-	 * Es necesario indicar el resto de coordenadas del recuadro mediante los
-	 * par&aacute;metros <code>signaturePositionOnPageLowerLeftY</code>,
-	 * <code>signaturePositionOnPageUpperRightX</code> y
+	 * Es necesario indicar el resto de coordenadas del recuadro mediante los par&aacute;metros
+	 * <code>signaturePositionOnPageLowerLeftY</code>, <code>signaturePositionOnPageUpperRightX</code> y
 	 * <code>signaturePositionOnPageUpperRightY</code>.<br>
 	 * Si no se indica una p&aacute;gina en el par&aacute;metro
-	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima
-	 * p&aacute;gina del documento.
-	 */
+	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima p&aacute;gina del documento. */
 	public static final String SIGNATURE_POSITION_ON_PAGE_LOWER_LEFTX = "signaturePositionOnPageLowerLeftX";//$NON-NLS-1$
 
-	/**
-	 * Coordenada vertical inferior izquierda de la posici&oacute;n del recuadro
+	/** Coordenada vertical inferior izquierda de la posici&oacute;n del recuadro
 	 * visible de la firma dentro de la p&aacute;gina.<br>
 	 * Es necesario indicar el resto de coordenadas del recuadro mediante los
 	 * par&aacute;metros <code>signaturePositionOnPageLowerLeftX</code>,
-	 * <code>signaturePositionOnPageUpperRightX</code> y
-	 * <code>signaturePositionOnPageUpperRightY</code>.<br>
+	 * <code>signaturePositionOnPageUpperRightX</code> y <code>signaturePositionOnPageUpperRightY</code>.<br>
 	 * Si no se indica una p&aacute;gina en el par&aacute;metro
-	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima
-	 * p&aacute;gina del documento.
-	 */
+	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima p&aacute;gina del documento. */
 	public static final String SIGNATURE_POSITION_ON_PAGE_LOWER_LEFTY = "signaturePositionOnPageLowerLeftY";//$NON-NLS-1$
 
-	/**
-	 * Coordenada horizontal superior derecha de la posici&oacute;n del recuadro
+	/** Coordenada horizontal superior derecha de la posici&oacute;n del recuadro
 	 * visible de la firma dentro de la p&aacute;gina.<br>
-	 * Es necesario indicar el resto de coordenadas del recuadro mediante los
-	 * par&aacute;metros <code>signaturePositionOnPageLowerLeftX</code>,
-	 * <code>signaturePositionOnPageLowerLeftY</code> y
+	 * Es necesario indicar el resto de coordenadas del recuadro mediante los par&aacute;metros
+	 * <code>signaturePositionOnPageLowerLeftX</code>, <code>signaturePositionOnPageLowerLeftY</code> y
 	 * <code>signaturePositionOnPageUpperRightY</code>.<br>
 	 * Si no se indica una p&aacute;gina en el par&aacute;metro
-	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima
-	 * p&aacute;gina del documento.
-	 */
+	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima p&aacute;gina del documento. */
 	public static final String SIGNATURE_POSITION_ON_PAGE_UPPER_RIGHTX = "signaturePositionOnPageUpperRightX";//$NON-NLS-1$
 
-	/**
-	 * Coordenada vertical superior derecha de la posici&oacute;n del recuadro
+	/** Coordenada vertical superior derecha de la posici&oacute;n del recuadro
 	 * visible de la firma dentro de la p&aacute;gina.<br>
 	 * Es necesario indicar el resto de coordenadas del recuadro mediante los
 	 * par&aacute;metros <code>signaturePositionOnPageLowerLeftX</code>,
 	 * <code>signaturePositionOnPageLowerLeftY</code> y
 	 * <code>signaturePositionOnPageUpperRightX</code>.<br>
 	 * Si no se indica una p&aacute;gina en el par&aacute;metro
-	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima
-	 * p&aacute;gina del documento.
-	 */
+	 * <code>signaturePage</code> la firma se inserta en la &uacute;ltima p&aacute;gina del documento. */
 	public static final String SIGNATURE_POSITION_ON_PAGE_UPPER_RIGHTY = "signaturePositionOnPageUpperRightY";//$NON-NLS-1$
 
-	/**
-	 * Imagen JPEG codificada en Base64 de la r&uacute;brica de la firma manuscrita
-	 * que se desea aparezca como firma visible en el PDF.
-	 */
+	/** Imagen JPEG codificada en Base64 de la r&uacute;brica de la firma manuscrita
+	 * que se desea aparezca como firma visible en el PDF. */
 	public static final String SIGNATURE_RUBRIC_IMAGE = "signatureRubricImage";//$NON-NLS-1$
 
 	/**

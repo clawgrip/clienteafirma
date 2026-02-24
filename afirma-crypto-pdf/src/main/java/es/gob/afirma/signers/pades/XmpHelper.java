@@ -63,12 +63,12 @@ final class XmpHelper {
     private static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
 
 	private static final String NEW_HISTORY_LIST_ITEM = "<rdf:li rdf:parseType=\"Resource\">\n" + //$NON-NLS-1$
-			"  <stEvt:action>signed</stEvt:action>\n" + //$NON-NLS-1$
-			"  <stEvt:instanceID>uuid:" + TAG_UUID + "</stEvt:instanceID>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-			"  <stEvt:parameters>Firmado por el Cliente @firma</stEvt:parameters>\n" + //$NON-NLS-1$
-			"  <stEvt:softwareAgent>Cliente @firma</stEvt:softwareAgent>\n" + //$NON-NLS-1$
-			"  <stEvt:when>" + TAG_DATE + "</stEvt:when>\n" + //$NON-NLS-1$ //$NON-NLS-2$
-			"</rdf:li>"; //$NON-NLS-1$
+		"  <stEvt:action>signed</stEvt:action>\n" + //$NON-NLS-1$
+		"  <stEvt:instanceID>uuid:" + TAG_UUID + "</stEvt:instanceID>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"  <stEvt:parameters>Firmado por el Cliente @firma</stEvt:parameters>\n" + //$NON-NLS-1$
+		"  <stEvt:softwareAgent>Cliente @firma</stEvt:softwareAgent>\n" + //$NON-NLS-1$
+		"  <stEvt:when>" + TAG_DATE + "</stEvt:when>\n" + //$NON-NLS-1$ //$NON-NLS-2$
+		"</rdf:li>"; //$NON-NLS-1$
 
 	private XmpHelper() {
 		// No instanciable
@@ -198,10 +198,7 @@ final class XmpHelper {
 		final Map<String, String> props = new ConcurrentHashMap<>(1);
 		props.put("encoding", DEFAULT_ENCODING.name()); //$NON-NLS-1$
 
-		String xmlString = new String(
-			writeXml(doc.getDocumentElement()),
-			DEFAULT_ENCODING
-		);
+		String xmlString = new String(writeXml(doc.getDocumentElement()), DEFAULT_ENCODING);
 		xmlString = xmlString.replace(
 			xmlString.substring(
 				0,
@@ -259,13 +256,10 @@ final class XmpHelper {
 		return baos.toByteArray();
 	}
 
-	/**
-	 * Comprobamos si se ha indicado la contrase&ntilde;a de usuario o de propietario en
+	/** Comprobamos si se ha indicado la contrase&ntilde;a de usuario o de propietario en
 	 * el PDF y obtenemos aquella necesaria para la apertura del documento.
 	 * @param extraParams Configuraci&oacute;n con la contrase&ntilde;a del PDF.
-	 * @return Contrase&ntilde;a necesaria para abrir/editar el documento o {@code null}
-	 * si no se ha configurado.
-	 */
+	 * @return Contrase&ntilde;a necesaria para abrir/editar el documento o {@code null} si no se ha configurado. */
 	private static byte[] getPdfPassword(final Properties extraParams) {
 
 		// Contrasena del propietario del PDF

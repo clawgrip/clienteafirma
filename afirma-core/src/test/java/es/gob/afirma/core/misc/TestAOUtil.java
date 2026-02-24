@@ -40,7 +40,7 @@ final class TestAOUtil {
 		System.out.println(uri);
 	}
 
-    /** Prueba para el getCN(), reconstruido para prescindir de <code>javax.naming</code>. */
+    /** Prueba para el getCN(). */
     @SuppressWarnings("static-method")
 	@Test
     void testGetCN() {

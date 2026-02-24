@@ -61,6 +61,7 @@ import es.gob.afirma.core.util.tree.AOTreeNode;
 public final class AOPDFSigner implements AOSigner {
 
     private static final String PDF_FILE_SUFFIX = ".pdf"; //$NON-NLS-1$
+    private static final String SIGNEDPDF_FILE_SUFFIX = ".signed.pdf"; //$NON-NLS-1$
     private static final String PDF_FILE_HEADER = "%PDF-"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(AOPDFSigner.class.getName());
@@ -74,10 +75,8 @@ public final class AOPDFSigner implements AOSigner {
 	 * </a>. */
 	private static final int PDF_MIN_FILE_SIZE = 70;
 
-	/**
-	 * Modo seguro. Si no esta activado se permiten algunas operaciones, como el uso de rutas a los
-	 * datos en algunos extraParams en lugar de proporcionar estos datos en Base64.
-	 */
+	/** Modo seguro. Si no esta activado se permiten algunas operaciones, como el uso de rutas a los
+	 * datos en algunos extraParams en lugar de proporcionar estos datos en Base64. */
 	private static final boolean SECURE_MODE = true;
 
 	// iText tiene ciertos problemas reconociendo ECDSA y a veces usa su OID, por lo que declaramos alias de los
@@ -143,9 +142,9 @@ public final class AOPDFSigner implements AOSigner {
     	final GregorianCalendar signTime = PdfUtil.getSignTime(extraParams.getProperty(PdfExtraParams.SIGN_TIME));
 
         // Sello de tiempo
-        byte[] data = inPDF;
+        final byte[] data;
     	try {
-    		data = PdfTimestamper.timestampPdf(data, extraParams, signTime);
+    		data = PdfTimestamper.timestampPdf(inPDF, extraParams, signTime);
     	}
     	catch (final IOException e) {
 			throw new AOException("Error en la composicion del sello de tiempo de la firma", e); //$NON-NLS-1$
@@ -300,7 +299,6 @@ public final class AOPDFSigner implements AOSigner {
      * @return &Aacute;rbol de nodos de firma o <code>null</code> en caso de error. */
     @Override
     public AOTreeModel getSignersStructure(final byte[] sign, final boolean asSimpleSignInfo) {
-
     	return getSignersStructure(sign, null, asSimpleSignInfo);
     }
 
@@ -334,9 +332,7 @@ public final class AOPDFSigner implements AOSigner {
 			pdfReader = PdfUtil.getPdfReader(sign, params);
     	}
     	catch (final BadPdfPasswordException | PdfIsPasswordProtectedException e) {
-    		LOGGER.info(
-				"El PDF necesita contrasena. Se devolvera el arbol vacio: " + e //$NON-NLS-1$
-			);
+    		LOGGER.info("El PDF necesita contrasena. Se devolvera el arbol vacio: " + e); //$NON-NLS-1$
     		return new AOTreeModel(root);
     	}
     	catch (final Exception e) {
@@ -490,8 +486,8 @@ public final class AOPDFSigner implements AOSigner {
     }
 
     /** Comprueba que los datos proporcionados sean un documento PDF.
-     * @param data Datos a comprobar
-     * @return <code>true</code> si los datos proporcionados son un documento PDF, <code>false</code> en caso contrario */
+     * @param data Datos a comprobar.
+     * @return <code>true</code> si los datos proporcionados son un documento PDF, <code>false</code> en caso contrario. */
     @Override
 	public boolean isValidDataFile(final byte[] data) {
         if (data == null) {
@@ -501,11 +497,9 @@ public final class AOPDFSigner implements AOSigner {
         return isPdfFile(data);
     }
 
-    /** Obtiene el nombre con el que deber&iacute;a guardarse un PDF tras ser
-     * firmado. B&aacute;sicamente se le anexa el sufijo <i>.signed</i> al
-     * nombre original, manteniendo la extensi&oacute;n (se respetan
-     * may&uacute;culas y min&uacute;sculas en esta, pero no se admite una
-     * extensi&oacute;n con mezcla de ambas).
+    /** Obtiene el nombre con el que deber&iacute;a guardarse un PDF tras ser firmado.
+     * B&aacute;sicamente se le anexa el sufijo <i>.signed</i> al nombre original, manteniendo la extensi&oacute;n
+     * (se respetan may&uacute;culas y min&uacute;sculas en esta, pero no se admite una extensi&oacute;n con mezcla de ambas).
      * @param originalName Nombre original del fichero PDF.
      * @return Nombre recomendado para el PDF ya firmado. */
     public static String getSignedName(final String originalName) {
@@ -513,12 +507,12 @@ public final class AOPDFSigner implements AOSigner {
             return "signed.pdf"; //$NON-NLS-1$
         }
         if (originalName.endsWith(PDF_FILE_SUFFIX)) {
-            return originalName.replace(PDF_FILE_SUFFIX, ".signed.pdf"); //$NON-NLS-1$
+            return originalName.replace(PDF_FILE_SUFFIX, SIGNEDPDF_FILE_SUFFIX);
         }
         if (originalName.endsWith(".PDF")) { //$NON-NLS-1$
-            return originalName.replace(".PDF", ".signed.pdf"); //$NON-NLS-1$ //$NON-NLS-2$
+            return originalName.replace(".PDF", SIGNEDPDF_FILE_SUFFIX); //$NON-NLS-1$
         }
-        return originalName + ".signed.pdf"; //$NON-NLS-1$
+        return originalName + SIGNEDPDF_FILE_SUFFIX;
     }
 
     /** Si la entrada es un documento PDF, devuelve el mismo documento PDF.

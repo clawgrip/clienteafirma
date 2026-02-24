@@ -9,42 +9,32 @@
 
 package es.gob.afirma.core;
 
-/**
- * Excepci&oacute;n gen&eacute;rica.
- * @version 1.1
- */
+/** Excepci&oacute;n gen&eacute;rica.
+ * @version 1.1. */
 public class AOException extends Exception {
 
     private static final long serialVersionUID = -662191654860389176L;
 
-    /**
-     * Contruye una excepci&oacute;n gen&eacute;rica con mensaje.
-     */
+    /** Contruye una excepci&oacute;n gen&eacute;rica con mensaje. */
     public AOException() {
     	// Vacio
 	}
 
-    /**
-     * Contruye una excepci&oacute;n gen&eacute;rica con mensaje.
-     * @param msg Descripci&oacute;n del error.
-     */
+    /** Contruye una excepci&oacute;n gen&eacute;rica con mensaje.
+     * @param msg Descripci&oacute;n del error. */
     public AOException(final String msg) {
 		super(msg);
 	}
 
-    /**
-     * Contruye una excepci&oacute;n gen&eacute;rica y define su causa.
-     * @param cause Causa del error.
-     */
+    /** Contruye una excepci&oacute;n gen&eacute;rica y define su causa.
+     * @param cause Causa del error. */
     public AOException(final Throwable cause) {
 		super(cause);
 	}
 
-    /**
-     * Contruye una excepci&oacute;n gen&eacute;rica con mensaje y define su causa.
+    /** Contruye una excepci&oacute;n gen&eacute;rica con mensaje y define su causa.
      * @param msg Descripci&oacute;n del error.
-     * @param cause Causa del error.
-     */
+     * @param cause Causa del error. */
     public AOException(final String msg, final Throwable cause) {
     	super(msg, cause);
 	}

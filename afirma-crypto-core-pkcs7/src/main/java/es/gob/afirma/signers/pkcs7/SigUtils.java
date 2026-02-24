@@ -32,10 +32,10 @@ public final class SigUtils {
         // No permitimos la instanciacion
     }
 
-    /** M&eacute;todo que devuelve el Identificador del algoritmo.
-     * @param oid OID del algoritmo a idenfiticar
+    /** Devuelve el Identificador del algoritmo.
+     * @param oid OID del algoritmo a idenfiticar.
      * @return El identificador del algoritmo formateado y listo para introducir
-     *         en el cms. */
+     *         en el CMS. */
     public static AlgorithmIdentifier makeAlgId(final String oid) {
         return new AlgorithmIdentifier(new ASN1ObjectIdentifier(oid), DERNull.INSTANCE);
     }

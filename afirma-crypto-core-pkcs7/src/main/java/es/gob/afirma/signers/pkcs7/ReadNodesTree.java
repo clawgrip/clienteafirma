@@ -144,7 +144,6 @@ public final class ReadNodesTree {
     private static String getSignatureAlgorithm(final SignerInfo signerInfo) {
     	final String digestAlgoOid = translateDigestOid(signerInfo.getDigestAlgorithm().getAlgorithm());
     	final String encryptionAlgoOid = translateEncryptionOid(signerInfo.getDigestEncryptionAlgorithm().getAlgorithm());
-
     	return digestAlgoOid + "with" + encryptionAlgoOid; //$NON-NLS-1$
     }
 
@@ -323,14 +322,13 @@ public final class ReadNodesTree {
         return ""; //$NON-NLS-1$
     }
 
-    /** A partir de un numero de serie de un certificado, devuelve un array con
-     * el certificado y su cadena de confianza.
+    /** A partir de un numero de serie de un certificado, devuelve un array con el certificado y su cadena de confianza.
      * @param certificates Certificados de los firmantes.
      * @param serialNumber N&uacute;mero de serie del certificado a firmar.
      * @return El certificado (en la posici&oacute;n 0 y su cadena de confianza en orden). */
     private static X509Certificate[] searchCert(final ASN1Set certificates, final ASN1Integer serialNumber) {
     	if (certificates != null) {
-        final Enumeration<?> certSet = certificates.getObjects();
+    		final Enumeration<?> certSet = certificates.getObjects();
 	        while (certSet.hasMoreElements()) {
 	            final X509Certificate c;
 	            try {
@@ -350,8 +348,6 @@ public final class ReadNodesTree {
     }
 
     private static Date getSigningTime(final SignerInfo si) {
-        Date returnDate = null;
-
         if (si.getAuthenticatedAttributes() != null) {
             final Enumeration<?> eAtributes = si.getAuthenticatedAttributes().getObjects();
             while (eAtributes.hasMoreElements()) {
@@ -364,7 +360,7 @@ public final class ReadNodesTree {
                     }
                     else if (timeObject instanceof ASN1GeneralizedTime) {
                     	try {
-                    		returnDate = ((ASN1GeneralizedTime) timeObject).getDate();
+                    		return ((ASN1GeneralizedTime) timeObject).getDate();
                     	}
                         catch (final ParseException ex) {
                             LOGGER.severe("No es posible convertir la fecha: " + ex); //$NON-NLS-1$
@@ -372,7 +368,7 @@ public final class ReadNodesTree {
                     }
                     else if (timeObject instanceof ASN1UTCTime) {
                     	try {
-                    		returnDate = ((ASN1UTCTime) timeObject).getDate();
+                    		return ((ASN1UTCTime) timeObject).getDate();
                     	}
                         catch (final ParseException ex) {
                             LOGGER.severe("No es posible convertir la fecha: " + ex); //$NON-NLS-1$
@@ -384,7 +380,6 @@ public final class ReadNodesTree {
                 }
             }
         }
-
-        return returnDate;
+        return null;
     }
 }

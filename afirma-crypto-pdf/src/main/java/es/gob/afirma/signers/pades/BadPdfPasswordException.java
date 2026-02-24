@@ -13,11 +13,9 @@ import java.util.Properties;
 
 import es.gob.afirma.core.RuntimePasswordNeededException;
 
-/**
- * Indica que el PDF no ha podido abrirse o firmarse por estar protegido por una contrase&ntilde;a distinta
+/** Indica que el PDF no ha podido abrirse o firmarse por estar protegido por una contrase&ntilde;a distinta
  * a la proporcionada (si se proporcion&oacute; alguna).
- * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s
- */
+ * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 public final class BadPdfPasswordException extends RuntimePasswordNeededException {
 
 	/** Serial Id. */
@@ -25,30 +23,24 @@ public final class BadPdfPasswordException extends RuntimePasswordNeededExceptio
 
 	private static final String REQUESTOR_MSG_CODE = "pdfbadpassword"; //$NON-NLS-1$
 
-	/**
-	 * Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse
+	/** Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse
 	 * por estar protegido por contrase&ntilde;a y la que se ha proporcionado no es correcta.
-	 * @param msg Mesaje de error.
-	 */
+	 * @param msg Mesaje de error. */
 	BadPdfPasswordException(final String msg) {
 		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING);
 	}
 
-	/**
-	 * Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse por estar protegido por contrase&ntilde;a
-     * y la que se ha proporcionado no es correcta.
-	 * @param e Causa inicial de la excepci&oacute;n
-	 */
+	/** Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse por estar
+	 * protegido por contrase&ntilde;a y la que se ha proporcionado no es correcta.
+	 * @param e Causa inicial de la excepci&oacute;n. */
 	BadPdfPasswordException(final Throwable e) {
 		super("La contrasena del PDF no es correcta", REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, e); //$NON-NLS-1$
 	}
 
-	/**
-	 * Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse por estar protegido por contrase&ntilde;a
-     * y la que se ha proporcionado no es correcta.
+	/** Crea una excepci&oacute;n que indica que el PDF no ha podido abrirse o firmarse por estar
+	 * protegido por contrase&ntilde;a y la que se ha proporcionado no es correcta.
      * @param msg Mensaje de error.
-	 * @param e Causa inicial de la excepci&oacute;n
-	 */
+	 * @param e Causa inicial de la excepci&oacute;n. */
 	BadPdfPasswordException(final String msg, final Throwable e) {
 		super(msg, REQUESTOR_MSG_CODE, PdfExtraParams.USER_PASSWORD_STRING, e);
 	}

@@ -14,9 +14,7 @@ public abstract class CustomRuntimeConfigNeededException extends RuntimeConfigNe
 	/** Serial Id. */
 	private static final long serialVersionUID = -42502407809095471L;
 
-	/**
-	 * Construye la excepcion con la informaci&oacute;n necesaria para poder solicitar la
-	 * configuraci&oacute;n que se necesite.
+	/** Construye la excepcion con la informaci&oacute;n necesaria para poder solicitar la configuraci&oacute;n que se necesite.
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
@@ -26,22 +24,17 @@ public abstract class CustomRuntimeConfigNeededException extends RuntimeConfigNe
 		super(msg, requestType, requestorText, param);
 	}
 
-	/**
-	 * Construye la excepcion con la informaci&oacute;n necesaria para poder solicitar la
-	 * configuraci&oacute;n que se necesite.
+	/** Construye la excepcion con la informaci&oacute;n necesaria para poder solicitar la configuraci&oacute;n que se necesite.
 	 * @param msg Descripci&oacute;n del error.
 	 * @param requestType Tipo de configuraci&oacute;n necesaria.
 	 * @param requestorText Mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
 	 * @param param Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n proporcionada.
-	 * @param cause Origen del problema.
-	 */
+	 * @param cause Origen del problema. */
 	protected CustomRuntimeConfigNeededException(final String msg, final RequestType requestType, final String requestorText, final String param, final Throwable cause) {
 		super(msg, requestType, requestorText, param, cause);
 	}
 
-	/**
-	 * Modifica la configuraci&oacute;n de la operaci&oacute;n seg&uacute;n la respuesta del usuario.
-	 * @param extraParams Configuraci&oacute;n de la operaci&oacute;n de firma.
-	 */
+	/** Modifica la configuraci&oacute;n de la operaci&oacute;n seg&uacute;n la respuesta del usuario.
+	 * @param extraParams Configuraci&oacute;n de la operaci&oacute;n de firma. */
 	public abstract void prepareOperationWithConfirmation(Properties extraParams);
 }

@@ -46,14 +46,14 @@ public final class AOAlgorithmID {
     private static final String OID_ECDSA_SHA3_256 = "2.16.840.1.101.3.4.3.10"; //$NON-NLS-1$
     private static final String OID_ECDSA_SHA3_384 = "2.16.840.1.101.3.4.3.11"; //$NON-NLS-1$
     private static final String OID_ECDSA_SHA3_512 = "2.16.840.1.101.3.4.3.12"; //$NON-NLS-1$
-    
+
     private static final String OID_DSA = "1.2.840.10040.4.1"; //$NON-NLS-1$
     private static final String OID_DSA_SHA1 = "1.2.840.10040.4.3"; //$NON-NLS-1$
     private static final String OID_DSA_SHA224 = "2.16.840.1.101.3.4.3.1"; //$NON-NLS-1$
     private static final String OID_DSA_SHA256 = "2.16.840.1.101.3.4.3.2"; //$NON-NLS-1$
     private static final String OID_DSA_SHA384 = "2.16.840.1.101.3.4.3.3"; //$NON-NLS-1$
     private static final String OID_DSA_SHA512 = "2.16.840.1.101.3.4.3.4"; //$NON-NLS-1$
-    
+
     private static final String OID_DSA_SHA3_224 = "2.16.840.1.101.3.4.3.5"; //$NON-NLS-1$
     private static final String OID_DSA_SHA3_256 = "2.16.840.1.101.3.4.3.6"; //$NON-NLS-1$
     private static final String OID_DSA_SHA3_384 = "2.16.840.1.101.3.4.3.7"; //$NON-NLS-1$
@@ -119,10 +119,10 @@ public final class AOAlgorithmID {
 
         OIDS.put("SHA512withECDSA", OID_ECDSA_SHA512); //$NON-NLS-1$
         OIDS.put("SHA-512withECDSA", OID_ECDSA_SHA512); //$NON-NLS-1$
-        
+
         OIDS.put("DSA", OID_DSA); //$NON-NLS-1$
         OIDS.put(OID_DSA, OID_DSA);
-        
+
         OIDS.put("SHA1withDSA", OID_DSA_SHA1); //$NON-NLS-1$
         OIDS.put("SHA-1withDSA", OID_DSA_SHA1); //$NON-NLS-1$
 
@@ -149,7 +149,7 @@ public final class AOAlgorithmID {
         OIDS.put("SHA3-256withECDSA", OID_ECDSA_SHA3_256); //$NON-NLS-1$
         OIDS.put("SHA3-384withECDSA", OID_ECDSA_SHA3_384); //$NON-NLS-1$
         OIDS.put("SHA3-512withECDSA", OID_ECDSA_SHA3_512); //$NON-NLS-1$
-        
+
         OIDS.put("SHA3-224withDSA", OID_DSA_SHA3_224); //$NON-NLS-1$
         OIDS.put("SHA3-256withDSA", OID_DSA_SHA3_256); //$NON-NLS-1$
         OIDS.put("SHA3-384withDSA", OID_DSA_SHA3_384); //$NON-NLS-1$
@@ -170,13 +170,13 @@ public final class AOAlgorithmID {
         }
         return res;
     }
-    
+
     /** Indica si el OID pertenece a una encriptaci&oacute;n de tipo RSA o no.
      * @param oid OID del algoritmo.
      * @return true en caso de que sea RSA. */
     public static boolean isRSAOID(final String oid) {
     	boolean isRSA = false;
-    	
+
         if (OID_RSA.equals(oid)
         || OID_RSA_SHA1.equals(oid)
         || OID_RSA_SHA224.equals(oid)
@@ -187,19 +187,19 @@ public final class AOAlgorithmID {
         || OID_RSA_SHA3_256.equals(oid)
         || OID_RSA_SHA3_384.equals(oid)
         || OID_RSA_SHA3_512.equals(oid)) {
-        	
+
         	isRSA = true;
         }
-        
+
         return isRSA;
     }
-    
+
     /** Indica si el OID pertenece a una encriptaci&oacute;n de tipo ECDSA o no.
      * @param oid OID del algoritmo.
      * @return true en caso de que sea ECDSA. */
     public static boolean isECDSAOID(final String oid) {
     	boolean isECDSA = false;
-    	
+
         if (OID_ECDSA_SHA1.equals(oid)
         || OID_ECDSA_SHA224.equals(oid)
         || OID_ECDSA_SHA256.equals(oid)
@@ -209,19 +209,19 @@ public final class AOAlgorithmID {
         || OID_ECDSA_SHA3_256.equals(oid)
         || OID_ECDSA_SHA3_384.equals(oid)
         || OID_ECDSA_SHA3_512.equals(oid)) {
-        	
+
         	isECDSA = true;
         }
-        
+
         return isECDSA;
     }
-    
+
     /** Indica si el OID pertenece a una encriptaci&oacute;n de tipo DSA o no.
      * @param oid OID del algoritmo.
      * @return true en caso de que sea DSA. */
     public static boolean isDSAOID(final String oid) {
     	boolean isDSA = false;
-    	
+
         if (OID_DSA.equals(oid)
         || OID_DSA_SHA1.equals(oid)
         || OID_DSA_SHA224.equals(oid)
@@ -232,11 +232,10 @@ public final class AOAlgorithmID {
         || OID_DSA_SHA3_256.equals(oid)
         || OID_DSA_SHA3_384.equals(oid)
         || OID_DSA_SHA3_512.equals(oid)) {
-        	
+
         	isDSA = true;
         }
-        
+
         return isDSA;
     }
-
 }

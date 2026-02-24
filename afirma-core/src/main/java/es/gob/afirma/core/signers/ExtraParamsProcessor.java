@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import es.gob.afirma.core.SignaturePolicyIncompatibilityException;
 import es.gob.afirma.core.misc.AOUtil;
 
 /** Clase de utilidad para el proceso de propiedades enviadas desde JavaScript
@@ -41,7 +40,7 @@ public final class ExtraParamsProcessor {
 	private static final int MAX_PATH_SIZE = 255;
 
 	/** Manejador del log. */
-	private static final Logger LOGGER = Logger.getLogger(ExtraParamsProcessor.class.getName());
+	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
 	private ExtraParamsProcessor() {
 		/* Constructor no publico */
@@ -63,6 +62,7 @@ public final class ExtraParamsProcessor {
 		if (entries == null) {
 			return params;
 		}
+
 		try {
 			params.load(new ByteArrayInputStream(entries.getBytes()));
 		}
@@ -71,6 +71,7 @@ public final class ExtraParamsProcessor {
 				"Se han encontrado entradas no validas en la configuracion de la operacion: " + e//$NON-NLS-1$
 			);
 		}
+
 		return params;
 	}
 
@@ -92,8 +93,8 @@ public final class ExtraParamsProcessor {
      * </ul>
 	 * @param params Par&aacute;metros definidos para la operaci&oacute;n.
 	 * @return Propiedades expandidas.
-	 * @throws SignaturePolicyIncompatibilityException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
-	public static Properties expandProperties(final Properties params) throws SignaturePolicyIncompatibilityException {
+	 * @throws IncompatiblePolicyException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
+	public static Properties expandProperties(final Properties params) throws IncompatiblePolicyException {
 		return expandProperties(params, null, null);
 	}
 
@@ -117,8 +118,8 @@ public final class ExtraParamsProcessor {
 	 * @param signedData Datos firmados.
 	 * @param format Formato de firma.
 	 * @return Propiedades expandidas.
-	 * @throws SignaturePolicyIncompatibilityException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
-	public static Properties expandProperties(final Properties params, final byte[] signedData, final String format) throws SignaturePolicyIncompatibilityException {
+	 * @throws IncompatiblePolicyException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
+	public static Properties expandProperties(final Properties params, final byte[] signedData, final String format) throws IncompatiblePolicyException {
 		final Properties p = new Properties();
 		for (final String key : params.keySet().toArray(new String[params.size()])) {
 			p.setProperty(key, params.getProperty(key));
@@ -131,8 +132,8 @@ public final class ExtraParamsProcessor {
 	 * @param p Propiedades configuradas.
 	 * @param signedData Datos firmados.
 	 * @param format Formato de firma.
-	 * @throws SignaturePolicyIncompatibilityException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
-	private static void expandPolicyKeys(final Properties p, final byte[] signedData, final String format) throws SignaturePolicyIncompatibilityException {
+	 * @throws IncompatiblePolicyException Si el formato de firma es incompatible con la pol&iacute;tica indicada. */
+	private static void expandPolicyKeys(final Properties p, final byte[] signedData, final String format) throws IncompatiblePolicyException {
 		if (!p.containsKey(EXPANDIBLE_POLICY_KEY)) {
 			return;
 		}
@@ -142,7 +143,7 @@ public final class ExtraParamsProcessor {
 		// Comprobamos que se trate de una politica reconocida que admita la expansion de atributos
 		if (!isSupportedPolicy(policyName)) {
 			p.remove(EXPANDIBLE_POLICY_KEY);
-			throw new SignaturePolicyIncompatibilityException("No se soporta la expansion de atributos para la politica: " + policyName); //$NON-NLS-1$
+			throw new IncompatiblePolicyException("No se soporta la expansion de atributos para la politica: " + policyName); //$NON-NLS-1$
 		}
 
 		// Normalizamos el nombre de formato para simplificar las comprobaciones futuras
@@ -168,7 +169,7 @@ public final class ExtraParamsProcessor {
 		// Cualquier otra combinacion no esta soportada
 		else {
 			p.remove(EXPANDIBLE_POLICY_KEY);
-			throw new SignaturePolicyIncompatibilityException(String.format(
+			throw new IncompatiblePolicyException(String.format(
 					"El formato de firma %1s no esta soportado por la politica %2s", //$NON-NLS-1$
 					format, policyName));
 		}
@@ -206,12 +207,16 @@ public final class ExtraParamsProcessor {
 		return normalizedFormat != null ? normalizedFormat : format;
 	}
 
-	/** Indica si la expansi&oacute;n de propiedades est&aacute; habilitada para una pol&iacute;tica de firma concreta.
+	/**
+	 * Indica si la expansi&oacute;n de propiedades est&aacute; habilitada para una
+	 * pol&iacute;tica de firma concreta.
 	 * @param policyName Nombre de la pol&iacute;tica de firma.
-	 * @return {@code true} si la pol&iacute;tica esta soportada, {@code false} en caso contrario. */
+	 * @return {@code true} si la pol&iacute;tica esta soportada, {@code false} en
+	 * caso contrario.
+	 */
 	private static boolean isSupportedPolicy(final String policyName) {
 		return AdESPolicyPropertiesManager.POLICY_ID_AGE.equals(policyName) ||
-			AdESPolicyPropertiesManager.POLICY_ID_AGE_1_8.equals(policyName);
+				AdESPolicyPropertiesManager.POLICY_ID_AGE_1_8.equals(policyName);
 	}
 
 	/**
@@ -282,22 +287,32 @@ public final class ExtraParamsProcessor {
 	 * @param policyName Nombre de la pol&iacute;tica de firma.
 	 * @param params Conjunto de propiedades en donde hay que establecer los atributos
 	 * de la pol&iacute;tica de firma.
-	 * @throws SignaturePolicyIncompatibilityException Cuando se ha declarado utilizar un subfiltro
+	 * @throws IncompatiblePolicyException Cuando se ha declarado utilizar un subfiltro
 	 * no permitido por la pol&iacute;tica de firma de la AGE.
 	 */
 	private static void setPAdESPolicyAGEAttributes(final String policyName, final Properties params)
-			throws SignaturePolicyIncompatibilityException {
+			throws IncompatiblePolicyException {
 
 		// El subfiltro de las PAdES acorde politica de la AGE debe ser el de CAdES Detached de la ETSI. Si se
 		// declara otro, se lanza un error
 		if (params.containsKey("signatureSubFilter") && //$NON-NLS-1$
 				!ETSI_CADES_DETACHED.equals(params.getProperty("signatureSubFilter"))) { //$NON-NLS-1$
-			throw new SignaturePolicyIncompatibilityException("En PAdES con politica firma AGE debe usarse siempre el filtro '" + //$NON-NLS-1$
+			throw new IncompatiblePolicyException("En PAdES con politica firma AGE debe usarse siempre el filtro '" + //$NON-NLS-1$
 				ETSI_CADES_DETACHED + "'"); //$NON-NLS-1$
 		}
 		params.setProperty("signatureSubFilter", ETSI_CADES_DETACHED); //$NON-NLS-1$
 
 		AdESPolicyPropertiesManager.setProperties(params, policyName, AdESPolicyPropertiesManager.FORMAT_PADES);
+	}
+
+	/** Pol&iacute;tica de firma incompatible con el formato o la configuraci&oacute;n de firma. */
+	public static final class IncompatiblePolicyException extends Exception {
+
+		private static final long serialVersionUID = -6420193548487585455L;
+
+		IncompatiblePolicyException(final String description) {
+			super(description);
+		}
 	}
 
 	/** Establece propiedades de firma concretas para cuando el formato indicado sea "AUTO".
@@ -319,16 +334,15 @@ public final class ExtraParamsProcessor {
 		}
 	}
 
-	/**
-	 * Carga un binario del Properties de las propiedades de configuraci&oacute;n. Este dato
-	 * debe estar codificado en Base 64 o, si no est&aacute; habilitado el modo seguro,
+	/** Carga un binario del Properties de las propiedades de configuraci&oacute;n.
+	 * Este dato debe estar codificado en Base 64 o, si no est&aacute; habilitado el modo seguro,
 	 * podr&iacute;a ser una ruta local desde la que cargar el binario.
 	 * @param extraParams Propiedades de configuraci&oacute;n de las que obtener el binario.
 	 * @param paramName Nombre del par&aacute;metro en el que se encuentra el binario en Base 64
-	 * o desde el que se referencia al mismo.
+	 *                  o desde el que se referencia al mismo.
 	 * @param secureMode Indica si se est&aacute; trabajando en modo seguro ({@code true}) y el
-	 * dato debe estar en las propiedades, o si no estamos en modo seguro ({@code false}) y
-	 * podr&iacute;amos tener una referencia a un fichero local que cargar.
+	 *                   dato debe estar en las propiedades, o si no estamos en modo seguro ({@code false}) y
+	 *                   podr&iacute;amos tener una referencia a un fichero local que cargar.
 	 * @return Datos binarios cargados.
 	 * @throws IOException Cuando no se encuentra el dato en la configuraci&oacute;n o cuando no se puede cargar. */
 	public static byte[] loadByteArrayFromExtraParams(final Properties extraParams, final String paramName,
@@ -346,8 +360,7 @@ public final class ExtraParamsProcessor {
 				try (InputStream is = AOUtil.loadFile(uri)) {
 					content = AOUtil.getDataFromInputStream(is);
 				}
-			}
-			catch (final Exception e) {
+			} catch (final Exception e) {
 				throw new IOException("El propiedad '" + paramName + "' no contiene una ruta valida a un recurso", e); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}

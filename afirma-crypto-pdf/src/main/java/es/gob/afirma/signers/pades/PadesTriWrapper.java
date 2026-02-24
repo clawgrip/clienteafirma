@@ -151,7 +151,7 @@ public final class PadesTriWrapper {
 	}
 
 	private static String getErrorResult(final String desc, final Throwable cause) {
-		return desc + (cause != null ? ": " + cause.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return "ERROR: " + desc + (cause != null ? ": " + cause.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	private static Collection<? extends Certificate> generateCertificates(final InputStream is) throws CertificateException {

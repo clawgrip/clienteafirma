@@ -11,11 +11,9 @@ package es.gob.afirma.signers.pades;
 
 import es.gob.afirma.core.RuntimeConfigNeededException;
 
-/**
- * Indica que el PDF no ha podido firmarse por contener firmas previas no registradas en campos (<i>AcroFields</i>).
+/** Indica que el PDF no ha podido firmarse por contener firmas previas no registradas en campos (<i>AcroFields</i>).
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s
- * @author Carlos Gamuci
- */
+ * @author Carlos Gamuci. */
 public final class PdfHasUnregisteredSignaturesException extends RuntimeConfigNeededException {
 
 	/** Serial Id. */
@@ -23,11 +21,9 @@ public final class PdfHasUnregisteredSignaturesException extends RuntimeConfigNe
 
 	private static final String REQUESTOR_MSG_CODE = "signingPdfWithUnregisteredSigns"; //$NON-NLS-1$
 
-	/**
-	 * Crea una excepci&oacute;n que indica que el PDF no ha podido firmarse por contener firmas previas
+	/** Crea una excepci&oacute;n que indica que el PDF no ha podido firmarse por contener firmas previas
 	 * no registradas en campos (<i>AcroFields</i>).
-	 * @param msg Mensaje de error.
-	 */
+	 * @param msg Mensaje de error. */
 	public PdfHasUnregisteredSignaturesException(final String msg) {
 		super(msg, RequestType.CONFIRM, REQUESTOR_MSG_CODE, PdfExtraParams.ALLOW_COSIGNING_UNREGISTERED_SIGNATURES);
 	}

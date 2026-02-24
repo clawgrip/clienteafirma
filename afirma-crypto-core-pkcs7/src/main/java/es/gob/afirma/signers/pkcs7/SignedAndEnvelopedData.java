@@ -128,11 +128,9 @@ public final class SignedAndEnvelopedData extends ASN1Object {
         if (obj == null || obj instanceof SignedAndEnvelopedData) {
             return (SignedAndEnvelopedData) obj;
         }
-
         if (obj instanceof ASN1Sequence) {
             return new SignedAndEnvelopedData((ASN1Sequence) obj);
         }
-
         throw new IllegalArgumentException("EnvelopedData invalido: " + obj.getClass().getName()); //$NON-NLS-1$
     }
 
@@ -143,36 +141,31 @@ public final class SignedAndEnvelopedData extends ASN1Object {
     }
 
     /** Obtiene los RecipientInfo en forma de Set ASN.1.
-     * @return RecipientInfos
-     */
+     * @return RecipientInfos. */
     public ASN1Set getRecipientInfos() {
         return this.recipientInfos;
     }
 
     /** Obtiene los algoritmos de huella digital en forma de Set ASN.1.
-     * @return Algoritmos de huella digital
-     */
+     * @return Algoritmos de huella digital. */
     public ASN1Primitive getDigestAlgorithms() {
         return this.digestAlgorithms;
     }
 
     /** Obtiene el EncryptedContentInfo.
-     * @return EncryptedContentInfo
-     */
+     * @return EncryptedContentInfo. */
     public EncryptedContentInfo getEncryptedContentInfo() {
         return this.encryptedContentInfo;
     }
 
     /** Obtiene los Certificados en forma de Set ASN.1.
-     * @return Certificados
-     */
+     * @return Certificados. */
     public ASN1Set getCertificates() {
         return this.certificates;
     }
 
     /** Obtiene los SignerInfo en forma de Set ASN.1.
-     * @return SignerInfos
-     */
+     * @return SignerInfos. */
     public ASN1Set getSignerInfos() {
         return this.signerInfos;
     }
@@ -213,6 +206,4 @@ public final class SignedAndEnvelopedData extends ASN1Object {
 
         return new BERSequence(v);
     }
-
-
 }
