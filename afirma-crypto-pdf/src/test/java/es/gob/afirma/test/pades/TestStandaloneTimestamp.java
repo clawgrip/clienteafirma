@@ -18,15 +18,13 @@ import es.gob.afirma.signers.pades.PdfTimestamper;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 final class TestStandaloneTimestamp {
 
-	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
-	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
-	private static final Boolean CATCERT_REQUIRECERT = Boolean.TRUE;
+	private static final String TSP_URL = "http://tss.accv.es:8318/tsa"; //$NON-NLS-1$
+	private static final Boolean TSP_REQUIRECERT = Boolean.TRUE;
 
     private static final Properties EXTRAPARAMS = new Properties();
     static {
-	    EXTRAPARAMS.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-	    EXTRAPARAMS.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-	    EXTRAPARAMS.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
+	    EXTRAPARAMS.put("tsaURL", TSP_URL); //$NON-NLS-1$
+	    EXTRAPARAMS.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
 	    EXTRAPARAMS.put("tsaHashAlgorithm", "SHA-512"); //$NON-NLS-1$ //$NON-NLS-2$
 	    EXTRAPARAMS.put("tsType", PdfTimestamper.TS_LEVEL_SIGN_DOC); //$NON-NLS-1$
     }

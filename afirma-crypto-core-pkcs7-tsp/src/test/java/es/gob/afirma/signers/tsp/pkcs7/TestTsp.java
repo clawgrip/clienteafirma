@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.security.MessageDigest;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -13,21 +14,24 @@ import org.junit.jupiter.api.Test;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 class TestTsp {
 
-	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
-	private static final String CATCERT_TSP_SSL = "https://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
-	private static final boolean CATCERT_REQUIRECERT = true;
+	private static final String TSP_URL = "http://tss.accv.es:8318/tsa"; //$NON-NLS-1$
+	private static final boolean TSP_REQUIRECERT = true;
+
+	public static void main(final String[] args) throws Exception {
+		new TestTsp().testRfc3161TokenHttp();
+	}
 
 	/** Prueba de obtenci&oacute;n directa de <i>token</i> TSP RFC3161 por HTTP.
 	 * @throws Exception En cualquier error */
 	@SuppressWarnings("static-method")
 	@Test
 	@Disabled("Necesita TSA")
-	void TestRfc3161TokenHttp() throws Exception {
+	void testRfc3161TokenHttp() throws Exception {
 
 		final CMSTimestamper cmsTsp = new CMSTimestamper(
-			CATCERT_REQUIRECERT,
-			CATCERT_POLICY,
-			new URI(CATCERT_TSP_SSL),
+			TSP_REQUIRECERT,
+			null,
+			new URI(TSP_URL),
 			null,
 			null,
 			null
@@ -40,6 +44,7 @@ class TestTsp {
 		try (OutputStream fos = new FileOutputStream(File.createTempFile("TSP_", ".asn1"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			fos.write(tspToken);
 		}
+		Assertions.assertNotNull(tspToken);
 		System.out.println(new String(tspToken));
 	}
 }

@@ -33,7 +33,6 @@ import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.cmp.PKIFailureInfo;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
@@ -47,13 +46,7 @@ import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.signers.pkcs7.AOAlgorithmID;
 
-/** Generador local de sellos de tiempo para PKCS#7.
- * Puede probarse de forma sencilla con la TSA de CatCert:
- * <ul>
- *  <li>URL TSP: "http://psis.catcert.net/psis/catcert/tsp"</li>
- *  <li>OID Pol&iacute;tica de sello de tiempo: "0.4.0.2023.1.1"</li>
- *  <li>Requiere certificado: S&iacute;</li>
- * </ul> */
+/** Generador local de sellos de tiempo para PKCS#7. */
 public final class CMSTimestamper {
 
     private static final String SIGNATURE_TIMESTAMP_TOKEN_OID = "1.2.840.113549.1.9.16.2.14"; //$NON-NLS-1$
@@ -98,7 +91,9 @@ public final class CMSTimestamper {
         	}
         }
         this.tsqGenerator.setCertReq(requireCert);
-        this.tsqGenerator.setReqPolicy(new ASN1ObjectIdentifier(policy));
+        if (policy != null) {
+			this.tsqGenerator.setReqPolicy(new ASN1ObjectIdentifier(policy));
+		}
         this.tsaURL = tsa;
         this.tsaPassword = tsaPwd;
         this.tsaUsername = tsaUsr;
@@ -118,13 +113,13 @@ public final class CMSTimestamper {
     }
 
     /** A&ntilde;ade un sello de tiempo a las firmas encontradas dentro de una estructura PKCS#7.
-     * @param pkcs7 Estructura que contiene las firmas a estampar un sello de tiempo
-     * @param hashAlgorithm Algoritmo de huella digital a usar en los sellos de tiempo (si se indica <code>null</code> se usa SHA-1)
-     * @param time Tiempo del sello
-     * @return Nueva estructura PKCS#7 con los sellos de tiempo a&ntilde;adidos
-     * @throws NoSuchAlgorithmException Si no se soporta el algoritmo de huella digital del sello de tiempo
-     * @throws AOException Cuando ocurren errores gen&eacute;ricos
-     * @throws IOException Si hay errores de entrada / salida */
+     * @param pkcs7 Estructura que contiene las firmas a estampar un sello de tiempo.
+     * @param hashAlgorithm Algoritmo de huella digital a usar en los sellos de tiempo.
+     * @param time Tiempo del sello.
+     * @return Nueva estructura PKCS#7 con los sellos de tiempo a&ntilde;adidos.
+     * @throws NoSuchAlgorithmException Si no se soporta el algoritmo de huella digital del sello de tiempo.
+     * @throws AOException Cuando ocurren errores gen&eacute;ricos.
+     * @throws IOException Si hay errores de entrada / salida. */
     public byte[] addTimestamp(final byte[] pkcs7, final String hashAlgorithm, final Calendar time) throws NoSuchAlgorithmException, AOException, IOException {
 
     	final String digestAlgorithm = AOSignConstants.getDigestAlgorithmName(hashAlgorithm);
@@ -158,12 +153,9 @@ public final class CMSTimestamper {
             	 derObj = is.readObject();
              }
              final DERSet derSet = new DERSet(derObj);
-
              final Attribute unsignAtt = new Attribute(new ASN1ObjectIdentifier(SIGNATURE_TIMESTAMP_TOKEN_OID), derSet);
-
              final Hashtable<ASN1ObjectIdentifier, Attribute> ht = new Hashtable<>();
              ht.put(new ASN1ObjectIdentifier(SIGNATURE_TIMESTAMP_TOKEN_OID), unsignAtt);
-
              final AttributeTable unsignedAtts = new AttributeTable(ht);
 
              vNewSigners.add(SignerInformation.replaceUnsignedAttributes(si, unsignedAtts));
@@ -223,8 +215,9 @@ public final class CMSTimestamper {
     public byte[] getTimeStampToken(final byte[] imprint, final String hashAlgorithm, final Calendar time) throws AOException, IOException {
 
 		final TimeStampRequest request = this.tsqGenerator.generate(
-			new ASN1ObjectIdentifier(hashAlgorithm != null ? AOAlgorithmID.getOID(hashAlgorithm) : X509ObjectIdentifiers.id_SHA1.getId()),
-			imprint, BigInteger.valueOf(time != null ? time.getTimeInMillis() : System.currentTimeMillis())
+			new ASN1ObjectIdentifier(AOAlgorithmID.getOID(hashAlgorithm)),
+			imprint,
+			BigInteger.valueOf(time != null ? time.getTimeInMillis() : System.currentTimeMillis())
 		);
 
 		final byte[] requestBytes = request.getEncoded();
@@ -234,7 +227,7 @@ public final class CMSTimestamper {
 			rawResponse = getTSAResponse(requestBytes, prepareConnection());
 		}
 		catch (final IOException e) {
-			throw new AOException("No se ha podido conectar con el servicio La respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
+			throw new AOException("No se ha podido conectar con el servicio o la respuesta de la TSA no tiene un formato valido", e); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			throw new AOException("Error en la generacion del sello de tiempo", e); //$NON-NLS-1$

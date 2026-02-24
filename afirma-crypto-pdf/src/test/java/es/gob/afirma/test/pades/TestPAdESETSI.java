@@ -32,9 +32,8 @@ import es.gob.afirma.signers.pades.AOPDFSigner;
 /** Pruebas PAdES espac&iacute;ficas para el PlugTest de la ETSI. */
 final class TestPAdESETSI {
 
-	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
-	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
-	private static final Boolean CATCERT_REQUIRECERT = Boolean.TRUE;
+	private static final String TSP_URL = "http://tss.accv.es:8318/tsa"; //$NON-NLS-1$
+	private static final Boolean TSP_REQUIRECERT = Boolean.TRUE;
 
     private static final String CERT_PATH = "RequestedKeyCert.p12"; //$NON-NLS-1$
     private static final String CERT_PASS = "1111"; //$NON-NLS-1$
@@ -70,14 +69,12 @@ final class TestPAdESETSI {
         final Properties p2 = new Properties();
 
         final Properties p3 = new Properties();
-        p3.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        p3.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
-        p3.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
+        p3.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        p3.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
 
         final Properties p4 = new Properties();
-        p4.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        p4.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
-        p4.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
+        p4.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        p4.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         p4.setProperty("policyIdentifier", "1.2.3.4.5.2"); //$NON-NLS-1$ //$NON-NLS-2$
         try (InputStream is = ClassLoader.getSystemResourceAsStream(POL_PATH)) {
             p4.setProperty(

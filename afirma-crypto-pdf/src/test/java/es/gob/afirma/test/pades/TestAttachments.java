@@ -24,9 +24,8 @@ class TestAttachments {
 
 	private static final String[] TEST_FILES = { "TEST_PDF.pdf" }; //$NON-NLS-1$
 
-	private static final String CATCERT_POLICY = "0.4.0.2023.1.1"; //$NON-NLS-1$
-	private static final String CATCERT_TSP = "http://psis.catcert.net/psis/catcert/tsp"; //$NON-NLS-1$
-	private static final Boolean CATCERT_REQUIRECERT = Boolean.TRUE;
+	private static final String TSP_URL = "http://tss.accv.es:8318/tsa"; //$NON-NLS-1$
+	private static final Boolean TSP_REQUIRECERT = Boolean.TRUE;
 
     private static final String CERT_PATH = "ANF_PF_Activo.pfx"; //$NON-NLS-1$
     private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
@@ -41,9 +40,8 @@ class TestAttachments {
         P1.setProperty("signatureProductionCity", "madrid"); //$NON-NLS-1$ //$NON-NLS-2$
         P1.setProperty("signerContact", "sink@usa.net"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        P1.put("tsaURL", CATCERT_TSP); //$NON-NLS-1$
-        P1.put("tsaPolicy", CATCERT_POLICY); //$NON-NLS-1$
-        P1.put("tsaRequireCert", CATCERT_REQUIRECERT); //$NON-NLS-1$
+        P1.put("tsaURL", TSP_URL); //$NON-NLS-1$
+        P1.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         P1.put("tsaHashAlgorithm", "SHA1"); //$NON-NLS-1$ //$NON-NLS-2$
 
         P1.setProperty("attach", "RXN0YXMgc29uIGxhcyBtYfFhbml0YXMgcXVlIGNhbnRhYmEgZWwgUmV5IERhdmlkLi4u"); //$NON-NLS-1$ //$NON-NLS-2$
