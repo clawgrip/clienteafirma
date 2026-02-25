@@ -47,21 +47,16 @@ public final class CAdESSignerMetadataHelper {
 		// signerLocationLocalityName
 		final String locality = extraParams.getProperty(CAdESExtraParams.SIGNATURE_PRODUCTION_CITY);
 		if (postalAddress != null || country != null || locality != null) {
-			return new CAdESSignerMetadata(
-				country,
-				locality,
-				postalAddress
-			);
+			return new CAdESSignerMetadata(country, locality, postalAddress);
 		}
 		return null;
 	}
 
-	/** Obtiene la estructura ASN.1 <i>SignerLocation</i> (<i>id-aa-ets-signerLocation</i>) a partir
-	 * de su Bean-
+	/** Obtiene la estructura ASN.1 <i>SignerLocation</i> (<i>id-aa-ets-signerLocation</i>) a partir de su Bean.
 	 * @param csl Metadatos de situaci&oacute;n del firmante en el momento de la firma.
 	 * @return Estructura ASN.1 <i>SignerLocation</i> */
 	public static SignerLocation getSignerLocation(final CAdESSignerMetadata.CAdESSignerLocation csl) {
-		if ((csl == null) || (csl.getCountryName() == null && csl.getLocalityName() == null && csl.getPostalAddress() == null)) {
+		if (csl == null || csl.getCountryName() == null && csl.getLocalityName() == null && csl.getPostalAddress() == null) {
 			return null;
 		}
 		final List<String> postalAddress = csl.getPostalAddress();
@@ -75,12 +70,7 @@ public final class CAdESSignerMetadataHelper {
 		return new SignerLocation(
 			csl.getCountryName() != null ? new DERUTF8String(csl.getCountryName()) : null,
 			csl.getLocalityName() != null ? new DERUTF8String(csl.getLocalityName()) : null,
-			postalAdressAsn1List != null ?
-				new DERSequence(
-					postalAdressAsn1List.toArray(new ASN1Encodable[0])
-				) :
-					null
+			postalAdressAsn1List != null ? new DERSequence(postalAdressAsn1List.toArray(new ASN1Encodable[0])) : null
 		);
 	}
-
 }

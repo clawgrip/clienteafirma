@@ -34,9 +34,7 @@ public final class CommitmentTypeIndicationBean {
 
 	CommitmentTypeIndicationBean(final String id, final List<String> quals) {
 		if (id == null) {
-			throw new IllegalArgumentException(
-				"El obligatorio proporcionar un identificador no nulo" //$NON-NLS-1$
-			);
+			throw new IllegalArgumentException("El obligatorio proporcionar un identificador no nulo"); //$NON-NLS-1$
 		}
 		this.identifier = id;
 		this.qualifiers = quals != null ? new ArrayList<>(quals) : null;
@@ -52,5 +50,4 @@ public final class CommitmentTypeIndicationBean {
 		}
 		return new ArrayList<>(this.qualifiers);
 	}
-
 }

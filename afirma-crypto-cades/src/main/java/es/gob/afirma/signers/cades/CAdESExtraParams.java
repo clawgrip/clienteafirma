@@ -14,8 +14,7 @@ public final class CAdESExtraParams {
 
     /** Si se establece a <code>true</code> omite la inclusi&oacute;n de la
      * pol&iacute;tica de certificaci&oacute;n en el <i>SigningCertificate</i>,
-     * si se establece a <code>false</code> se incluye siempre que el certificado
-     * la declare. */
+     * si se establece a <code>false</code> se incluye siempre que el certificado la declare. */
     public static final String DO_NOT_INCLUDE_POLICY_ON_SIGNING_CERTIFICATE = "doNotIncludePolicyOnSigningCertificate"; //$NON-NLS-1$
 
     /** Algoritmo de huella digital (a usar para la firma) cuando esta se proporciona pre-calculada.
@@ -23,8 +22,7 @@ public final class CAdESExtraParams {
      * es posible trabajar sin proporcionarlos, indicando &uacute;nicamente su huella digital en el par&aacute;metro
      * <code>data</code> y el algoritmo usado para su c&aacute;lculo.<br>
      * <b>Siempre que se de valor a este par&aacute;metro se supondr&aacute; que los datos proporcionados en el
-     * par&aacute;metro <code>data</code> son la huella digital de los datos a firmar, y no los datos a firmar en
-     * s&iacute;.</b> */
+     * par&aacute;metro <code>data</code> son la huella digital de los datos a firmar, y no los datos a firmar en s&iacute;.</b> */
     public static final String PRECALCULATED_HASH_ALGORITHM = "precalculatedHashAlgorithm"; //$NON-NLS-1$
 
     /** Debe establecerse a <code>true</code> si se desea usar la versi&oacute;n 2 del atributo
@@ -33,15 +31,11 @@ public final class CAdESExtraParams {
      *  la versi&oacute;n 2 con las firmas realizadas con cualquier otro algoritmo. */
     public static final String SIGNING_CERTIFICATE_V2 = "signingCertificateV2"; //$NON-NLS-1$
 
-    /**
-     * Modo de firma a usar. El valor explicit indica que no se incluyen los datos firmados, sino una referencia
-     * a estos, mientras que el valor implicit indica que s&iacute; se incluir&aacute;n dentro de la propia firma los datos firmados.
-     */
+    /** Modo de firma a usar. El valor explicit indica que no se incluyen los datos firmados, sino una referencia
+     * a estos, mientras que el valor implicit indica que s&iacute; se incluir&aacute;n dentro de la propia firma los datos firmados. */
     public static final String MODE = "mode"; //$NON-NLS-1$
 
-    /**
-     * Perfil de firma que se desea generar.
-     */
+    /** Perfil de firma que se desea generar. */
 	public static final String PROFILE = "profile"; //$NON-NLS-1$
 
     /**

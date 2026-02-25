@@ -37,7 +37,6 @@ public final class CAdESSignerMetadata {
 		return this.signerLocation;
 	}
 
-
 	/** Direcci&oacute;n del firmante (<i>id-aa-ets-signerLocation</i>).
 	 * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s */
 	public static final class CAdESSignerLocation {
@@ -81,7 +80,5 @@ public final class CAdESSignerMetadata {
 		public List<String> getPostalAddress() {
 			return this.postalAddress != null ? new ArrayList<>(this.postalAddress) : null;
 		}
-
 	}
-
 }

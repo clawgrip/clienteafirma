@@ -33,10 +33,8 @@ final class AOSigPolicyQualifierInfo implements ASN1Encodable {
     private final ASN1ObjectIdentifier sigPolicyQualifierId;
     private final ASN1Encodable sigQualifier;
 
-    /** Crea un nuevo <code>AOSigPolicyQualifierInfo</code> con su calificador
-     * cPSuri.
-     * @param cps
-     *        El CPS (certification practice statement) uri como <code>String</code>. */
+    /** Crea un nuevo <code>AOSigPolicyQualifierInfo</code> con su calificador cPSuri.
+     * @param cps El CPS (certification practice statement) uri como <code>String</code>. */
     AOSigPolicyQualifierInfo(final String cps) {
         this.sigPolicyQualifierId = PKCSObjectIdentifiers.id_spq_ets_uri;
         this.sigQualifier = new DERIA5String(cps);

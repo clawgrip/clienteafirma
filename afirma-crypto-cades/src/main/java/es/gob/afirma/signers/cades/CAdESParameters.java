@@ -71,38 +71,37 @@ public class CAdESParameters {
 
 	private String profileSet = AOSignConstants.DEFAULT_SIGN_PROFILE;
 
-	/**
-	 * Carga la configuraci&oacute;n de firma CAdES a partir del los par&aacute;metros establecidos.
+	/** Carga la configuraci&oacute;n de firma CAdES a partir del los par&aacute;metros establecidos.
 	 * @param data Huella digital de los datos si se establece el
-	 * "precalculatedMessageDigest". Si no, ser&aacute;n los propios datos o el "procesable array"
-	 * de un PDF en caso de querer la firma para incluirla en una PAdES.
+	 *             "precalculatedMessageDigest". Si no, ser&aacute;n los propios datos o el "procesable array"
+	 *             de un PDF en caso de querer la firma para incluirla en una PAdES.
 	 * @param algorithm Algoritmo de firma.
 	 * @param config Par&aacute;metros extra de configuraci&oacute;n.
 	 * @return Par&aacute;metros para la creaci&oacute;n de la firma.
-	 * @throws AOException Cuando ocurre un error grave al procesasr los par&aacute;metros.
-	 */
+	 * @throws AOException Cuando ocurre un error grave al procesasr los par&aacute;metros. */
 	public static CAdESParameters load(final byte[] data, final String algorithm, final Properties config) throws AOException {
 		return load(data, null, algorithm, config);
 	}
 
-	/**
-	 * Carga la configuraci&oacute;n de firma CAdES a partir del los par&aacute;metros establecidos.
+	/** Carga la configuraci&oacute;n de firma CAdES a partir del los par&aacute;metros establecidos.
 	 * @param data Huella digital de los datos si se establece el
-	 * "precalculatedMessageDigest". Si no, ser&aacute;n los propios datos o el "procesable array"
-	 * de un PDF en caso de querer la firma para incluirla en una PAdES.
+	 *             "precalculatedMessageDigest". Si no, ser&aacute;n los propios datos o el "procesable array"
+	 *             de un PDF en caso de querer la firma para incluirla en una PAdES.
 	 * @param signedData Firma previa que se va a cofirmar y de la que se podr&iacute;a extraer
 	 * informaci&oacute;n.
 	 * @param algorithm Algoritmo de firma.
 	 * @param config Par&aacute;metros extra de configuraci&oacute;n.
 	 * @return Par&aacute;metros para la creaci&oacute;n de la firma.
-	 * @throws AOException Cuando ocurre un error grave al procesasr los par&aacute;metros.
-	 */
-	public static CAdESParameters load(final byte[] data, final CMSSignedData signedData, final String algorithm, final Properties config) throws AOException {
+	 * @throws AOException Cuando ocurre un error grave al procesasr los par&aacute;metros. */
+	public static CAdESParameters load(final byte[] data,
+			                           final CMSSignedData signedData,
+			                           final String algorithm,
+			                           final Properties config) throws AOException {
 
 		final CAdESParameters dataConfig = new CAdESParameters();
 
 		// Identificamos si se debe incluir el atributo SigningCertificateV2
-		boolean signingCertificateV2;
+		final boolean signingCertificateV2;
 		if (AOSignConstants.isSHA2SignatureAlgorithm(algorithm)) {
 			signingCertificateV2 = true;
 		}
@@ -118,11 +117,8 @@ public class CAdESParameters {
 		final String precalculatedDigestAlgorithm = config.getProperty(CAdESExtraParams.PRECALCULATED_HASH_ALGORITHM);
 
 		// Comprobamos si tenemos que omitir los datos en la firma o no
-		boolean omitContent = false;
 		final String mode = config.getProperty(CAdESExtraParams.MODE, AOSignConstants.DEFAULT_SIGN_MODE);
-		if (precalculatedDigestAlgorithm != null || AOSignConstants.SIGN_MODE_EXPLICIT.equalsIgnoreCase(mode)) {
-			omitContent = true;
-		}
+		final boolean omitContent = precalculatedDigestAlgorithm != null || AOSignConstants.SIGN_MODE_EXPLICIT.equalsIgnoreCase(mode);
 		dataConfig.setContentNeeded(!omitContent);
 
 		// Algoritmo de huella interna usado finalmente
@@ -217,8 +213,7 @@ public class CAdESParameters {
 				}
 			}
 
-			// Si aun nos falta informacion de la que necesitamos, pero hay firmas previas,
-			// tratamos de extraerla de ellas
+			// Si aun nos falta informacion de la que necesitamos, pero hay firmas previas, tratamos de extraerla de ellas
 			if ((contentHintNeeded && contentTypeOid == null
 					|| mimetypeNeeded && mimeType == null) && signedData != null) {
 
@@ -337,121 +332,92 @@ public class CAdESParameters {
 		return dataConfig;
 	}
 
-	/**
-	 * Recupera la informaci&oacute;n de la pol&iacute;tica de firma configurada para la
+	/** Recupera la informaci&oacute;n de la pol&iacute;tica de firma configurada para la
 	 * generaci&oacute;n de una firma CAdES-EPES o CAdES-B-Level con pol&iacute;tica.
-	 * @return Informaci&oacute;n de la pol&iacute;tica de firma o {@code null} si no se
-	 * estableci&oacute;.
-	 */
+	 * @return Informaci&oacute;n de la pol&iacute;tica de firma o {@code null} si no se estableci&oacute;. */
 	public AdESPolicy getExternalPolicy() {
 		return this.externalPolicy;
 	}
 
-	/**
-	 * Establece la informaci&oacute;n de la pol&iacute;tica de firma configurada para la
+	/** Establece la informaci&oacute;n de la pol&iacute;tica de firma configurada para la
 	 * generaci&oacute;n de una firma CAdES-EPES o CAdES-B-Level con pol&iacute;tica.
-	 * @param externalPolicy Informaci&oacute;n de la pol&iacute;tica de firma.
-	 */
+	 * @param externalPolicy Informaci&oacute;n de la pol&iacute;tica de firma. */
 	public void setExternalPolicy(final AdESPolicy externalPolicy) {
 		this.externalPolicy = externalPolicy;
 	}
 
-	/**
-	 * Indica si la firma se generar&aacute;con el atributo SigningCertificateV2. Este atributo
+	/** Indica si la firma se generar&aacute;con el atributo SigningCertificateV2. Este atributo
 	 * debe establecerse cuando se generen firmas con algoritmos de firma SHA-2 o superiores.
 	 * @return {@code true} si se debe generar una firma con el atributo SigningCertificateV2,
-	 * {@code false} si debe usarse el atributo SigningCertificate.
-	 */
+	 *         {@code false} si debe usarse el atributo SigningCertificate. */
 	public boolean isSigningCertificateV2() {
 		return this.signingCertificateV2;
 	}
 
-	/**
-	 * Establece si debe generarse la firma con el atributo SigningCertificateV2. Este atributo
+	/** Establece si debe generarse la firma con el atributo SigningCertificateV2. Este atributo
 	 * debe establecerse cuando se generen firmas con algoritmos de firma SHA-2 o superiores.
-	 * @param signingCertificateV2 {@code true} si se debe generar una firma con el atributo
-	 * SigningCertificateV2, {@code false} si debe usarse el atributo SigningCertificate.
-	 */
+	 * @param signingCertificateV2 {@code true} si se debe generar una firma con el atributo SigningCertificateV2,
+	 *                             {@code false} si debe usarse el atributo SigningCertificate. */
 	public void setSigningCertificateV2(final boolean signingCertificateV2) {
 		this.signingCertificateV2 = signingCertificateV2;
 	}
 
-	/**
-	 * Indica si debe incorporarse a la firma s&oacute;lo el certificado de firma y no toda la
+	/** Indica si debe incorporarse a la firma s&oacute;lo el certificado de firma y no toda la
 	 * cadena de certificaci&oacute;n.
 	 * @return {@code true} si se debe incorporarse s&oacute;lo el certificado de firma, {@code false}
-	 * si se introduci&aacute; toda la cadena de certificaci&oacute;n.
-	 */
+	 *         si se introduci&aacute; toda la cadena de certificaci&oacute;n. */
 	public boolean isIncludedOnlySigningCertificate() {
 		return this.includedOnlySigningCertificate;
 	}
 
-	/**
-	 * Establece si debe incorporarse a la firma s&oacute;lo el certificado de firma y no toda la
+	/** Establece si debe incorporarse a la firma s&oacute;lo el certificado de firma y no toda la
 	 * cadena de certificaci&oacute;n.
 	 * @param includedOnlySigningCertificate {@code true} si se debe incorporarse s&oacute;lo el
-	 * certificado de firma, {@code false} si se introduci&aacute; toda la cadena de certificaci&oacute;n.
-	 */
+	 *        certificado de firma, {@code false} si se introduci&aacute; toda la cadena de certificaci&oacute;n. */
 	public void setIncludedOnlySigningCertificate(final boolean includedOnlySigningCertificate) {
 		this.includedOnlySigningCertificate = includedOnlySigningCertificate;
 	}
 
-	/**
-	 * Recupera el algorimo de huella digital a utilizar internamente para el calculo de la huella
+	/** Recupera el algorimo de huella digital a utilizar internamente para el calculo de la huella
 	 * de los datos. Es obligatorio indicar el algoritmo de huella.
-	 * @return Nombre del algoritmo de huella digital o {@code null} si no se ha establecido.
-	 */
+	 * @return Nombre del algoritmo de huella digital o {@code null} si no se ha establecido. */
 	public String getDigestAlgorithm() {
 		return this.digestAlgorithm;
 	}
 
-	/**
-	 * Establece el algorimo de huella digital a utilizar internamente para el calculo de la huella
-	 * de los datos.
-	 * @param digestAlgorithm Nombre del algoritmo de huella digital.
-	 */
+	/** Establece el algorimo de huella digital a utilizar internamente para el calculo de la huella de los datos.
+	 * @param digestAlgorithm Nombre del algoritmo de huella digital. */
 	public void setDigestAlgorithm(final String digestAlgorithm) {
 		this.digestAlgorithm = digestAlgorithm;
 	}
 
-	/**
-	 * Recupera la huella digital de los datos a firmar. Esta huella debe generarse con el algoritmo
+	/** Recupera la huella digital de los datos a firmar. Esta huella debe generarse con el algoritmo
 	 * que se obtiene en la llamada a {@code #getDigestAlgorithm()}. Si no se establece, ser&aacute;
 	 * necesario proporcionar e incluir los datos en la firma.
 	 * @return Huella digital de los datos o {@code null} si no se ha establecido.
-	 * @see #getDigestAlgorithm()
-	 */
+	 * @see #getDigestAlgorithm() */
 	public byte[] getDataDigest() {
 		return this.dataDigest != null ? this.dataDigest.clone() : null;
 	}
 
-	/**
-	 * Establece la huella digital de los datos a firmar. Esta huella debe
-	 * generarse con el algoritmo que se obtiene en la llamada a
-	 * {@code #getDigestAlgorithm()}. Si se establece a {@code null} la huella
-	 * se generar&aacute; en el momento de la firma en base a los datos.
-	 * @param dataDigest Huella digital de los datos o {@code null} si no se ha
-	 * establecido.
-	 * @see #getDigestAlgorithm()
-	 */
+	/** Establece la huella digital de los datos a firmar.
+	 * Esta huella debe generarse con el algoritmo que se obtiene en la llamada a {@code #getDigestAlgorithm()}.
+	 * Si se establece a {@code null} la huella se generar&aacute; en el momento de la firma en base a los datos.
+	 * @param dataDigest Huella digital de los datos o {@code null} si no se ha establecido.
+	 * @see #getDigestAlgorithm() */
 	public void setDataDigest(final byte[] dataDigest) {
 		this.dataDigest = dataDigest != null ? dataDigest.clone() : null;
 	}
 
-	/**
-	 * Establece si deben incluirse los datos firmados en la firma.
+	/** Establece si deben incluirse los datos firmados en la firma.
 	 * @param contentNeeded {@code true} si se deben incluirse los datos,
-	 * {@code false} en caso contrario.
-	 */
+	 *                      {@code false} en caso contrario. */
 	public void setContentNeeded(final boolean contentNeeded) {
 		this.contentNeeded = contentNeeded;
 	}
 
-	/**
-	 * Indica si deben incorporarse los datos firmados a la firma. Por defecto, se incluir&aacute;n.
-	 * @return {@code true} si se deben incorporarse los datos, {@code false}
-	 * en caso contrario.
-	 */
+	/** Indica si deben incorporarse los datos firmados a la firma. Por defecto, se incluir&aacute;n.
+	 * @return {@code true} si se deben incorporarse los datos, {@code false} en caso contrario. */
 	public boolean isContentNeeded() {
 		return this.contentNeeded;
 	}

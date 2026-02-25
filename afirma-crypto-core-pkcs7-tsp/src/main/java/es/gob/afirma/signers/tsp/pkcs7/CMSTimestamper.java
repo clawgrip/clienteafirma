@@ -64,15 +64,7 @@ public final class CMSTimestamper {
      * @param tsa URL de la autoridad de sellado de tiempo.
      * @param tsaUsr Nombre de usuario si la TSA requiere autenticaci&oacute;n (puede ser <code>null</code> si no se necesita autenticaci&oacute;n).
      * @param tsaPwd Contrase&ntilde;a del usuario de la TSA (puede ser <code>null</code> si no se necesita autenticaci&oacute;n).
-     * @param extensions Extensiones a a&ntilde;adir a la petici&oacute;n de sello de tiempo.
-     * @param keyStoreFile Fichero de almac&eacute;n del certificado cliente a usar en conexiones SSL.
-     * @param keyStorePassword Contrase&ntilde;a del almac&eacute;n del certificado cliente a usar en conexiones SSL.
-     * @param keyStoreType Tipo de almac&eacute;n del certificado cliente a usar en conexiones SSL (tal y como se especifica en <code>KeyStore.getInstance()</code>).
-     * @param trustStoreFile Fichero de almac&eacute;n para certificados de confianza en conexiones SSL.
-     * @param trustStorePassword Contrase&ntilde;a del almac&eacute;n para certificados de confianza en conexiones SSL.
-     * @param trustStoreType Tipo de almac&eacute;n para certificados de confianza en conexiones SSL (tal y como se especifica en <code>KeyStore.getInstance()</code>).
-     * @param verifyHostname Si se especifica <code>true</code>, se verifica el nombre de <i>host</i> en las comprobaciones SSL, si por el contrario
-     *                       se especifica <code>false</code> se omite esta comprobaci&oacute;n. */
+     * @param extensions Extensiones a a&ntilde;adir a la petici&oacute;n de sello de tiempo. */
     public CMSTimestamper(final boolean requireCert,
                      	  final String policy,
                      	  final URI tsa,

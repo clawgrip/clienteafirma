@@ -593,119 +593,58 @@ public final class PdfExtraParams {
 	/** Pol&iacute;tica de sellado de tiempo. */
 	static final String TSA_POLICY = "tsaPolicy";//$NON-NLS-1$
 
-	/**
-	 * Algoritmo de huella digital a usar para el sello de tiempo (si no se
-	 * establece se usa SHA-1).
-	 */
+	/** Algoritmo de huella digital a usar para el sello de tiempo (si no se establece se usa SHA-1). */
 	static final String TSA_HASH_ALGORITHM = "tsaHashAlgorithm";//$NON-NLS-1$
 
-	/**
-	 * <code>true</code> si se requiere el certificado de la TSA, false en caso
-	 * contrario (si no se establece se asume <code>true</code>).
-	 */
+	/** <code>true</code> si se requiere el certificado de la TSA, false en caso
+	 * contrario (si no se establece se asume <code>true</code>). */
 	static final String TSA_REQUIRE_CERT = "tsaRequireCert";//$NON-NLS-1$
 
 	/** Nombre de usuario de la TSA. */
 	static final String TSA_USR = "tsaUsr";//$NON-NLS-1$
 
-	/**
-	 * Contrase&ntilde;a del usuario de la TSA. Se ignora si no se ha establecido
-	 * adem&aacute;s <code>tsaUsr</code>.
-	 */
+	/** Contrase&ntilde;a del usuario de la TSA. Se ignora si no se ha establecido adem&aacute;s <code>tsaUsr</code>. */
 	static final String TSA_PWD_KEY = "tsaPwd";//$NON-NLS-1$
 
-	/**
-	 * OID de la extensi&oacute;n a a&ntilde;adir a la petici&oacute;n al servidor
-	 * de sello de tiempo (opcional). Solo se permite indicar una extensi&oacute;n.
-	 */
+	/** OID de la extensi&oacute;n a a&ntilde;adir a la petici&oacute;n al servidor
+	 * de sello de tiempo (opcional). Solo se permite indicar una extensi&oacute;n. */
 	static final String TSA_EXTENSION_OID = "tsaExtensionOid";//$NON-NLS-1$
 
-	/**
-	 * Valor, en binario convertido a Base64, de la extensi&oacute;n a a&ntilde;adir
+	/** Valor, en binario convertido a Base64, de la extensi&oacute;n a a&ntilde;adir
 	 * a la petici&oacute;n al servidor de sello de tiempo. Se ignora si no se ha
-	 * establecido adem&aacute;s <code>tsaUsr</code>.
-	 */
+	 * establecido adem&aacute;s <code>tsaUsr</code>. */
 	static final String TSA_EXTENSION_VALUE_BASE64 = "tsaExtensionValueBase64";//$NON-NLS-1$
 
-	/**
-	 * Indica si la extensi&oacute;n indicada en <code>tsaExtensionOid</code> es
+	/** Indica si la extensi&oacute;n indicada en <code>tsaExtensionOid</code> es
 	 * cr&iacute;tica (valor <code>true</code>) o no (valor <code>false</code>). Se
-	 * ignora si no se ha establecido adem&aacute;s <code>tsaUsr</code>.
-	 */
+	 * ignora si no se ha establecido adem&aacute;s <code>tsaUsr</code>. */
 	static final String TSA_EXTENSION_CRITICAL = "tsaExtensionCritical";//$NON-NLS-1$
 
-	/**
-	 * Almac&eacute;n de claves codificado en Base64 que contiene el certificado SSL
-	 * cliente que pedir&aacute; la TSA al establecer la conexi&oacute;n HTTPS.
-	 */
-	static final String TSA_SSL_KEYSTORE = "tsaSslKeyStore";//$NON-NLS-1$
-
-	/**
-	 * Contrase&ntilde;a del almac&eacute;n de claves que contiene el certificado
-	 * SSL cliente para las conexiones HTTPS.
-	 */
-	static final String TSA_SSL_KEYSTORE_PASSWORD_PARAM = "tsaSslKeyStorePassword";//$NON-NLS-1$
-
-	/**
-	 * Tipo del almac&eacute;n de claves que contiene el certificado SSL cliente
-	 * para las conexiones HTTPS.<br>
-	 * El formato <code>JKS</code> puede no funcionar adecuadamente en Android.
-	 */
-	static final String TSA_SSL_KEYSTORE_TYPE = "tsaSslKeyStoreType";//$NON-NLS-1$
-
-	/**
-	 * Almac&eacute;n de confianza en base64 que contiene los certificados emisores
-	 * de confianza del certificado SSL de la TSA.
-	 */
-	static final String TSA_SSL_TRUST_STORE = "tsaSslTrustStore";//$NON-NLS-1$
-
-	/**
-	 * Contrase&ntilde;a del almac&eacute;n de confianza que contiene los
-	 * certificados emisores del certificado SSL de la TSA.
-	 */
-	static final String TSA_SSL_TRUST_STORE_PASSWORD_PARAM = "tsaSslTrustStorePassword";//$NON-NLS-1$
-
-	/**
-	 * Tipo del almac&eacute;n de confianza que contiene los certificados emisores
-	 * del certificado SSL de la TSA.<br>
-	 * El formato <code>JKS</code> puede no funcionar adecuadamente en Android.
-	 */
-	static final String TSA_SSL_TRUST_STORE_TYPE = "tsaSslTrustStoreType";//$NON-NLS-1$
-
-	/**
-	 * Si se indica a <code>true</code> se utilizar&aacute; SigningCertificateV2, si
+	/** Si se indica a <code>true</code> se utilizar&aacute; SigningCertificateV2, si
 	 * se indica cualquier otra cosa SigningCertificateV1. Si no se indica nada, se
-	 * utilizar&aacute; V1 para las firmas SHA1 y V2 para el resto (propiedad
-	 * compartida con CAdES).
-	 */
+	 * utilizar&aacute; V1 para las firmas SHA1 y V2 para el resto (propiedad compartida con CAdES). */
 	static final String SIGNING_CERTIFICATE_V2 = "signingCertificateV2";//$NON-NLS-1$
 
-	/**
-	 * N&uacute;mero de <i>CommitmentTypeIndications</i> a a&ntilde;adir a la
-	 * firma.<br>
-	 * En los par&aacute;metros siguientes, los <i>CommitmentTypeIndications</i> se
-	 * numeran a partir de 0 (cero).
-	 */
+	/** N&uacute;mero de <i>CommitmentTypeIndications</i> a a&ntilde;adir a la firma.
+	 * En los par&aacute;metros siguientes, los <i>CommitmentTypeIndications</i> se numeran a partir de 0 (cero). */
 	public static final String COMMITMENT_TYPE_INDICATIONS = "commitmentTypeIndications";//$NON-NLS-1$
 
-	/**
-	 * Prefijo de las claves con las que se indican las propiedades de los
-	 * <i>Commitment Type Indications</i>. Se utilizar&aacute; este prefijo, seguido
-	 * el n&uacute;mero del commitmentTypeIndication al que queramos referirnos y la
-	 * clave de la propiedad en cuesti&oacute;n. As&iacute; pues, los
-	 * par&aacute;metros son:
+	/** Prefijo de las claves con las que se indican las propiedades de los <i>Commitment Type Indications</i>.
+	 * Se utilizar&aacute; este prefijo, seguido el n&uacute;mero del commitmentTypeIndication al que queramos
+	 * referirnos y la clave de la propiedad en cuesti&oacute;n.
+	 * As&iacute; pues, los par&aacute;metros son:
 	 * <ul>
-	 * <li>commitmentTypeIndication<i>n</i>Identifier</li>
-	 * <li>commitmentTypeIndication<i>n</i>CommitmentTypeQualifiers</li>
+	 *   <li>commitmentTypeIndication<i>n</i>Identifier</li>
+	 *   <li>commitmentTypeIndication<i>n</i>CommitmentTypeQualifiers</li>
 	 * </ul>
 	 */
 	public static final String COMMITMENT_TYPE_INDICATION_PREFIX = "commitmentTypeIndication";//$NON-NLS-1$
-	/**
-	 * Lista de OID separados por el caracter '<i>|</i>' que se aportan como
+
+	/** Lista de OID separados por el caracter '<i>|</i>' que se aportan como
 	 * calificadores adicionales del <i>CommitmentTypeIndication</i> n&uacute;mero
-	 * <i>n</i> (contando desde cero). Atributo opcional.
-	 */
+	 * <i>n</i> (contando desde cero). Atributo opcional. */
 	public static final String COMMITMENT_TYPE_INDICATION_QUALIFIERS = "CommitmentTypeQualifiers";//$NON-NLS-1$
+
 	/**
 	 * Tipo de <i>CommitmentTypeIndication</i> para el
 	 * <i>CommitmentTypeIndication</i> n&uacute;mero <i>n</i> (contando desde cero).
@@ -721,40 +660,25 @@ public final class PdfExtraParams {
 	 */
 	public static final String COMMITMENT_TYPE_INDICATION_IDENTIFIER = "Identifier";//$NON-NLS-1$
 
-	/**
-	 * Texto a escribir dentro de la "capa 4" de la firma visible.<br>
-	 * Este texto se escribe &uacute;nicamente si no se ha especificado una imagen
-	 * de r&uacute;brica.
-	 */
+	/** Texto a escribir dentro de la "capa 4" de la firma visible.<br>
+	 * Este texto se escribe &uacute;nicamente si no se ha especificado una imagen de r&uacute;brica. */
 	public static final String LAYER4_TEXT = "layer4Text";//$NON-NLS-1$
 
-	/**
-	 * Contrase&ntilde;a del pdf en caso de se encuentre protegido contra
-	 * modificaciones y/o aperturas.
-	 */
+	/** Contrase&ntilde;a del pdf en caso de se encuentre protegido contra modificaciones y/o aperturas. */
 	public static final String USER_PASSWORD_STRING = "userPassword";//$NON-NLS-1$
 
-	/**
-	 * Si se indica a {@code true}, se mostrar&aacute; una marca junto a la firma
-	 * visible que el lector de PDF podr&aacute; utilizar para indicar si la firma
-	 * es v&aacute;lida o no.
-	 */
+	/** Si se indica a {@code true}, se mostrar&aacute; una marca junto a la firma visible que el lector
+	 * de PDF podr&aacute; utilizar para indicar si la firma es v&aacute;lida o no. */
 	public static final String INCLUDE_QUESTION_MARK = "includeQuestionMark";//$NON-NLS-1$
 
-	/**
-	 * Indica el tama&ntilde;o que se desea reservar para la firma en el PDF.
-	 */
+	/** Indica el tama&ntilde;o que se desea reservar para la firma en el PDF. */
 	public static final String SIGN_RESERVED_SIZE = "signReservedSize";//$NON-NLS-1$
 
-	/**
-	 * Indica el si se permiten o no ataques PDF Shadow Attacks
-	 */
+	/** Indica el si se permiten o no ataques PDF Shadow Attacks. */
 	public static final String ALLOW_SHADOW_ATTACK = "allowShadowAttack"; //$NON-NLS-1$
 
-	/**
-	 * Indica si se permite firmar un PDF del que se han cambiado valores de los formularios que
-	 * contiene despu&eacute;s de haberlo firmado.
-	 */
+	/** Indica si se permite firmar un PDF del que se han cambiado valores de los formularios que
+	 * contiene despu&eacute;s de haberlo firmado. */
 	public static final String ALLOW_SIGN_MODIFIED_FORM = "allowModifiedForm"; //$NON-NLS-1$
 
 	/**

@@ -10,7 +10,6 @@
 package es.gob.afirma.signers.cades;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.util.GregorianCalendar;
@@ -31,13 +30,11 @@ import es.gob.afirma.signers.pkcs7.ReadNodesTree;
 import es.gob.afirma.signers.tsp.pkcs7.CMSTimestamper;
 import es.gob.afirma.signers.tsp.pkcs7.TsaParams;
 
-/**
- * Manejador de firmas binarias CADES.
+/** Manejador de firmas binarias CADES.
  * Soporta CAdES-BES, CAdES-EPES, CAdES-T y CAdES B-Level. Implementa los m&eacute;todos declarados
  * en el interfaz <code>AOSigner</code>.
  * <p>Un posible ejemplo de uso ser&iacute;a el siguiente:</p>
  * <pre>
- *
  *   // Establecemos los parametros adicionales
  *   final Properties extraParams = new Properties();
  *   extraParams.setProperty(CAdESExtraParams.MODE, AOSignConstants.SIGN_MODE_IMPLICIT);
@@ -55,7 +52,6 @@ import es.gob.afirma.signers.tsp.pkcs7.TsaParams;
  *   // Realizamos la firma CAdES
  *   final AOSigner signer = new AOCAdESSigner();
  *   final byte[] firma = signer.sign("Texto a firmar".getBytes(), "SHA256withRSA", pke, extraParams);
- *
  * </pre>
  * @version 0.4
  */
@@ -63,16 +59,14 @@ public final class AOCAdESSigner implements AOSigner {
 
     private static final Logger LOGGER = Logger.getLogger(AOCAdESSigner.class.getName());
 
-    /**
-     * Firma datos en formato CAdES.
+    /** Firma datos en formato CAdES.
      * @param data Datos que deseamos firmar.
      * @param algorithm Algoritmo a usar para la firma.
      * @param key Clave privada a usar para firmar.
      * @param certChain Cadena de certificaci&oacute;n.
-     * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>)
-     * @return Firma en formato CAdES
-     * @throws AOException Cuando ocurre cualquier problema durante el proceso
-     */
+     * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>).
+     * @return Firma en formato CAdES.
+     * @throws AOException Cuando ocurre cualquier problema durante el proceso. */
     @Override
 	public byte[] sign(final byte[] data,
                        final String algorithm,
@@ -113,11 +107,9 @@ public final class AOCAdESSigner implements AOSigner {
         return applyTimeStamp(cadesSignedData, extraParams);
     }
 
-	/**
-	 * Cofirma datos en formato CAdES a&ntilde;adiendo la nueva firma a una CAdES o CMS ya existente. Para realizar la
-     * cofirma se necesitan los datos originales (que se
-     * firmar&aacute;n normalmente) y la firma sobre la que se realiza la cofirma
-     * (a los que se agregar&aacute; el resultado de la nueva firma).
+	/** Cofirma datos en formato CAdES a&ntilde;adiendo la nueva firma a una CAdES o CMS ya existente.
+	 * Para realizar la cofirma se necesitan los datos originales (que se firmar&aacute;n normalmente) y la firma
+	 * sobre la que se realiza la cofirma (a los que se agregar&aacute; el resultado de la nueva firma).
      * <p>
      *  Nota sobre cofirmas cruzadas entre PKCS#7/CMS y CAdES:<br>
      *  Las cofirmas de un documento dan como resultado varias firmas a un mismo nivel sobre este mismo documento,
@@ -140,8 +132,7 @@ public final class AOCAdESSigner implements AOSigner {
      * @param certChain Cadena de certificaci&oacute;n del certificado de firma.
      * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>).
      * @return Firma CAdES.
-     * @throws AOException Cuando ocurre cualquier problema durante el proceso.
-     */
+     * @throws AOException Cuando ocurre cualquier problema durante el proceso. */
     @Override
 	public byte[] cosign(final byte[] data,
                          final byte[] sign,
@@ -186,9 +177,9 @@ public final class AOCAdESSigner implements AOSigner {
      * @param algorithm Algoritmo a usar para la firma.
      * @param key Clave privada a usar para firmar.
      * @param certChain Cadena de certificaci&oacute;n del certificado de firma.
-     * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>)
-     * @return Firma CAdES
-     * @throws AOException Cuando ocurre cualquier problema durante el proceso */
+     * @param xParams Par&aacute;metros adicionales para la firma (<a href="doc-files/extraparams.html">detalle</a>).
+     * @return Firma CAdES.
+     * @throws AOException Cuando ocurre cualquier problema durante el proceso. */
     @Override
 	public byte[] cosign(final byte[] sign,
                          final String algorithm,
@@ -197,15 +188,14 @@ public final class AOCAdESSigner implements AOSigner {
                          final Properties xParams) throws AOException {
 
     	final Properties extraParams = getExtraParams(xParams);
-
     	checkAlgorithm(algorithm, extraParams);
-
         return new AOCAdESCoSigner().cosign(sign, algorithm, key, certChain, extraParams);
     }
 
 	@Override
-	public AOTreeModel getSignersStructure(final byte[] sign, final Properties params, final boolean asSimpleSignInfo)
-			throws AOInvalidSignatureFormatException, IOException {
+	public AOTreeModel getSignersStructure(final byte[] sign,
+			                               final Properties params,
+			                               final boolean asSimpleSignInfo) throws AOInvalidSignatureFormatException, IOException {
 
     	if (!CAdESValidator.isCAdESValid(sign, false)) {
     		throw new AOInvalidSignatureFormatException("Los datos introducidos no se corresponden con un objeto de firma CAdES"); //$NON-NLS-1$
@@ -219,21 +209,18 @@ public final class AOCAdESSigner implements AOSigner {
         return null;
     }
 
-    /** Recupera el &aacute;rbol de nodos de firma de una firma
-     * electr&oacute;nica CAdES.
+    /** Recupera el &aacute;rbol de nodos de firma de una firma electr&oacute;nica CAdES.
      * Los nodos del &aacute;rbol ser&aacute;n cadena de texto con el CommonName (CN X.500)
      * del titular del certificado usado para cada firma u objetos de tipo <code>AOSimpleSignInfo</code> con la
      * informaci&oacute;n b&aacute;sica de las firmas individuales, dependiendo del
-     * valor del par&aacute;metro <code>asSimpleSignInfo</code>. Los nodos se
-     * mostrar&aacute;n en el mismo orden y con la misma estructura con el que
+     * valor del par&aacute;metro <code>asSimpleSignInfo</code>.
+     * Los nodos se mostrar&aacute;n en el mismo orden y con la misma estructura con el que
      * aparecen en la firma electr&oacute;nica.<br>
-     * Los propios datos se consideran el nodo ra&iacute;z, las firmas y cofirmas
-     * pender&aacute;n directamentede de este.
+     * Los propios datos se consideran el nodo ra&iacute;z, las firmas y cofirmas pender&aacute;n directamentede de este.
      * @param sign Firma electr&oacute;nica de la que se desea obtener la estructura.
-     * @param asSimpleSignInfo Si es <code>true</code> se devuelve un &aacute;rbol con la
-     *        informaci&oacute;n b&aacute;sica de cada firma individual
-     *        mediante objetos <code>AOSimpleSignInfo</code>, si es <code>false</code> un &aacute;rbol con los nombres comunes de los
-     *        titulares de los certificados usados para cada firma.
+     * @param asSimpleSignInfo Si es <code>true</code> se devuelve un &aacute;rbol con la informaci&oacute;n b&aacute;sica
+     *                         de cada firma individual mediante objetos <code>AOSimpleSignInfo</code>, si es <code>false</code>
+     *                         un &aacute;rbol con los nombres comunes de los titulares de los certificados usados para cada firma.
      * @return &Aacute;rbol de nodos de firma o <code>null</code> en caso de error.
      * @throws AOInvalidSignatureFormatException Cuando los datos introducidos no son una firma CAdES.
      * @throws IOException Si ocurren problemas relacionados con la lectura de la firma */
@@ -267,8 +254,7 @@ public final class AOCAdESSigner implements AOSigner {
      * Dado que las firmas CAdES pueden firmar cualquier dato binario, el resultado siempre ser&aacute;
      * <code>true</code> excepto si se proporciona <code>null</code>
      * @param data Datos que deseamos comprobar.
-     * @return <code>true</code> si el dato es v&aacute;aacute;lido para
-     *         firmar, <code>false</code> en caso contrario. */
+     * @return <code>true</code> si el dato es v&aacute;aacute;lido para firmar, <code>false</code> en caso contrario. */
     @Override
 	public boolean isValidDataFile(final byte[] data) {
         if (data == null) {
@@ -387,21 +373,20 @@ public final class AOCAdESSigner implements AOSigner {
      * @param signature Firma CAdES.
      * @param extraParams Configuraci&oacute;n de la operaci&oacute;n.
      * @return La firma con el sello de tiempo o, si no se configur&oacute; o no se
-     * encontraron las dependencias necesarias, la misma firma que se recibi&oacute;.
-     */
+     *         encontraron las dependencias necesarias, la misma firma que se recibi&oacute;. */
     private static byte[] applyTimeStamp(final byte[] signature, final Properties extraParams) {
-
-        // Comprobamos si se ha solicitado sello y se hace en tal caso
-
-        final TsaParams tsaParams = new TsaParams(extraParams);
-        final CMSTimestamper cmsTimestamper = new CMSTimestamper(tsaParams);
-        final String tsaHashAlgorithm = tsaParams.getTsaHashAlgorithm();
-        try {
-			return cmsTimestamper.addTimestamp(signature, tsaHashAlgorithm, new GregorianCalendar());
+		// Comprobamos si se ha solicitado sello y se hace en tal caso
+    	if (extraParams.contains(CAdESExtraParams.TSA_URL)) {
+			try {
+			    final TsaParams tsaParams = new TsaParams(extraParams);
+			    final CMSTimestamper cmsTimestamper = new CMSTimestamper(tsaParams);
+			    final String tsaHashAlgorithm = tsaParams.getTsaHashAlgorithm();
+				return cmsTimestamper.addTimestamp(signature, tsaHashAlgorithm, new GregorianCalendar());
+			}
+			catch (final Exception e) {
+				LOGGER.warning("No se ha podido aplicar el sello de tiempo, se devuelve la firma CMS sin sello: " + e); //$NON-NLS-1$
+			}
 		}
-        catch (final NoSuchAlgorithmException | AOException | IOException e) {
-			LOGGER.warning("No se ha podido aplicar el sello de tiempo, se devuelve la firma CMS sin sello" + e); //$NON-NLS-1$
-			return signature;
-		}
+		return signature;
 	}
 }

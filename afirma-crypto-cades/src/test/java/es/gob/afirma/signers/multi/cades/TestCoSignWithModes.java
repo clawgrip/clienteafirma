@@ -68,6 +68,11 @@ class TestCoSignWithModes {
 
 	private AOSigner signer = null;
 
+	public static void main(final String[] args) throws Exception {
+		final TestCoSignWithModes tst = new TestCoSignWithModes();
+		tst.loadParams();
+	}
+
 	/** Antes de ejecutar cualquier prueba se cargan
 	 * todos los objetos que se vaya a necesitar en las distintas pruebas.
 	 * @throws Exception En cualquier error. */

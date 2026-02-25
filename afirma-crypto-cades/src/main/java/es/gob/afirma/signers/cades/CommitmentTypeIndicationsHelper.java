@@ -96,7 +96,7 @@ public final class CommitmentTypeIndicationsHelper {
 		String identifier;
 		List<String> commitmentTypeQualifiers;
 
-		for(int i = 0; i <= nCtis; i++) {
+		for (int i = 0; i <= nCtis; i++) {
 
 			// Identifier
 			tmpStr = xParams.getProperty(CAdESExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + Integer.toString(i) + CAdESExtraParams.COMMITMENT_TYPE_INDICATION_IDENTIFIER);
@@ -124,19 +124,15 @@ public final class CommitmentTypeIndicationsHelper {
 			}
 
 			ret.add(new CommitmentTypeIndicationBean(identifier, commitmentTypeQualifiers));
-
 		}
 
     	return ret;
 	}
 
-
     static CommitmentTypeIndication generateCommitmentTypeIndication(final CommitmentTypeIndicationBean ctib) {
 
     	if (ctib == null) {
-    		throw new IllegalArgumentException(
-				"El CommitmentTypeIndicationBean no puede ser nulo" //$NON-NLS-1$
-			);
+    		throw new IllegalArgumentException("El CommitmentTypeIndicationBean no puede ser nulo"); //$NON-NLS-1$
     	}
 
     	final ASN1ObjectIdentifier id;
@@ -144,9 +140,7 @@ public final class CommitmentTypeIndicationsHelper {
     		id = new ASN1ObjectIdentifier(ctib.getIdentifier());
     	}
     	catch(final Exception e) {
-    		throw new IllegalArgumentException(
-				"El identificador del CommitmentTypeIndication debe ser un OID valido", e //$NON-NLS-1$
-			);
+    		throw new IllegalArgumentException("El identificador del CommitmentTypeIndication debe ser un OID valido", e); //$NON-NLS-1$
     	}
 
     	if (ctib.getQualifiers() == null || ctib.getQualifiers().isEmpty()) {

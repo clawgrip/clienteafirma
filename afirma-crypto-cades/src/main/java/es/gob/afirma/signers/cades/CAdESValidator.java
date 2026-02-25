@@ -43,9 +43,7 @@ public final class CAdESValidator {
     }
 
     private static Enumeration<?> getCAdESObjects(final byte[] data) throws IOException {
-    	try (
-			final ASN1InputStream is = new ASN1InputStream(data);
-		) {
+    	try (ASN1InputStream is = new ASN1InputStream(data)) {
     		final ASN1Sequence dsq = (ASN1Sequence) is.readObject();
     		return dsq.getObjects();
     	}
@@ -101,9 +99,7 @@ public final class CAdESValidator {
             // Elementos que contienen los elementos OID SignedData
             final ASN1ObjectIdentifier doi = (ASN1ObjectIdentifier) e.nextElement();
             if (!doi.equals(PKCSObjectIdentifiers.signedData)) {
-            	LOGGER.fine(
-    				"Los datos proporcionados no son de tipo SignedData de CAdES (no esta declarado el OID de SignedData)" //$NON-NLS-1$
-				);
+            	LOGGER.fine("Los datos proporcionados no son de tipo SignedData de CAdES (no esta declarado el OID de SignedData)"); //$NON-NLS-1$
         		return false;
             }
 
@@ -136,8 +132,7 @@ public final class CAdESValidator {
 
     /** Verifica que los <code>SignerInfos</code> tengan el par&aacute;metro
      * que identifica que los datos son de tipo CAdES.
-     * @param si <code>SignerInfo</code> para la verificaci&oacute;n del par&aacute;metro
-     *        adecuado.
+     * @param si <code>SignerInfo</code> para la verificaci&oacute;n del par&aacute;metro adecuado.
      * @return si contiene el par&aacute;metro. */
     private static boolean verifySignerInfo(final SignerInfo si) {
         boolean isSignerValid = false;

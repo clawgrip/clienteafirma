@@ -68,10 +68,7 @@ public final class GenCAdESEPESSignedData {
         		new Certificate[] { certChain[0] } : certChain;
 
         // Obtenemos la estructura con los atributos que hay que firmar (Prefirma)
-        final byte[] preSignature = CAdESTriPhaseSigner.preSign(
-    		aplicableCertificateChain,
-            config
-        );
+        final byte[] preSignature = CAdESTriPhaseSigner.preSign(aplicableCertificateChain, config);
 
         // Firmamos la prefirma (PKCS#1)
         final byte[] signatureValue = new AOPkcs1Signer().sign(
@@ -90,7 +87,5 @@ public final class GenCAdESEPESSignedData {
             signatureValue,
             preSignature
         );
-
     }
-
 }

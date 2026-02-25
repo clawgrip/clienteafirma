@@ -9,7 +9,6 @@
 
 package es.gob.afirma.signers.cades;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -249,12 +248,10 @@ public final class CAdESUtils {
      * @param cert Certificado del firmante.
      * @param digestAlgorithmName Nombre del algoritmo de huella digital a usar.
      * @param includePolicyOnSigningCertificate Si se establece a {@code false}, se omite la inclusi&oacute;n de la
-     *                                               pol&iacute;tica de certificaci&oacute;n en el <i>SigningCertificate</i>;
-     *                                               si se establece a {@code true}, se incluye siempre que el certificado
-     *                                               la declare.
+     *                                          pol&iacute;tica de certificaci&oacute;n en el <i>SigningCertificate</i>;
+     *                                          si se establece a {@code true}, se incluye siempre que el certificado la declare.
      * @param includeIssuerSerial Si se establece a {@code false}, se omite la inclusi&oacute;n del n&uacute;mero
-     *                                               de serie del issuer en el atributo <i>SigningCertificate</i>;
-     *                                               si se establece a {@code true}, se incluye.
+     *                            de serie del issuer en el atributo <i>SigningCertificate</i>; si se establece a {@code true}, se incluye.
      * @return Estructura <i>SigningCertificate</i> seg&uacute;n RFC 5035.
      * @throws CertificateEncodingException Si el certificado proporcionado no es v&aacute;lido.
      * @throws NoSuchAlgorithmException Si no se soporta el algoritmo de huella indicado. */
@@ -262,17 +259,19 @@ public final class CAdESUtils {
                                                      final String digestAlgorithmName,
                                                      final boolean includePolicyOnSigningCertificate,
                                                      final boolean includeIssuerSerial) throws CertificateEncodingException,
-                                                                                                                  NoSuchAlgorithmException {
-
+                                                                                               NoSuchAlgorithmException {
         // INICIO SINGNING CERTIFICATE
 
         final GeneralName gn = new GeneralName(X500Name.getInstance(cert.getIssuerX500Principal().getEncoded()));
         final GeneralNames gns = new GeneralNames(gn);
 
-        IssuerSerial issuerSerial = null;
+        final IssuerSerial issuerSerial;
         if (includeIssuerSerial) {
         	issuerSerial = new IssuerSerial(gns, cert.getSerialNumber());
         }
+        else {
+			issuerSerial = null;
+		}
 
         final byte[] certHash = MessageDigest.getInstance(digestAlgorithmName).digest(cert.getEncoded());
         final ESSCertID essCertID = new ESSCertID(certHash, issuerSerial);
@@ -282,8 +281,7 @@ public final class CAdESUtils {
 
         if (polInfo != null) {
 
-             // HAY QUE HACER UN SEQUENCE, YA QUE EL CONSTRUCTOR DE BOUNCY
-             // CASTLE NO TIENE DICHO CONSTRUCTOR.
+             // HAY QUE HACER UN SEQUENCE, YA QUE EL CONSTRUCTOR DE BOUNCYCASTLE NO TIENE DICHO CONSTRUCTOR.
 
             final ASN1EncodableVector v = new ASN1EncodableVector();
             v.add(new DERSequence(essCertID));
@@ -294,10 +292,7 @@ public final class CAdESUtils {
             scv = new SigningCertificate(essCertID); // Sin politica
         }
 
-        return new Attribute(
-			PKCSObjectIdentifiers.id_aa_signingCertificate,
-			new DERSet(scv)
-		);
+        return new Attribute(PKCSObjectIdentifiers.id_aa_signingCertificate, new DERSet(scv));
     }
 
     private static DERSet getSigPolicyAttribute(final String digestAlgorithmName, final AdESPolicy policy) {
@@ -334,23 +329,22 @@ public final class CAdESUtils {
 
         final DigestInfo otherHashAlgAndValue = new DigestInfo(hashid, hashed);
 
-        AOSigPolicyQualifierInfo spqInfo = null;
-        if(policy.getPolicyQualifier() != null) {
+        final AOSigPolicyQualifierInfo spqInfo;
+        if (policy.getPolicyQualifier() != null) {
             spqInfo = new AOSigPolicyQualifierInfo(policy.getPolicyQualifier().toString());
         }
+        else {
+			spqInfo = null;
+		}
 
         final ASN1EncodableVector v = new ASN1EncodableVector();
-        // sigPolicyId
-        v.add(doiSigPolicyId);
-        // sigPolicyHash
-        v.add(otherHashAlgAndValue.toASN1Primitive()); // como sequence
-        // sigPolicyQualifiers
+        v.add(doiSigPolicyId); // sigPolicyId
+        v.add(otherHashAlgAndValue.toASN1Primitive()); // sigPolicyHash, como sequence
         if (spqInfo != null) {
-            v.add(new DERSequence(spqInfo.toASN1Primitive()));
+            v.add(new DERSequence(spqInfo.toASN1Primitive())); // sigPolicyQualifiers
         }
 
         final DERSequence ds = new DERSequence(v);
-
         return new DERSet(ds.toASN1Primitive());
     }
 
@@ -364,14 +358,10 @@ public final class CAdESUtils {
      * @throws java.io.IOException Cuando se produce un error de entrada/salida.
      * @throws CertificateEncodingException Error de codificaci&oacute;n en el certificado.
      * @throws IllegalArgumentException Cuando no se ha proporcionado ni los datos ni la huella digital a firmar. */
-    public static ASN1EncodableVector generateSignedAttributes(
-    		final Certificate cert,
-    		final CAdESParameters config,
-    		final boolean isCountersign)
-    				throws NoSuchAlgorithmException,
-    						IOException,
-    						CertificateEncodingException {
-
+    public static ASN1EncodableVector generateSignedAttributes(final Certificate cert,
+    		                                                   final CAdESParameters config,
+    		                                                   final boolean isCountersign) throws NoSuchAlgorithmException,
+    						                                                                       CertificateEncodingException {
         // Listado de atributos que se van a firmar
         final ASN1EncodableVector contextSpecific = new ASN1EncodableVector();
 
@@ -380,12 +370,7 @@ public final class CAdESUtils {
         // ContentType (https://tools.ietf.org/html/rfc3852#section-11.1) es obligatorio excepto en
         // contrafirmas (donde no debe aparecer nunca). Debe tener siempre el valor "id-data"
         if (!isCountersign) {
-	        contextSpecific.add(
-	    		new Attribute(
-					CMSAttributes.contentType,
-					new DERSet(PKCSObjectIdentifiers.data)
-				)
-			);
+	        contextSpecific.add(new Attribute(CMSAttributes.contentType, new DERSet(PKCSObjectIdentifiers.data)));
         }
 
         // MessageDigest (https://tools.ietf.org/html/rfc3852#section-11.2)
@@ -444,21 +429,21 @@ public final class CAdESUtils {
 			final ContentHints contentHints;
 			if (config.getContentDescription() != null) {
 				contentHints = new ContentHints(
-						new ASN1ObjectIdentifier(config.getContentTypeOid()),
-						new DERUTF8String(config.getContentDescription())
-						);
+					new ASN1ObjectIdentifier(config.getContentTypeOid()),
+					new DERUTF8String(config.getContentDescription())
+				);
 			}
 			else {
 				contentHints = new ContentHints(
-						new ASN1ObjectIdentifier(config.getContentTypeOid())
-						);
+					new ASN1ObjectIdentifier(config.getContentTypeOid())
+				);
 			}
 			contextSpecific.add(
-					new Attribute(
-							PKCSObjectIdentifiers.id_aa_contentHint,
-							new DERSet(contentHints.toASN1Primitive())
-							)
-					);
+				new Attribute(
+					PKCSObjectIdentifiers.id_aa_contentHint,
+					new DERSet(contentHints.toASN1Primitive())
+				)
+			);
 		}
 
         // Atributos adicionales segun seccion 5.11 de RFC 5126
@@ -518,6 +503,7 @@ public final class CAdESUtils {
 
         	final ASN1EncodableVector claimedRoles = getSignerClaimedRoles(config.getClaimedRoles());
         	if (claimedRoles != null) {
+
         		// Identificamos el OID con el que se van a declarar los roles, que dependera del perfil
         		ASN1ObjectIdentifier signerAttrOid = null;
         		if (AOSignConstants.SIGN_PROFILE_ADVANCED.equals(config.getProfileSet()) ) {
@@ -526,6 +512,7 @@ public final class CAdESUtils {
         		else if (AOSignConstants.SIGN_PROFILE_BASELINE.equals(config.getProfileSet()) ) {
         			signerAttrOid = new ASN1ObjectIdentifier(CAdESAttributes.OID_ID_AE_ETS_SIGNER_ATTR_V2);
         		}
+
         		// Agregamos los roles
         		if (signerAttrOid != null) {
         			contextSpecific.add(
@@ -538,9 +525,8 @@ public final class CAdESUtils {
         	}
         }
 
-        // La fecha de firma (https://tools.ietf.org/html/rfc3852#section-11.3), no se anade a
-        // las firmas PAdES, pero es obligatoria en CAdES. La agregaremos cuando no estemos
-        // generando una firma PAdES o cuando se fuerce a
+        // La fecha de firma (https://tools.ietf.org/html/rfc3852#section-11.3), no se anade a las firmas PAdES,
+        // pero es obligatoria en CAdES. La agregaremos cuando no estemos generando una firma PAdES o cuando se fuerce
         if (config.getSigningTime() != null) {
         	contextSpecific.add(
     			new Attribute(
@@ -550,8 +536,7 @@ public final class CAdESUtils {
 			);
         }
 
-        // El mimetype de los datos firmados. Solo se agrega si se indica expresamente y nunca
-        // en las contrafirmas
+        // El mimetype de los datos firmados. Solo se agrega si se indica expresamente y nunca en las contrafirmas
         if (!isCountersign && config.getMimeType() != null) {
         	contextSpecific.add(
     			new Attribute(
@@ -564,27 +549,18 @@ public final class CAdESUtils {
         return contextSpecific;
     }
 
-    /**
-     * Crea un vector de atributos con los claimed roles declarados.
+    /** Crea un vector de atributos con los claimed roles declarados.
      * @param claimedRoles Roles declarados.
-     * @return Vector de atributos con los roles para su uso en signer-attributes
-     * o signer-attributes-v2.
-     */
+     * @return Vector de atributos con los roles para su uso en signer-attributes o signer-attributes-v2. */
     private static ASN1EncodableVector getSignerClaimedRoles(final String[] claimedRoles) {
 
     	// Creamos un listado de roles con el ID de rol utilizado en los certificados
     	final ASN1EncodableVector roles = new ASN1EncodableVector();
     	for (final String role : claimedRoles) {
     		if (role != null && !role.isEmpty()) {
-    			roles.add(
-					new Attribute(
-						X509AttributeIdentifiers.id_at_role,
-						new DERSet(new DERUTF8String(role))
-					)
-    			);
+    			roles.add(new Attribute(X509AttributeIdentifiers.id_at_role, new DERSet(new DERUTF8String(role))));
     		}
     	}
-
 		return roles.size() > 0 ? roles : null;
 	}
 

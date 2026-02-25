@@ -147,7 +147,7 @@ public class TestPAdES {
         //********* TSA ********************************************************************
         //**********************************************************************************
         extraParams.put("tsaURL", TSP_URL); //$NON-NLS-1$
-        extraParams.put("tsaPolicy", TSP_POLICY); //$NON-NLS-1$
+        extraParams.put("tsaPolicy", null); //$NON-NLS-1$
         extraParams.put("tsaRequireCert", TSP_REQUIRECERT); //$NON-NLS-1$
         extraParams.put("tsaHashAlgorithm", "SHA-256"); //$NON-NLS-1$ //$NON-NLS-2$
         extraParams.put("tsType", PdfTimestamper.TS_LEVEL_SIGN_DOC); //$NON-NLS-1$

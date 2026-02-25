@@ -75,6 +75,13 @@ public final class CadesTriWrapper {
 		return Base64.getEncoder().encodeToString(preSign);
 	}
 
+	/** Obtiene la postfirma (en Base64) de una firma CAdES.
+	 * @param signAlgorithm Algoritmo de firma.
+	 * @param fileTbsAsBase64 Documento a firmar (como Base64).
+	 * @param certChainAsPem Cadena de certificados del firmante (como PEM).
+	 * @param signatureAsBase64 Firma de los atributos firmados CAdES.
+	 * @param preSignAsBase64 Prefirma (como Base64).
+	 * @return Firma CAdES (como Base64). */
 	public static String getPostsign(final String signAlgorithm,
                                      final String fileTbsAsBase64,
                                      final String certChainAsPem,

@@ -201,9 +201,7 @@ public final class CAdESTriPhaseSigner {
         final TBSCertificate tbsCertificateStructure;
         try {
             tbsCertificateStructure = TBSCertificate.getInstance(
-        		ASN1Primitive.fromByteArray(
-    				((X509Certificate) signerCertificateChain[0]).getTBSCertificate()
-				)
+        		ASN1Primitive.fromByteArray(((X509Certificate) signerCertificateChain[0]).getTBSCertificate())
     		);
         }
         catch(final Exception e) {
@@ -292,11 +290,7 @@ public final class CAdESTriPhaseSigner {
         final List<ASN1Encodable> ce = new ArrayList<>();
         for (final Certificate cert : signerCertificateChain) {
             try {
-                ce.add(
-            		org.bouncycastle.asn1.x509.Certificate.getInstance(
-        				ASN1Primitive.fromByteArray(cert.getEncoded())
-    				)
-        		);
+                ce.add(org.bouncycastle.asn1.x509.Certificate.getInstance(ASN1Primitive.fromByteArray(cert.getEncoded())));
             }
             catch(final Exception e) {
                 Logger.getLogger(CAdESTriPhaseSigner.class.getName()).severe(
