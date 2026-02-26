@@ -15,7 +15,7 @@ package es.gob.afirma.core.signers;
  * <ul>
  * <li>Formato de firma: Formato general de la firma (p.e. CAdES, XAdES,...)</li>
  * <li>Variante: Variante del formato de firma (p.e. Enveloped, Detached,...)</li>
- * <li>URL de firma: URL desde donde descargar el fichero de firma.  Esta
+ * <li>URL de firma: URL desde donde descargar el fichero de firma. Esta
  * informaci&oacute;n puede haberse insertado en alg&uacute;n campo no estandarizado.</li>
  * <li>URL de datos: URL desde donde descargar el fichero de datos. Esta
  * informaci&oacute;n puede haberse insertado en alg&uacute;n campo no estandarizado.</li>
@@ -60,58 +60,41 @@ public final class AOSignInfo {
         this.variant = variant;
     }
 
-    /**
-     * Recupera la URL en la que se puede encontrar la firma.
-     * Si no se conoce o no se ha podido obtener esta URL, se
-     * devolver&aacute;a {@code null}.
-     * @return URL de la firma.
-     */
+    /** Recupera la URL en la que se puede encontrar la firma.
+     * Si no se conoce o no se ha podido obtener esta URL, se devolver&aacute;a {@code null}.
+     * @return URL de la firma. */
     public String getUrlSignObject() {
         return this.urlSignObject;
     }
 
-    /**
-     * /**
-     * Establece la URL en la que se puede encontrar la firma.
-     * @param urlSignObject URL de la firma.
-     */
+    /** Establece la URL en la que se puede encontrar la firma.
+     * @param urlSignObject URL de la firma. */
     public void setUrlSignObject(final String urlSignObject) {
         this.urlSignObject = urlSignObject;
     }
 
-    /**
-     * Recupera la URL en la que se pueden encontrar los datos que se firmaron.
-     * Si no se conoce o no se ha podido obtener esta URL, se
-     * devolver&aacute;a {@code null}.
-     * @return URL de los datos que se han firmado.
-     */
+    /** Recupera la URL en la que se pueden encontrar los datos que se firmaron.
+     * Si no se conoce o no se ha podido obtener esta URL, se devolver&aacute;a {@code null}.
+     * @return URL de los datos que se han firmado. */
     public String getUrlSignedData() {
         return this.urlSignedData;
     }
 
-    /**
-     * Establece la URL en la que se pueden encontrar los datos que se firmaron.
-     * @param urlSignedData URL de los datos que se han firmado.
-     */
+    /** Establece la URL en la que se pueden encontrar los datos que se firmaron.
+     * @param urlSignedData URL de los datos que se han firmado. */
     public void setUrlSignedData(final String urlSignedData) {
         this.urlSignedData = urlSignedData;
     }
 
-    /**
-     * Recupera el c&oacute;digo de verificaci&oacute;n de la firma en base 64.
-     * Si no se conoce o no se ha podido obtener este c&oacute;digo, se
-     * devolver&aacute;a {@code null}.
-     * @return C&oacute;digo de verificaci&oacute;n de la firma.
-     */
+    /** Recupera el c&oacute;digo de verificaci&oacute;n de la firma en Base64.
+     * Si no se conoce o no se ha podido obtener este c&oacute;digo, se devolver&aacute;a {@code null}.
+     * @return C&oacute;digo de verificaci&oacute;n de la firma. */
     public String getB64VerificationCode() {
         return this.b64VerificationCode;
     }
 
-    /**
-     * Establece el c&oacute;digo de verificaci&oacute;n de la firma en base 64.
-     * @param b64VerificationCode C&oacute;digo de verificaci&oacute;n de la firma
-     * en base 64.
-     */
+    /** Establece el c&oacute;digo de verificaci&oacute;n de la firma en Base64.
+     * @param b64VerificationCode C&oacute;digo de verificaci&oacute;n de la firma en Base64. */
     public void setB64VerificationCode(final String b64VerificationCode) {
         this.b64VerificationCode = b64VerificationCode;
     }

@@ -464,18 +464,14 @@ public class CAdESParameters {
 		return this.contentTypeOid;
 	}
 
-	/**
-	 * Establece el OID correspondiente al tipo de contenido.
-	 * @param contentTypeOid OID del tipo de contenido.
-	 */
+	/** Establece el OID correspondiente al tipo de contenido.
+	 * @param contentTypeOid OID del tipo de contenido. */
 	public void setContentTypeOid(final String contentTypeOid) {
 		this.contentTypeOid = contentTypeOid;
 	}
 
-	/**
-	 * Recupera el texto descriptivo del tipo de contenido.
-	 * @return Descripci&oacute;n del tipo de contenido o {@code null} si no se estableci&oacute;.
-	 */
+	/** Recupera el texto descriptivo del tipo de contenido.
+	 * @return Descripci&oacute;n del tipo de contenido o {@code null} si no se estableci&oacute;. */
 	public String getContentDescription() {
 		return this.contentDescription;
 	}

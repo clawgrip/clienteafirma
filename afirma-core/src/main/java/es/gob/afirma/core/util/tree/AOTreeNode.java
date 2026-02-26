@@ -115,15 +115,11 @@ public final class AOTreeNode {
 
     /** Returns the index of the specified child in this node's child array. If
      * the specified node is not a child of this node, returns <code>-1</code>.
-     * This method performs a linear search and is O(n) where n is the number of
-     * children.
-     * @param aChild
-     *        the TreeNode to search for among this node's children
-     * @exception IllegalArgumentException
-     *            if <code>aChild</code> is null
+     * This method performs a linear search and is O(n) where n is the number of children.
+     * @param aChild the TreeNode to search for among this node's children
+     * @exception IllegalArgumentException if <code>aChild</code> is null
      * @return an int giving the index of the node in this node's child array,
-     *         or <code>-1</code> if the specified node is a not a child of this
-     *         node */
+     *         or <code>-1</code> if the specified node is a not a child of this node. */
     private int getIndex(final AOTreeNode aChild) {
         if (aChild == null) {
             throw new IllegalArgumentException("Argumento nulo"); //$NON-NLS-1$
@@ -141,18 +137,13 @@ public final class AOTreeNode {
         return this.userObject;
     }
 
-    /** Removes <code>aChild</code> from this node's child array, giving it a
-     * null parent.
-     * @param aChild
-     *        a child of this node to remove
-     * @exception IllegalArgumentException
-     *            if <code>aChild</code> is null or is not a child of this
-     *            node */
+    /** Removes <code>aChild</code> from this node's child array, giving it a null parent.
+     * @param aChild a child of this node to remove
+     * @exception IllegalArgumentException if <code>aChild</code> is null or is not a child of this node. */
     private void remove(final AOTreeNode aChild) {
         if (aChild == null) {
             throw new IllegalArgumentException("Argumento nulo"); //$NON-NLS-1$
         }
-
         if (!isNodeChild(aChild)) {
             throw new IllegalArgumentException("El argumento no es un hijo"); //$NON-NLS-1$
         }
@@ -162,12 +153,9 @@ public final class AOTreeNode {
     /** Removes <code>newChild</code> from its parent and makes it a child of
      * this node by adding it to the end of this node's child array.
      * @see #insert
-     * @param newChild
-     *        node to add as a child of this node
-     * @exception IllegalArgumentException
-     *            if <code>newChild</code> is null
-     * @exception IllegalStateException
-     *            if this node does not allow children */
+     * @param newChild node to add as a child of this node.
+     * @exception IllegalArgumentException if <code>newChild</code> is null.
+     * @exception IllegalStateException if this node does not allow children. */
     public void add(final AOTreeNode newChild) {
         if (newChild != null && newChild.getParent() == this) {
             insert(newChild, getChildCount() - 1);
@@ -179,11 +167,9 @@ public final class AOTreeNode {
 
     /** Returns true if <code>anotherNode</code> is an ancestor of this node --
      * if it is this node, this node's parent, or an ancestor of this node's
-     * parent. (Note that a node is considered an ancestor of itself.) If <code>anotherNode</code> is null, this method returns false. This
-     * operation is at worst O(h) where h is the distance from the root to this
-     * node.
-     * @param anotherNode
-     *        node to test as an ancestor of this node
+     * parent. (Note that a node is considered an ancestor of itself.) If <code>anotherNode</code> is null, this method returns false.
+     * This operation is at worst O(h) where h is the distance from the root to this node.
+     * @param anotherNode node to test as an ancestor of this node
      * @return true if this node is a descendant of <code>anotherNode</code> */
     private boolean isNodeAncestor(final AOTreeNode anotherNode) {
         if (anotherNode == null) {
@@ -191,7 +177,6 @@ public final class AOTreeNode {
         }
 
         AOTreeNode ancestor = this;
-
         do {
             if (ancestor.equals(anotherNode)) {
                 return true;
@@ -203,15 +188,10 @@ public final class AOTreeNode {
     }
 
     private boolean isNodeChild(final AOTreeNode aNode) {
-        boolean retval;
-
         if (aNode == null || getChildCount() == 0) {
-            retval = false;
-        } else {
-		    retval = aNode.getParent() == this;
-		}
-
-        return retval;
+            return false;
+        }
+		return aNode.getParent() == this;
     }
 
     /** Returns true if this node has no children. To distinguish between nodes

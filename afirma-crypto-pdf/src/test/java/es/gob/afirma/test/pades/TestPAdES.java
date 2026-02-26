@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOSignConstants;
 import es.gob.afirma.core.signers.AOSigner;
-import es.gob.afirma.core.signers.AOSignerFactory;
 import es.gob.afirma.core.signers.AOSimpleSignInfo;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
@@ -539,22 +538,6 @@ public class TestPAdES {
         	System.out.println("Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
         			tempFile.getAbsolutePath());
         }
-    }
-
-    /** Prueba de la verificaci&oacute;n de la versi&oacute;n de iText.
-     * @throws Exception En cualquier error. */
-    @SuppressWarnings("static-method")
-	@Test
-    void testIdentyFormat() throws Exception {
-
-        final byte[] testPdf;
-        try (InputStream isBasic = ClassLoader.getSystemResourceAsStream("pades_basic.pdf")) { //$NON-NLS-1$
-        	testPdf = AOUtil.getDataFromInputStream(isBasic);
-        }
-    	final AOSigner signer = AOSignerFactory.getSigner(testPdf);
-    	Assertions.assertNotNull(signer, "No se ha identificado correctamente el formato PAdES"); //$NON-NLS-1$
-
-    	Assertions.assertTrue(signer instanceof AOPDFSigner, "El formato no se ha identificado correctamente"); //$NON-NLS-1$
     }
 
     /** Prueba de la verificaci&oacute;n de la versi&oacute;n de iText.

@@ -85,8 +85,7 @@ public final class SignedAndEnvelopedData extends ASN1Object {
     }
 
     /** Crea un objecto CMS SignedAndEnvelopedData a partir de una Secuencia ASN.1.
-     * @param seq Secuencia ASN.1 origen
-     */
+     * @param seq Secuencia ASN.1 origen. */
     public SignedAndEnvelopedData(final ASN1Sequence seq) {
         int index = 0;
         this.version = (ASN1Integer) seq.getObjectAt(index++);
@@ -111,19 +110,15 @@ public final class SignedAndEnvelopedData extends ASN1Object {
                 this.certificates = ASN1Set.getInstance((ASN1TaggedObject) seq.getObjectAt(index++), false);
                 this.crls = ASN1Set.getInstance((ASN1TaggedObject) seq.getObjectAt(index++), false);
             }
-
         }
 
         this.signerInfos = ASN1Set.getInstance(seq.getObjectAt(index++));
-
     }
 
     /** Obtiene un SignedAndEnvelopedData a partir de un objeto dado (que puede ser una secuencia ASN.1 o un mismo SignedAndEnvelopedData)
-     * @param obj
-     *        El objeto que queremos convertir en un SignedAndEnvelopedData
+     * @param obj El objeto que queremos convertir en un SignedAndEnvelopedData
      * @return SignedAndEnvelopedData creado a partir del objeto proporcionado
-     * @exception IllegalArgumentException
-     *            si el objeto de entrada no puede ser convertido */
+     * @exception IllegalArgumentException Si el objeto de entrada no puede ser convertido. */
     public static SignedAndEnvelopedData getInstance(final Object obj) {
         if (obj == null || obj instanceof SignedAndEnvelopedData) {
             return (SignedAndEnvelopedData) obj;

@@ -57,10 +57,8 @@ public final class AOTreeUtil {
      * del nodo ra&iacute;z del &aacute;rbol la profundidad es cero (0).
      * @param node Nodo del que cuelga la rama.
      * @param depth Profundidad del nodo del que pende la rama.
-     * @param linePrefx Prefijo de cada l&iacute;nea de firma (por defecto, cadena
-     *                  vac&iacute;a).
-     * @param identationString Cadena para la identaci&oacute;n de los nodos de firma (por
-     *                         defecto, tabulador).
+     * @param linePrefx Prefijo de cada l&iacute;nea de firma (por defecto, cadena vac&iacute;a).
+     * @param identationString Cadena para la identaci&oacute;n de los nodos de firma (por defecto, tabulador).
      * @param buffer Buffer en donde se genera la cadena de texto. */
     private static void archiveTreeNode(final AOTreeNode node,
                                               final int depth,

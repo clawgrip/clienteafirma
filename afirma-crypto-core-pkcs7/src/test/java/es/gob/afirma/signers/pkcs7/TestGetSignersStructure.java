@@ -10,19 +10,15 @@ import org.junit.jupiter.api.Test;
 import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
 
-/**
- * Conjunto de pruebas para
- */
-class TestGetSignersStructure {
+/** Conjunto de pruebas para estructura de firmantes. */
+final class TestGetSignersStructure {
 
 	private static final String RESOURCE_COUNTERSIGN_CADES_BES = "countersign-cades.csig"; //$NON-NLS-1$
 	private static final String RESOURCE_CADES_T = "cades-t.csig"; //$NON-NLS-1$
 	private static final String RESOURCE_CADES_A = "cades-a.csig"; //$NON-NLS-1$
 
-	/**
-	 * Prueba a extraer los nodos de firma de una contrafirma CAdES-BES.
-	 * @throws Exception Cuando ocurre cualquier error.
-	 */
+	/** Prueba a extraer los nodos de firma de una contrafirma CAdES-BES.
+	 * @throws Exception Cuando ocurre cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
 	void testGetStructureCounterSignCadesBES() throws Exception {
@@ -41,10 +37,8 @@ class TestGetSignersStructure {
 		System.out.println("=========================="); //$NON-NLS-1$
 	}
 
-	/**
-	 * Prueba a extraer los nodos de firma de una firma CAdES-T.
-	 * @throws Exception Cuando ocurre cualquier error.
-	 */
+	/** Prueba a extraer los nodos de firma de una firma CAdES-T.
+	 * @throws Exception Cuando ocurre cualquier error. */
 	@SuppressWarnings("static-method")
 	@Test
 	void testGetStructureCadesT() throws Exception {

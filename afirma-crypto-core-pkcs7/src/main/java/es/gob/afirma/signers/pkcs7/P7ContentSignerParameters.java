@@ -37,7 +37,6 @@ public final class P7ContentSignerParameters {
             this.sigAlgo = signatureAlgorithm;
         }
         this.signature = new byte[0]; // la firma se realizara despues
-
     }
 
     /** Devuelve el contenido

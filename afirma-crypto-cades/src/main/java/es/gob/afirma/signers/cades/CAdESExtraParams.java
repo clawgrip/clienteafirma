@@ -38,15 +38,13 @@ public final class CAdESExtraParams {
     /** Perfil de firma que se desea generar. */
 	public static final String PROFILE = "profile"; //$NON-NLS-1$
 
-    /**
-     * Descripci&oacute;n textual del tipo de contenido a firmar. Necesita que se establezca tambi&eacute;n la propiedad <code>contentTypeOid</code>.
-     */
+    /** Descripci&oacute;n textual del tipo de contenido a firmar.
+     * Necesita que se establezca tambi&eacute;n la propiedad <code>contentTypeOid</code>. */
     public static final String CONTENT_DESCRIPTION = "contentDescription"; //$NON-NLS-1$
 
-    /**
-     * Si se establece a <code>true</code> se incluye en la firma &uacute;nicamente el certificado del firmante (y no la cadena de certificaci&oacute;n completa).
-     * Si no se establece o se establece a <code>false</code> se incluir&aacute; toda la cadena de certificaci&oacute;n.
-     */
+    /** Si se establece a <code>true</code> se incluye en la firma &uacute;nicamente el certificado del firmante
+     * (y no la cadena de certificaci&oacute;n completa).
+     * Si no se establece o se establece a <code>false</code> se incluir&aacute; toda la cadena de certificaci&oacute;n. */
     public static final String INCLUDE_ONLY_SIGNNING_CERTIFICATE = "includeOnlySignningCertificate"; //$NON-NLS-1$
 
     /**

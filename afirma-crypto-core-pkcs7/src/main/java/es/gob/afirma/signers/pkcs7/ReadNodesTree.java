@@ -265,7 +265,6 @@ public final class ReadNodesTree {
                 if (aux.equals(aux2)) {
                     nodesToSign[cont] = i;
                     cont++;
-
                 }
             }
         }
@@ -279,8 +278,7 @@ public final class ReadNodesTree {
     }
 
     /** Simplifica un array quitando los elementos repetidos.
-     * @param nodes
-     *        array con posibles repetidos.
+     * @param nodes Array con posibles repetidos.
      * @return array sin repetidos. */
     public static int[] simplyArray(final int[] nodes) {
         final List<Integer> devolver = new ArrayList<>();
