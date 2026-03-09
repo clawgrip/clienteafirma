@@ -1,8 +1,10 @@
 package es.gob.afirma.signers.cades;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.security.cert.Certificate;
@@ -11,6 +13,8 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.logging.ErrorManager;
+import java.util.logging.Logger;
 
 import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -30,7 +34,7 @@ public final class CadesTriWrapper {
 	 * @param fileTbsAsBase64 Documento a firmar (como Base64).
 	 * @param certChainAsPem Cadena de certificados del firmante (como PEM).
 	 * @param extraParamsAsString Par&aacute;metros adicionales de la firma.
-	 * @return Prefirma (como Base64). */
+	 * @return Prefirma (como Base64 dentro de un JSON). */
 	public static String getPresign(final String signAlgorithm,
                                     final String fileTbsAsBase64,
                                     final String certChainAsPem,
@@ -81,7 +85,7 @@ public final class CadesTriWrapper {
 	 * @param certChainAsPem Cadena de certificados del firmante (como PEM).
 	 * @param signatureAsBase64 Firma de los atributos firmados CAdES.
 	 * @param preSignAsBase64 Prefirma (como Base64).
-	 * @return Firma CAdES (como Base64). */
+	 * @return Firma CAdES (como Base64 dentro de un JSON). */
 	public static String getPostsign(final String signAlgorithm,
                                      final String fileTbsAsBase64,
                                      final String certChainAsPem,
@@ -114,7 +118,12 @@ public final class CadesTriWrapper {
 		catch (final AOException e) {
 			return getErrorResult("Error obteniendo la prefirma CAdES", e); //$NON-NLS-1$
 		}
-		return Base64.getEncoder().encodeToString(postSign);
+		return String.format(
+			"{\n" + //$NON-NLS-1$
+			"    \"result\": \"%s\",\n" + //$NON-NLS-1$
+			"}", //$NON-NLS-1$
+			Base64.getEncoder().encodeToString(postSign)
+		);
 	}
 
 	private static Collection<? extends Certificate> generateCertificates(final InputStream is) throws CertificateException {
@@ -126,6 +135,32 @@ public final class CadesTriWrapper {
 	}
 
 	private static String getErrorResult(final String desc, final Throwable cause) {
-		return desc + (cause != null ? ": " + cause.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return String.format(
+			"{\n" + //$NON-NLS-1$
+			"    \"errorMessage: \": \"%s\"\r\n" + //$NON-NLS-1$
+			"    \"errorTrace\": \"%s\",\n" + //$NON-NLS-1$
+			"}", //$NON-NLS-1$
+			desc,
+			getStackTraceAsBase64String(cause)
+		);
+	}
+
+	/** Obtiene una traza de error como texto codificado en Base64.
+	 * @param e Causa del error.
+	 * @return Traza de error como texto codificado en Base64. */
+	public static String getStackTraceAsBase64String(final Throwable e) {
+		try (
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintWriter pw = new PrintWriter(baos)
+		) {
+			e.printStackTrace(pw);
+			return Base64.getEncoder().encodeToString(baos.toByteArray());
+		}
+		catch (final IOException e1) {
+			Logger.getLogger(ErrorManager.class.getName()).warning(
+				"No se ha podido obtener la traza de error completa de la excepcion " + e.getClass().getName() + ": " + e1 //$NON-NLS-1$ //$NON-NLS-2$
+			);
+			return Base64.getEncoder().encodeToString(e.toString().getBytes());
+		}
 	}
 }
