@@ -43,12 +43,18 @@ public final class TestCadesTriWrapper {
         }
         final String certChainAsPem = pemChain.toString();
 
+        System.out.println(certChainAsPem);
+
         final String extraParamsAsString =
     		"format=CAdES\n" + //$NON-NLS-1$
 			"mode=implicit\n" + //$NON-NLS-1$
 	        "policyIdentifier=urn:oid:2.16.724.1.3.1.1.2.1.8\n" + //$NON-NLS-1$
 	        "policyIdentifierHash=7SxX3erFuH31TvAw9LZ70N7p1vA=\n" + //$NON-NLS-1$
 	        "policyIdentifierHashAlgorithm=http://www.w3.org/2000/09/xmldsig#sha1\n"; //$NON-NLS-1$
+
+        System.out.println();
+        System.out.println();
+        System.out.println(extraParamsAsString);
 
         final String preSignAsBase64 = CadesTriWrapper.getPresign(signAlgorithm, documentTbsAsBase64, certChainAsPem, extraParamsAsString);
 

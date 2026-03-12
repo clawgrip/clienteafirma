@@ -76,7 +76,12 @@ public final class CadesTriWrapper {
 		catch (final AOException e) {
 			return getErrorResult("Error obteniendo la prefirma CAdES", e); //$NON-NLS-1$
 		}
-		return Base64.getEncoder().encodeToString(preSign);
+		return String.format(
+			"{\n" + //$NON-NLS-1$
+			"    \"result\": \"%s\",\n" + //$NON-NLS-1$
+			"}", //$NON-NLS-1$
+			Base64.getEncoder().encodeToString(preSign)
+		);
 	}
 
 	/** Obtiene la postfirma (en Base64) de una firma CAdES.
