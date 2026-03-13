@@ -4,13 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Collection;
@@ -20,13 +19,8 @@ import java.util.Properties;
 import java.util.logging.ErrorManager;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.xml.sax.SAXException;
-
-import es.gob.afirma.core.AOException;
 
 /** Envoltura de firma trif&aacute;sica PAdES con tipos b&aacute;sicos (para ser invocada desde Swift u Objective-C).
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
@@ -51,15 +45,20 @@ public final class PadesTriWrapper {
                                     final String signTimeAsString,
                                     final String extraParamsAsString) {
 		// PDF a firmar
-		final byte[] pdfTbs = Base64.getDecoder().decode(pdfTbsAsBase64);
+		final byte[] pdfTbs;
+		try {
+			pdfTbs = Base64.getDecoder().decode(pdfTbsAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 del PDF a firmar", e); //$NON-NLS-1$
+		}
 
 		// Cadena de certificados
-		final InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8));
 		final Collection<? extends Certificate> certs;
-		try {
+		try (InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8))) {
 			certs = generateCertificates(is);
 		}
-		catch (final CertificateException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error conviertiendo la cadena de certificados PEM", e); //$NON-NLS-1$
 		}
 		final X509Certificate[] certChain = certs.toArray(new X509Certificate[0]);
@@ -70,7 +69,7 @@ public final class PadesTriWrapper {
 		try {
 			date = sdf.parse(signTimeAsString);
 		}
-		catch (final ParseException e) {
+		catch (final Exception e) {
 			return getErrorResult("La fecha no esta en el formato esperado de 'dd/MM/yyyy HH:mm:ss' (" + signTimeAsString + ")", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		final GregorianCalendar signTime = new GregorianCalendar();
@@ -81,14 +80,14 @@ public final class PadesTriWrapper {
 		try {
 			extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
 		}
-		catch (final IOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Los parametros adicionales de firma no estan en el formato esperado", e); //$NON-NLS-1$
 		}
 
 		try {
 			return PAdESTriPhaseSigner.preSign(signAlgorithm, pdfTbs, certChain, signTime, extraParams, true).toString();
 		}
-		catch (final IOException | AOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error obteniendo la prefirma", e); //$NON-NLS-1$
 		}
 	}
@@ -101,7 +100,7 @@ public final class PadesTriWrapper {
 		try {
 			psr = new PdfSignResult(preSignAsXml);
 		}
-		catch (final IOException | SAXException | ParserConfigurationException e) {
+		catch (final Exception e) {
 			LOGGER.severe("Error deserializando la prefirma desde el XML: " + e); //$NON-NLS-1$
 			return null;
 		}
@@ -121,39 +120,50 @@ public final class PadesTriWrapper {
                                      final String signatureAsBase64,
                                      final String preSignAsXml) {
 		// PDF firmado
-		final byte[] pdfTbs = Base64.getDecoder().decode(pdfTbsAsBase64);
+		final byte[] pdfTbs;
+		try {
+			pdfTbs = Base64.getDecoder().decode(pdfTbsAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 del PDF a firmar", e); //$NON-NLS-1$
+		}
 
 		// Cadena de certificados
-		final InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8));
 		final Collection<? extends Certificate> certs;
-		try {
+		try (InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8))) {
 			certs = generateCertificates(is);
 		}
-		catch (final CertificateException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error conviertiendo la cadena de certificados PEM", e); //$NON-NLS-1$
 		}
 		final X509Certificate[] certChain = certs.toArray(new X509Certificate[0]);
 
 		// Firma
-		final byte[] signature = Base64.getDecoder().decode(signatureAsBase64);
+		final byte[] signature;
+		try {
+			signature = Base64.getDecoder().decode(signatureAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 de la firma", e); //$NON-NLS-1$
+		}
 
 		// Prefirma
 		final PdfSignResult preSign;
 		try {
 			preSign = new PdfSignResult(preSignAsXml);
 		}
-		catch (final SAXException | IOException | ParserConfigurationException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error decodificando la prefirma", e); //$NON-NLS-1$
 		}
 		try {
 			return String.format(
 				"{\n" + //$NON-NLS-1$
-				"    \"result\": \"%s\",\n" + //$NON-NLS-1$
+				"    \"result\": \"%s\"\n" + //$NON-NLS-1$
 				"}", //$NON-NLS-1$
 				Base64.getEncoder().encodeToString(PAdESTriPhaseSigner.postSign(signAlgorithm, pdfTbs, certChain, signature, preSign, true))
 			);
 		}
-		catch (final AOException | IOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error obteniendo la postfirma", e); //$NON-NLS-1$
 		}
 	}
@@ -169,8 +179,8 @@ public final class PadesTriWrapper {
 	private static String getErrorResult(final String desc, final Throwable cause) {
 		return String.format(
 			"{\n" + //$NON-NLS-1$
-			"    \"errorMessage: \": \"%s\"\r\n" + //$NON-NLS-1$
-			"    \"errorTrace\": \"%s\",\n" + //$NON-NLS-1$
+			"    \"errorMessage: \": \"%s\",\n" + //$NON-NLS-1$
+			"    \"errorTrace\": \"%s\"\n" + //$NON-NLS-1$
 			"}", //$NON-NLS-1$
 			desc,
 			getStackTraceAsBase64String(cause)
@@ -183,7 +193,7 @@ public final class PadesTriWrapper {
 	public static String getStackTraceAsBase64String(final Throwable e) {
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter pw = new PrintWriter(baos)
+			PrintStream pw = new PrintStream(baos)
 		) {
 			e.printStackTrace(pw);
 			return Base64.getEncoder().encodeToString(baos.toByteArray());

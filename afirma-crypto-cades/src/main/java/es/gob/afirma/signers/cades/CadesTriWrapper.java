@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 import org.bouncycastle.jcajce.provider.asymmetric.x509.CertificateFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import es.gob.afirma.core.AOException;
-
 /** Envoltura de firma trif&aacute;sica CAdES con tipos b&aacute;sicos (para ser invocada desde Swift u Objective-C).
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 public final class CadesTriWrapper {
@@ -40,15 +38,20 @@ public final class CadesTriWrapper {
                                     final String certChainAsPem,
                                     final String extraParamsAsString) {
 		// Contenido a firmar
-		final byte[] fileTbs = Base64.getDecoder().decode(fileTbsAsBase64);
+		final byte[] fileTbs;
+		try {
+			fileTbs = Base64.getDecoder().decode(fileTbsAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 de los datos a firmar", e); //$NON-NLS-1$
+		}
 
 		// Cadena de certificados
-		final InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8));
 		final Collection<? extends Certificate> certs;
-		try {
+		try (InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8))) {
 			certs = generateCertificates(is);
 		}
-		catch (final CertificateException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error conviertiendo la cadena de certificados PEM", e); //$NON-NLS-1$
 		}
 		final X509Certificate[] certChain = certs.toArray(new X509Certificate[0]);
@@ -58,7 +61,7 @@ public final class CadesTriWrapper {
 		try {
 			extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
 		}
-		catch (final IOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Los parametros adicionales de firma no estan en el formato esperado", e); //$NON-NLS-1$
 		}
 
@@ -66,19 +69,19 @@ public final class CadesTriWrapper {
 		try {
 			cadesParams = CAdESParameters.load(fileTbs, signAlgorithm, extraParams);
 		}
-		catch (final AOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error cargando la configuracion de firma CAdES", e); //$NON-NLS-1$
 		}
 		final byte[] preSign;
 		try {
 			preSign = CAdESTriPhaseSigner.preSign(certChain, cadesParams);
 		}
-		catch (final AOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error obteniendo la prefirma CAdES", e); //$NON-NLS-1$
 		}
 		return String.format(
 			"{\n" + //$NON-NLS-1$
-			"    \"result\": \"%s\",\n" + //$NON-NLS-1$
+			"    \"result\": \"%s\"\n" + //$NON-NLS-1$
 			"}", //$NON-NLS-1$
 			Base64.getEncoder().encodeToString(preSign)
 		);
@@ -97,35 +100,52 @@ public final class CadesTriWrapper {
                                      final String signatureAsBase64,
                                      final String preSignAsBase64) {
 		// Contenido a firmado
-		final byte[] fileTbs = Base64.getDecoder().decode(fileTbsAsBase64);
+		final byte[] fileTbs;
+		try {
+			fileTbs = Base64.getDecoder().decode(fileTbsAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 de los datos firmados", e); //$NON-NLS-1$
+		}
 
 		// Cadena de certificados
-		final InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8));
 		final Collection<? extends Certificate> certs;
-		try {
+		try (InputStream is = new ByteArrayInputStream(certChainAsPem.getBytes(StandardCharsets.UTF_8))) {
 			certs = generateCertificates(is);
 		}
-		catch (final CertificateException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error conviertiendo la cadena de certificados PEM", e); //$NON-NLS-1$
 		}
 		final X509Certificate[] certChain = certs.toArray(new X509Certificate[0]);
 
 		// Firma
-		final byte[] signature = Base64.getDecoder().decode(signatureAsBase64);
+		final byte[] signature;
+		try {
+			signature = Base64.getDecoder().decode(signatureAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 de la firma", e); //$NON-NLS-1$
+		}
 
 		// Prefirma
-		final byte[] preSign = Base64.getDecoder().decode(preSignAsBase64);
+		final byte[] preSign;
+		try {
+			preSign = Base64.getDecoder().decode(preSignAsBase64);
+		}
+		catch(final Exception e) {
+			return getErrorResult("Error decodificando el Base64 de la prefirma", e); //$NON-NLS-1$
+		}
 
 		final byte[] postSign;
 		try {
 			postSign = CAdESTriPhaseSigner.postSign(signAlgorithm, fileTbs, certChain, signature, preSign);
 		}
-		catch (final AOException e) {
+		catch (final Exception e) {
 			return getErrorResult("Error obteniendo la prefirma CAdES", e); //$NON-NLS-1$
 		}
 		return String.format(
 			"{\n" + //$NON-NLS-1$
-			"    \"result\": \"%s\",\n" + //$NON-NLS-1$
+			"    \"result\": \"%s\"\n" + //$NON-NLS-1$
 			"}", //$NON-NLS-1$
 			Base64.getEncoder().encodeToString(postSign)
 		);
