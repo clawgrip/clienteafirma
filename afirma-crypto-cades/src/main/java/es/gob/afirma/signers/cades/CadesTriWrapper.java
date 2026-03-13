@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.security.cert.Certificate;
@@ -142,8 +142,8 @@ public final class CadesTriWrapper {
 	private static String getErrorResult(final String desc, final Throwable cause) {
 		return String.format(
 			"{\n" + //$NON-NLS-1$
-			"    \"errorMessage: \": \"%s\"\r\n" + //$NON-NLS-1$
-			"    \"errorTrace\": \"%s\",\n" + //$NON-NLS-1$
+			"    \"errorMessage: \": \"%s\",\r\n" + //$NON-NLS-1$
+			"    \"errorTrace\": \"%s\"\n" + //$NON-NLS-1$
 			"}", //$NON-NLS-1$
 			desc,
 			getStackTraceAsBase64String(cause)
@@ -156,7 +156,7 @@ public final class CadesTriWrapper {
 	public static String getStackTraceAsBase64String(final Throwable e) {
 		try (
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter pw = new PrintWriter(baos)
+			PrintStream pw = new PrintStream(baos)
 		) {
 			e.printStackTrace(pw);
 			return Base64.getEncoder().encodeToString(baos.toByteArray());
