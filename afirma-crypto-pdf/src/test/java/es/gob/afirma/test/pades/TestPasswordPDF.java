@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -58,8 +59,8 @@ final class TestPasswordPDF {
         final byte[] result = signer.sign(
     		testPdf,
     		"SHA512withRSA",  //$NON-NLS-1$
-    		this.pke.getPrivateKey(),
-    		this.pke.getCertificateChain(),
+    		pke.getPrivateKey(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -76,7 +77,6 @@ final class TestPasswordPDF {
     void testModificationPasswordSignature() throws Exception {
 
         final AOSigner signer = new AOPDFSigner();
-
         final byte[] testPdf = loadResource(TEST_FILE_PWD_MOD);
 
         Assertions.assertTrue(signer.isValidDataFile(testPdf), "No se ha reconocido como un PDF"); //$NON-NLS-1$
@@ -93,7 +93,7 @@ final class TestPasswordPDF {
     		testPdf,
     		"SHA512withRSA",  //$NON-NLS-1$
     		this.pke.getPrivateKey(),
-    		this.pke.getCertificateChain(),
+    		(X509Certificate[]) this.pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -127,7 +127,7 @@ final class TestPasswordPDF {
     		testPdf,
     		"SHA512withRSA",  //$NON-NLS-1$
     		this.pke.getPrivateKey(),
-    		this.pke.getCertificateChain(),
+    		(X509Certificate[]) this.pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -135,7 +135,6 @@ final class TestPasswordPDF {
 
         final File saveFile = saveTempFile(result);
         System.out.println("Temporal para comprobacion manual: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
-
     }
 
     /** Prueba la firma de un PDF protegido con contrase&ntilde;a contra lectura
@@ -161,7 +160,7 @@ final class TestPasswordPDF {
     		testPdf,
     		"SHA512withRSA",  //$NON-NLS-1$
     		this.pke.getPrivateKey(),
-    		this.pke.getCertificateChain(),
+    		(X509Certificate[]) this.pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -172,7 +171,7 @@ final class TestPasswordPDF {
     }
 
     private static byte[] loadResource(final String resource) throws IOException {
-    	byte[] data;
+    	final byte[] data;
     	try (InputStream is = ClassLoader.getSystemResourceAsStream(resource)) {
     		data = AOUtil.getDataFromInputStream(is);
     	}

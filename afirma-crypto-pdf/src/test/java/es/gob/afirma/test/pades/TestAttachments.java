@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,7 +80,7 @@ class TestAttachments {
     		testPdf,
     		"SHA512withRSA", //$NON-NLS-1$
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		P1
 		);
 

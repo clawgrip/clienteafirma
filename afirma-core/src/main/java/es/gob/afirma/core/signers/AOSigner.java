@@ -150,8 +150,7 @@ public interface AOSigner extends AOCoSigner, AOSimpleSigner {
      */
     AOSignInfo getSignInfo(byte[] signData) throws AOException, IOException;
 
-	/**
-	 * Si la entrada es un documento PDF, devuelve un objeto <code>AOSignInfo</code>
+	/** Si la entrada es un documento PDF, devuelve un objeto <code>AOSignInfo</code>
 	 * con el formato establecido a <code>AOSignConstants.SIGN_FORMAT_PDF</code>.
 	 * @param data Documento PDF.
 	 * @param params Par&aacute;metros necesarios para comprobar si una firma es compatible.

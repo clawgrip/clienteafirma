@@ -3,6 +3,7 @@ package es.gob.afirma.test.pades;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -59,7 +60,7 @@ final class Test305907 {
 	    		testPdf,
 	    		DEFAULT_SIGNATURE_ALGORITHM,
 	    		pke.getPrivateKey(),
-	    		pke.getCertificateChain(),
+	    		(X509Certificate[]) pke.getCertificateChain(),
 	    		new Properties()
 			);
         }
@@ -78,7 +79,7 @@ final class Test305907 {
 	    		testPdf,
 	    		DEFAULT_SIGNATURE_ALGORITHM,
 	    		pke.getPrivateKey(),
-	    		pke.getCertificateChain(),
+	    		(X509Certificate[]) pke.getCertificateChain(),
 	    		p
 			);
         }

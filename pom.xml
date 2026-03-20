@@ -115,18 +115,6 @@
 				<artifactId>bcpkix-jdk18on</artifactId>
 				<version>1.83</version>
 			</dependency>
-			
-			<dependency>
-				<groupId>es.uji.crypto.xades</groupId>
-				<artifactId>jxades</artifactId>
-				<version>0.2.2</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>org.apache.santuario</groupId>
-				<artifactId>xmlsec</artifactId>
-				<version>3.0.5</version>
-			</dependency>
 
 			<dependency>
 				<groupId>junit</groupId>

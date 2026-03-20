@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -23,7 +24,7 @@ public final class TestCadesTriWrapper {
 	public static void main(final String[] args) throws Exception {
 
         final String documentTbsAsBase64 = Base64.getEncoder().encodeToString("Hola Mundo!".getBytes()); //$NON-NLS-1$
-        final String signAlgorithm = "SHA256withRSA"; //$NON-NLS-1$
+        final String signAlgorithm = "SH67"; //$NON-NLS-1$
 
 	    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
 	    final String certPass = "1234"; //$NON-NLS-1$
@@ -56,14 +57,18 @@ public final class TestCadesTriWrapper {
         System.out.println();
         System.out.println(extraParamsAsString);
 
-        final String preSignAsBase64 = CadesTriWrapper.getPresign(signAlgorithm, documentTbsAsBase64, certChainAsPem, extraParamsAsString);
+        final String preSignAsJson = CadesTriWrapper.getPresign(signAlgorithm, documentTbsAsBase64, certChainAsPem, extraParamsAsString);
+        System.out.println();
+        System.out.println();
+        System.out.println(preSignAsJson);
 
+        final String preSignAsBase64 = null; // Sacar del JSON
         // Firma PKCS#1
         final byte[] dataTbs = Base64.getDecoder().decode(preSignAsBase64);
         final AOPkcs1Signer signer = new AOPkcs1Signer();
 		final Properties extraParams = new Properties();
 		extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
-        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), pke.getCertificateChain(), extraParams);
+        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams);
         final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
 
         System.out.println(signatureAsBase64);

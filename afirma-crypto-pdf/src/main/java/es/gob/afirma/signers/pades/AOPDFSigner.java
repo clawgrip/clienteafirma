@@ -126,7 +126,7 @@ public final class AOPDFSigner implements AOSigner {
 	public byte[] sign(final byte[] inPDF,
 			           final String signAlgorithm,
 			           final PrivateKey key,
-			           final java.security.cert.Certificate[] certChain,
+			           final X509Certificate[] certChain,
 			           final Properties xParams) throws AOException,
 			                                            IOException {
 
@@ -135,8 +135,8 @@ public final class AOPDFSigner implements AOSigner {
 
         checkParams(algorithm, extraParams);
 
-        final java.security.cert.Certificate[] certificateChain = Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString())) ?
-    		new X509Certificate[] { (X509Certificate) certChain[0] } :
+        final X509Certificate[] certificateChain = Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.INCLUDE_ONLY_SIGNNING_CERTIFICATE, Boolean.FALSE.toString())) ?
+    		new X509Certificate[] { certChain[0] } :
     			certChain;
 
     	final GregorianCalendar signTime = PdfUtil.getSignTime(extraParams.getProperty(PdfExtraParams.SIGN_TIME));
@@ -217,7 +217,7 @@ public final class AOPDFSigner implements AOSigner {
                          final byte[] sign,
                          final String algorithm,
                          final PrivateKey key,
-                         final java.security.cert.Certificate[] certChain,
+                         final X509Certificate[] certChain,
                          final Properties extraParams) throws AOException, IOException {
         return sign(sign, algorithm, key, certChain, extraParams);
     }
@@ -257,7 +257,7 @@ public final class AOPDFSigner implements AOSigner {
 	public byte[] cosign(final byte[] sign,
 			             final String algorithm,
 			             final PrivateKey key,
-			             final java.security.cert.Certificate[] certChain,
+			             final X509Certificate[] certChain,
 			             final Properties extraParams) throws AOException, IOException {
         return sign(sign, algorithm, key, certChain, extraParams);
     }

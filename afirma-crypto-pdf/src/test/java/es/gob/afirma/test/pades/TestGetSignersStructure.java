@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +79,7 @@ final class TestGetSignersStructure {
 
 			final File tempFile = File.createTempFile("test", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
 			try (OutputStream fos = new FileOutputStream(tempFile)) {
-				final byte[] signature = signer.sign(testPdf, AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA, this.pke.getPrivateKey(), this.pke.getCertificateChain(), null);
+				final byte[] signature = signer.sign(testPdf, AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA, this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), null);
 				fos.write(signature);
 			}
 			catch (final AOException e) {

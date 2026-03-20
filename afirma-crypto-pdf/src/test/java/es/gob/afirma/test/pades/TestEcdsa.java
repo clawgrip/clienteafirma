@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -66,7 +67,7 @@ final class TestEcdsa {
 			pdf,
 			"SHA256withECDSA", //$NON-NLS-1$
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		try (final OutputStream fos = new FileOutputStream(File.createTempFile("PKCS7_AFIRMA_ECDSA_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$

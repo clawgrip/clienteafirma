@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Properties;
 
@@ -286,7 +287,7 @@ class TestCreateSignFields {
 		// Firmamos el PDF
 		final AOPDFSigner signer = new AOPDFSigner();
 		final byte[] signedPdf = signer.sign(pdfWithFields, DEFAULT_SIGNATURE_ALGORITHM, this.pke.getPrivateKey(),
-				this.pke.getCertificateChain(), extraParams);
+				(X509Certificate[]) this.pke.getCertificateChain(), extraParams);
 
 		// Guardamos el PDF firmado
 		try (OutputStream os = new FileOutputStream(signedFile)) {

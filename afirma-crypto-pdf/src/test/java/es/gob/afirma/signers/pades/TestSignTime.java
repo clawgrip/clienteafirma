@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +52,7 @@ final class TestSignTime {
     		testPdf,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 

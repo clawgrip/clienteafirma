@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -137,7 +138,7 @@ final class TestPAdESETSI {
                 		testPdf,
                 		algo,
                 		pke.getPrivateKey(),
-                		pke.getCertificateChain(),
+                		(X509Certificate[]) pke.getCertificateChain(),
                 		extraParams
             		);
 

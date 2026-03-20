@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -75,7 +76,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -113,14 +114,14 @@ final class TestCosign {
 			new KeyStore.PasswordProtection(CERT_PASS.toCharArray())
 		);
 
-		byte[] signature;
+		final byte[] signature;
 		try {
 			signature = signer.cosign(
 				originalData,
 				sign,
 				AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 				pke.getPrivateKey(),
-				pke.getCertificateChain(),
+				(X509Certificate[]) pke.getCertificateChain(),
 				config
 			);
 		}
@@ -161,7 +162,7 @@ final class TestCosign {
 				sign,
 				AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 				pke.getPrivateKey(),
-				pke.getCertificateChain(),
+				(X509Certificate[]) pke.getCertificateChain(),
 				config
 			);
 		}
@@ -194,7 +195,7 @@ final class TestCosign {
 				sign,
 				AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
 				pke.getPrivateKey(),
-				pke.getCertificateChain(),
+				(X509Certificate[]) pke.getCertificateChain(),
 				config
 			);
 		}
@@ -227,7 +228,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -260,7 +261,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -296,7 +297,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -337,7 +338,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -370,7 +371,7 @@ final class TestCosign {
 			sign,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			config
 		);
 		Assertions.assertNotNull(cosign);
@@ -405,7 +406,7 @@ final class TestCosign {
 				sign,
 				AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 				pke.getPrivateKey(),
-				pke.getCertificateChain(),
+				(X509Certificate[]) pke.getCertificateChain(),
 				config
 			);
 		}

@@ -136,12 +136,11 @@ final class CAdESCoSigner {
 			final byte[] signature,
 			final String signatureAlgorithm,
 			final PrivateKey key,
-			final java.security.cert.Certificate[] certChain,
-			final CAdESParameters config
-                    ) throws IOException,
-			                                                  NoSuchAlgorithmException,
-			                                                  CertificateException,
-			                                                  AOException {
+			final X509Certificate[] certChain,
+			final CAdESParameters config) throws IOException,
+			                                     NoSuchAlgorithmException,
+			                                     CertificateException,
+			                                     AOException {
 		// Leemos la firma de entrada
 		final SignedData sd = CAdESMultiUtil.readData(signature);
 		return coSigner(sd, signatureAlgorithm, key, certChain, config);
@@ -167,13 +166,11 @@ final class CAdESCoSigner {
 			final SignedData signedData,
 			final String signatureAlgorithm,
 			final PrivateKey key,
-			final java.security.cert.Certificate[] certChain,
-			final CAdESParameters config
-                    ) throws IOException,
-			                                                  NoSuchAlgorithmException,
-			                                                  CertificateException,
-			                                                  AOException {
-
+			final X509Certificate[] certChain,
+			final CAdESParameters config) throws IOException,
+			                                     NoSuchAlgorithmException,
+			                                     CertificateException,
+			                                     AOException {
 		// 3. CONTENTINFO
 		// si se introduce el contenido o no
 		ContentInfo encInfo;
@@ -220,7 +217,7 @@ final class CAdESCoSigner {
 
 		// Identificador del firmante ISSUER AND SERIAL-NUMBER
 		final TBSCertificate tbs = TBSCertificate.getInstance(
-			ASN1Primitive.fromByteArray(((X509Certificate) certChain[0]).getTBSCertificate())
+			ASN1Primitive.fromByteArray(certChain[0].getTBSCertificate())
 		);
 		final IssuerAndSerialNumber encSid = new IssuerAndSerialNumber(
 			X500Name.getInstance(tbs.getIssuer()), tbs.getSerialNumber().getValue()
@@ -331,7 +328,7 @@ final class CAdESCoSigner {
 			final ASN1Set signedAttr,
 			final String signatureAlgorithm,
 			final PrivateKey key,
-			final java.security.cert.Certificate[] certChain,
+			final X509Certificate[] certChain,
 			final Properties extraParams) throws AOException {
 
 		final byte[] tmp;

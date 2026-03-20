@@ -11,7 +11,7 @@ package es.gob.afirma.core.signers;
 
 import java.io.IOException;
 import java.security.PrivateKey;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import es.gob.afirma.core.AOException;
@@ -29,5 +29,5 @@ public interface AOSimpleSigner {
      * @return Contenido firmado.
      * @throws AOException Cuando ocurre cualquier problema durante el proceso.
      * @throws IOException Cuando ocurren problemas relacionados con la lectura de los datos. */
-    byte[] sign(byte[] data, String algorithm, PrivateKey key, Certificate[] certChain, Properties extraParams) throws AOException, IOException;
+    byte[] sign(byte[] data, String algorithm, PrivateKey key, X509Certificate[] certChain, Properties extraParams) throws AOException, IOException;
 }

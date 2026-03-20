@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -126,7 +127,7 @@ final class TestListSignatureFields {
 			testPdf,
 			AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);

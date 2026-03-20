@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -53,7 +54,7 @@ final class TestCosignature {
 			testPdf,
 			DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -67,7 +68,7 @@ final class TestCosignature {
 			signedPdf,
 			DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 

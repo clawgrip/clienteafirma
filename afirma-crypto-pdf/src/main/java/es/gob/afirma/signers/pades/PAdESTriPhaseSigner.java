@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
@@ -162,7 +163,7 @@ public final class PAdESTriPhaseSigner {
      * @throws InvalidPdfException En caso de errores al generar los datos de sesi&oacute;n. */
     public static PdfSignResult preSign(final String signatureAlgorithm,
                                         final byte[] inPDF,
-                                        final Certificate[] signerCertificateChain,
+                                        final X509Certificate[] signerCertificateChain,
                                         final GregorianCalendar signTime,
                                         final Properties xParams,
                                         final boolean secureMode) throws IOException, AOException {
@@ -231,7 +232,7 @@ public final class PAdESTriPhaseSigner {
      * @throws IOException Cuando ocurre algun error en la conversi&oacute;n o generaci&oacute;n de estructuras. */
     public static byte[] postSign(final String signatureAlgorithm,
                                   final byte[] inPdf,
-                                  final Certificate[] signerCertificateChain,
+                                  final X509Certificate[] signerCertificateChain,
                                   final byte[] pkcs1Signature,
                                   final PdfSignResult preSign,
                                   final boolean secureMode) throws AOException, IOException {
@@ -297,7 +298,7 @@ public final class PAdESTriPhaseSigner {
     }
 
     private static byte[] insertSignatureOnPdf(final byte[] inPdf,
-    		                                   final Certificate[] signerCertificateChain,
+    		                                   final X509Certificate[] signerCertificateChain,
     		                                   final PdfSignResult signature,
     		                                   final boolean secureMode) throws AOException, IOException {
 

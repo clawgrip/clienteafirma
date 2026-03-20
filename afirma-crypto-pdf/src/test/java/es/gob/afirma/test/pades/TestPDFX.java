@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +59,7 @@ final class TestPDFX {
     		testPdf,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
         Assertions.assertNotNull(resPdf);
@@ -97,7 +98,7 @@ final class TestPDFX {
     		testPdfA2b,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
         Assertions.assertNotNull(resPdf);
@@ -121,7 +122,7 @@ final class TestPDFX {
     		testPdfA1a,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -144,7 +145,7 @@ final class TestPDFX {
     		testPdfA1b,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -166,7 +167,7 @@ final class TestPDFX {
     		testPdfAPdfTools,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -189,7 +190,7 @@ final class TestPDFX {
     		testPdfA3B,
     		DEFAULT_SIGNATURE_ALGORITHM,
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 

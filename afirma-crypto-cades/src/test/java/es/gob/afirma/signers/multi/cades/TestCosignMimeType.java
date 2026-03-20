@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -295,7 +296,7 @@ class TestCosignMimeType {
 			data,
 			"SHA512withRSA", //$NON-NLS-1$
 			this.signPke.getPrivateKey(),
-			this.signPke.getCertificateChain(),
+			(X509Certificate[]) this.signPke.getCertificateChain(),
 			extraParams
 		);
 	}
@@ -313,18 +314,16 @@ class TestCosignMimeType {
 			signature,
 			"SHA512withRSA", //$NON-NLS-1$
 			this.cosignPke.getPrivateKey(),
-			this.cosignPke.getCertificateChain(),
+			(X509Certificate[]) this.cosignPke.getCertificateChain(),
 			extraParams
 		);
 	}
 
-	/**
-	 * Extrae el atributo firmado id_aa_ets_mimeType de una cofirma CAdES
+	/** Extrae el atributo firmado id_aa_ets_mimeType de una cofirma CAdES
 	 * asegurandose de no extraer el de la firma original.
 	 * @param signature Cofirma CAdES.
 	 * @return Valor del atributo firmado o {@code null} si no se encuentra.
-	 * @throws Exception Cuando la firma no es CMS/CAdES o no esta bien formada.
-	 */
+	 * @throws Exception Cuando la firma no es CMS/CAdES o no esta bien formada. */
 	private String getMimeType(final byte[] signature) throws Exception {
 
 		final CMSSignedData s = new CMSSignedData(signature);

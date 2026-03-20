@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -117,7 +118,7 @@ final class TestCAdESCommitment {
 					System.out.println(prueba);
 
 					final byte[] result = signer.sign(
-						DATA.get(i), algo, pke.getPrivateKey(), pke.getCertificateChain(), extraParams
+						DATA.get(i), algo, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams
 					);
 					Assertions.assertNotNull(prueba);
 

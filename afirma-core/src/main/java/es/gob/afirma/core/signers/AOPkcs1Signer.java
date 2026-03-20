@@ -16,7 +16,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -52,7 +52,7 @@ public final class AOPkcs1Signer implements AOSigner {
 	public byte[] sign(final byte[] data,
 			           final String algorithm,
 			           final PrivateKey key,
-			           final Certificate[] certChain,
+			           final X509Certificate[] certChain,
 			           final Properties extraParams) throws AOException {
 
 		if (algorithm == null) {
@@ -131,12 +131,21 @@ public final class AOPkcs1Signer implements AOSigner {
 	}
 
 	@Override
-	public byte[] cosign(final byte[] data, final byte[] sign, final String algorithm, final PrivateKey key, final Certificate[] certChain, final Properties extraParams) {
+	public byte[] cosign(final byte[] data,
+			             final byte[] sign,
+			             final String algorithm,
+			             final PrivateKey key,
+			             final X509Certificate[] certChain,
+			             final Properties extraParams) {
 		throw new UnsupportedOperationException("No se soporta la multifirma de las firmas NONE"); //$NON-NLS-1$
 	}
 
 	@Override
-	public byte[] cosign(final byte[] sign, final String algorithm, final PrivateKey key, final Certificate[] certChain, final Properties extraParams) {
+	public byte[] cosign(final byte[] sign,
+			             final String algorithm,
+			             final PrivateKey key,
+			             final X509Certificate[] certChain,
+			             final Properties extraParams) {
 		throw new UnsupportedOperationException("No se soporta la multifirma de las firmas NONE"); //$NON-NLS-1$
 	}
 

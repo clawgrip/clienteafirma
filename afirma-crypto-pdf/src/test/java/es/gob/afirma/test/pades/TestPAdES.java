@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -166,7 +167,7 @@ public class TestPAdES {
     		testPdf,
     		"SHA256withRSA", //$NON-NLS-1$
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -217,7 +218,7 @@ public class TestPAdES {
     		testPdf,
     		"SHA512withRSA", //$NON-NLS-1$
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -302,7 +303,7 @@ public class TestPAdES {
     		testPdf,
     		"SHA512withRSA", //$NON-NLS-1$
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -361,7 +362,7 @@ public class TestPAdES {
                 		testPdf,
                 		algo,
                 		pke.getPrivateKey(),
-                		pke.getCertificateChain(),
+                		(X509Certificate[]) pke.getCertificateChain(),
                 		extraParams
             		);
 
@@ -419,7 +420,7 @@ public class TestPAdES {
     		testPdf,
     		"SHA512withRSA",  //$NON-NLS-1$
     		pke.getPrivateKey(),
-    		pke.getCertificateChain(),
+    		(X509Certificate[]) pke.getCertificateChain(),
     		extraParams
 		);
 
@@ -438,7 +439,7 @@ public class TestPAdES {
         		testPdf,
         		"SHA512withRSA",  //$NON-NLS-1$
         		pke.getPrivateKey(),
-        		pke.getCertificateChain(),
+        		(X509Certificate[]) pke.getCertificateChain(),
         		extraParams
     		);
             final File file = File.createTempFile("PDF-FALLIDO_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -467,7 +468,7 @@ public class TestPAdES {
         		testPdf,
         		"SHA512withRSA", //$NON-NLS-1$
         		pke.getPrivateKey(),
-        		pke.getCertificateChain(),
+        		(X509Certificate[]) pke.getCertificateChain(),
         		extraParams
     		);
         }
@@ -525,7 +526,7 @@ public class TestPAdES {
     			testPdf,
     			"SHA512withRSA",  //$NON-NLS-1$
     			pke.getPrivateKey(),
-    			pke.getCertificateChain(),
+    			(X509Certificate[]) pke.getCertificateChain(),
     			extraParams
 			);
 
@@ -558,12 +559,24 @@ public class TestPAdES {
         }
     	final AOSigner signer = new AOPDFSigner();
 
-    	final byte[] defaultSignature = signer.sign(testPdf, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pke.getPrivateKey(), pke.getCertificateChain(), null);
+    	final byte[] defaultSignature = signer.sign(
+			testPdf,
+			AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			null
+		);
 
     	final Properties reservedSpaceConfig = new Properties();
     	reservedSpaceConfig.setProperty("signReservedSize", "40000"); //$NON-NLS-1$ //$NON-NLS-2$
 
-    	final byte[] signatureWithReservedSpace = signer.sign(testPdf, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pke.getPrivateKey(), pke.getCertificateChain(), reservedSpaceConfig);
+    	final byte[] signatureWithReservedSpace = signer.sign(
+			testPdf,
+			AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			reservedSpaceConfig
+		);
 
     	System.out.println("Tamano estandar: " + defaultSignature.length); //$NON-NLS-1$
     	System.out.println("Con tamano reservado: " + signatureWithReservedSpace.length); //$NON-NLS-1$
@@ -599,7 +612,13 @@ public class TestPAdES {
     	config.setProperty(PdfExtraParams.SIGNATURE_PAGES, "1"); //$NON-NLS-1$
 
     	final AOSigner signer = new AOPDFSigner();
-    	final byte[] signedPdf = signer.sign(testPdf, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pke.getPrivateKey(), pke.getCertificateChain(), config);
+    	final byte[] signedPdf = signer.sign(
+			testPdf,
+			AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			config
+		);
     	Assertions.assertNotNull(signedPdf);
 
     	final File tempFile = File.createTempFile("firmavisible-", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$

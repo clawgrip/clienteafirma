@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,8 +115,12 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				this.baselineParams);
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			this.baselineParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaseline: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -132,7 +137,10 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-			this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			add(this.baselineParams, this.metadataParams)
 		);
 
@@ -153,7 +161,7 @@ final class TestPadesBaseline {
 		final byte[] result = this.signer.sign(
 			this.data, algorithm,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			add(this.baselineParams, this.commitmentTypeIndicationsParams)
 		);
 
@@ -173,7 +181,7 @@ final class TestPadesBaseline {
 		final byte[] result = this.signer.sign(
 			this.data, algorithm,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			add(this.baselineParams, this.claimedRolesParams)
 		);
 
@@ -194,7 +202,7 @@ final class TestPadesBaseline {
 			this.data,
 			algorithm,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			add(this.baselineParams, this.policyParams)
 		);
 
@@ -212,11 +220,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-			this.data,
+			data,
 			algorithm,
-			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
-			add(this.baselineParams, this.metadataParams)
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, metadataParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -233,10 +241,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-			this.data, algorithm,
-			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
-			add(this.baselineParams, this.policyParams, this.metadataParams, this.claimedRolesParams)
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, policyParams, metadataParams, claimedRolesParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -254,8 +263,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-			this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-			add(this.baselineParams, this.policyParams, this.commitmentTypeIndicationsParams)
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, policyParams, commitmentTypeIndicationsParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -276,8 +288,11 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
-				add(this.baselineParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, commitmentTypeIndicationsParams, claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineSinPoliticaYConCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -293,7 +308,7 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
+				this.data, algorithm, this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(),
 				add(this.baselineParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
@@ -311,7 +326,7 @@ final class TestPadesBaseline {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), this.pke.getCertificateChain(),
+				this.data, algorithm, this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(),
 				add(this.baselineParams, this.policyParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
@@ -326,9 +341,7 @@ final class TestPadesBaseline {
 	 * @return Objetos con las propiedades de todos los objetos de entrada.
 	 */
 	private static Properties add(final Properties... configs) {
-
 		final Properties result = new Properties();
-
 		for (final Properties config : configs) {
 			for (final String key : config.keySet().toArray(new String[0])) {
 				result.setProperty(key, config.getProperty(key));
@@ -337,8 +350,7 @@ final class TestPadesBaseline {
 		return result;
 	}
 
-	/**
-	 * Guarda datos temporales en disco.
+	/** Guarda datos temporales en disco.
 	 * @param data Datos a guardar.
 	 * @return Fichero temporal generado.
 	 * @throws IOException Cuando ocurre un error en el guardado del fichero en disco.

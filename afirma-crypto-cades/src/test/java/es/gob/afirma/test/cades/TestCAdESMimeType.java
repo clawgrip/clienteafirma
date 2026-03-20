@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -167,12 +168,10 @@ class TestCAdESMimeType {
 		Assertions.assertEquals(MIMETYPE_PDF, mimeType, "No se ha agregado el MimeType del OID indicado"); //$NON-NLS-1$
 	}
 
-	/**
-	 * Comprueba que una firma CAdES en la que se indica que se incluya el
+	/** Comprueba que una firma CAdES en la que se indica que se incluya el
 	 * MimeType, pero no se indica ni el MimeType ni el OID de los datos,
 	 * incluye el MimeType correspondiente al an&aacute;lisis de los datos.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
+	 * @throws Exception Cuando ocurre un error en la firma. */
 	@Test
 	void cadesConMimeTypeSinIndicar() throws Exception {
 		final Properties extraParams = new Properties();
@@ -183,13 +182,11 @@ class TestCAdESMimeType {
 		Assertions.assertEquals(MIMETYPE_JPEG, mimeType, "No se ha agregado el MimeType de los datos"); //$NON-NLS-1$
 	}
 
-	/**
-	 * Comprueba que una firma CAdES en la que se indica que se incluya el
+	/** Comprueba que una firma CAdES en la que se indica que se incluya el
 	 * MimeType y no se indica ni el MimeType ni el OID de los datos ni se
 	 * puede determinar el tipo a trav&eacute;s de los propios datos,
 	 * incluye el MimeType gen&eacute;rico.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
+	 * @throws Exception Cuando ocurre un error en la firma. */
 	@Test
 	void cadesConMimeTypeSinIndicarYDatosNoReconocidos() throws Exception {
 		final Properties extraParams = new Properties();
@@ -200,13 +197,11 @@ class TestCAdESMimeType {
 		Assertions.assertEquals(DEFAULT_MIMETYPE, mimeType, "No se ha agregado el MimeType por defecto"); //$NON-NLS-1$
 	}
 
-	/**
-	 * Genera una firma CAdES de los datos con la configuraci&oacute;n de firma indicada.
+	/** Genera una firma CAdES de los datos con la configuraci&oacute;n de firma indicada.
 	 * @param data Datos a firmar.
 	 * @param extraParams Configuraci&oacute;n de firma.
 	 * @return Firma CAdES.
-	 * @throws Exception Cuando ocurre un error en la firma.
-	 */
+	 * @throws Exception Cuando ocurre un error en la firma. */
 	private byte[] sign(final byte[] data, final Properties extraParams) throws Exception {
 
 		final AOSigner signer = new AOCAdESSigner();
@@ -214,17 +209,15 @@ class TestCAdESMimeType {
 			data,
 			"SHA512withRSA", //$NON-NLS-1$
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			extraParams
 		);
 	}
 
-	/**
-	 * Extrae el atributo firmado id_aa_ets_mimeType de una firma CAdES.
+	/** Extrae el atributo firmado id_aa_ets_mimeType de una firma CAdES.
 	 * @param signature Firma CAdES.
 	 * @return Valor del atributo firmado o {@code null} si no se encuentra.
-	 * @throws Exception Cuando la firma no es CMS/CAdES o no esta bien formada.
-	 */
+	 * @throws Exception Cuando la firma no es CMS/CAdES o no esta bien formada. */
 	private static String getMimeType(final byte[] signature) throws Exception {
 
 		final CMSSignedData s = new CMSSignedData(signature);

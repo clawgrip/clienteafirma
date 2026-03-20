@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -72,7 +73,7 @@ public final class TestPadesTriWrapper {
         final AOPkcs1Signer signer = new AOPkcs1Signer();
 		final Properties extraParams = new Properties();
 		extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
-        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), pke.getCertificateChain(), extraParams);
+        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams);
         final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
 
         System.out.println(signatureAsBase64);

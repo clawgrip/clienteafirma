@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -107,10 +108,10 @@ class TestCoSignWithModes {
 		}
 
 		this.signer = new AOCAdESSigner();
-		this.explicitSHA256Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pkeSign.getPrivateKey(), pkeSign.getCertificateChain(), this.explicitParams);
-		this.explicitSHA512Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pkeSign.getPrivateKey(), pkeSign.getCertificateChain(), this.explicitParams);
-		this.implicitSHA256Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pkeSign.getPrivateKey(), pkeSign.getCertificateChain(), this.implicitParams);
-		this.implicitSHA512Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pkeSign.getPrivateKey(), pkeSign.getCertificateChain(), this.implicitParams);
+		this.explicitSHA256Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pkeSign.getPrivateKey(), (X509Certificate[]) pkeSign.getCertificateChain(), this.explicitParams);
+		this.explicitSHA512Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pkeSign.getPrivateKey(), (X509Certificate[]) pkeSign.getCertificateChain(), this.explicitParams);
+		this.implicitSHA256Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA, pkeSign.getPrivateKey(), (X509Certificate[]) pkeSign.getCertificateChain(), this.implicitParams);
+		this.implicitSHA512Signature = this.signer.sign(this.data, AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pkeSign.getPrivateKey(), (X509Certificate[]) pkeSign.getCertificateChain(), this.implicitParams);
 	}
 
 	/** Cofirma impl&iacute;cita con algoritmo SHA512withRSA sobre firma impl&iacute;cita
@@ -123,7 +124,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.implicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -143,7 +144,7 @@ class TestCoSignWithModes {
 			this.implicitSHA512Signature,
 			algorithm,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			this.explicitParams
 		);
 
@@ -162,8 +163,12 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.explicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+			this.explicitSHA512Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
+			this.implicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -181,7 +186,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.explicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -197,8 +202,11 @@ class TestCoSignWithModes {
 		Assertions.assertThrows(ContainsNoDataException.class, () -> {
 			final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 			this.signer.cosign(
-					this.explicitSHA256Signature, algorithm,
-					this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+				this.explicitSHA256Signature, algorithm,
+				this.pke.getPrivateKey(),
+				(X509Certificate[]) this.pke.getCertificateChain(),
+				this.implicitParams
+			);
 			Assertions.fail("No debe ser posible cofirmar una firma sin los datos originales ni la huella en generada con el algoritmo usado en la firma"); //$NON-NLS-1$
 		});
 	}
@@ -212,8 +220,12 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.implicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+			this.implicitSHA256Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
+			this.implicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512SobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -230,8 +242,12 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.implicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+			this.implicitSHA256Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
+			this.explicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512SobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -248,8 +264,13 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.data, this.implicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+			this.data,
+			this.implicitSHA512Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
+			this.implicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -266,8 +287,13 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.data, this.implicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+			this.data,
+			this.implicitSHA512Signature,
+			algorithm,
+			this.pke.getPrivateKey(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
+			this.explicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -284,8 +310,13 @@ class TestCoSignWithModes {
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
 		final byte[] result = this.signer.cosign(
-				this.data, this.explicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+			data,
+			explicitSHA512Signature,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			implicitParams
+		);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -303,7 +334,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.data, this.explicitSHA512Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA512: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -321,7 +352,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.data, this.explicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaExplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -339,7 +370,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.data, this.implicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.implicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.implicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaImplicitaSHA512ConDatosSobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -357,7 +388,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.data, this.explicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaExplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -375,7 +406,7 @@ class TestCoSignWithModes {
 
 		final byte[] result = this.signer.cosign(
 				this.data, this.implicitSHA256Signature, algorithm,
-				this.pke.getPrivateKey(), this.pke.getCertificateChain(), this.explicitParams);
+				this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), this.explicitParams);
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testCofirmaExplicitaSHA512ConDatosSobreFirmaImplicitaSHA256: " + saveFile.getAbsolutePath()); //$NON-NLS-1$

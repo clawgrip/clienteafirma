@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +22,7 @@ import es.gob.afirma.core.signers.AOSigner;
 import es.gob.afirma.signers.cades.AOCAdESSigner;
 
 /** Pruebas de firma de huellas. */
-class TestSignHash {
+final class TestSignHash {
 
 	private static final String CERT_PATH = "ANF_PF_Activo.pfx"; //$NON-NLS-1$
 	private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
@@ -66,7 +67,7 @@ class TestSignHash {
 			hash,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			config
 		);
 
@@ -100,7 +101,7 @@ class TestSignHash {
 			hash,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			this.pke.getPrivateKey(),
-			this.pke.getCertificateChain(),
+			(X509Certificate[]) this.pke.getCertificateChain(),
 			config
 		);
 

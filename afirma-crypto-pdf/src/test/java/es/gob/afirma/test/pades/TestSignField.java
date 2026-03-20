@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -30,6 +31,8 @@ public final class TestSignField {
     private static final String CERT_PATH = "PFActivoFirSHA256.pfx"; //$NON-NLS-1$
     private static final String CERT_PASS = "12341234"; //$NON-NLS-1$
     private static final String CERT_ALIAS = "fisico activo prueba"; //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
 
 	/** Prueba de firma de PDF insertando imagen.
 	 * @throws Exception En cualquier error. */
@@ -69,7 +72,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -80,7 +83,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 				tempFile.getAbsolutePath()
 		);
@@ -91,7 +94,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		tempFile = File.createTempFile("afirmaPDF-IMAGEN-LAST_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -99,7 +102,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 				tempFile.getAbsolutePath()
 		);
@@ -110,7 +113,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		tempFile = File.createTempFile("afirmaPDF-IMAGEN-TODAS_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -118,7 +121,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 				tempFile.getAbsolutePath()
 		);
@@ -132,7 +135,7 @@ public final class TestSignField {
 	@Test
 	void testNewPage() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Prueba de firma de PDF con nueva pagina" //$NON-NLS-1$
 		);
 
@@ -167,7 +170,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -178,7 +181,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 			tempFile.getAbsolutePath()
 		);
@@ -190,7 +193,7 @@ public final class TestSignField {
 	@Test
 	void testCampoDeFirmaSoloConPosiciones() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Prueba de firma de PDF solo con posiciones de firma" //$NON-NLS-1$
 		);
 
@@ -218,7 +221,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -229,7 +232,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 			tempFile.getAbsolutePath()
 		);
@@ -241,7 +244,7 @@ public final class TestSignField {
 	@Test
 	void testCampoDeFirmaConPosicionesYRubrica() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 				"Prueba de firma de PDF con posiciones de firma y rubrica"); //$NON-NLS-1$
 
 		final PrivateKeyEntry pke;
@@ -277,7 +280,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -288,7 +291,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 			tempFile.getAbsolutePath()
 		);
@@ -300,7 +303,7 @@ public final class TestSignField {
 	@Test
 	void testCampoDeFirmaConPosicionesYTexto() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 				"Prueba de firma de PDF con posiciones de firma y texto"); //$NON-NLS-1$
 
 		final PrivateKeyEntry pke;
@@ -333,7 +336,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -344,8 +347,8 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
-				"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
+		LOGGER.info(
+			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 				tempFile.getAbsolutePath());
 	}
 
@@ -355,8 +358,8 @@ public final class TestSignField {
 	@Test
 	void testCampoDeFirmaConPosicionesRubricaYTexto() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
-				"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
+		LOGGER.info(
+			"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
 
 		final PrivateKeyEntry pke;
 
@@ -396,18 +399,17 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
 
 		final File tempFile = File.createTempFile("afirmaPDF", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-
 		try (OutputStream fos = new FileOutputStream(tempFile)) {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 			tempFile.getAbsolutePath()
 		);
@@ -419,8 +421,8 @@ public final class TestSignField {
 	@Test
 	void testCampoDeFirmaRotadoConPosicionesRubricaYTexto() throws Exception {
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
-				"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
+		LOGGER.info(
+			"Prueba de firma de PDF con posiciones de firma, rubrica y texto"); //$NON-NLS-1$
 
 		final PrivateKeyEntry pke;
 
@@ -462,7 +464,7 @@ public final class TestSignField {
 			testPdf,
 			TestSignField.DEFAULT_SIGNATURE_ALGORITHM,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(signedPdf);
@@ -473,7 +475,7 @@ public final class TestSignField {
 			fos.write(signedPdf);
 		}
 
-		Logger.getLogger("es.gob.afirma").info( //$NON-NLS-1$
+		LOGGER.info(
 			"Fichero temporal para la comprobacion manual del resultado: " + //$NON-NLS-1$
 			tempFile.getAbsolutePath()
 		);

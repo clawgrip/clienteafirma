@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.AfterEach;
@@ -18,7 +19,7 @@ import es.gob.afirma.signers.cades.AOCAdESSigner;
 
 /** Prueba asociada a la incidencia #189027 de contrafirma de una firma CAdES-T. */
 @SuppressWarnings("unused")
-class TestINC189027 {
+final class TestINC189027 {
 
 	private static final String FILE_CADES_T = "189027_CAdES-T.csig"; //$NON-NLS-1$
 	private static final String FILE_CADES_A = "cadesA.csig"; //$NON-NLS-1$
@@ -59,7 +60,7 @@ class TestINC189027 {
 				signature,
 				AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA,
 				pke.getPrivateKey(),
-				pke.getCertificateChain(),
+				(X509Certificate[]) pke.getCertificateChain(),
 				config
 			);
 		}

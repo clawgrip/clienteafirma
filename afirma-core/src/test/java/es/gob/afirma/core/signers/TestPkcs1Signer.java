@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.Signature;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 
 import org.junit.jupiter.api.Assertions;
@@ -30,11 +31,12 @@ class TestPkcs1Signer {
 
 		final AOPkcs1Signer signer = new AOPkcs1Signer();
 		final byte[] pkcs1 = signer.sign(
-				data,
-				algorithm,
-				pke.getPrivateKey(),
-				pke.getCertificateChain(),
-				null);
+			data,
+			algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			null
+		);
 
 		final Signature sig = Signature.getInstance(algorithm);
 		sig.initVerify(pke.getCertificate().getPublicKey());

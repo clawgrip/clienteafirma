@@ -11,7 +11,7 @@ package es.gob.afirma.signers.cades;
 
 import java.io.IOException;
 import java.security.PrivateKey;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Properties;
@@ -71,7 +71,7 @@ public final class AOCAdESSigner implements AOSigner {
 	public byte[] sign(final byte[] data,
                        final String algorithm,
                        final PrivateKey key,
-                       final Certificate[] certChain,
+                       final X509Certificate[] certChain,
                        final Properties xParams) throws AOException {
 
     	if (certChain == null || certChain.length < 1) {
@@ -138,7 +138,7 @@ public final class AOCAdESSigner implements AOSigner {
                          final byte[] sign,
                          final String algorithm,
                          final PrivateKey key,
-                         final Certificate[] certChain,
+                         final X509Certificate[] certChain,
                          final Properties xParams) throws AOException {
 
     	final Properties extraParams = getExtraParams(xParams);
@@ -184,7 +184,7 @@ public final class AOCAdESSigner implements AOSigner {
 	public byte[] cosign(final byte[] sign,
                          final String algorithm,
                          final PrivateKey key,
-                         final java.security.cert.Certificate[] certChain,
+                         final X509Certificate[] certChain,
                          final Properties xParams) throws AOException {
 
     	final Properties extraParams = getExtraParams(xParams);

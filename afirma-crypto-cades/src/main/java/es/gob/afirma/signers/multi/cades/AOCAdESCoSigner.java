@@ -12,6 +12,7 @@ package es.gob.afirma.signers.multi.cades;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -34,7 +35,7 @@ public final class AOCAdESCoSigner implements AOCoSigner {
 	public byte[] cosign(final byte[] sign,
                          final String algorithm,
                          final PrivateKey key,
-                         final java.security.cert.Certificate[] certChain,
+                         final X509Certificate[] certChain,
                          final Properties xParams) throws AOException {
 
 		return cosign(null, sign, algorithm, key, certChain, xParams);
@@ -45,7 +46,7 @@ public final class AOCAdESCoSigner implements AOCoSigner {
                          final byte[] sign,
                          final String algorithm,
                          final PrivateKey key,
-                         final java.security.cert.Certificate[] certChain,
+                         final X509Certificate[] certChain,
                          final Properties xParams) throws AOException {
 
         final Properties extraParams = getExtraParams(xParams);
@@ -70,7 +71,7 @@ public final class AOCAdESCoSigner implements AOCoSigner {
         // Purgamos e informamos de las compatibilidades de la configuracion establecida
         noticeIncompatibleConfig(algorithm, extraParams);
 
-        CMSSignedData signedData;
+        final CMSSignedData signedData;
         try {
         	signedData = new CMSSignedData(sign);
         }

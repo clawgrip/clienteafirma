@@ -11,6 +11,7 @@ package es.gob.afirma.core.signers;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import es.gob.afirma.core.AOException;
@@ -41,34 +42,25 @@ public interface AOCoSigner {
     		      byte[] sign,
     		      String algorithm,
     		      PrivateKey key,
-    		      final java.security.cert.Certificate[] certChain,
+    		      final X509Certificate[] certChain,
     		      Properties extraParams) throws AOException, IOException;
 
-
-    /**
-     * Cofirma un contenido (t&iacute;picamente un fichero). Para realizar la
+    /** Cofirma un contenido (t&iacute;picamente un fichero). Para realizar la
      * cofirma se necesita el documento en el que se encuentra la firma sobre la
      * que se realiza la cofirma (a los que se agregar&aacute; el resultado de
      * la nueva firma).<br>
-     * @param sign
-     *        Firma de los datos que se quiere cofirmar.
-     * @param algorithm
-     *        Algoritmo a usar para la firma (SHA1withRSA, SHA512withRSA,...)
+     * @param sign Firma de los datos que se quiere cofirmar.
+     * @param algorithm Algoritmo a usar para la firma (SHA1withRSA, SHA512withRSA,...)
      * @param key Clave privada a usar para firmar
      * @param certChain cadena de certificados del firmante
-     * @param extraParams
-     *        Par&aacute;metros adicionales para la cofirma
-     * @return Contenido firmado
-     * @throws AOException
-     *         Cuando ocurre cualquier problema durante el proceso.
-     * @throws IOException
-     *         Cuando ocurren problemas relacionados con la lectura de los datos.
+     * @param extraParams Par&aacute;metros adicionales para la cofirma.
+     * @return Contenido firmado.
+     * @throws AOException Cuando ocurre cualquier problema durante el proceso.
+     * @throws IOException Cuando ocurren problemas relacionados con la lectura de los datos.
      */
     byte[] cosign(byte[] sign,
     		      String algorithm,
     		      PrivateKey key,
-    		      final java.security.cert.Certificate[] certChain,
+    		      final X509Certificate[] certChain,
     		      Properties extraParams) throws AOException, IOException;
-
-
 }

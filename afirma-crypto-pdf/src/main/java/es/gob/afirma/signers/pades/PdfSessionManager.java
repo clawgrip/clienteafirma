@@ -11,7 +11,6 @@ package es.gob.afirma.signers.pades;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import com.aowagie.text.exceptions.InvalidPageNumberException;
 import com.aowagie.text.pdf.PdfDate;
 import com.aowagie.text.pdf.PdfName;
 import com.aowagie.text.pdf.PdfObject;
-import com.aowagie.text.pdf.PdfPKCS7;
 import com.aowagie.text.pdf.PdfReader;
 import com.aowagie.text.pdf.PdfSignature;
 import com.aowagie.text.pdf.PdfSignatureAppearance;
@@ -78,7 +76,7 @@ public final class PdfSessionManager {
      * @throws AOException En caso de que ocurra cualquier otro tipo de error.
      */
     public static PdfTriPhaseSession getSessionData(final byte[] pdfBytes,
-                                                    final Certificate[] certChain,
+                                                    final X509Certificate[] certChain,
                                                     final Calendar signTime,
                                                     final Properties xParams,
                                                     final boolean secureMode) throws IOException,
@@ -202,7 +200,7 @@ public final class PdfSessionManager {
 			if (extraParams.containsKey(PdfExtraParams.OBFUSCATE_CERT_DATA)) {
 				obfuscate = Boolean.parseBoolean(extraParams.getProperty(PdfExtraParams.OBFUSCATE_CERT_DATA));
 			}
-			else if (AOUtil.isPseudonymCert((X509Certificate) certChain[0])) {
+			else if (AOUtil.isPseudonymCert(certChain[0])) {
 				obfuscate = false;
 			}
 
@@ -210,15 +208,15 @@ public final class PdfSessionManager {
 
 			// Texto en capa 4
 			layer4Text = PdfVisibleAreasUtils.getLayerText(
-					extraParams.getProperty(PdfExtraParams.LAYER4_TEXT),
-					certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
-						signTime,
-						reason,
-						signatureProductionCity,
-						signerContact,
-						obfuscate,
-						pdfMaskConfig
-					);
+				extraParams.getProperty(PdfExtraParams.LAYER4_TEXT),
+				certChain != null && certChain.length > 0 ? (X509Certificate) certChain[0] : null,
+				signTime,
+				reason,
+				signatureProductionCity,
+				signerContact,
+				obfuscate,
+				pdfMaskConfig
+			);
 
 			// Texto en capa 2
 			String configuredLayer2Text = extraParams.getProperty(PdfExtraParams.LAYER2_TEXT);
@@ -291,6 +289,7 @@ public final class PdfSessionManager {
 				layer2FontColor
 			);
 		}
+
 		// ** Fin texto firma visible **
 		// *****************************
 
@@ -322,12 +321,9 @@ public final class PdfSessionManager {
 		// Activar el atributo de "agregar firma" (quinto parametro del metodo
 		// "PdfStamper.createSignature") hace que se cree una nueva revision del
 		// documento y evita que las firmas previas queden invalidadas.
-		// Sin embargo, este procedimiento no funciona cuando los PDF contienen
-		// informacion
-		// despues de la ultima marca %%EOF, aspecto no permitido en PDF 1.7 (ISO
-		// 32000-1:2008)
-		// pero si en PDF 1.3 (Adobe) y que se da con frecuencia en PDF generados con
-		// bibliotetcas
+		// Sin embargo, este procedimiento no funciona cuando los PDF contienen informacion
+		// despues de la ultima marca %%EOF, aspecto no permitido en PDF 1.7 (ISO 32000-1:2008)
+		// pero si en PDF 1.3 (Adobe) y que se da con frecuencia en PDF generados con bibliotetcas
 		// de software libre como QPDF.
 		//
 		// Especificacion PDF 1.3
@@ -342,16 +338,14 @@ public final class PdfSessionManager {
 		// 		PDF file from its end. The last line of the file shall contain only the
 		// 		end-of-file marker, %%EOF.
 		//
-		// Para aceptar al menos en algunos casos PDF 1.3 (son aun muy frecuentes,
-		// especialmente
-		// en archivos, lo mantendremos desactivado para la primera firma y activado
-		// para las subsiguientes.
+		// Para aceptar al menos en algunos casos PDF 1.3 (son aun muy frecuentes, especialmente
+		// en archivos, lo mantendremos desactivado para la primera firma y activado para las subsiguientes.
 		//
 		// No obstante, el integrador puede siempre forzar la creacion de revisiones mediante
 		// el parametro "alwaysCreateRevision".
 		// Aplicamos todos los atributos de firma
-		PdfStamper stp;
 
+		final PdfStamper stp;
 		try {
 			stp = PdfStamper.createSignature(pdfReader, // PDF de entrada
 				baos, // Salida
@@ -366,8 +360,7 @@ public final class PdfSessionManager {
 			throw new AOException("Error al crear la firma para estampar", e); //$NON-NLS-1$
 		}
 		catch (final BadPasswordException e) {
-			// Devolvemos una excepcion u otra segun si se nos proporciono
-			// contrasena o no
+			// Devolvemos una excepcion u otra segun si se nos proporciono contrasena o no
 			if (extraParams.containsKey(PdfExtraParams.OWNER_PASSWORD_STRING) || extraParams.containsKey(PdfExtraParams.USER_PASSWORD_STRING)) {
 				throw new BadPdfPasswordException("La contrasena del PDF es incorrecta", e); //$NON-NLS-1$
 			}
@@ -396,8 +389,7 @@ public final class PdfSessionManager {
 
 			// Comprobamos que la posicion indicada para la firma visible
 			// se pueda estampar en al menos en una de las paginas indicadas
-			// y que sus dimensiones no soprepasen fuera de la primera pagina
-			// en la que se imprima
+			// y que sus dimensiones no soprepasen fuera de la primera pagina en la que se imprima
 			PdfUtil.correctPositionSignature(pdfReader, pages, signaturePositionOnPage);
 		}
 
@@ -495,8 +487,7 @@ public final class PdfSessionManager {
 						if (rubric != null) {
 							sap.setImage(rubric);
 
-							// Establecemos que la imagen no se ajuste al campo
-							// para que no se deforme
+							// Establecemos que la imagen no se ajuste al campo para que no se deforme
 							sap.setImageScale(-1);
 						}
 					}
@@ -553,7 +544,7 @@ public final class PdfSessionManager {
 		}
 
 		if (certChain != null && certChain.length > 0 && !doNotUseCertChainOnPostSign) {
-			dic.setName(PdfPKCS7.getSubjectFields((X509Certificate) certChain[0]).getField("CN")); //$NON-NLS-1$
+			dic.setName(AOUtil.getCN(certChain[0]));
 		}
 
 		if (sap.getReason() != null) {

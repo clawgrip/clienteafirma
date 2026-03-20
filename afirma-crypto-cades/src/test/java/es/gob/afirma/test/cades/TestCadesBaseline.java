@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +46,13 @@ class TestCadesBaseline {
 		extraParams.setProperty("profile", "baseline"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
-		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		final byte[] signature = signer.sign(
+			data,
+			"SHA512withRSA", //$NON-NLS-1$
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			extraParams
+		);
 		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_default_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -64,7 +71,7 @@ class TestCadesBaseline {
 		extraParams.setProperty("mode", "implicit"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
-		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
 		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_implicita_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -84,7 +91,7 @@ class TestCadesBaseline {
 		extraParams.setProperty("signerClaimedRoles", "Firmante|Revisor"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
-		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
 		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_con_roles_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -109,7 +116,7 @@ class TestCadesBaseline {
 		extraParams.setProperty("policyIdentifierHash", "/U5j6SLFdchtPHw6vlety2qLz/M="); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final AOCAdESSigner signer = new AOCAdESSigner();
-		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
+		final byte[] signature = signer.sign(this.data, "SHA512withRSA", this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(), extraParams); //$NON-NLS-1$
 		Assertions.assertNotNull(signature);
 
 		final File outputFile = File.createTempFile("CAdES_BLevel_con_roles_y_politica_", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$

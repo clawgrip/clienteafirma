@@ -132,7 +132,7 @@ final class TestCAdES {
 			data = AOUtil.getDataFromInputStream(is);
 		}
 
-		final byte[] sign = signer.sign(data, "SHA512withRSA", pke.getPrivateKey(), pke.getCertificateChain(), p); //$NON-NLS-1$
+		final byte[] sign = signer.sign(data, "SHA512withRSA", pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), p); //$NON-NLS-1$
 		Assertions.assertNotNull(sign);
 
 		try (OutputStream fos = new FileOutputStream(File.createTempFile("JPG_", ".csig"))) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -147,15 +147,13 @@ final class TestCAdES {
 	void testSignature() throws Exception {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
-		final PrivateKeyEntry pke;
-		final X509Certificate cert;
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
 		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH)) {
 			ks.load(is, CERT_PASS.toCharArray());
 		}
-		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
-		cert = (X509Certificate) ks.getCertificate(CERT_ALIAS);
+		final PrivateKeyEntry pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS, new KeyStore.PasswordProtection(CERT_PASS.toCharArray()));
+		final X509Certificate cert = (X509Certificate) ks.getCertificate(CERT_ALIAS);
 
 		final AOSigner signer = new AOCAdESSigner();
 
@@ -168,17 +166,17 @@ final class TestCAdES {
 					}
 
 					prueba = "Firma CAdES del fichero " + DATA_FILES[i] + " en modo '" +  //$NON-NLS-1$ //$NON-NLS-2$
-							extraParams.getProperty("mode") +  //$NON-NLS-1$
-							"' con el algoritmo ': " + //$NON-NLS-1$
-							algo +
-							"' y politica '" + //$NON-NLS-1$
-							extraParams.getProperty("policyIdentifier") + //$NON-NLS-1$
-							"'"; //$NON-NLS-1$
+						extraParams.getProperty("mode") +  //$NON-NLS-1$
+						"' con el algoritmo ': " + //$NON-NLS-1$
+						algo +
+						"' y politica '" + //$NON-NLS-1$
+						extraParams.getProperty("policyIdentifier") + //$NON-NLS-1$
+						"'"; //$NON-NLS-1$
 
 					System.out.println(prueba);
 
 					final byte[] result = signer.sign(
-						DATA.get(i), algo, pke.getPrivateKey(), pke.getCertificateChain(), extraParams
+						DATA.get(i), algo, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams
 					);
 
 					final File saveFile = File.createTempFile(algo + "-", ".csig"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -206,7 +204,6 @@ final class TestCAdES {
 		}
 	}
 
-
 	/** Prueba de firma indicando los cargos del firmante.
 	 * @throws Exception en cualquier error. */
 	@SuppressWarnings("static-method")
@@ -229,7 +226,7 @@ final class TestCAdES {
 		extraParams.setProperty(CAdESExtraParams.SIGNER_CLAIMED_ROLES, "Apoderado de empresa|Director de proyecto"); //$NON-NLS-1$
 
 		final byte[] result = signer.sign(
-			DATA.get(0), AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pke.getPrivateKey(), pke.getCertificateChain(), extraParams
+			DATA.get(0), AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams
 		);
 		Assertions.assertNotNull(result);
 

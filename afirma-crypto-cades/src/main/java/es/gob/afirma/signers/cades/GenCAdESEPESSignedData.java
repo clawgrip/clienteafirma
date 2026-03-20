@@ -10,7 +10,7 @@
 package es.gob.afirma.signers.cades;
 
 import java.security.PrivateKey;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 import es.gob.afirma.core.AOException;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
@@ -58,14 +58,14 @@ public final class GenCAdESEPESSignedData {
      * @throws AOException Cuando ocurre alg&uacute;n error durante el proceso de codificaci&oacute;n ASN.1 */
     public static byte[] generateSignedData(final String signatureAlgorithm,
                                             final PrivateKey key,
-                                            final Certificate[] certChain,
+                                            final X509Certificate[] certChain,
                                             final CAdESParameters config) throws AOException {
     	if (config == null) {
             throw new IllegalArgumentException("No se ha introducido configuracion para la construccion de la firma"); //$NON-NLS-1$
         }
 
-        final Certificate[] aplicableCertificateChain = config.isIncludedOnlySigningCertificate() ?
-        		new Certificate[] { certChain[0] } : certChain;
+        final X509Certificate[] aplicableCertificateChain = config.isIncludedOnlySigningCertificate() ?
+        		new X509Certificate[] { certChain[0] } : certChain;
 
         // Obtenemos la estructura con los atributos que hay que firmar (Prefirma)
         final byte[] preSignature = CAdESTriPhaseSigner.preSign(aplicableCertificateChain, config);

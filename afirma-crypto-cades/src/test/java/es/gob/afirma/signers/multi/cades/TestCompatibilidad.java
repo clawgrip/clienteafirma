@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +44,7 @@ class TestCompatibilidad {
 			cmsSignature,
 			AOSignConstants.SIGN_ALGORITHM_SHA1WITHRSA,
 			pke.getPrivateKey(),
-			pke.getCertificateChain(),
+			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
 		Assertions.assertNotNull(res);
