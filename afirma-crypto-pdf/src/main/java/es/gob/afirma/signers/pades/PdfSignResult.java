@@ -16,7 +16,6 @@ import java.util.Base64;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
@@ -88,15 +87,8 @@ public final class PdfSignResult {
     	if (!"signTime".equalsIgnoreCase(node.getNodeName())) { //$NON-NLS-1$
     		throw new IOException("No se encontro el nodo 'signTime' del PdfSignResultSerializado"); //$NON-NLS-1$
     	}
-
-    	final DatatypeFactory dataTypeFactory;
-    	try {
-    		dataTypeFactory = DatatypeFactory.newInstance();
-    	}
-    	catch (final Exception e) {
-    		throw new IOException(e);
-    	}
-    	this.signTime = dataTypeFactory.newXMLGregorianCalendar(node.getTextContent().trim()).toGregorianCalendar();
+    	this.signTime = new GregorianCalendar();
+    	this.signTime.setTimeInMillis(Long.parseLong(node.getTextContent().trim()));
     }
 
     /** Construye el resultado de una pre-firma (como primera parte de un firma trif&aacute;sica) o una firma completa PAdES.
@@ -160,13 +152,6 @@ public final class PdfSignResult {
 
     @Override
 	public String toString() {
-    	final DatatypeFactory dataTypeFactory;
-    	try {
-    		dataTypeFactory = DatatypeFactory.newInstance();
-    	}
-    	catch (final Exception e) {
-    		throw new IllegalStateException(e);
-    	}
     	final String base64Properties;
 		try {
 			base64Properties = AOUtil.properties2Base64(getExtraParams());
@@ -189,7 +174,7 @@ public final class PdfSignResult {
 			.append(this.timestamp != null ? Base64.getEncoder().encodeToString(getTimestamp()) : "").append('\n') //$NON-NLS-1$
 			.append(" </timestamp>\n") //$NON-NLS-1$
 			.append(" <signTime>\n") //$NON-NLS-1$
-			.append(dataTypeFactory.newXMLGregorianCalendar(getSignTime()).toXMLFormat()).append('\n')
+			.append(getSignTime().getTimeInMillis()).append('\n')
 			.append(" </signTime>\n") //$NON-NLS-1$
 			.append("</signResult>") //$NON-NLS-1$
 		.toString();

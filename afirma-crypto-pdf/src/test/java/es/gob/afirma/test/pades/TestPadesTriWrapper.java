@@ -65,6 +65,8 @@ public final class TestPadesTriWrapper {
 	        "allowCosigningUnregisteredSignatures=true\n"; //$NON-NLS-1$
 
         final String preSignAsXml = PadesTriWrapper.getPresign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
+        System.out.println(preSignAsXml);
+        System.out.println();
 
         final String getDataTbsAsBase64 = PadesTriWrapper.getDataTbsAsBase64(preSignAsXml);
 
@@ -76,11 +78,10 @@ public final class TestPadesTriWrapper {
         final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams);
         final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
 
-        System.out.println(signatureAsBase64);
+        final String signedPdfAsJson = PadesTriWrapper.getPostSign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
+        final int resPos = signedPdfAsJson.indexOf("\"result\": \"") + "\"result\": \"".length(); //$NON-NLS-1$ //$NON-NLS-2$
 
-        final String signedPdfAsBase64 = PadesTriWrapper.getPostSign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
-
-        final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsBase64);
+        final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsJson.substring(resPos, signedPdfAsJson.indexOf('"',resPos)));
         try (FileOutputStream fos = new FileOutputStream(File.createTempFile("TriPDF_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
         	fos.write(signedPdf);
         }
