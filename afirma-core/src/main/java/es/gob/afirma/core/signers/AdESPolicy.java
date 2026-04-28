@@ -10,6 +10,7 @@
 package es.gob.afirma.core.signers;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -64,16 +65,16 @@ public final class AdESPolicy {
             throw new IllegalArgumentException("El identificador de politica no puede ser nulo ni vacio"); //$NON-NLS-1$
         }
 
-        this.policyIdentifier = identifier;
+        policyIdentifier = identifier;
 
         if (identifierHash == null || "0".equals(identifierHash)) { //$NON-NLS-1$
 
-        	this.policyIdentifierHashAlgorithm = identifierHashAlgorithm == null ?
+        	policyIdentifierHashAlgorithm = identifierHashAlgorithm == null ?
         			DEFAULT_HASH_ALGORITHM : AOSignConstants.getDigestAlgorithmName(identifierHashAlgorithm);
 
-            try (InputStream is = new URL(identifier).openStream()) {
-                this.policyIdentifierHash =  Base64.getEncoder().encodeToString(
-            		MessageDigest.getInstance(this.policyIdentifierHashAlgorithm).digest(
+            try (InputStream is = new URI(identifier).toURL().openStream()) {
+                policyIdentifierHash =  Base64.getEncoder().encodeToString(
+            		MessageDigest.getInstance(policyIdentifierHashAlgorithm).digest(
         				AOUtil.getDataFromInputStream(is)
     				)
         		);
@@ -92,13 +93,13 @@ public final class AdESPolicy {
         		throw new IllegalArgumentException("La huella digital de la politica debe estar en formato Base64"); //$NON-NLS-1$
         	}
 
-        	this.policyIdentifierHash = identifierHash;
-        	this.policyIdentifierHashAlgorithm = AOSignConstants.getDigestAlgorithmName(identifierHashAlgorithm);
+        	policyIdentifierHash = identifierHash;
+        	policyIdentifierHashAlgorithm = AOSignConstants.getDigestAlgorithmName(identifierHashAlgorithm);
         }
 
         if (qualifier != null && !qualifier.isEmpty()) {
             try {
-                this.policyQualifier = new URL(qualifier);
+                policyQualifier = new URI(qualifier).toURL();
             }
             catch (final Exception e) {
                 throw new IllegalArgumentException("El calificador de la politica debe ser una URL valida", e); //$NON-NLS-1$
@@ -110,35 +111,35 @@ public final class AdESPolicy {
      * @return Identificador de la pol&iacute;tica de firma
      */
     public String getPolicyIdentifier() {
-        return this.policyIdentifier;
+        return policyIdentifier;
     }
 
     /** Obtiene la huella digital del identificador de la pol&iacute;tica de firma.
      * @return Huella digital del identificador de la pol&iacute;tica de firma
      */
     public String getPolicyIdentifierHash() {
-        return this.policyIdentifierHash;
+        return policyIdentifierHash;
     }
 
     /** Obtiene el algoritmo usado para el c&aacute;lculo de la huella digital del identificador de la pol&iacute;tica de firma.
      * @return Algoritmo usado para el c&aacute;lculo de la huella digital del identificador de la pol&iacute;tica de firma
      */
     public String getPolicyIdentifierHashAlgorithm() {
-        return this.policyIdentifierHashAlgorithm;
+        return policyIdentifierHashAlgorithm;
     }
 
     /** Obtiene el calificador de la pol&iacute;tica de firma.
      * @return Calificador de la pol&iacute;tica de firma
      */
     public URL getPolicyQualifier() {
-        return this.policyQualifier;
+        return policyQualifier;
     }
 
     /** Obtiene el valor de predefined de la pol&iacute;tica de firma.
      * @return predefined de la pol&iacute;tica de firma
      */
     public boolean isPredefined() {
-        return this.predefined;
+        return predefined;
     }
 
     /** Crea una pol&iacute;tica AdES a partir de un fichero de propiedades.

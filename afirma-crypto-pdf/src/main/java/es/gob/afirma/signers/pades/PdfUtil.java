@@ -341,53 +341,53 @@ public final class PdfUtil {
     				"El campo de firma debe tener un nombre no nulo" //$NON-NLS-1$
 				);
 	    	}
-	    	this.signaturePositionOnPageLowerLeftX = llx;
-	        this.signaturePositionOnPageLowerLeftY = lly;
-	        this.signaturePositionOnPageUpperRightX = urx;
-	        this.signaturePositionOnPageUpperRightY = ury;
-	        this.page = pg;
-	        this.name = n;
+	    	signaturePositionOnPageLowerLeftX = llx;
+	        signaturePositionOnPageLowerLeftY = lly;
+	        signaturePositionOnPageUpperRightX = urx;
+	        signaturePositionOnPageUpperRightY = ury;
+	        page = pg;
+	        name = n;
 	    }
 
 	    @Override
 		public String toString() {
-	    	return this.name;
+	    	return name;
 	    }
 
 	    /** Obtiene el nombre del campo de firma.
 	     * @return Nombre del campo de firma. */
 	    public String getName() {
-	    	return this.name;
+	    	return name;
 	    }
 
 	    /** Obtiene el n&uacute;mero de p&aacute;gina en el que est&aacute; el campo de firma.
 	     * @return N&uacute;mero de p&aacute;gina en el que est&aacute; el campo de firma (empezando desde 1). */
 	    public int getPage() {
-	    	return this.page;
+	    	return page;
 	    }
 
 	    /** Obtiene la coordenada horizontal superior derecha de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina.
 	     * @return Coordenada horizontal superior derecha de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina. */
 	    public int getSignaturePositionOnPageUpperRightX() {
-	    	return this.signaturePositionOnPageUpperRightX;
+	    	return signaturePositionOnPageUpperRightX;
 	    }
 
 	    /** Obtiene la coordenada vertical superior derecha de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina.
 	     * @return Coordenada vertical superior derecha de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina. */
 	    public int getSignaturePositionOnPageUpperRightY() {
-	    	return this.signaturePositionOnPageUpperRightY;
+	    	return signaturePositionOnPageUpperRightY;
 	    }
 
 	    /** Obtiene la Coordenada vertical inferior izquierda de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina.
 	     * @return Coordenada vertical inferior izquierda de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina. */
 	    public int getSignaturePositionOnPageLowerLeftY() {
-	    	return this.signaturePositionOnPageLowerLeftY;
+	    	return signaturePositionOnPageLowerLeftY;
 	    }
 
 	    /** Obtiene la Coordenada horizontal inferior izquierda de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina.
 	     * @return Coordenada horizontal inferior izquierda de la posici&oacute;n del recuadro visible de la firma dentro de la p&aacute;gina. */
 	    public int getSignaturePositionOnPageLowerLeftX() {
-	    	return this.signaturePositionOnPageLowerLeftX;
+	    	return signaturePositionOnPageLowerLeftX;
 	    }
 
 	}
@@ -491,7 +491,8 @@ public final class PdfUtil {
     	int page;
     	try {
     		page = normalizePage(range, totalPages);
-    	} catch (final NumberFormatException nfe) {
+    	}
+    	catch (final NumberFormatException nfe) {
     		page = -1;
     	}
 

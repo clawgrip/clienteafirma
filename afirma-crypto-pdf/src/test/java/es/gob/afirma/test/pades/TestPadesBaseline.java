@@ -24,7 +24,7 @@ import es.gob.afirma.core.util.tree.AOTreeModel;
 import es.gob.afirma.core.util.tree.AOTreeNode;
 import es.gob.afirma.signers.cades.CAdESExtraParams;
 import es.gob.afirma.signers.pades.AOPDFSigner;
-import es.gob.afirma.signers.pades.common.PdfExtraParams;
+import es.gob.afirma.signers.pades.PdfExtraParams;
 
 final class TestPadesBaseline {
 
@@ -62,49 +62,49 @@ final class TestPadesBaseline {
 
 		Logger.getLogger("es.gob.afirma").setLevel(Level.WARNING); //$NON-NLS-1$
 
-		this.baselineParams = new Properties();
-		this.baselineParams.setProperty(PdfExtraParams.PROFILE, AOSignConstants.SIGN_PROFILE_BASELINE);
+		baselineParams = new Properties();
+		baselineParams.setProperty(PdfExtraParams.PROFILE, AOSignConstants.SIGN_PROFILE_BASELINE);
 
-		this.metadataParams = new Properties();
-		this.metadataParams.setProperty(PdfExtraParams.SIGN_REASON, "Raz\u00F3n de firma"); //$NON-NLS-1$
-		this.metadataParams.setProperty(PdfExtraParams.SIGNATURE_PRODUCTION_CITY, "Plaza Espa\u00F1a, Madrid"); //$NON-NLS-1$
-		this.metadataParams.setProperty(PdfExtraParams.SIGNER_CONTACT, "Raz\u00F3n de firma"); //$NON-NLS-1$
+		metadataParams = new Properties();
+		metadataParams.setProperty(PdfExtraParams.SIGN_REASON, "Raz\u00F3n de firma"); //$NON-NLS-1$
+		metadataParams.setProperty(PdfExtraParams.SIGNATURE_PRODUCTION_CITY, "Plaza Espa\u00F1a, Madrid"); //$NON-NLS-1$
+		metadataParams.setProperty(PdfExtraParams.SIGNER_CONTACT, "Raz\u00F3n de firma"); //$NON-NLS-1$
 
-		this.claimedRolesParams = new Properties();
-		this.claimedRolesParams.setProperty(PdfExtraParams.SIGNER_CLAIMED_ROLES, "Rol firmante|Rol validador"); //$NON-NLS-1$
+		claimedRolesParams = new Properties();
+		claimedRolesParams.setProperty(PdfExtraParams.SIGNER_CLAIMED_ROLES, "Rol firmante|Rol validador"); //$NON-NLS-1$
 
-		this.policyParams = new Properties();
-		this.policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER, "urn:oid:2.16.724.1.3.1.1.2.1.9"); //$NON-NLS-1$
-		this.policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER_HASH_ALGORITHM, "http://www.w3.org/2000/09/xmldsig#sha1"); //$NON-NLS-1$
-		this.policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER_HASH, "G7roucf600+f03r/o0bAOQ6WAs0="); //$NON-NLS-1$
-		this.policyParams.setProperty(PdfExtraParams.POLICY_QUALIFIER, "https://sede.060.gob.es/politica_de_firma_anexo_1.pdf"); //$NON-NLS-1$
+		policyParams = new Properties();
+		policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER, "urn:oid:2.16.724.1.3.1.1.2.1.9"); //$NON-NLS-1$
+		policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER_HASH_ALGORITHM, "http://www.w3.org/2000/09/xmldsig#sha1"); //$NON-NLS-1$
+		policyParams.setProperty(PdfExtraParams.POLICY_IDENTIFIER_HASH, "G7roucf600+f03r/o0bAOQ6WAs0="); //$NON-NLS-1$
+		policyParams.setProperty(PdfExtraParams.POLICY_QUALIFIER, "https://sede.060.gob.es/politica_de_firma_anexo_1.pdf"); //$NON-NLS-1$
 
-		this.commitmentTypeIndicationsParams = new Properties();
-		this.commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATIONS, "2"); //$NON-NLS-1$
-		this.commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "0" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_IDENTIFIER, "1"); //$NON-NLS-1$ //$NON-NLS-2$
-		this.commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "0" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_QUALIFIERS, "1.2.3.4|1.56.23.1"); //$NON-NLS-1$ //$NON-NLS-2$
-		this.commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "1" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_IDENTIFIER, "6"); //$NON-NLS-1$ //$NON-NLS-2$
-		this.commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "1" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_QUALIFIERS, "1.56.23.2"); //$NON-NLS-1$ //$NON-NLS-2$
+		commitmentTypeIndicationsParams = new Properties();
+		commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATIONS, "2"); //$NON-NLS-1$
+		commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "0" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_IDENTIFIER, "1"); //$NON-NLS-1$ //$NON-NLS-2$
+		commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "0" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_QUALIFIERS, "1.2.3.4|1.56.23.1"); //$NON-NLS-1$ //$NON-NLS-2$
+		commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "1" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_IDENTIFIER, "6"); //$NON-NLS-1$ //$NON-NLS-2$
+		commitmentTypeIndicationsParams.setProperty(PdfExtraParams.COMMITMENT_TYPE_INDICATION_PREFIX + "1" + PdfExtraParams.COMMITMENT_TYPE_INDICATION_QUALIFIERS, "1.56.23.2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Tipos erroneos que no deberian declararse
-		this.contentHintParams = new Properties();
-		this.contentHintParams.setProperty(CAdESExtraParams.CONTENT_TYPE_OID, "1.2.840.10008.1.2.4.50"); //$NON-NLS-1$
-		this.contentHintParams.setProperty(CAdESExtraParams.CONTENT_DESCRIPTION, "JPEG Image"); //$NON-NLS-1$
+		contentHintParams = new Properties();
+		contentHintParams.setProperty(CAdESExtraParams.CONTENT_TYPE_OID, "1.2.840.10008.1.2.4.50"); //$NON-NLS-1$
+		contentHintParams.setProperty(CAdESExtraParams.CONTENT_DESCRIPTION, "JPEG Image"); //$NON-NLS-1$
 
 		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
 		try (InputStream is = ClassLoader.getSystemResourceAsStream(CERT_PATH_TO_SIGN)) {
 			ks.load(is, CERT_PASS_TO_SIGN.toCharArray());
 		}
-		this.pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_SIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_SIGN.toCharArray()));
+		pke = (PrivateKeyEntry) ks.getEntry(CERT_ALIAS_TO_SIGN, new KeyStore.PasswordProtection(CERT_PASS_TO_SIGN.toCharArray()));
 
 		try (InputStream is = TestPadesBaseline.class.getResourceAsStream("/" + DATA_FILE)) { //$NON-NLS-1$
-			this.data = AOUtil.getDataFromInputStream(is);
+			data = AOUtil.getDataFromInputStream(is);
 		}
 		catch (final IOException e) {
 			LOGGER.log(Level.SEVERE, "No se ha podido cargar el fichero de pruebas: " + DATA_FILE, e);  //$NON-NLS-1$
 		}
 
-		this.signer = new AOPDFSigner();
+		signer = new AOPDFSigner();
 	}
 
 	/** Firma baseline.
@@ -114,12 +114,12 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
 			(X509Certificate[]) pke.getCertificateChain(),
-			this.baselineParams
+			baselineParams
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -136,12 +136,12 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
 			(X509Certificate[]) pke.getCertificateChain(),
-			add(this.baselineParams, this.metadataParams)
+			add(baselineParams, metadataParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -158,11 +158,11 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
-			this.data, algorithm,
-			this.pke.getPrivateKey(),
-			(X509Certificate[]) this.pke.getCertificateChain(),
-			add(this.baselineParams, this.commitmentTypeIndicationsParams)
+		final byte[] result = signer.sign(
+			data, algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, commitmentTypeIndicationsParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -178,11 +178,11 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
-			this.data, algorithm,
-			this.pke.getPrivateKey(),
-			(X509Certificate[]) this.pke.getCertificateChain(),
-			add(this.baselineParams, this.claimedRolesParams)
+		final byte[] result = signer.sign(
+			data, algorithm,
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, claimedRolesParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -198,12 +198,12 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
-			this.data,
+		final byte[] result = signer.sign(
+			data,
 			algorithm,
-			this.pke.getPrivateKey(),
-			(X509Certificate[]) this.pke.getCertificateChain(),
-			add(this.baselineParams, this.policyParams)
+			pke.getPrivateKey(),
+			(X509Certificate[]) pke.getCertificateChain(),
+			add(baselineParams, policyParams)
 		);
 
 		final File saveFile = saveTempFile(result);
@@ -219,7 +219,7 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
@@ -240,7 +240,7 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
@@ -262,7 +262,7 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
@@ -287,7 +287,7 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
+		final byte[] result = signer.sign(
 			data,
 			algorithm,
 			pke.getPrivateKey(),
@@ -307,9 +307,9 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(),
-				add(this.baselineParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
+		final byte[] result = signer.sign(
+				data, algorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(),
+				add(baselineParams, metadataParams, commitmentTypeIndicationsParams, claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConReasonYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -325,9 +325,9 @@ final class TestPadesBaseline {
 
 		final String algorithm = AOSignConstants.SIGN_ALGORITHM_SHA512WITHRSA;
 
-		final byte[] result = this.signer.sign(
-				this.data, algorithm, this.pke.getPrivateKey(), (X509Certificate[]) this.pke.getCertificateChain(),
-				add(this.baselineParams, this.policyParams, this.metadataParams, this.commitmentTypeIndicationsParams, this.claimedRolesParams));
+		final byte[] result = signer.sign(
+				data, algorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(),
+				add(baselineParams, policyParams, metadataParams, commitmentTypeIndicationsParams, claimedRolesParams));
 
 		final File saveFile = saveTempFile(result);
 		System.out.println("Prueba testFirmaBaselineConPoliticaReasonYCommitmentTypeIndications: " + saveFile.getAbsolutePath()); //$NON-NLS-1$
@@ -371,9 +371,9 @@ final class TestPadesBaseline {
 	private void checkSign(final byte[] signature, final String algorithm) {
 
 		Assertions.assertNotNull(signature, "Se ha obtenido una firma nula"); //$NON-NLS-1$
-		Assertions.assertTrue(this.signer.isSign(signature), "La firma no se reconoce como firma PAdES"); //$NON-NLS-1$
+		Assertions.assertTrue(signer.isSign(signature), "La firma no se reconoce como firma PAdES"); //$NON-NLS-1$
 
-		final AOTreeModel tree = this.signer.getSignersStructure(signature, true);
+		final AOTreeModel tree = signer.getSignersStructure(signature, true);
 
 		final AOTreeNode rootNode = (AOTreeNode) tree.getRoot();
 		Assertions.assertEquals("Datos", rootNode.getUserObject(), "No se interpreto correctamente la estructura de la firma"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -381,7 +381,7 @@ final class TestPadesBaseline {
 		AOSimpleSignInfo signInfo = null;
 		for (int i = 0; i < rootNode.getChildCount(); i++) {
 			final AOSimpleSignInfo currrentSignInfo = (AOSimpleSignInfo) rootNode.getChildAt(i).getUserObject();
-			if (this.pke.getCertificate().equals(currrentSignInfo.getCerts()[0])) {
+			if (pke.getCertificate().equals(currrentSignInfo.getCerts()[0])) {
 				signInfo = currrentSignInfo;
 				break;
 			}

@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Base64;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -67,9 +66,12 @@ public final class DataDownloader {
 			return UrlHttpManagerFactory.getInstalledManager().readUrl(dataSource, UrlHttpMethod.GET);
 		}
 
-		if (dataSource.startsWith("ftp://")) { //$NON-NLS-1$
-			try (InputStream ftpStream = new URL(dataSource).openStream()) {
+		if (dataSource.startsWith("ftp://")) { //$NON-NLS-1$∫
+			try (InputStream ftpStream = new URI(dataSource).toURL().openStream()) {
 				return AOUtil.getDataFromInputStream(ftpStream);
+			}
+			catch (final URISyntaxException e) {
+				throw new IOException(e);
 			}
 		}
 
