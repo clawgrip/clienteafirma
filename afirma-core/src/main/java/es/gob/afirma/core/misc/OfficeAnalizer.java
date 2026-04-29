@@ -179,7 +179,7 @@ public final class OfficeAnalizer {
     		Files.delete(tempFile.toPath());
     	}
     	catch (final IOException e) {
-    		LOGGER.warning(()-> "No se ha podido eliminar el fichero temporal:  " + e); //$NON-NLS-1$
+    		LOGGER.warning(()-> "No se ha podido eliminar el fichero temporal: " + e); //$NON-NLS-1$
     	}
 
     	if (mimetype == null) {
@@ -271,7 +271,7 @@ public final class OfficeAnalizer {
     	File tempFile = null;
     	try {
         	if (document.length >= THRESHOLD_FILE_SIZE) {
-        		throw new IOException("El archivo tiene un tamano superior al permitido."); //$NON-NLS-1$
+        		throw new IOException("El archivo tiene un tamano superior al permitido: " + document.length); //$NON-NLS-1$
         	}
     		tempFile = AOFileUtils.createTempFile(document);
 			try (final ZipFile zipFile = new ZipFile(tempFile)) {
@@ -285,15 +285,15 @@ public final class OfficeAnalizer {
     	if (tempFile != null) {
     		try {
 				Files.delete(tempFile.toPath());
-			} catch (final IOException e) {
-				LOGGER.warning("No se ha podido eliminar el fichero temporal:  " + e); //$NON-NLS-1$
+			}
+    		catch (final IOException e) {
+				LOGGER.warning("No se ha podido eliminar el fichero temporal: " + e); //$NON-NLS-1$
 			}
     	}
     	return result;
     }
 
-    /** Indica si un fichero Zip tiene la estructura de un documento OOXML
-     * soportado.
+    /** Indica si un fichero Zip tiene la estructura de un documento OOXML soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
      * @return Devuelve <code>true</code> si el fichero era un OOXML soportado, <code>false</code> en caso contrario. */
     private static boolean isOOXMLFile(final ZipFile zipFile) {
@@ -321,7 +321,7 @@ public final class OfficeAnalizer {
 
         // Obtenemos la raiz
         final Element root = doc.getDocumentElement();
-        if (!root.getNodeName().equalsIgnoreCase("Types")) { //$NON-NLS-1$
+        if (!"Types".equalsIgnoreCase(root.getNodeName())) { //$NON-NLS-1$
             return null;
         }
 
@@ -329,11 +329,11 @@ public final class OfficeAnalizer {
         final NodeList nodes = root.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             node = nodes.item(i);
-            if (node.getNodeName().equalsIgnoreCase("Override")) { //$NON-NLS-1$
+            if ("Override".equalsIgnoreCase(node.getNodeName())) { //$NON-NLS-1$
                 final NamedNodeMap nodeAttributes = node.getAttributes();
                 Node nodeAttribute = null;
                 for (int j = 0; j < nodeAttributes.getLength(); j++) {
-                    if (nodeAttributes.item(j).getNodeName().equalsIgnoreCase("ContentType")) { //$NON-NLS-1$
+                    if ("ContentType".equalsIgnoreCase(nodeAttributes.item(j).getNodeName())) { //$NON-NLS-1$
                         nodeAttribute = nodeAttributes.item(j);
                         break;
                     }
@@ -363,7 +363,7 @@ public final class OfficeAnalizer {
     	File tempFile = null;
     	try {
         	if (document.length >= THRESHOLD_FILE_SIZE) {
-        		throw new IOException("El archivo tiene un tamano superior al permitido."); //$NON-NLS-1$
+        		throw new IOException("El archivo tiene un tamano superior al permitido: " + document.length); //$NON-NLS-1$
         	}
     		tempFile = AOFileUtils.createTempFile(document);
 			try (final ZipFile zipFile = new ZipFile(tempFile)) {
@@ -377,15 +377,15 @@ public final class OfficeAnalizer {
     	if (tempFile != null) {
     		try {
 				Files.delete(tempFile.toPath());
-			} catch (final IOException e) {
-				LOGGER.warning("No se ha podido eliminar el fichero temporal:  " + e); //$NON-NLS-1$
+			}
+    		catch (final IOException e) {
+				LOGGER.warning("No se ha podido eliminar el fichero temporal: " + e); //$NON-NLS-1$
 			}
     	}
     	return result;
     }
 
-    /** Indica si un fichero Zip tiene la estructura de un documento ODF
-     * soportado.
+    /** Indica si un fichero Zip tiene la estructura de un documento ODF soportado.
      * @param zipFile Fichero Zip que deseamos comprobar.
      * @return Devuelve <code>true</code> si el fichero era un ODF soportado, <code>false</code> en caso contrario. */
     private static boolean isODFFile(final ZipFile zipFile) {
@@ -399,8 +399,8 @@ public final class OfficeAnalizer {
 			zipFile.getEntry("META-INF/manifest.xml") != null; //$NON-NLS-1$
     }
 
-    /** Recupera la extensi&oacute;n apropiada para un documento ODF. Si el
-     * fichero no era un documento ODF soportado, se devolver&aacute; <code>null</code>.
+    /** Recupera la extensi&oacute;n apropiada para un documento ODF.
+     * Si el fichero no era un documento ODF soportado, se devolver&aacute; <code>null</code>.
      * @param contentTypeIs Fichero del que deseamos obtener la extensi&oacute;n.
      * @return Extensi&oacute;n del documento. */
     private static String getODFMimeType(final InputStream contentTypeIs) {

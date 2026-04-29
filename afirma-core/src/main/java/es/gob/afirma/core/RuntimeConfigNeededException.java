@@ -57,19 +57,19 @@ public class RuntimeConfigNeededException extends AOException {
 	/** Obtiene el tipo de configuraci&oacute;n necesaria.
 	 * @return Tipo de configuraci&oacute;n necesaria. */
 	public RequestType getRequestType() {
-		return this.requestType;
+		return requestType;
 	}
 
 	/** Obtiene el mensaje o c&oacute;digo de mensaje para la solicitud de la informaci&oacute;n.
 	 * @return Mensaje o c&oacute;digo de mensaje. */
 	public String getRequestorText() {
-		return this.requestorText;
+		return requestorText;
 	}
 
 	/** Obtiene el identificador del par&aacute;metro de configuraci&oacute;n.
 	 * @return Identificador del par&aacute;metro que se configurar&aacute; con la informaci&oacute;n. */
 	public String getParam() {
-		return this.param;
+		return param;
 	}
 
 	/** Establece si se ha denegado la posibilidad de configurar o permitir la operaci&oacute;n.
@@ -83,7 +83,7 @@ public class RuntimeConfigNeededException extends AOException {
 	 * @return {@code true} si la operaci&oacute;n debe bloquearse, {@code false} en caso
 	 *         de que se pueda obtener a&uacute;n la configuraci&oacute;n necesaria. */
 	public boolean isDenied() {
-		return this.denied;
+		return denied;
 	}
 
 	/** Tipos de configuraci&oacute;n necesaria. */

@@ -331,6 +331,7 @@ public class TestPAdES {
         try (InputStream is = ClassLoader.getSystemResourceAsStream(TestContants.CERT_PATH)) {
         	ks.load(is, TestContants.CERT_PASS.toCharArray());
         }
+
         pke = (PrivateKeyEntry) ks.getEntry(TestContants.CERT_ALIAS, new KeyStore.PasswordProtection(TestContants.CERT_PASS.toCharArray()));
 
         final AOPDFSigner signer = new AOPDFSigner();

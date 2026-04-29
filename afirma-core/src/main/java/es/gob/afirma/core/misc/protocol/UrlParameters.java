@@ -10,6 +10,7 @@
 package es.gob.afirma.core.misc.protocol;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -95,23 +96,23 @@ public abstract class UrlParameters {
 	 * @return Par&aacute;metros adicionales de la firma
 	 */
 	public Properties getExtraParams() {
-		if (this.extraParams == null) {
-			this.extraParams = new Properties();
+		if (extraParams == null) {
+			extraParams = new Properties();
 		}
-		return this.extraParams;
+		return extraParams;
 	}
 
 	/** Establece los par&aacute;metros adicionales para la configuraci&oacute;n
 	 * de la operaci&oacute;n de firma.
 	 * @param properties Propiedades adicionales. */
 	void setExtraParams(final Properties properties) {
-		this.extraParams = properties != null ? properties : new Properties();
+		extraParams = properties != null ? properties : new Properties();
 	}
 
 	/** Obtiene el nombre de fichero propuesto para guardar los datos.
 	 * @return Nombre de fichero propuesto para guardar los datos */
 	public String getFileName() {
-		return this.filename;
+		return filename;
 	}
 
 	/** Establece el nombre de fichero propuesto para guardar los datos.
@@ -123,31 +124,31 @@ public abstract class UrlParameters {
 	/** Obtiene el nombre del almac&eacute;n de claves a usar por defecto.
 	 * @return Nombre del almac&eacute;n de claves a usar por defecto */
 	public String getDefaultKeyStore() {
-		return this.defaultKeyStore;
+		return defaultKeyStore;
 	}
 
 	/** Establece el nombre del almac&eacute;n de claves a usar por defecto.
 	 * @param storeName Nombre del almac&eacute;n de claves a usar por defecto */
 	void setDefaultKeyStore(final String storeName) {
-		this.defaultKeyStore = storeName;
+		defaultKeyStore = storeName;
 	}
 
 	/** Obtiene la ruta de la biblioteca del almac&eacute;n de claves a usar por defecto.
 	 * @return Ruta de la biblioteca del almac&eacute;n de claves a usar por defecto */
 	public String getDefaultKeyStoreLib() {
-		return this.defaultKeyStoreLib;
+		return defaultKeyStoreLib;
 	}
 
 	/** Establece la biblioteca del almac&eacute;n de claves a usar por defecto.
 	 * @param storeLib Ruta de la biblioteca del almac&eacute;n de claves a usar por defecto */
 	void setDefaultKeyStoreLib(final String storeLib) {
-		this.defaultKeyStoreLib = storeLib;
+		defaultKeyStoreLib = storeLib;
 	}
 
 	/** Establece los datos.
 	 * @param dat Datos. */
 	public void setData(final byte[] dat) {
-		this.data = dat != null ? Arrays.copyOf(dat, dat.length) : null;
+		data = dat != null ? Arrays.copyOf(dat, dat.length) : null;
 	}
 
 	/** Establece el identificador de los datos en el servidor intermedio.
@@ -159,7 +160,7 @@ public abstract class UrlParameters {
 	/** Establece la clave DES de cifrado de los datos a subir al servidor intermedio.
 	 * @param key Clave DES de cifrado de los datos a subir al servidor intermedio */
 	private void setDesKey(final byte[] key) {
-		this.desKey = key != null ? Arrays.copyOf(key, key.length) : null;
+		desKey = key != null ? Arrays.copyOf(key, key.length) : null;
 	}
 
 	/** Establece la URL de subida al servidor intermedio.
@@ -171,35 +172,35 @@ public abstract class UrlParameters {
 	/** Obtiene los datos.
 	 * @return Datos. */
 	public byte[] getData() {
-		return  this.data != null ? Arrays.copyOf(this.data, this.data.length) : null;
+		return  data != null ? Arrays.copyOf(data, data.length) : null;
 	}
 
 	/** Obtiene el identificador de los datos en el servidor intermedio.
 	 * @return Identificador de los datos en el servidor intermedio */
 	public String getFileId() {
-		return this.fileId;
+		return fileId;
 	}
 
 	/** Obtiene la clave DES de cifrado de los datos a subir al servidor intermedio.
 	 * @return Clave DES de cifrado de los datos a subir al servidor intermedio */
 	public byte[] getDesKey() {
-		return this.desKey != null ? Arrays.copyOf(this.desKey, this.desKey.length) : null;
+		return desKey != null ? Arrays.copyOf(desKey, desKey.length) : null;
 	}
 
 	/** Obtiene la URL de subida al servidor intermedio.
 	 * @return URL de subida al servidor intermedio */
 	public URL getRetrieveServletUrl() {
-		return this.retrieveServletUrl;
+		return retrieveServletUrl;
 	}
 
 	/** Obtiene la URL del servlet de almacenamiento temporal en servidor.
 	 * @return URL del servlet de almacenamiento temporal en servidor */
 	public URL getStorageServletUrl() {
-		return this.storageServerUrl;
+		return storageServerUrl;
 	}
 
 	protected void setStorageServletUrl(final URL url) {
-		this.storageServerUrl = url;
+		storageServerUrl = url;
 	}
 
 	/** Obtiene el indicador de si se ha solicitado que se realice una espera activa
@@ -207,7 +208,7 @@ public abstract class UrlParameters {
 	 * @return {@code true} si se pide que se emita la solicitud de espera activa,
 	 * {@code false} en caso contrario. */
 	public boolean isActiveWaiting() {
-		return this.activeWaiting;
+		return activeWaiting;
 	}
 
 	/** Establece si debe solicitarse a los clientes la espera activa hasta la obtenci&oacute;n del resultado de la operaci&oacute;n.
@@ -219,7 +220,7 @@ public abstract class UrlParameters {
 	/** Obtiene la versi&oacute;n m&iacute;nima del cliente exigida por la aplicaci&oacute;n.
 	 * @return Versi&oacute;n m&iacute;nima del cliente o {@code null} si no se estableci&oacute;. */
 	public String getMinimumClientVersion() {
-		return this.minimumClientVersion;
+		return minimumClientVersion;
 	}
 
 	/** Establece qu&eacute; versi&oacute;n m&iacute;nima del cliente exige la aplicaci&oacute;n.
@@ -231,11 +232,11 @@ public abstract class UrlParameters {
 	/** Obtiene el identificador de sesi&oacute;n.
 	 * @return Identificador de sesi&oacute;n */
 	public String getId() {
-		return this.id;
+		return id;
 	}
 
 	void setSessionId(final String sessionId) {
-		this.id = sessionId;
+		id = sessionId;
 	}
 
 	void setCommonParameters(final Map<String, String> params) throws ParameterException {
@@ -329,7 +330,7 @@ public abstract class UrlParameters {
 		// Comprobamos que la URL sea valida
 		final URL servletUrl;
 		try {
-			servletUrl = new URL(URLDecoder.decode(url, DEFAULT_ENCODING));
+			servletUrl = new URI(URLDecoder.decode(url, DEFAULT_ENCODING)).toURL();
 		}
 		catch (final Exception e) {
 			throw new ParameterException(

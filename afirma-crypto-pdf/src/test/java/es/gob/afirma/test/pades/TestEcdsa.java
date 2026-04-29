@@ -28,7 +28,7 @@ final class TestEcdsa {
 	private static final String CRT = "/juaneliptico.p12"; //$NON-NLS-1$
 	private static final char[] PWD = "12341234".toCharArray(); //$NON-NLS-1$
 
-	private static final String PDF = "/empty_signature_field.pdf"; //$NON-NLS-1$
+	private static final String PDF = "/TEST_PDF.pdf"; //$NON-NLS-1$
 
 	private static List<byte[]> extractP7(final byte[] pdf) throws Exception {
 		final PdfReader pdfReader = new PdfReader(pdf);
@@ -70,12 +70,14 @@ final class TestEcdsa {
 			(X509Certificate[]) pke.getCertificateChain(),
 			extraParams
 		);
-		try (final OutputStream fos = new FileOutputStream(File.createTempFile("PKCS7_AFIRMA_ECDSA_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
+		final File tempPdf = File.createTempFile("PKCS7_AFIRMA_ECDSA_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
+		try (OutputStream fos = new FileOutputStream(tempPdf)) {
 			fos.write(signedPdf);
 		}
+		System.out.println("Temporal para comprobacion: " + tempPdf.getAbsolutePath()); //$NON-NLS-1$
 
 		final byte[] p7 = extractP7(signedPdf).get(0);
-		try (final OutputStream fos = new FileOutputStream(File.createTempFile("PKCS7_AFIRMA_ECDSA_", ".p7s"))) { //$NON-NLS-1$ //$NON-NLS-2$
+		try (OutputStream fos = new FileOutputStream(File.createTempFile("PKCS7_AFIRMA_ECDSA_", ".p7s"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			fos.write(p7);
 		}
 	}

@@ -71,10 +71,10 @@ public final class CMSTimestamper {
                      	  final String tsaUsr,
                      	  final String tsaPwd,
                      	  final TsaRequestExtension[] extensions) {
-        this.tsqGenerator = new TimeStampRequestGenerator();
+        tsqGenerator = new TimeStampRequestGenerator();
         if (extensions != null) {
         	for (final TsaRequestExtension ext : extensions) {
-        		this.tsqGenerator.addExtension(
+        		tsqGenerator.addExtension(
     				new ASN1ObjectIdentifier(ext.getOid()),
     				ext.isCritical(),
     				ext.getValue()
@@ -82,13 +82,13 @@ public final class CMSTimestamper {
         		LOGGER.info(()-> "Anadida extension a la solicitud de sello de tiempo: " + ext); //$NON-NLS-1$
         	}
         }
-        this.tsqGenerator.setCertReq(requireCert);
+        tsqGenerator.setCertReq(requireCert);
         if (policy != null) {
-			this.tsqGenerator.setReqPolicy(new ASN1ObjectIdentifier(policy));
+			tsqGenerator.setReqPolicy(new ASN1ObjectIdentifier(policy));
 		}
-        this.tsaURL = tsa;
-        this.tsaPassword = tsaPwd;
-        this.tsaUsername = tsaUsr;
+        tsaURL = tsa;
+        tsaPassword = tsaPwd;
+        tsaUsername = tsaUsr;
     }
 
     /** Construye un estampador de sellos de tiempo para estructuras CMS y CAdES.
@@ -171,7 +171,7 @@ public final class CMSTimestamper {
     		respBytes = AOUtil.getDataFromInputStream(is);
     	}
         final String encoding = conn.getContentEncoding();
-        if (encoding != null && encoding.equalsIgnoreCase("base64")) { //$NON-NLS-1$
+        if (encoding != null && "base64".equalsIgnoreCase(encoding)) { //$NON-NLS-1$
              return Base64.getDecoder().decode(new String(respBytes));
         }
         return respBytes;
@@ -182,15 +182,15 @@ public final class CMSTimestamper {
      * @throws IOException Cuando ocurre un error al abrir la conexi&oacute;n o si la URL no es v&aacute;lida. */
     private URLConnection prepareConnection() throws IOException {
 
-    	final URLConnection tsaConnection = this.tsaURL.toURL().openConnection();
+    	final URLConnection tsaConnection = tsaURL.toURL().openConnection();
         tsaConnection.setDoInput(true);
         tsaConnection.setDoOutput(true);
         tsaConnection.setUseCaches(false);
         tsaConnection.setRequestProperty("Content-Type", "application/timestamp-query"); //$NON-NLS-1$ //$NON-NLS-2$
         tsaConnection.setRequestProperty("Content-Transfer-Encoding", "binary"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        if (this.tsaUsername != null && !this.tsaUsername.isEmpty()) {
-            final String userPassword = this.tsaUsername + ":" + this.tsaPassword; //$NON-NLS-1$
+        if (tsaUsername != null && !tsaUsername.isEmpty()) {
+            final String userPassword = tsaUsername + ":" + tsaPassword; //$NON-NLS-1$
             tsaConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString(userPassword.getBytes())); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
@@ -206,7 +206,7 @@ public final class CMSTimestamper {
      * @throws IOException Si hay errores en la comunicaci&oacute;n o en la lectura de datos con la TSA. */
     public byte[] getTimeStampToken(final byte[] imprint, final String hashAlgorithm, final Calendar time) throws AOException, IOException {
 
-		final TimeStampRequest request = this.tsqGenerator.generate(
+		final TimeStampRequest request = tsqGenerator.generate(
 			new ASN1ObjectIdentifier(AOAlgorithmID.getOID(hashAlgorithm)),
 			imprint,
 			BigInteger.valueOf(time != null ? time.getTimeInMillis() : System.currentTimeMillis())
@@ -244,13 +244,13 @@ public final class CMSTimestamper {
 		final PKIFailureInfo failure = response.getFailInfo();
 		final int value = failure == null ? 0 : failure.intValue();
 		if (value != 0) {
-			throw new AOException("Respuesta invalida de la TSA ('" + this.tsaURL + "') con el codigo " + value); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new AOException("Respuesta invalida de la TSA ('" + tsaURL + "') con el codigo " + value); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Extraemos el token de sello de tiempo (quitando la informacion de estado de las comunicaciones)
 		final TimeStampToken tsToken = response.getTimeStampToken();
 		if (tsToken == null) {
-			throw new AOException("La respuesta de la TSA ('" + this.tsaURL //$NON-NLS-1$
+			throw new AOException("La respuesta de la TSA ('" + tsaURL //$NON-NLS-1$
 				+ "') no contiene un sello de tiempo valido: " + new String(rawResponse)); //$NON-NLS-1$
 		}
 

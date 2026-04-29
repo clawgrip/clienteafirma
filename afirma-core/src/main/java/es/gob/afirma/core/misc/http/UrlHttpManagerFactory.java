@@ -15,6 +15,10 @@ public abstract class UrlHttpManagerFactory {
 
 	private static UrlHttpManager staticUrlManager = null;
 
+	private UrlHttpManagerFactory() {
+		// No instanciable
+	}
+
 	/** Instala el manejador que se encargar&aacute; de realizar las conexiones con las URL indicadas.
 	 * @param urlManager Manejador de conexicion para la lectura y env&iacute;o de datos. */
 	public static void install(final UrlHttpManager urlManager) {

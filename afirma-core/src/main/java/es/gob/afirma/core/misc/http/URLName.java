@@ -52,6 +52,7 @@ package es.gob.afirma.core.misc.http;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -65,7 +66,6 @@ import java.util.logging.Logger;
  * @version 1.19, 07/05/04
  * @author Christopher Cotton
  * @author Bill Shannon */
-
 final class URLName {
 
 	private static final Logger LOGGER = Logger.getLogger("es.gob.afirma"); //$NON-NLS-1$
@@ -124,62 +124,62 @@ final class URLName {
 	/** Constructs a string representation of this URLName. */
 	@Override
 	public String toString() {
-		if (this.fullURL == null) {
+		if (fullURL == null) {
 			// add the "protocol:"
-			final StringBuffer tempURL = new StringBuffer();
-			if (this.protocol != null) {
-				tempURL.append(this.protocol);
+			final StringBuilder tempURL = new StringBuilder();
+			if (protocol != null) {
+				tempURL.append(protocol);
 				tempURL.append(":"); //$NON-NLS-1$
 			}
 
-			if (this.username != null || this.host != null) {
+			if (username != null || host != null) {
 				// add the "//"
 				tempURL.append("//"); //$NON-NLS-1$
 
 				// add the user:password@
 				// XXX - can you just have a password? without a username?
-				if (this.username != null) {
-					tempURL.append(this.username);
+				if (username != null) {
+					tempURL.append(username);
 
-					if (this.password != null) {
+					if (password != null) {
 						tempURL.append(":"); //$NON-NLS-1$
-						tempURL.append(this.password);
+						tempURL.append(password);
 					}
 
 					tempURL.append("@"); //$NON-NLS-1$
 				}
 
 				// add host
-				if (this.host != null) {
-					tempURL.append(this.host);
+				if (host != null) {
+					tempURL.append(host);
 				}
 
 				// add port (if needed)
-				if (this.port != -1) {
+				if (port != -1) {
 					tempURL.append(":"); //$NON-NLS-1$
-					tempURL.append(Integer.toString(this.port));
+					tempURL.append(Integer.toString(port));
 				}
-				if (this.file != null) {
+				if (file != null) {
 					tempURL.append("/"); //$NON-NLS-1$
 				}
 			}
 
 			// add the file
-			if (this.file != null) {
-				tempURL.append(this.file);
+			if (file != null) {
+				tempURL.append(file);
 			}
 
 			// add the ref
-			if (this.ref != null) {
+			if (ref != null) {
 				tempURL.append("#"); //$NON-NLS-1$
-				tempURL.append(this.ref);
+				tempURL.append(ref);
 			}
 
 			// create the fullURL now
-			this.fullURL = tempURL.toString();
+			fullURL = tempURL.toString();
 		}
 
-		return this.fullURL;
+		return fullURL;
 	}
 
 	/** Method which does all of the work of parsing the string.
@@ -187,8 +187,8 @@ final class URLName {
 	private void parseString(final String url) {
 		// initialize everything in case called from subclass
 		// (URLName really should be a final class)
-		this.protocol = this.file = this.ref = this.host = this.username = this.password = null;
-		this.port = -1;
+		protocol = file = ref = host = username = password = null;
+		port = -1;
 
 		final int len = url.length();
 
@@ -197,7 +197,7 @@ final class URLName {
 		// (legal: a-z, A-Z, 0-9, "+", ".", "-")
 		final int protocolEnd = url.indexOf(':');
 		if (protocolEnd != -1) {
-			this.protocol = url.substring(0, protocolEnd);
+			protocol = url.substring(0, protocolEnd);
 		}
 
 		// is this an Internet standard URL that contains a host name?
@@ -208,10 +208,10 @@ final class URLName {
 			if (fileStart != -1) {
 				fullhost = url.substring(protocolEnd + 3, fileStart);
 				if (fileStart + 1 < len) {
-					this.file = url.substring(fileStart + 1);
+					file = url.substring(fileStart + 1);
 				}
 				else {
-					this.file = ""; //$NON-NLS-1$
+					file = ""; //$NON-NLS-1$
 				}
 			}
 			else {
@@ -227,17 +227,17 @@ final class URLName {
 				// get user and password
 				final int passindex = fulluserpass.indexOf(':');
 				if (passindex != -1) {
-					this.username = fulluserpass.substring(0, passindex);
-					this.password = fulluserpass.substring(passindex + 1);
+					username = fulluserpass.substring(0, passindex);
+					password = fulluserpass.substring(passindex + 1);
 				}
 				else {
-					this.username = fulluserpass;
+					username = fulluserpass;
 				}
 			}
 
 			// get the port (if there)
 			int portindex;
-			if (fullhost.length() > 0 && fullhost.charAt(0) == '[') {
+			if (!fullhost.isEmpty() && fullhost.charAt(0) == '[') {
 				// an IPv6 address?
 				portindex = fullhost.indexOf(':', fullhost.indexOf(']'));
 			}
@@ -246,66 +246,56 @@ final class URLName {
 			}
 			if (portindex != -1) {
 				final String portstring = fullhost.substring(portindex + 1);
-				if (portstring.length() > 0) {
+				if (!portstring.isEmpty()) {
 					try {
-						this.port = Integer.parseInt(portstring);
+						port = Integer.parseInt(portstring);
 					}
 					catch (final NumberFormatException nfex) {
 						LOGGER.warning("El numero de puerto establecido '" + portstring + "' no es valido: " + nfex); //$NON-NLS-1$ //$NON-NLS-2$
-						this.port = -1;
+						port = -1;
 					}
 				}
 
-				this.host = fullhost.substring(0, portindex);
+				host = fullhost.substring(0, portindex);
 			}
 			else {
-				this.host = fullhost;
+				host = fullhost;
 			}
 		}
-		else {
-			if (protocolEnd + 1 < len) {
-				this.file = url.substring(protocolEnd + 1);
-			}
+		else if (protocolEnd + 1 < len) {
+			file = url.substring(protocolEnd + 1);
 		}
 
 		// extract the reference from the file name, if any
 		int refStart;
-		if (this.file != null && (refStart = this.file.indexOf('#')) != -1) {
-			this.ref = this.file.substring(refStart + 1);
-			this.file = this.file.substring(0, refStart);
+		if (file != null && (refStart = file.indexOf('#')) != -1) {
+			ref = file.substring(refStart + 1);
+			file = file.substring(0, refStart);
 		}
 	}
 
-	/** Returns the port number of this URLName. Returns -1 if the port is not
-	 * set.
-	 * @return Port number of this URLName or -1 if the port is not
-	 *         set. */
+	/** Returns the port number of this URLName. Returns -1 if the port is not set.
+	 * @return Port number of this URLName or -1 if the port is not set. */
 	int getPort() {
-		return this.port;
+		return port;
 	}
 
-	/** Returns the protocol of this URLName. Returns null if this URLName has no
-	 * protocol.
-	 * @return The protocol of this URLName or null if this URLName has no
-	 *         protocol. */
+	/** Returns the protocol of this URLName. Returns null if this URLName has no protocol.
+	 * @return The protocol of this URLName or null if this URLName has no protocol. */
 	String getProtocol() {
-		return this.protocol;
+		return protocol;
 	}
 
-	/** Returns the file name of this URLName. Returns null if this URLName has
-	 * no file name.
-	 * @return The file name of this URLName or null if this URLName has
-	 *         no file name. */
+	/** Returns the file name of this URLName. Returns null if this URLName has no file name.
+	 * @return The file name of this URLName or null if this URLName has no file name. */
 	String getFile() {
-		return this.file;
+		return file;
 	}
 
-	/** Returns the host of this URLName. Returns null if this URLName has no
-	 * host.
-	 * @return The host of this URLName or null if this URLName has no
-	 *         host. */
+	/** Returns the host of this URLName. Returns null if this URLName has no host.
+	 * @return The host of this URLName or null if this URLName has no host. */
 	String getHost() {
-		return this.host;
+		return host;
 	}
 
 	/** Returns the user name of this URLName. Returns null if this URLName has
@@ -313,7 +303,7 @@ final class URLName {
 	 * @return The user name of this URLName or null if this URLName has
 	 *         no user name.*/
 	String getUsername() {
-		return doEncode ? decode(this.username) : this.username;
+		return doEncode ? decode(username) : username;
 	}
 
 	/** Returns the password of this URLName. Returns null if this URLName has no
@@ -321,7 +311,7 @@ final class URLName {
 	 * @return The password of this URLName or null if this URLName has no
 	 * password.*/
 	String getPassword() {
-		return doEncode ? decode(this.password) : this.password;
+		return doEncode ? decode(password) : password;
 	}
 
 	/**
@@ -332,17 +322,14 @@ final class URLName {
 	 * the same file on the host. The fields (host, username, file) are also
 	 * considered the same if they are both null.
 	 * <p>
-	 *
 	 * Hosts are considered equal if the names are equal (case independent) or
 	 * if host name lookups for them both succeed and they both reference the
 	 * same IP address.
 	 * <p>
-	 *
 	 * Note that URLName has no knowledge of default port numbers for particular
 	 * protocols, so "imap://host" and "imap://host:143" would not compare as
 	 * equal.
 	 * <p>
-	 *
 	 * Note also that the password field is not included in the comparison, nor
 	 * is any reference field appended to the filename.
 	 */
@@ -354,105 +341,94 @@ final class URLName {
 		final URLName u2 = (URLName) obj;
 
 		// compare protocols
-		if (u2.protocol == null || !u2.protocol.equals(this.protocol)) {
+		if (u2.protocol == null || !u2.protocol.equals(protocol)) {
 			return false;
 		}
 
 		// compare hosts
-		final InetAddress a1 = getHostAddress(), a2 = u2.getHostAddress();
+		final InetAddress a1 = getHostAddress();
+		final InetAddress a2 = u2.getHostAddress();
 		// if we have internet address for both, and they're not the same, fail
 		if (a1 != null && a2 != null) {
 			if (!a1.equals(a2)) {
 				return false;
-				// else, if we have host names for both, and they're not the
-				// same, fail
+				// else, if we have host names for both, and they're not the same, fail
 			}
 		}
-		else if (this.host != null && u2.host != null) {
-			if (!this.host.equalsIgnoreCase(u2.host)) {
+		else if (host != null && u2.host != null) {
+			if (!host.equalsIgnoreCase(u2.host)) {
 				return false;
 				// else, if not both null
 			}
 		}
-		else if (this.host != u2.host) {
+		else if (host != u2.host) {
 			return false;
 		}
 		// at this point, hosts match
 
 		// compare usernames
-		if (!(this.username == u2.username || this.username != null
-				&& this.username.equals(u2.username))) {
+		if (username != u2.username && (username == null || !username.equals(u2.username))) {
 			return false;
 		}
 
-		// Forget about password since it doesn't
-		// really denote a different store.
+		// Forget about password since it doesn't really denote a different store.
 
 		// compare files
-		final String f1 = this.file == null ? "" : this.file; //$NON-NLS-1$
+		final String f1 = file == null ? "" : file; //$NON-NLS-1$
 		final String f2 = u2.file == null ? "" : u2.file; //$NON-NLS-1$
 
-		if (!f1.equals(f2)) {
-			return false;
-		}
-
 		// compare ports
-		if (this.port != u2.port) {
-			return false;
-		}
-
-		// all comparisons succeeded, they're equal
-		return true;
+		return f1.equals(f2) && port == u2.port;
 	}
 
 	/** Compute the hash code for this URLName. */
 	@Override
 	public int hashCode() {
-		if (this.hashCode != 0) {
-			return this.hashCode;
+		if (hashCode != 0) {
+			return hashCode;
 		}
-		if (this.protocol != null) {
-			this.hashCode += this.protocol.hashCode();
+		if (protocol != null) {
+			hashCode += protocol.hashCode();
 		}
 		final InetAddress addr = getHostAddress();
 		if (addr != null) {
-			this.hashCode += addr.hashCode();
+			hashCode += addr.hashCode();
 		}
-		else if (this.host != null) {
-			this.hashCode += this.host.toLowerCase(Locale.ENGLISH).hashCode();
+		else if (host != null) {
+			hashCode += host.toLowerCase(Locale.ENGLISH).hashCode();
 		}
-		if (this.username != null) {
-			this.hashCode += this.username.hashCode();
+		if (username != null) {
+			hashCode += username.hashCode();
 		}
-		if (this.file != null) {
-			this.hashCode += this.file.hashCode();
+		if (file != null) {
+			hashCode += file.hashCode();
 		}
-		this.hashCode += this.port;
-		return this.hashCode;
+		hashCode += port;
+		return hashCode;
 	}
 
 	/** Get the IP address of our host. Look up the name the first time and
 	 * remember that we've done so, whether the lookup fails or not.
 	 * @return IP address of our host. */
 	private synchronized InetAddress getHostAddress() {
-		if (this.hostAddressKnown) {
-			return this.hostAddress;
+		if (hostAddressKnown) {
+			return hostAddress;
 		}
-		if (this.host == null) {
+		if (host == null) {
 			return null;
 		}
 		try {
-			this.hostAddress = InetAddress.getByName(this.host);
+			hostAddress = InetAddress.getByName(host);
 		}
 		catch (final UnknownHostException ex) {
 			LOGGER.warning("El host establecido no se puede resolver: " + ex); //$NON-NLS-1$
-			this.hostAddress = null;
+			hostAddress = null;
 		}
-		this.hostAddressKnown = true;
-		return this.hostAddress;
+		hostAddressKnown = true;
+		return hostAddress;
 	}
 
-	/** The class contains a utility method for converting a <code>String</code>
+	/* The class contains a utility method for converting a <code>String</code>
 	 * into a MIME format called "<code>x-www-form-urlencoded</code>" format.
 	 * <p>
 	 * To convert a <code>String</code>, each character is examined in turn:
@@ -470,6 +446,7 @@ final class URLName {
 	 * @author Herb Jellinek
 	 * @version 1.16, 10/23/99
 	 * @since JDK1.0 */
+
 	static BitSet dontNeedEncoding;
 	static final int CASE_DIFF = 'a' - 'A';
 
@@ -496,28 +473,6 @@ final class URLName {
 		dontNeedEncoding.set('*');
 	}
 
-	/** The class contains a utility method for converting from a MIME format
-	 * called "<code>x-www-form-urlencoded</code>" to a <code>String</code>
-	 * <p>
-	 * To convert to a <code>String</code>, each character is examined in turn:
-	 * <ul>
-	 * <li>The ASCII characters '<code>a</code>' through '<code>z</code>', '
-	 * <code>A</code>' through '<code>Z</code>', and '<code>0</code>' through '
-	 * <code>9</code>' remain the same.
-	 * <li>The plus sign '<code>+</code>'is converted into a space character '
-	 * <code>&nbsp;</code>'.
-	 * <li>The remaining characters are represented by 3-character strings which
-	 * begin with the percent sign, "<code>%<i>xy</i></code>", where <i>xy</i>
-	 * is the two-digit hexadecimal representation of the lower 8-bits of the
-	 * character.
-	 * </ul>
-	 *
-	 * @author Mark Chamness
-	 * @author Michael McCloskey
-	 * @version 1.7, 10/22/99
-	 * @since 1.2
-	 */
-
 	/** Decodes a &quot;x-www-form-urlencoded&quot; to a <code>String</code>.
 	 * @param s The <code>String</code> to decode.
 	 * @return The newly decoded <code>String</code>. */
@@ -529,7 +484,7 @@ final class URLName {
 			return s; // the common case
 		}
 
-		final StringBuffer sb = new StringBuffer();
+		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			final char c = s.charAt(i);
 			switch (c) {
@@ -553,25 +508,16 @@ final class URLName {
 			}
 		}
 		// Undo conversion to external encoding
-		String result = sb.toString();
-		try {
-			final byte[] inputBytes = result.getBytes("8859_1"); //$NON-NLS-1$
-			result = new String(inputBytes);
-		}
-		catch (final UnsupportedEncodingException e) {
-			LOGGER.warning("El sistema no soporta la codificacion ISO 8859-1: " + e); //$NON-NLS-1$
-			// The system should always have 8859_1
-		}
-		return result;
+		final String result = sb.toString();
+		final byte[] inputBytes = result.getBytes(StandardCharsets.ISO_8859_1);
+		return new String(inputBytes);
 	}
 
-	/** Return the first index of any of the characters in "any" in "s", or -1 if
-	 * none are found.
+	/** Return the first index of any of the characters in "any" in "s", or -1 if none are found.
 	 * This should be a method on String.
 	 * @param s Input string.
 	 * @param any String of characters to search for.
-	 * @return  The first index of any of the characters in "any" in "s", or -1 if
-	 *          none are found. */
+	 * @return  The first index of any of the characters in "any" in "s", or -1 if none are found. */
 	private static int indexOfAny(final String s, final String any) {
 		return indexOfAny(s, any, 0);
 	}
@@ -590,5 +536,4 @@ final class URLName {
 			return -1;
 		}
 	}
-
 }

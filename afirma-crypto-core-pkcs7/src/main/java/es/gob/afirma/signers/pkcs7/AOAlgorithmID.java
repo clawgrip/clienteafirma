@@ -9,8 +9,8 @@
 
 package es.gob.afirma.signers.pkcs7;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Identificadores (OID) comunes de algoritmos usados en CMS/CAdES
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
@@ -64,7 +64,7 @@ public final class AOAlgorithmID {
         // No permitimos la instanciacion
     }
 
-    private static final Dictionary<String, String> OIDS = new Hashtable<>();
+    private static final Map<String, String> OIDS = new HashMap<>();
     static {
         OIDS.put("SHA1", OID_SHA1); //$NON-NLS-1$
         OIDS.put("SHA-1", OID_SHA1); //$NON-NLS-1$

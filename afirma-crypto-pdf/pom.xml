@@ -21,12 +21,6 @@
 			<artifactId>afirma-core</artifactId>
 			<version>${clienteafirma.version}</version>
 		</dependency>
-		
-		<dependency>
-			<groupId>es.gob.afirma</groupId>
-			<artifactId>afirma-crypto-pdf-common</artifactId>
-			<version>${clienteafirma.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>es.gob.afirma</groupId>
@@ -43,13 +37,6 @@
 		<dependency>
 			<groupId>es.gob.afirma.lib</groupId>
 			<artifactId>afirma-lib-itext</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>es.gob.afirma</groupId>
-			<artifactId>afirma-ui-utils</artifactId>
-			<version>${clienteafirma.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

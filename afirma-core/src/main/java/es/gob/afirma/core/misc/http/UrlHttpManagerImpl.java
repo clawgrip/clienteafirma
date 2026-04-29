@@ -16,6 +16,9 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -133,7 +136,13 @@ public class UrlHttpManagerImpl implements UrlHttpManager {
 			}
 		}
 
-		final URL uri = new URL(request != null ? request : url);
+		final URL uri;
+		try {
+			uri = new URI(request != null ? request : url).toURL();
+		}
+		catch (MalformedURLException | URISyntaxException e) {
+			throw new IOException(e);
+		}
 
 		final HttpURLConnection conn = (HttpURLConnection) uri.openConnection();
 
