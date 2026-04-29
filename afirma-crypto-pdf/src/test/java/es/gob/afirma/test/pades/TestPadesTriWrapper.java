@@ -1,6 +1,5 @@
 package es.gob.afirma.test.pades;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -9,7 +8,6 @@ import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.Properties;
 
 import es.gob.afirma.core.misc.AOUtil;
 import es.gob.afirma.core.signers.AOPkcs1Signer;
@@ -64,26 +62,31 @@ public final class TestPadesTriWrapper {
 	        "policyIdentifierHashAlgorithm=SHA-1\n" + //$NON-NLS-1$
 	        "allowCosigningUnregisteredSignatures=true\n"; //$NON-NLS-1$
 
+        // Prefirma
+
         final String preSignAsXml = PadesTriWrapper.getPresign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
         System.out.println(preSignAsXml);
         System.out.println();
 
         final String getDataTbsAsBase64 = PadesTriWrapper.getDataTbsAsBase64(preSignAsXml);
 
-        // Firma PKCS#1
+        // Firma
+
         final byte[] dataTbs = Base64.getDecoder().decode(getDataTbsAsBase64);
         final AOPkcs1Signer signer = new AOPkcs1Signer();
-		final Properties extraParams = new Properties();
-		extraParams.load(new ByteArrayInputStream(extraParamsAsString.getBytes()));
-        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), extraParams);
+        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
         final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
+
+        // Postfirma
 
         final String signedPdfAsJson = PadesTriWrapper.getPostSign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
         final int resPos = signedPdfAsJson.indexOf("\"result\": \"") + "\"result\": \"".length(); //$NON-NLS-1$ //$NON-NLS-2$
 
         final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsJson.substring(resPos, signedPdfAsJson.indexOf('"',resPos)));
-        try (FileOutputStream fos = new FileOutputStream(File.createTempFile("TriPDF_", ".pdf"))) { //$NON-NLS-1$ //$NON-NLS-2$
+        final File ret = File.createTempFile("TriPDF_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
+        try (FileOutputStream fos = new FileOutputStream(ret)) {
         	fos.write(signedPdf);
         }
+        System.out.println("Temporal guardado en: " + ret.getAbsolutePath()); //$NON-NLS-1$
 	}
 }
