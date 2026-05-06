@@ -64,6 +64,12 @@ public final class TestPadesTriWrapper {
 
         // Prefirma
 
+        System.out.println(signAlgorithm);
+        System.out.println(pdfTbsAsBase64);
+        System.out.println(certChainAsPem);
+        System.out.println(signTimeAsString);
+        System.out.println(extraParamsAsString);
+
         final String preSignAsXml = PadesTriWrapper.getPresign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
         System.out.println(preSignAsXml);
         System.out.println();
@@ -89,4 +95,5 @@ public final class TestPadesTriWrapper {
         }
         System.out.println("Temporal guardado en: " + ret.getAbsolutePath()); //$NON-NLS-1$
 	}
+
 }
