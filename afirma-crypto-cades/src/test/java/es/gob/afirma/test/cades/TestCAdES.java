@@ -44,6 +44,10 @@ final class TestCAdES {
     private static final String CERT_PASS = "Giss2016"; //$NON-NLS-1$
     private static final String CERT_ALIAS = "givenname=prueba4empn+serialnumber=idces-00000000t+sn=p4empape1 p4empape2 - 00000000t+cn=prueba4empn p4empape1 p4empape2 - 00000000t,ou=personales,ou=certificado electronico de empleado publico,o=secretaria de estado de la seguridad social,c=es"; //$NON-NLS-1$
 
+    private static final String EC_CERT_PATH = "/juaneliptico.p12"; //$NON-NLS-1$
+    private static final char[] EC_CERT_PASS = "12341234".toCharArray(); //$NON-NLS-1$
+
+
 	private static final String[] DATA_FILES = {
 //		"txt", //$NON-NLS-1$
 		"xml" //$NON-NLS-1$
@@ -107,6 +111,37 @@ final class TestCAdES {
 //		AOSignConstants.SIGN_ALGORITHM_SHA256WITHRSA,
 //		AOSignConstants.SIGN_ALGORITHM_SHA384WITHRSA
 	};
+
+	/** Prueba de firma de un MobileConfig de Apple con ECDSA.
+	 * @throws Exception En cualquier error. */
+	@SuppressWarnings("static-method")
+	@Test
+	void testEcdsa() throws Exception {
+		final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
+		try (InputStream is = TestCAdES.class.getResourceAsStream(EC_CERT_PATH)) {
+			ks.load(is, EC_CERT_PASS);
+		}
+		final String alias = ks.aliases().nextElement();
+		System.out.println(alias);
+		final PrivateKeyEntry pke = (PrivateKeyEntry) ks.getEntry(alias, new KeyStore.PasswordProtection(EC_CERT_PASS));
+
+		final byte[] mobileconfig;
+		try (InputStream is = TestCAdES.class.getResourceAsStream("/data.mobileconfig")) { //$NON-NLS-1$
+			mobileconfig = AOUtil.getDataFromInputStream(is);
+		}
+
+		final AOSigner signer = new AOCAdESSigner();
+		final Properties p = new Properties();
+		p.put("mode", AOSignConstants.SIGN_MODE_IMPLICIT); //$NON-NLS-1$
+		final byte[] sign = signer.sign(mobileconfig, "SHA256withECDSA", pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), p); //$NON-NLS-1$
+		Assertions.assertNotNull(sign);
+
+		final File tmpFile = File.createTempFile("perfilfirmado_", ".mobileconfig.csig"); //$NON-NLS-1$ //$NON-NLS-2$
+		try (OutputStream fos = new FileOutputStream(tmpFile)) {
+			fos.write(sign);
+		}
+		System.out.println("Fichero firmado: " + tmpFile.getAbsolutePath()); //$NON-NLS-1$
+	}
 
 	/** Prueba de firma de JPEG para establecimiento de ContentHint.
 	 * @throws Exception En cualquier error. */
