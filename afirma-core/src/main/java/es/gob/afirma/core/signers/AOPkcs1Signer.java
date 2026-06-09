@@ -108,8 +108,7 @@ public final class AOPkcs1Signer implements AOSigner {
 		}
 
 		// Siguiendo la recomendacion de la ETSI TS 119 102-1, verificamos que el dispositivo de
-        // creacion de firma realmente ha generado el PKCS#1 usando la clave privada del
-        // certificado proporcionado
+        // creacion de firma realmente ha generado el PKCS#1 usando la clave privada del certificado proporcionado.
 		if (certChain != null && certChain.length > 0) {
 			try {
 				final Signature sigVerifier = Signature.getInstance(algorithmName);

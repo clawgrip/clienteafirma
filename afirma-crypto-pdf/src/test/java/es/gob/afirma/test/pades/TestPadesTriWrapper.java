@@ -21,6 +21,27 @@ import es.gob.afirma.signers.pades.PadesTriWrapper;
  * @author Tom&aacute;s Garc&iacute;a-Mer&aacute;s. */
 public final class TestPadesTriWrapper {
 
+	private static final String PRESIGN_AS_XML =
+		"<signResult>\n" //$NON-NLS-1$
+		+ "<extraParams>\n" //$NON-NLS-1$
+		+ "IwojVHVlIEp1biAwOSAxNToyMDoxOSBHTVQrMiAyMDI2CmZvcm1hdD1BZG9iZSBQREYKcG9saWN5SWRlbnRpZmllckhhc2hBbGdvcml0aG09U0hBLTEKc2lnbmF0dXJlU3ViRmlsdGVyPUVUU0kuQ0FkRVMuZGV0YWNoZWQKcG9saWN5UXVhbGlmaWVyPWh0dHBcOi8vYWRtaW5pc3RyYWNpb25lbGVjdHJvbmljYS5nb2IuZXMvZXMvY3R0L3BvbGl0aWNhZmlybWEvcG9saXRpY2FfZmlybWFfQUdFX3YxXzgucGRmCnNpZ25lckNvbnRhY3Q9c2lua0B1c2EubmV0CnBvbGljeUlkZW50aWZpZXJIYXNoPThsVlZOR0RDUGVuNlZFTFJEMUphOEhBUkZrXD1cPQpzaWduYXR1cmVQcm9kdWN0aW9uQ2l0eT1NYWRyaWQKc2lnblJlYXNvbj10ZXN0CmFsbG93Q29zaWduaW5nVW5yZWdpc3RlcmVkU2lnbmF0dXJlcz10cnVlCnBvbGljeUlkZW50aWZpZXI9Mi4xNi43MjQuMS4zLjEuMS4yLjEuOAptb2RlPWltcGxpY2l0Cg==\n" //$NON-NLS-1$
+		+ "</extraParams>\n" //$NON-NLS-1$
+		+ "<pdfId>\n" //$NON-NLS-1$
+		+ "[&lt;a68c8bcc97dcf09c2ac66248ae200a38&gt;&lt;945559bb1b53f3b31a5c858064ea2592&gt;]\n" //$NON-NLS-1$
+		+ "</pdfId>\n" //$NON-NLS-1$
+		+ "<sign>\n" //$NON-NLS-1$
+		+ "MYICrDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMC8GCSqGSIb3DQEJBDEiBCB1m8Z91Vh5+ks/tRqqdfoU1nqzk6rcpgkBxkcrGTQvhjCBrAYLKoZIhvcNAQkQAg8xgZwwgZkGCmCFVAEDAQECAQgwIDAJBgUrDgMCGgUABBPyVVU0YMI96fpUQtEPUlrwcBEWMGkwZwYLKoZIhvcNAQkQBQEWWGh0dHA6Ly9hZG1pbmlzdHJhY2lvbmVsZWN0cm9uaWNhLmdvYi5lcy9lcy9jdHQvcG9saXRpY2FmaXJtYS9wb2xpdGljYV9maXJtYV9BR0VfdjFfOC5wZGYwggGuBgsqhkiG9w0BCRACLzGCAZ0wggGZMIGKMIGHBCCp2aZ+ksZsTQ7iW8KOFwpuzeERrezjDE6eg1A1ALGCpjBjME+kTTBLMQswCQYDVQQGEwJFUzERMA8GA1UECgwIRk5NVC1SQ00xDjAMBgNVBAsMBUNlcmVzMRkwFwYDVQQDDBBBQyBGTk1UIFVzdWFyaW9zAhBI5KXKO9EVSV+j+FQU0C+oMIIBCDCB+gYKKwYBBAGsZgMKATCB6zApBggrBgEFBQcCARYdaHR0cDovL3d3dy5jZXJ0LmZubXQuZXMvZHBjcy8wgb0GCCsGAQUFBwICMIGwDIGtQ2VydGlmaWNhZG8gY3VhbGlmaWNhZG8gZGUgZmlybWEgZWxlY3Ryw7NuaWNhLiBTdWpldG8gYSBsYXMgY29uZGljaW9uZXMgZGUgdXNvIGV4cHVlc3RhcyBlbiBsYSBEUEMgZGUgbGEgRk5NVC1SQ00gY29uIE5JRjogUTI4MjYwMDQtSiAoQy9Kb3JnZSBKdWFuIDEwNi0yODAwOS1NYWRyaWQtRXNwYcOxYSkwCQYHBACL7EABAA==\n" //$NON-NLS-1$
+		+ "</sign>\n" //$NON-NLS-1$
+		+ "<timestamp>\n" //$NON-NLS-1$
+		+ " \n" //$NON-NLS-1$
+		+ "</timestamp>\n" //$NON-NLS-1$
+		+ "<signTime>\n" //$NON-NLS-1$
+		+ "1771427460000\n" //$NON-NLS-1$
+		+ "</signTime>\n" //$NON-NLS-1$
+		+ "</signResult>"; //$NON-NLS-1$
+
+    private static final String SIGN_ALGO = "SHA256withRSA"; //$NON-NLS-1$
+
 	/** Main para pruebas.
 	 * @param args No se usa.
 	 * @throws Exception En cualquier error. */
@@ -34,8 +55,6 @@ public final class TestPadesTriWrapper {
         System.out.println();
         System.out.println(pdfTbsAsBase64);
         System.out.println();
-
-        final String signAlgorithm = "SHA256withRSA"; //$NON-NLS-1$
 
 	    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
 	    final String certPass = "1234"; //$NON-NLS-1$
@@ -74,7 +93,7 @@ public final class TestPadesTriWrapper {
 
         // Prefirma
 
-        System.out.println(signAlgorithm);
+        System.out.println(SIGN_ALGO);
 
         final File pdfAsTxt = File.createTempFile("pdfAsBase64_", ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
         try (OutputStream fos = new FileOutputStream(pdfAsTxt)) {
@@ -86,7 +105,7 @@ public final class TestPadesTriWrapper {
         System.out.println(signTimeAsString);
         System.out.println(extraParamsAsString);
 
-        final String preSignAsXml = PadesTriWrapper.getPresign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
+        final String preSignAsXml = PadesTriWrapper.getPresign(SIGN_ALGO, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
         System.out.println();
         System.out.println();
         System.out.println();
@@ -104,7 +123,7 @@ public final class TestPadesTriWrapper {
 
         final byte[] dataTbs = Base64.getDecoder().decode(dataTbsAsBase64);
         final AOPkcs1Signer signer = new AOPkcs1Signer();
-        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
+        final byte[] signature = signer.sign(dataTbs, SIGN_ALGO, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
         final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
         System.out.println();
         System.out.println();
@@ -114,12 +133,148 @@ public final class TestPadesTriWrapper {
 
         // Postfirma
 
-        final String signedPdfAsJson = PadesTriWrapper.getPostSign(signAlgorithm, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
+        final String signedPdfAsJson = PadesTriWrapper.getPostSign(SIGN_ALGO, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, preSignAsXml);
         final int resPos = signedPdfAsJson.indexOf("\"result\": \"") + "\"result\": \"".length(); //$NON-NLS-1$ //$NON-NLS-2$
 
         final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsJson.substring(resPos, signedPdfAsJson.indexOf('"',resPos)));
         final File ret = File.createTempFile("TriPDF_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
-        try (FileOutputStream fos = new FileOutputStream(ret)) {
+        try (OutputStream fos = new FileOutputStream(ret)) {
+        	fos.write(signedPdf);
+        }
+        System.out.println("Temporal guardado en: " + ret.getAbsolutePath()); //$NON-NLS-1$
+	}
+
+	@SuppressWarnings("static-method")
+	@Test
+	void testGenerateSign() throws Exception {
+		final byte[] testPdf;
+        try (InputStream is = ClassLoader.getSystemResourceAsStream("TEST_PDF.pdf")) { //$NON-NLS-1$
+        	testPdf = AOUtil.getDataFromInputStream(is);
+        }
+        final String pdfTbsAsBase64 = Base64.getEncoder().encodeToString(testPdf);
+
+	    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
+	    final String certPass = "1234"; //$NON-NLS-1$
+	    final String certAlias = "eidas_certificado_pruebas___99999999r"; //$NON-NLS-1$
+        final PrivateKeyEntry pke;
+        final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(certPath)) {
+        	ks.load(is, certPass.toCharArray());
+        }
+        pke = (PrivateKeyEntry) ks.getEntry(certAlias, new KeyStore.PasswordProtection(certPass.toCharArray()));
+
+        final StringBuilder pemChain = new StringBuilder();
+        for (final Certificate cert : pke.getCertificateChain()) {
+        	pemChain.append("-----BEGIN CERTIFICATE-----\n"); //$NON-NLS-1$
+        	pemChain.append(Base64.getMimeEncoder().encodeToString(cert.getEncoded()));
+        	pemChain.append("\n-----END CERTIFICATE-----\n"); //$NON-NLS-1$
+        }
+        final String certChainAsPem = pemChain.toString();
+
+        final String signTimeAsString = "18/2/2026 16:11:00"; //$NON-NLS-1$
+
+        final String extraParamsAsString =
+    		"format=Adobe PDF\n" + //$NON-NLS-1$
+			"mode=implicit\n" + //$NON-NLS-1$
+			"signReason=test\n" + //$NON-NLS-1$
+			"signatureProductionCity=Madrid\n" + //$NON-NLS-1$
+	        "signerContact=sink@usa.net\n" + //$NON-NLS-1$
+	        "policyQualifier=http://administracionelectronica.gob.es/es/ctt/politicafirma/politica_firma_AGE_v1_8.pdf\n" + //$NON-NLS-1$
+	        "policyIdentifier=2.16.724.1.3.1.1.2.1.8\n" + //$NON-NLS-1$
+	        "policyIdentifierHash=8lVVNGDCPen6VELRD1Ja8HARFk==\n" + //$NON-NLS-1$
+	        "policyIdentifierHashAlgorithm=SHA-1\n" + //$NON-NLS-1$
+	        "allowCosigningUnregisteredSignatures=true\n"; //$NON-NLS-1$
+
+        // Prefirma
+
+        final File pdfAsTxt = File.createTempFile("pdfAsBase64_", ".txt"); //$NON-NLS-1$ //$NON-NLS-2$
+        try (OutputStream fos = new FileOutputStream(pdfAsTxt)) {
+        	fos.write(pdfTbsAsBase64.getBytes());
+        }
+
+        final String preSignAsXml = PadesTriWrapper.getPresign(SIGN_ALGO, pdfTbsAsBase64, certChainAsPem, signTimeAsString, extraParamsAsString);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(preSignAsXml);
+        System.out.println();
+
+        final String dataTbsAsBase64 = PadesTriWrapper.getDataTbsAsBase64(preSignAsXml);
+
+        // Firma
+
+        final byte[] dataTbs = Base64.getDecoder().decode(dataTbsAsBase64);
+        final AOPkcs1Signer signer = new AOPkcs1Signer();
+        final byte[] signature = signer.sign(dataTbs, SIGN_ALGO, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
+        final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(signatureAsBase64);
+        System.out.println();
+	}
+
+	@SuppressWarnings("static-method")
+	@Test
+	void testSignAndPostSign() throws Exception {
+
+		final byte[] testPdf;
+        try (InputStream is = ClassLoader.getSystemResourceAsStream("TEST_PDF.pdf")) { //$NON-NLS-1$
+        	testPdf = AOUtil.getDataFromInputStream(is);
+        }
+        final String pdfTbsAsBase64 = Base64.getEncoder().encodeToString(testPdf);
+        System.out.println();
+        System.out.println(pdfTbsAsBase64);
+        System.out.println();
+
+	    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
+	    final String certPass = "1234"; //$NON-NLS-1$
+	    final String certAlias = "eidas_certificado_pruebas___99999999r"; //$NON-NLS-1$
+        final PrivateKeyEntry pke;
+        final KeyStore ks = KeyStore.getInstance("PKCS12"); //$NON-NLS-1$
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(certPath)) {
+        	ks.load(is, certPass.toCharArray());
+        }
+        pke = (PrivateKeyEntry) ks.getEntry(certAlias, new KeyStore.PasswordProtection(certPass.toCharArray()));
+
+        final StringBuilder pemChain = new StringBuilder();
+        for (final Certificate cert : pke.getCertificateChain()) {
+        	pemChain.append("-----BEGIN CERTIFICATE-----\n"); //$NON-NLS-1$
+        	pemChain.append(Base64.getMimeEncoder().encodeToString(cert.getEncoded()));
+        	pemChain.append("\n-----END CERTIFICATE-----\n"); //$NON-NLS-1$
+        }
+        final String certChainAsPem = pemChain.toString();
+        System.out.println();
+        System.out.println(certChainAsPem);
+        System.out.println();
+
+        final String dataTbsAsBase64 = PadesTriWrapper.getDataTbsAsBase64(PRESIGN_AS_XML);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(dataTbsAsBase64);
+        System.out.println();
+
+        // Firma
+
+        final byte[] dataTbs = Base64.getDecoder().decode(dataTbsAsBase64);
+        final AOPkcs1Signer signer = new AOPkcs1Signer();
+        final byte[] signature = signer.sign(dataTbs, SIGN_ALGO, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
+        final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(signatureAsBase64);
+        System.out.println();
+
+        // Postfirma
+
+        final String signedPdfAsJson = PadesTriWrapper.getPostSign(SIGN_ALGO, pdfTbsAsBase64, certChainAsPem, signatureAsBase64, PRESIGN_AS_XML);
+        final int resPos = signedPdfAsJson.indexOf("\"result\": \"") + "\"result\": \"".length(); //$NON-NLS-1$ //$NON-NLS-2$
+
+        final byte[] signedPdf = Base64.getDecoder().decode(signedPdfAsJson.substring(resPos, signedPdfAsJson.indexOf('"',resPos)));
+        final File ret = File.createTempFile("TriPDF_", ".pdf"); //$NON-NLS-1$ //$NON-NLS-2$
+        try (OutputStream fos = new FileOutputStream(ret)) {
         	fos.write(signedPdf);
         }
         System.out.println("Temporal guardado en: " + ret.getAbsolutePath()); //$NON-NLS-1$
@@ -129,7 +284,6 @@ public final class TestPadesTriWrapper {
 	@Test
 	void testPkcs1() throws Exception {
 		for (int i=0;i<10;i++) {
-	        final String signAlgorithm = "SHA256withRSA"; //$NON-NLS-1$
 			final String dataTbsAsBase64 = "MYICrDAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMC8GCSqGSIb3DQEJBDEiBCA7rS3WvmPFOOdrAuQtarGiJx38Q6tifP8UBzIw5rhN8TCBrAYLKoZIhvcNAQkQAg8xgZwwgZkGCmCFVAEDAQECAQgwIDAJBgUrDgMCGgUABBPyVVU0YMI96fpUQtEPUlrwcBEWMGkwZwYLKoZIhvcNAQkQBQEWWGh0dHA6Ly9hZG1pbmlzdHJhY2lvbmVsZWN0cm9uaWNhLmdvYi5lcy9lcy9jdHQvcG9saXRpY2FmaXJtYS9wb2xpdGljYV9maXJtYV9BR0VfdjFfOC5wZGYwggGuBgsqhkiG9w0BCRACLzGCAZ0wggGZMIGKMIGHBCCp2aZ+ksZsTQ7iW8KOFwpuzeERrezjDE6eg1A1ALGCpjBjME+kTTBLMQswCQYDVQQGEwJFUzERMA8GA1UECgwIRk5NVC1SQ00xDjAMBgNVBAsMBUNlcmVzMRkwFwYDVQQDDBBBQyBGTk1UIFVzdWFyaW9zAhBI5KXKO9EVSV+j+FQU0C+oMIIBCDCB+gYKKwYBBAGsZgMKATCB6zApBggrBgEFBQcCARYdaHR0cDovL3d3dy5jZXJ0LmZubXQuZXMvZHBjcy8wgb0GCCsGAQUFBwICMIGwDIGtQ2VydGlmaWNhZG8gY3VhbGlmaWNhZG8gZGUgZmlybWEgZWxlY3Ryw7NuaWNhLiBTdWpldG8gYSBsYXMgY29uZGljaW9uZXMgZGUgdXNvIGV4cHVlc3RhcyBlbiBsYSBEUEMgZGUgbGEgRk5NVC1SQ00gY29uIE5JRjogUTI4MjYwMDQtSiAoQy9Kb3JnZSBKdWFuIDEwNi0yODAwOS1NYWRyaWQtRXNwYcOxYSkwCQYHBACL7EABAA=="; //$NON-NLS-1$
 		    final String certPath = "EIDAS_CERTIFICADO_PRUEBAS___99999999R__1234.p12"; //$NON-NLS-1$
 		    final String certPass = "1234"; //$NON-NLS-1$
@@ -142,7 +296,7 @@ public final class TestPadesTriWrapper {
 	        pke = (PrivateKeyEntry) ks.getEntry(certAlias, new KeyStore.PasswordProtection(certPass.toCharArray()));
 	        final byte[] dataTbs = Base64.getDecoder().decode(dataTbsAsBase64);
 	        final AOPkcs1Signer signer = new AOPkcs1Signer();
-	        final byte[] signature = signer.sign(dataTbs, signAlgorithm, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
+	        final byte[] signature = signer.sign(dataTbs, SIGN_ALGO, pke.getPrivateKey(), (X509Certificate[]) pke.getCertificateChain(), null);
 	        final String signatureAsBase64 = Base64.getEncoder().encodeToString(signature);
 	        System.out.println();
 	        System.out.println();
